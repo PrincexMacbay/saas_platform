@@ -19,7 +19,7 @@ router.use('/upload', uploadRoutes);
 router.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'HumHub Clone API is running',
+    message: 'Social Network API is running',
     timestamp: new Date().toISOString(),
   });
 });

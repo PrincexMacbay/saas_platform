@@ -308,9 +308,9 @@ const joinSpace = async (req, res) => {
 // Leave space
 const leaveSpace = async (req, res) => {
   try {
-    const { spaceId } = req.params;
+    const { identifier } = req.params;
     
-    const space = await Space.findByPk(spaceId);
+    const space = await Space.findByPk(identifier);
     if (!space) {
       return res.status(404).json({
         success: false,
@@ -329,7 +329,7 @@ const leaveSpace = async (req, res) => {
     const membership = await Membership.findOne({
       where: {
         userId: req.user.id,
-        spaceId: spaceId,
+        spaceId: identifier,
       },
     });
 
@@ -358,9 +358,9 @@ const leaveSpace = async (req, res) => {
 // Follow/unfollow space
 const toggleFollowSpace = async (req, res) => {
   try {
-    const { spaceId } = req.params;
+    const { identifier } = req.params;
     
-    const space = await Space.findByPk(spaceId);
+    const space = await Space.findByPk(identifier);
     if (!space || space.status !== 1) {
       return res.status(404).json({
         success: false,
@@ -372,7 +372,7 @@ const toggleFollowSpace = async (req, res) => {
     const membership = await Membership.findOne({
       where: {
         userId: req.user.id,
-        spaceId: spaceId,
+        spaceId: identifier,
       },
     });
 
@@ -387,7 +387,7 @@ const toggleFollowSpace = async (req, res) => {
       where: {
         userId: req.user.id,
         objectModel: 'Space',
-        objectId: spaceId,
+        objectId: identifier,
       },
     });
 
@@ -404,7 +404,7 @@ const toggleFollowSpace = async (req, res) => {
       await Follow.create({
         userId: req.user.id,
         objectModel: 'Space',
-        objectId: spaceId,
+        objectId: identifier,
       });
       res.json({
         success: true,

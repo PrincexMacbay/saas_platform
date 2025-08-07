@@ -3,14 +3,15 @@ const { body } = require('express-validator');
 const { User } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const emailService = require('../services/emailService');
+const { Op } = require('sequelize');
 
 // Validation rules
 const registerValidation = [
   body('username')
     .isLength({ min: 3, max: 100 })
     .withMessage('Username must be between 3 and 100 characters')
-    .isAlphanumeric()
-    .withMessage('Username must contain only letters and numbers'),
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('Username must contain only letters, numbers, and underscores'),
   body('email')
     .isEmail()
     .withMessage('Please provide a valid email')
@@ -49,12 +50,13 @@ const generateToken = (userId) => {
 // Register new user
 const register = async (req, res) => {
   try {
+    console.log('Registration request body:', req.body);
     const { username, email, password, firstName, lastName } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({
       where: {
-        $or: [
+        [Op.or]: [
           { email },
           { username }
         ]
@@ -112,7 +114,7 @@ const login = async (req, res) => {
     // Find user by username or email
     const user = await User.findOne({
       where: {
-        $or: [
+        [Op.or]: [
           { email: login },
           { username: login }
         ]

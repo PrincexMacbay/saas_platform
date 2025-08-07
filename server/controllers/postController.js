@@ -255,9 +255,9 @@ const getPosts = async (req, res) => {
 // Get single post
 const getPost = async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postid } = req.params;
     
-    const post = await Post.findByPk(postId, {
+    const post = await Post.findByPk(postid, {
       include: [
         {
           model: User,
@@ -352,10 +352,10 @@ const getPost = async (req, res) => {
 // Create comment
 const createComment = async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postid } = req.params;
     const { message } = req.body;
 
-    const post = await Post.findByPk(postId);
+    const post = await Post.findByPk(postid);
     if (!post || post.archived) {
       return res.status(404).json({
         success: false,
@@ -385,7 +385,7 @@ const createComment = async (req, res) => {
     const comment = await Comment.create({
       message,
       userId: req.user.id,
-      postId: postId,
+      postId: postid,
     });
 
     const commentWithAuthor = await Comment.findByPk(comment.id, {
@@ -427,9 +427,9 @@ const createComment = async (req, res) => {
 // Toggle like on post or comment
 const toggleLike = async (req, res) => {
   try {
-    const { objectModel, objectId } = req.params;
+    const { objectmodel, objectid } = req.params;
     
-    if (!['Post', 'Comment'].includes(objectModel)) {
+    if (!['Post', 'Comment'].includes(objectmodel)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid object model'
@@ -437,21 +437,21 @@ const toggleLike = async (req, res) => {
     }
 
     // Check if object exists
-    const Model = objectModel === 'Post' ? Post : Comment;
-    const object = await Model.findByPk(objectId);
+    const Model = objectmodel === 'Post' ? Post : Comment;
+    const object = await Model.findByPk(objectid);
     
     if (!object) {
       return res.status(404).json({
         success: false,
-        message: `${objectModel} not found`
+        message: `${objectmodel} not found`
       });
     }
 
     const existingLike = await Like.findOne({
       where: {
         userId: req.user.id,
-        objectModel,
-        objectId,
+        objectModel: objectmodel,
+        objectId: objectid,
       },
     });
 
@@ -460,19 +460,19 @@ const toggleLike = async (req, res) => {
       await existingLike.destroy();
       res.json({
         success: true,
-        message: `${objectModel} unliked successfully`,
+        message: `${objectmodel} unliked successfully`,
         data: { isLiked: false }
       });
     } else {
       // Like
       await Like.create({
         userId: req.user.id,
-        objectModel,
-        objectId,
+        objectModel: objectmodel,
+        objectId: objectid,
       });
       res.json({
         success: true,
-        message: `${objectModel} liked successfully`,
+        message: `${objectmodel} liked successfully`,
         data: { isLiked: true }
       });
     }

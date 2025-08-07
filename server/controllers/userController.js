@@ -178,16 +178,16 @@ const getUsers = async (req, res) => {
 // Follow/unfollow user
 const toggleFollow = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userid } = req.params;
     
-    if (parseInt(userId) === req.user.id) {
+    if (parseInt(userid) === req.user.id) {
       return res.status(400).json({
         success: false,
         message: 'Cannot follow yourself'
       });
     }
 
-    const targetUser = await User.findByPk(userId);
+    const targetUser = await User.findByPk(userid);
     if (!targetUser) {
       return res.status(404).json({
         success: false,
@@ -199,7 +199,7 @@ const toggleFollow = async (req, res) => {
       where: {
         userId: req.user.id,
         objectModel: 'User',
-        objectId: userId,
+        objectId: userid,
       },
     });
 
@@ -216,7 +216,7 @@ const toggleFollow = async (req, res) => {
       await Follow.create({
         userId: req.user.id,
         objectModel: 'User',
-        objectId: userId,
+        objectId: userid,
       });
 
       // Send follow notification email (async, don't wait for it)

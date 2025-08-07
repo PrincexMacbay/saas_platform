@@ -5,10 +5,10 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 // Public/optional auth routes
 router.get('/', optionalAuth, userController.getUsers);
-router.get('/:userId', optionalAuth, userController.getUser);
+router.get('/:userid', optionalAuth, userController.getUser);
 
 // Protected routes
 router.put('/profile', authenticateToken, userController.updateProfile);
-router.post('/:userId/follow', authenticateToken, userController.toggleFollow);
+router.post('/:userid/follow', authenticateToken, userController.toggleFollow);
 
 module.exports = router;
