@@ -98,6 +98,7 @@ const PostCard = ({ post, onUpdate }) => {
         {/* Post Attachment */}
         {post.attachmentUrl && (
           <div className="post-attachment" style={{ marginTop: '15px' }}>
+            {console.log('Post attachment URL:', post.attachmentUrl)}
             <img 
               src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${post.attachmentUrl}`}
               alt="Post attachment"
@@ -108,7 +109,11 @@ const PostCard = ({ post, onUpdate }) => {
                 border: '1px solid #e9ecef'
               }}
               onError={(e) => {
+                console.error('Image failed to load:', e.target.src);
                 e.target.style.display = 'none';
+              }}
+              onLoad={() => {
+                console.log('Image loaded successfully:', e.target.src);
               }}
             />
           </div>

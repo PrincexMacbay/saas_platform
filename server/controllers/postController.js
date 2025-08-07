@@ -32,6 +32,10 @@ const createCommentValidation = [
 // Create new post
 const createPost = async (req, res) => {
   try {
+    console.log('=== CREATE POST DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('attachmentUrl from request:', req.body.attachmentUrl);
+    
     const { message, visibility, spaceId, attachmentUrl } = req.body;
 
     // If posting to a space, check membership
@@ -60,6 +64,8 @@ const createPost = async (req, res) => {
       }
     }
 
+    console.log('Creating post with attachmentUrl:', attachmentUrl);
+    
     const post = await Post.create({
       message,
       visibility: visibility || 1,
@@ -67,6 +73,9 @@ const createPost = async (req, res) => {
       spaceId: spaceId || null,
       attachmentUrl: attachmentUrl || null,
     });
+    
+    console.log('Post created with ID:', post.id);
+    console.log('Saved attachmentUrl:', post.attachmentUrl);
 
     // Get post with author information
     const postWithAuthor = await Post.findByPk(post.id, {

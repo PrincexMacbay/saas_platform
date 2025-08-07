@@ -45,6 +45,8 @@ const Spaces = () => {
       loadSpaces(); // Reload to update follow status
     } catch (error) {
       console.error('Error following space:', error);
+      // Show user-friendly error message
+      alert(error.response?.data?.message || 'Error following space. You might already be a member.');
     }
     setActionLoading({ ...actionLoading, [spaceId]: false });
   };
@@ -167,7 +169,7 @@ const Spaces = () => {
                            space.joinPolicy === 2 ? 'Join' : 'Request to Join'}
                         </button>
                         
-                        {!space.isMember && (
+                        {!space.isMember && space.membershipStatus === null && (
                           <button
                             className={`btn btn-sm ${space.isFollowing ? 'btn-secondary' : 'btn-outline'}`}
                             onClick={() => handleFollowSpace(space.id)}

@@ -43,6 +43,7 @@ const PostWithAttachment = ({ onPostCreated, spaceId = null }) => {
         postData.attachmentUrl = attachmentUrl;
       }
 
+      console.log('Sending post data:', postData);
       await createPost(postData);
       
       // Reset form
