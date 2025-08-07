@@ -19,7 +19,7 @@ const User = sequelize.define('User', {
     unique: true,
     validate: {
       len: [3, 100],
-      isAlphanumeric: true,
+      is: /^[a-zA-Z0-9_]+$/, // Allow letters, numbers, and underscores
     },
   },
   email: {

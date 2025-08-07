@@ -40,6 +40,9 @@ const loginValidation = [
 
 // Generate JWT token
 const generateToken = (userId) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
   return jwt.sign(
     { userId },
     process.env.JWT_SECRET,
@@ -50,7 +53,15 @@ const generateToken = (userId) => {
 // Register new user
 const register = async (req, res) => {
   try {
-    console.log('Registration request body:', req.body);
+    console.log('=== REGISTRATION DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('Database config:', {
+      host: process.env.DB_HOST,
+      name: process.env.DB_NAME,
+      user: process.env.DB_USER
+    });
+    
     const { username, email, password, firstName, lastName } = req.body;
 
     // Check if user already exists
@@ -72,6 +83,8 @@ const register = async (req, res) => {
       });
     }
 
+    console.log('Creating user with data:', { username, email, firstName, lastName });
+    
     // Create new user
     const user = await User.create({
       username,
@@ -80,9 +93,13 @@ const register = async (req, res) => {
       firstName,
       lastName,
     });
+    
+    console.log('User created successfully:', user.id);
 
     // Generate token
+    console.log('Generating JWT token...');
     const token = generateToken(user.id);
+    console.log('Token generated successfully');
 
     // Send welcome email (async, don't wait for it)
     emailService.sendWelcomeEmail(user).catch(error => {
@@ -98,7 +115,36 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('=== REGISTRATION ERROR ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Full error:', error);
+    
+    // Check for specific error types
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: error.errors.map(err => ({
+          field: err.path,
+          message: err.message,
+          value: err.value
+        }))
+      });
+    }
+    
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Username or email already exists',
+        errors: error.errors.map(err => ({
+          field: err.path,
+          message: err.message
+        }))
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Internal server error',
