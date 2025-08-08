@@ -35,6 +35,9 @@ class EmailService {
         auth: {
           user: testAccount.user,
           pass: testAccount.pass
+        },
+        tls: {
+          rejectUnauthorized: false // Ignore SSL certificate issues in development
         }
       });
 
@@ -44,6 +47,17 @@ class EmailService {
       console.log('Preview URLs will be logged to console');
     } catch (error) {
       console.error('Failed to create test email account:', error);
+      // Fallback to a mock transporter that just logs emails
+      this.transporter = {
+        sendMail: async (mailOptions) => {
+          console.log('📧 MOCK EMAIL SENT (service unavailable):');
+          console.log('  To:', mailOptions.to);
+          console.log('  Subject:', mailOptions.subject);
+          console.log('  Content:', mailOptions.html ? mailOptions.html.substring(0, 100) + '...' : 'No content');
+          return { messageId: 'mock-' + Date.now() };
+        }
+      };
+      console.log('📧 Using mock email service (emails will be logged to console)');
     }
   }
 
@@ -74,8 +88,14 @@ class EmailService {
         previewUrl: nodemailer.getTestMessageUrl(info)
       };
     } catch (error) {
-      console.error('Email sending error:', error);
-      return { success: false, message: error.message };
+      console.error('📧 Email sending error:', error.message);
+      // Don't throw error, just log it and return failure
+      // This prevents email errors from breaking the application
+      return { 
+        success: false, 
+        message: error.message,
+        error: error.code || 'UNKNOWN_ERROR'
+      };
     }
   }
 

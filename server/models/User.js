@@ -74,6 +74,49 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  // Career Center fields
+  userType: {
+    type: DataTypes.ENUM('individual', 'company'),
+    allowNull: true,
+  },
+  // Individual fields
+  resume: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
+  workExperience: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  jobPreferences: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  // Company fields
+  companyName: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  companyLogo: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
+  industry: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
+  companySize: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  website: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  location: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
 }, {
   tableName: 'users',
   timestamps: true,

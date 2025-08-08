@@ -53,6 +53,14 @@ const Navbar = () => {
           </li>
           <li className="nav-item">
             <Link 
+              to="/career" 
+              className={`nav-link ${isActive('/career') ? 'active' : ''}`}
+            >
+              <i className="fas fa-briefcase"></i> Career Center
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
               to={`/profile/${user?.username}`}
               className={`nav-link ${location.pathname.includes('/profile/') ? 'active' : ''}`}
             >

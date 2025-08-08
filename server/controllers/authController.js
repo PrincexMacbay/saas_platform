@@ -102,8 +102,14 @@ const register = async (req, res) => {
     console.log('Token generated successfully');
 
     // Send welcome email (async, don't wait for it)
-    emailService.sendWelcomeEmail(user).catch(error => {
-      console.error('Failed to send welcome email:', error);
+    emailService.sendWelcomeEmail(user).then(result => {
+      if (result.success) {
+        console.log('📧 Welcome email sent successfully');
+      } else {
+        console.log('📧 Welcome email failed (non-critical):', result.message);
+      }
+    }).catch(error => {
+      console.log('📧 Welcome email error (non-critical):', error.message);
     });
 
     res.status(201).json({

@@ -10,6 +10,7 @@ import Spaces from './pages/Spaces';
 import SpaceDetail from './pages/SpaceDetail';
 import CreateSpace from './pages/CreateSpace';
 import Users from './pages/Users';
+import CareerCenter from './pages/CareerCenter';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -69,6 +70,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/career"
+                element={
+                  <ProtectedRoute>
+                    <CareerCenter />
                   </ProtectedRoute>
                 }
               />

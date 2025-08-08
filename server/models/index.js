@@ -6,6 +6,9 @@ const Comment = require('./Comment');
 const Membership = require('./Membership');
 const Follow = require('./Follow');
 const Like = require('./Like');
+const Job = require('./Job');
+const JobApplication = require('./JobApplication');
+const SavedJob = require('./SavedJob');
 
 // Define associations
 User.hasMany(Space, { 
@@ -116,6 +119,53 @@ Like.belongsTo(User, {
   as: 'user'
 });
 
+// Career Center relationships
+// Job relationships
+User.hasMany(Job, { 
+  foreignKey: 'userId',
+  as: 'postedJobs',
+  onDelete: 'CASCADE'
+});
+Job.belongsTo(User, { 
+  foreignKey: 'userId',
+  as: 'employer'
+});
+
+// Job Application relationships
+User.hasMany(JobApplication, { 
+  foreignKey: 'applicantId',
+  as: 'jobApplications',
+  onDelete: 'CASCADE'
+});
+JobApplication.belongsTo(User, { 
+  foreignKey: 'applicantId',
+  as: 'applicant'
+});
+
+Job.hasMany(JobApplication, { 
+  foreignKey: 'jobId',
+  as: 'applications',
+  onDelete: 'CASCADE'
+});
+JobApplication.belongsTo(Job, { 
+  foreignKey: 'jobId',
+  as: 'job'
+});
+
+// Saved Job relationships
+User.belongsToMany(Job, { 
+  through: SavedJob, 
+  foreignKey: 'userId',
+  otherKey: 'jobId',
+  as: 'savedJobs'
+});
+Job.belongsToMany(User, { 
+  through: SavedJob, 
+  foreignKey: 'jobId',
+  otherKey: 'userId',
+  as: 'savedByUsers'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -125,4 +175,7 @@ module.exports = {
   Membership,
   Follow,
   Like,
+  Job,
+  JobApplication,
+  SavedJob,
 };
