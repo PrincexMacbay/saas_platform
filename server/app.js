@@ -8,6 +8,7 @@ const path = require('path');
 
 const routes = require('./routes');
 const { sequelize } = require('./models');
+const seederService = require('./services/seederService');
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Logging middleware
+// Logging middleware - only in development
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
@@ -63,7 +64,10 @@ app.use('/*splat', (req, res) => {
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error('Global error handler:', error);
+  // Only log errors in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Global error handler:', error);
+  }
   
   // Sequelize validation errors
   if (error.name === 'SequelizeValidationError') {
@@ -118,10 +122,13 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
 
-    // Sync database (create tables)
+    // Sync database schema (without altering existing data)
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('Database synchronized successfully.');
+      await sequelize.sync();
+      console.log('Database schema synchronized.');
+      
+      // Seed database with initial data (only in development)
+      await seederService.seedDatabase();
     }
 
     const PORT = process.env.PORT || 5000;

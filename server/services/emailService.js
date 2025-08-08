@@ -41,29 +41,39 @@ class EmailService {
         }
       });
 
-      console.log('📧 Email service initialized with test account');
-      console.log('Test account user:', testAccount.user);
-      console.log('Test account pass:', testAccount.pass);
-      console.log('Preview URLs will be logged to console');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📧 Email service initialized with test account');
+        console.log('Test account user:', testAccount.user);
+        console.log('Test account pass:', testAccount.pass);
+        console.log('Preview URLs will be logged to console');
+      }
     } catch (error) {
-      console.error('Failed to create test email account:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to create test email account:', error);
+      }
       // Fallback to a mock transporter that just logs emails
       this.transporter = {
         sendMail: async (mailOptions) => {
-          console.log('📧 MOCK EMAIL SENT (service unavailable):');
-          console.log('  To:', mailOptions.to);
-          console.log('  Subject:', mailOptions.subject);
-          console.log('  Content:', mailOptions.html ? mailOptions.html.substring(0, 100) + '...' : 'No content');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('📧 MOCK EMAIL SENT (service unavailable):');
+            console.log('  To:', mailOptions.to);
+            console.log('  Subject:', mailOptions.subject);
+            console.log('  Content:', mailOptions.html ? mailOptions.html.substring(0, 100) + '...' : 'No content');
+          }
           return { messageId: 'mock-' + Date.now() };
         }
       };
-      console.log('📧 Using mock email service (emails will be logged to console)');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📧 Using mock email service (emails will be logged to console)');
+      }
     }
   }
 
   async sendEmail(to, subject, htmlContent, textContent = null) {
     if (!this.transporter) {
-      console.log('📧 Email service not initialized, skipping email');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📧 Email service not initialized, skipping email');
+      }
       return { success: false, message: 'Email service not available' };
     }
 
@@ -88,7 +98,9 @@ class EmailService {
         previewUrl: nodemailer.getTestMessageUrl(info)
       };
     } catch (error) {
-      console.error('📧 Email sending error:', error.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('📧 Email sending error:', error.message);
+      }
       // Don't throw error, just log it and return failure
       // This prevents email errors from breaking the application
       return { 

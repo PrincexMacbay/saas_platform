@@ -23,7 +23,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/dashboard" className="navbar-brand">
-          HumHub Clone
+          Social Network
         </Link>
         
         <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>

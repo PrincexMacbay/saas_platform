@@ -10,7 +10,9 @@ if (process.env.DB_DIALECT === 'sqlite') {
     storage: process.env.DB_STORAGE || './database.sqlite',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
   });
-  console.log('Using SQLite database for development');
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Using SQLite database for development');
+  }
 } else {
   // PostgreSQL configuration
   const config = {

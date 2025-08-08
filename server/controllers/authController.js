@@ -53,14 +53,12 @@ const generateToken = (userId) => {
 // Register new user
 const register = async (req, res) => {
   try {
-    console.log('=== REGISTRATION DEBUG ===');
-    console.log('Request body:', req.body);
-    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-    console.log('Database config:', {
-      host: process.env.DB_HOST,
-      name: process.env.DB_NAME,
-      user: process.env.DB_USER
-    });
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== REGISTRATION DEBUG ===');
+      console.log('Request body:', req.body);
+      console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    }
     
     const { username, email, password, firstName, lastName } = req.body;
 
@@ -83,8 +81,6 @@ const register = async (req, res) => {
       });
     }
 
-    console.log('Creating user with data:', { username, email, firstName, lastName });
-    
     // Create new user
     const user = await User.create({
       username,
@@ -93,23 +89,23 @@ const register = async (req, res) => {
       firstName,
       lastName,
     });
-    
-    console.log('User created successfully:', user.id);
 
     // Generate token
-    console.log('Generating JWT token...');
     const token = generateToken(user.id);
-    console.log('Token generated successfully');
 
     // Send welcome email (async, don't wait for it)
     emailService.sendWelcomeEmail(user).then(result => {
-      if (result.success) {
-        console.log('📧 Welcome email sent successfully');
-      } else {
-        console.log('📧 Welcome email failed (non-critical):', result.message);
+      if (process.env.NODE_ENV === 'development') {
+        if (result.success) {
+          console.log('📧 Welcome email sent successfully');
+        } else {
+          console.log('📧 Welcome email failed (non-critical):', result.message);
+        }
       }
     }).catch(error => {
-      console.log('📧 Welcome email error (non-critical):', error.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📧 Welcome email error (non-critical):', error.message);
+      }
     });
 
     res.status(201).json({
@@ -121,11 +117,13 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('=== REGISTRATION ERROR ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    console.error('Full error:', error);
+    // Only log errors in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('=== REGISTRATION ERROR ===');
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     
     // Check for specific error types
     if (error.name === 'SequelizeValidationError') {
