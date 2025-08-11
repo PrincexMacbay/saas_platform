@@ -1,0 +1,9 @@
+# ================= BACKEND ========================
+/server/.env*
+/server/node_modules
+
+
+
+# ================= FRONTEND ========================
+/client/.env*
+/client/node_modules
