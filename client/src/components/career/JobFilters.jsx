@@ -61,7 +61,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
         <div className="card-body">
           <form onSubmit={handleSubmit}>
             {/* Search */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="search" className="form-label">Search</label>
               <input
                 type="text"
@@ -75,7 +75,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Location */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="location" className="form-label">Location</label>
               <input
                 type="text"
@@ -89,7 +89,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Job Type */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="jobType" className="form-label">Job Type</label>
               <select
                 id="jobType"
@@ -108,7 +108,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Category */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="category" className="form-label">Category</label>
               <select
                 id="category"
@@ -127,7 +127,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Experience Level */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="experienceLevel" className="form-label">Experience Level</label>
               <select
                 id="experienceLevel"
@@ -146,7 +146,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Remote Work */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label htmlFor="remoteWork" className="form-label">Remote Work</label>
               <select
                 id="remoteWork"
@@ -162,7 +162,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Salary Range */}
-            <div className="mb-3">
+            <div className="form-group mb-3">
               <label className="form-label">Salary Range</label>
               <div className="row">
                 <div className="col-6">
@@ -189,7 +189,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="d-grid gap-2">
+            <div className="form-group d-grid gap-2">
               <button type="submit" className="btn btn-primary">
                 <i className="fas fa-search"></i> Apply Filters
               </button>

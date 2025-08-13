@@ -6,17 +6,23 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
 
-
 const routes = require("./routes");
 const { sequelize } = require("./models");
 
-
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware with modified CSP for images
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "img-src": ["'self'", "data:", "https:", "http:"],
+    },
+  },
+}));
 
-// CORS configuration
+// CORS configuration - more permissive for development
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -27,25 +33,29 @@ app.use(
       const allowedOrigins = [
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:5173",
         process.env.CLIENT_URL,
       ].filter(Boolean); // Remove any undefined values
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
+        console.warn(`CORS blocked origin: ${origin}`);
         return callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
-
-
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
-
 } else {
   app.use(morgan("combined"));
 }
@@ -54,25 +64,32 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Static files for uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Static files for uploads - with proper headers
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  setHeaders: (res, filePath) => {
+    // Set CORS headers for static files
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Set appropriate content type based on file extension
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filePath.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (filePath.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+  }
+}));
 
 // API routes
 app.use("/api", routes);
 
-// 404 handler
-app.use("/*splat", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
-
 // Global error handler
 app.use((error, req, res, next) => {
-
   console.error("Global error handler:", error);
-
 
   // Sequelize validation errors
   if (error.name === "SequelizeValidationError") {
@@ -82,6 +99,7 @@ app.use((error, req, res, next) => {
       errors: error.errors.map((err) => ({
         field: err.path,
         message: err.message,
+        value: err.value,
       })),
     });
   }
@@ -95,6 +113,14 @@ app.use((error, req, res, next) => {
         field: err.path,
         message: `${err.path} already exists`,
       })),
+    });
+  }
+
+  // Sequelize database connection errors
+  if (error.name === "SequelizeConnectionError") {
+    return res.status(500).json({
+      success: false,
+      message: "Database connection error",
     });
   }
 
@@ -113,10 +139,22 @@ app.use((error, req, res, next) => {
     });
   }
 
+  // CORS errors
+  if (error.message.includes("CORS")) {
+    return res.status(403).json({
+      success: false,
+      message: "CORS policy violation",
+    });
+  }
+
   // Default error
   res.status(error.status || 500).json({
     success: false,
     message: error.message || "Internal server error",
+    ...(process.env.NODE_ENV === 'development' && { 
+      stack: error.stack,
+      details: error 
+    }),
   });
 });
 
@@ -126,7 +164,6 @@ const startServer = async () => {
     // Test database connection
     await sequelize.authenticate();
     console.log("Database connection established successfully.");
-
 
     // Sync database (create tables)
     if (process.env.NODE_ENV === "development") {
@@ -138,6 +175,7 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`Static files served from: ${path.join(__dirname, "uploads")}`);
     });
   } catch (error) {
     console.error("Unable to start server:", error);

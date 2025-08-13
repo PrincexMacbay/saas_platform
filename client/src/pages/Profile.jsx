@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getUser, updateProfile, toggleFollowUser } from '../services/userService';
+import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
+import { getSpaces } from '../services/spaceService';
 import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,11 +11,15 @@ const Profile = () => {
   const { identifier } = useParams();
   const [profileUser, setProfileUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [userSpaces, setUserSpaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
   const [actionLoading, setActionLoading] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [activeTab, setActiveTab] = useState('posts');
   const { user, updateUser } = useAuth();
 
   const isOwnProfile = user && profileUser && user.id === profileUser.id;
@@ -26,12 +31,15 @@ const Profile = () => {
   const loadProfileData = async () => {
     setIsLoading(true);
     try {
-      const [userResponse, postsResponse] = await Promise.all([
+      const [userResponse, postsResponse, spacesResponse] = await Promise.all([
         getUser(identifier),
-        getPosts({ userId: identifier, limit: 20 })
+        getPosts({ userId: identifier, limit: 20 }),
+        getSpaces({ userId: identifier, limit: 50 })
       ]);
+      
       setProfileUser(userResponse.data.user);
       setPosts(postsResponse.data.posts);
+      setUserSpaces(spacesResponse.data.spaces);
       
       if (userResponse.data.user.id === user?.id) {
         setEditData({
@@ -40,6 +48,20 @@ const Profile = () => {
           about: userResponse.data.user.about || '',
           visibility: userResponse.data.user.visibility || 1,
         });
+      }
+
+      // Load followers and following
+      if (userResponse.data.user) {
+        try {
+          const [followersResponse, followingResponse] = await Promise.all([
+            getFollowers(userResponse.data.user.id),
+            getFollowing(userResponse.data.user.id)
+          ]);
+          setFollowers(followersResponse.data.followers || []);
+          setFollowing(followingResponse.data.following || []);
+        } catch (error) {
+          console.error('Error loading followers/following:', error);
+        }
       }
     } catch (error) {
       console.error('Error loading profile data:', error);
@@ -89,6 +111,17 @@ const Profile = () => {
       case 3: return 'Hidden';
       default: return 'Unknown';
     }
+  };
+
+  const getProfession = (user) => {
+    if (user.userType === 'company' && user.companyName) {
+      return `Company: ${user.companyName}`;
+    } else if (user.userType === 'individual' && user.workExperience) {
+      return user.workExperience.split('\n')[0]; // First line of work experience
+    } else if (user.userType) {
+      return user.userType.charAt(0).toUpperCase() + user.userType.slice(1);
+    }
+    return 'Not specified';
   };
 
   if (isLoading) {
@@ -155,6 +188,9 @@ const Profile = () => {
               <p style={{ margin: 0, color: '#7f8c8d', fontSize: '16px' }}>
                 @{profileUser.username}
               </p>
+              <p style={{ margin: '5px 0', color: '#3498db', fontSize: '14px' }}>
+                {getProfession(profileUser)}
+              </p>
               {profileUser.about && (
                 <p style={{ marginTop: '10px', lineHeight: '1.6' }}>
                   {profileUser.about}
@@ -191,24 +227,41 @@ const Profile = () => {
             </div>
           </div>
 
+          {/* Profile Stats */}
           <div className="row">
-            <div className="col-3">
+            <div className="col-2">
               <div className="text-center">
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  Joined {new Date(profileUser.createdAt).toLocaleDateString()}
+                  {followers.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Member since</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Followers</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-2">
               <div className="text-center">
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {profileUser.ownedSpaces?.length || 0}
+                  {following.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Spaces owned</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Following</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-2">
+              <div className="text-center">
+                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
+                  {userSpaces.length}
+                </div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Spaces</div>
+              </div>
+            </div>
+            <div className="col-2">
+              <div className="text-center">
+                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
+                  {posts.length}
+                </div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Posts</div>
+              </div>
+            </div>
+            <div className="col-2">
               <div className="text-center">
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
                   {getVisibilityText(profileUser.visibility)}
@@ -216,7 +269,7 @@ const Profile = () => {
                 <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Profile visibility</div>
               </div>
             </div>
-            <div className="col-3">
+            <div className="col-2">
               <div className="text-center">
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
                   {profileUser.lastLogin 
@@ -329,58 +382,225 @@ const Profile = () => {
         </div>
       )}
 
-      <div className="dashboard-content">
-        <div className="main-feed">
-          <h3>Posts by {profileUser.firstName && profileUser.lastName
-            ? `${profileUser.firstName} ${profileUser.lastName}`
-            : profileUser.username}</h3>
-          
-          <div className="posts-feed">
-            {posts.length === 0 ? (
-              <div className="card text-center">
-                <p>{isOwnProfile ? 'You haven\'t posted anything yet.' : 'No posts to show.'}</p>
-              </div>
-            ) : (
-              posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onUpdate={loadProfileData}
-                />
-              ))
-            )}
-          </div>
+      {/* Profile Tabs */}
+      <div className="card mb-4">
+        <div className="card-header">
+          <ul className="nav nav-tabs card-header-tabs">
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'posts' ? 'active' : ''}`}
+                onClick={() => setActiveTab('posts')}
+              >
+                <i className="fas fa-file-alt me-2"></i> Posts ({posts.length})
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'spaces' ? 'active' : ''}`}
+                onClick={() => setActiveTab('spaces')}
+              >
+                <i className="fas fa-users me-2"></i> Spaces ({userSpaces.length})
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'followers' ? 'active' : ''}`}
+                onClick={() => setActiveTab('followers')}
+              >
+                <i className="fas fa-user-plus me-2"></i> Followers ({followers.length})
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === 'following' ? 'active' : ''}`}
+                onClick={() => setActiveTab('following')}
+              >
+                <i className="fas fa-user-friends me-2"></i> Following ({following.length})
+              </button>
+            </li>
+          </ul>
         </div>
-
-        <div className="sidebar">
-          {profileUser.ownedSpaces && profileUser.ownedSpaces.length > 0 && (
-            <>
-              <div className="sidebar-title">Owned Spaces</div>
-              <div className="spaces-list">
-                {profileUser.ownedSpaces.map((space) => (
-                  <div key={space.id} className="space-item" style={{ marginBottom: '10px' }}>
-                    <a href={`/spaces/${space.url || space.id}`} style={{ textDecoration: 'none' }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center',
-                        padding: '8px',
-                        borderRadius: '5px',
-                        backgroundColor: '#f8f9fa'
-                      }}>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '3px',
-                          backgroundColor: '#3498db',
-                          marginRight: '8px'
-                        }}></div>
-                        <span style={{ fontSize: '14px' }}>{space.name}</span>
-                      </div>
-                    </a>
+        <div className="card-body">
+          {/* Posts Tab */}
+          {activeTab === 'posts' && (
+            <div>
+              <h4>Posts by {profileUser.firstName && profileUser.lastName
+                ? `${profileUser.firstName} ${profileUser.lastName}`
+                : profileUser.username}</h4>
+              
+              <div className="posts-feed">
+                {posts.length === 0 ? (
+                  <div className="text-center py-4">
+                    <i className="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                    <p>{isOwnProfile ? 'You haven\'t posted anything yet.' : 'No posts to show.'}</p>
                   </div>
-                ))}
+                ) : (
+                  posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onUpdate={loadProfileData}
+                    />
+                  ))
+                )}
               </div>
-            </>
+            </div>
+          )}
+
+          {/* Spaces Tab */}
+          {activeTab === 'spaces' && (
+            <div>
+              <h4>Spaces</h4>
+              {userSpaces.length === 0 ? (
+                <div className="text-center py-4">
+                  <i className="fas fa-users fa-3x text-muted mb-3"></i>
+                  <p>{isOwnProfile ? 'You haven\'t joined any spaces yet.' : 'No spaces to show.'}</p>
+                </div>
+              ) : (
+                <div className="row">
+                  {userSpaces.map((space) => (
+                    <div key={space.id} className="col-md-6 col-lg-4 mb-3">
+                      <div className="card h-100">
+                        <div className="card-body">
+                          <h6 className="card-title">{space.name}</h6>
+                          <p className="card-text text-muted small">
+                            {space.description && space.description.length > 100 
+                              ? `${space.description.substring(0, 100)}...` 
+                              : space.description}
+                          </p>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <small className="text-muted">
+                              {space.membersCount || 0} members
+                            </small>
+                            <a href={`/spaces/${space.url || space.id}`} className="btn btn-sm btn-outline-primary">
+                              View Space
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Followers Tab */}
+          {activeTab === 'followers' && (
+            <div>
+              <h4>Followers</h4>
+              {followers.length === 0 ? (
+                <div className="text-center py-4">
+                  <i className="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                  <p>No followers yet.</p>
+                </div>
+              ) : (
+                <div className="row">
+                  {followers.map((follower) => (
+                    <div key={follower.id} className="col-md-6 col-lg-4 mb-3">
+                      <div className="card">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <div className="user-avatar-sm me-3">
+                              {follower.profileImage ? (
+                                <img 
+                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${follower.profileImage}`}
+                                  alt={follower.username}
+                                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '50%',
+                                  backgroundColor: '#3498db',
+                                  color: 'white',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '16px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  {getInitials(follower)}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h6 className="mb-1">
+                                {follower.firstName && follower.lastName
+                                  ? `${follower.firstName} ${follower.lastName}`
+                                  : follower.username}
+                              </h6>
+                              <p className="mb-1 text-muted small">@{follower.username}</p>
+                              <p className="mb-0 text-muted small">{getProfession(follower)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Following Tab */}
+          {activeTab === 'following' && (
+            <div>
+              <h4>Following</h4>
+              {following.length === 0 ? (
+                <div className="text-center py-4">
+                  <i className="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                  <p>{isOwnProfile ? 'You\'re not following anyone yet.' : 'Not following anyone.'}</p>
+                </div>
+              ) : (
+                <div className="row">
+                  {following.map((followed) => (
+                    <div key={followed.id} className="col-md-6 col-lg-4 mb-3">
+                      <div className="card">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <div className="user-avatar-sm me-3">
+                              {followed.profileImage ? (
+                                <img 
+                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${followed.profileImage}`}
+                                  alt={followed.username}
+                                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <div style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '50%',
+                                  backgroundColor: '#3498db',
+                                  color: 'white',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '16px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  {getInitials(followed)}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h6 className="mb-1">
+                                {followed.firstName && followed.lastName
+                                  ? `${followed.firstName} ${followed.lastName}`
+                                  : followed.username}
+                              </h6>
+                              <p className="mb-1 text-muted small">@{followed.username}</p>
+                              <p className="mb-0 text-muted small">{getProfession(followed)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

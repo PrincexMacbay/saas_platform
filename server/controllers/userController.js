@@ -29,13 +29,39 @@ const getUser = async (req, res) => {
   try {
     const { identifier } = req.params;
     
+    console.log(`=== GET USER DEBUG ===`);
+    console.log(`Looking for user: ${identifier}`);
+    console.log(`Identifier type: ${typeof identifier}`);
+    
     // Check if identifier is numeric (ID) or string (username)
     const isNumeric = /^\d+$/.test(identifier);
+    console.log(`Is numeric: ${isNumeric}`);
     
+    // Build the where clause
+    const whereClause = isNumeric 
+      ? { id: parseInt(identifier) }
+      : { username: identifier };
+    
+    console.log('Where clause:', JSON.stringify(whereClause, null, 2));
+    
+    // First, try to find the user without includes to see if the user exists
+    const basicUser = await User.findOne({
+      where: whereClause,
+    });
+    
+    if (!basicUser) {
+      console.log(`User not found with identifier: ${identifier}`);
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    console.log(`Found basic user: ${basicUser.username} (ID: ${basicUser.id})`);
+    
+    // Now try with includes
     const user = await User.findOne({
-      where: isNumeric 
-        ? { id: identifier }
-        : { username: identifier },
+      where: whereClause,
       include: [
         {
           model: Space,
@@ -47,15 +73,11 @@ const getUser = async (req, res) => {
       ],
     });
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    console.log(`Found user with includes: ${user ? user.username : 'null'}`);
 
     // Check privacy settings
     if (user.visibility === 3 && (!req.user || req.user.id !== user.id)) {
+      console.log(`User ${user.username} has private visibility`);
       return res.status(404).json({
         success: false,
         message: 'User not found'
@@ -78,6 +100,7 @@ const getUser = async (req, res) => {
     const userData = user.toJSON();
     userData.isFollowing = isFollowing;
 
+    console.log(`Successfully returning user data for: ${user.username}`);
     res.json({
       success: true,
       data: {
@@ -85,10 +108,22 @@ const getUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('=== GET USER ERROR ===');
+    console.error('Error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    
     res.status(500).json({
       success: false,
       message: 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { 
+        error: error.message,
+        stack: error.stack 
+      }),
     });
   }
 };
@@ -180,6 +215,8 @@ const toggleFollow = async (req, res) => {
   try {
     const { userid } = req.params;
     
+    console.log(`User ${req.user.id} attempting to follow/unfollow user ${userid}`);
+    
     if (parseInt(userid) === req.user.id) {
       return res.status(400).json({
         success: false,
@@ -189,6 +226,7 @@ const toggleFollow = async (req, res) => {
 
     const targetUser = await User.findByPk(userid);
     if (!targetUser) {
+      console.log(`Target user ${userid} not found`);
       return res.status(404).json({
         success: false,
         message: 'User not found'
@@ -205,6 +243,7 @@ const toggleFollow = async (req, res) => {
 
     if (existingFollow) {
       // Unfollow
+      console.log(`User ${req.user.id} unfollowing user ${userid}`);
       await existingFollow.destroy();
       res.json({
         success: true,
@@ -213,6 +252,7 @@ const toggleFollow = async (req, res) => {
       });
     } else {
       // Follow
+      console.log(`User ${req.user.id} following user ${userid}`);
       await Follow.create({
         userId: req.user.id,
         objectModel: 'User',
@@ -220,9 +260,11 @@ const toggleFollow = async (req, res) => {
       });
 
       // Send follow notification email (async, don't wait for it)
-      emailService.sendFollowerNotification(req.user, targetUser).catch(error => {
-        console.error('Failed to send follower notification:', error);
-      });
+      if (emailService && emailService.sendFollowerNotification) {
+        emailService.sendFollowerNotification(req.user, targetUser).catch(error => {
+          console.error('Failed to send follower notification:', error);
+        });
+      }
 
       res.json({
         success: true,
@@ -232,6 +274,100 @@ const toggleFollow = async (req, res) => {
     }
   } catch (error) {
     console.error('Toggle follow error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { 
+        error: error.message,
+        stack: error.stack 
+      }),
+    });
+  }
+};
+
+// Get user's followers
+const getFollowers = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const followers = await Follow.findAll({
+      where: {
+        objectModel: 'User',
+        objectId: userid,
+      },
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Get the actual user data for each follower
+    const followerIds = followers.map(follow => follow.userId);
+    const followerUsers = await User.findAll({
+      where: {
+        id: followerIds
+      },
+      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage', 'userType', 'companyName', 'workExperience'],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        followers: followerUsers,
+      }
+    });
+  } catch (error) {
+    console.error('Get followers error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Get users that the user is following
+const getFollowing = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const following = await Follow.findAll({
+      where: {
+        userId: userid,
+        objectModel: 'User',
+      },
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Get the actual user data for each followed user
+    const followedIds = following.map(follow => follow.objectId);
+    const followedUsers = await User.findAll({
+      where: {
+        id: followedIds
+      },
+      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage', 'userType', 'companyName', 'workExperience'],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        following: followedUsers,
+      }
+    });
+  } catch (error) {
+    console.error('Get following error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -244,4 +380,6 @@ module.exports = {
   updateProfile: [updateProfileValidation, handleValidationErrors, updateProfile],
   getUsers,
   toggleFollow,
+  getFollowers,
+  getFollowing,
 };

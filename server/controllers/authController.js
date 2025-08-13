@@ -53,12 +53,11 @@ const generateToken = (userId) => {
 // Register new user
 const register = async (req, res) => {
   try {
-    // Only log in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('=== REGISTRATION DEBUG ===');
-      console.log('Request body:', req.body);
-      console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-    }
+    // Always log registration attempts for debugging
+    console.log('=== REGISTRATION DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('Content-Type:', req.headers['content-type']);
     
     const { username, email, password, firstName, lastName } = req.body;
 
@@ -127,6 +126,7 @@ const register = async (req, res) => {
     
     // Check for specific error types
     if (error.name === 'SequelizeValidationError') {
+      console.log('Validation errors:', error.errors);
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -139,6 +139,7 @@ const register = async (req, res) => {
     }
     
     if (error.name === 'SequelizeUniqueConstraintError') {
+      console.log('Unique constraint errors:', error.errors);
       return res.status(400).json({
         success: false,
         message: 'Username or email already exists',

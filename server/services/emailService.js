@@ -219,6 +219,34 @@ class EmailService {
 
     return await this.sendEmail(user.email, subject, html);
   }
+
+  // Template for space join request notification
+  async sendSpaceJoinRequestNotification(requester, space, spaceOwner) {
+    const subject = `New join request for "${space.name}"`;
+    const html = `
+      <h2>New Space Join Request</h2>
+      <p>Hi ${spaceOwner.firstName || spaceOwner.username},</p>
+      <p><strong>${requester.firstName || requester.username}</strong> (@${requester.username}) has requested to join your space <strong>"${space.name}"</strong>!</p>
+      ${requester.about ? `<p><em>"${requester.about}"</em></p>` : ''}
+      <p>
+        <a href="${process.env.CLIENT_URL}/profile/${requester.username}" 
+           style="background: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+          View Profile
+        </a>
+        <a href="${process.env.CLIENT_URL}/spaces/${space.url || space.id}" 
+           style="background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+          Manage Space
+        </a>
+      </p>
+      <hr>
+      <p style="color: #666; font-size: 12px;">
+        You received this because you own this space. 
+        You can approve or reject this request in your space management panel.
+      </p>
+    `;
+
+    return await this.sendEmail(spaceOwner.email, subject, html);
+  }
 }
 
 // Export singleton instance

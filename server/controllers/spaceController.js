@@ -244,10 +244,18 @@ const getSpaces = async (req, res) => {
 // Join space
 const joinSpace = async (req, res) => {
   try {
-    const { spaceId } = req.params;
+    const { identifier } = req.params;
     
-    const space = await Space.findByPk(spaceId);
+    console.log(`User ${req.user.id} attempting to join space ${identifier}`);
+    
+    // Find space by ID or URL
+    const isNumeric = /^\d+$/.test(identifier);
+    const space = await Space.findOne({
+      where: isNumeric ? { id: identifier } : { url: identifier }
+    });
+    
     if (!space || space.status !== 1) {
+      console.log(`Space ${identifier} not found or not active`);
       return res.status(404).json({
         success: false,
         message: 'Space not found'
@@ -258,42 +266,84 @@ const joinSpace = async (req, res) => {
     const existingMembership = await Membership.findOne({
       where: {
         userId: req.user.id,
-        spaceId: spaceId,
+        spaceId: space.id,
       },
     });
 
     if (existingMembership) {
-      return res.status(400).json({
-        success: false,
-        message: 'Already a member of this space'
-      });
+      console.log(`User ${req.user.id} already member of space ${space.id} with status ${existingMembership.status}`);
+      
+      // If user is already a member (status > 0), return success
+      if (existingMembership.status > 0) {
+        return res.status(200).json({
+          success: true,
+          message: 'You are already a member of this space',
+          data: {
+            membershipStatus: existingMembership.status,
+            alreadyMember: true,
+          }
+        });
+      }
+      
+      // If user has a pending request (status = 0), return appropriate message
+      if (existingMembership.status === 0) {
+        return res.status(200).json({
+          success: true,
+          message: 'Your membership request is pending approval',
+          data: {
+            membershipStatus: 0,
+            pending: true,
+          }
+        });
+      }
     }
 
     // Check join policy
     if (space.joinPolicy === 0) {
+      console.log(`Space ${space.id} does not allow self-joining`);
       return res.status(403).json({
         success: false,
         message: 'This space does not allow self-joining'
       });
     }
 
+    // Determine membership status based on join policy
+    // joinPolicy: 0 = no self join, 1 = application required, 2 = free join
     const membershipStatus = space.joinPolicy === 2 ? 1 : 0; // Free join vs application required
 
-    await Membership.create({
+    console.log(`Creating membership for user ${req.user.id} in space ${space.id} with status ${membershipStatus}`);
+
+    const membership = await Membership.create({
       userId: req.user.id,
-      spaceId: spaceId,
+      spaceId: space.id,
       status: membershipStatus,
     });
+
+    // Send notification to space owner if it's a request
+    if (membershipStatus === 0 && space.ownerId !== req.user.id) {
+      try {
+        const spaceOwner = await User.findByPk(space.ownerId);
+        const emailService = require('../services/emailService');
+        emailService.sendSpaceJoinRequestNotification(req.user, space, spaceOwner).catch(error => {
+          console.error('Failed to send space join request notification:', error);
+        });
+      } catch (error) {
+        console.error('Error sending space join notification:', error);
+      }
+    }
 
     const message = membershipStatus === 1 
       ? 'Joined space successfully' 
       : 'Application submitted successfully';
+
+    console.log(`Membership created successfully: ${message}`);
 
     res.json({
       success: true,
       message,
       data: {
         membershipStatus,
+        membership: membership.toJSON(),
       }
     });
   } catch (error) {
@@ -301,6 +351,7 @@ const joinSpace = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };

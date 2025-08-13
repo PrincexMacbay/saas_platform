@@ -153,7 +153,39 @@ const getPosts = async (req, res) => {
 
     // Filter by user
     if (userId) {
-      whereClause.userId = userId;
+      // Debug logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== GET POSTS DEBUG ===');
+        console.log('userId:', userId);
+        console.log('userId type:', typeof userId);
+      }
+      
+      // Check if userId is numeric (ID) or string (username)
+      const isNumeric = /^\d+$/.test(userId);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Is numeric:', isNumeric);
+      }
+      
+      if (isNumeric) {
+        // It's a numeric ID, use it directly
+        whereClause.userId = userId;
+      } else {
+        // It's a username, find the user first
+        const user = await User.findOne({
+          where: { username: userId },
+          attributes: ['id']
+        });
+        
+        if (!user) {
+          return res.status(404).json({
+            success: false,
+            message: 'User not found'
+          });
+        }
+        
+        whereClause.userId = user.id;
+      }
     }
 
     // For personal feed, show posts from followed users/spaces and own posts

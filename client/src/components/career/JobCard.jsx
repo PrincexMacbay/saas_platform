@@ -57,7 +57,7 @@ const JobCard = ({ job, onSaveToggle }) => {
               )}
               <div>
                 <h5 className="card-title mb-1">
-                  <Link to={`/career/jobs/${job.id}`} className="text-decoration-none">
+                  <Link to={`/career/job/${job.id}`} className="text-decoration-none">
                     {job.title}
                   </Link>
                 </h5>
@@ -122,7 +122,7 @@ const JobCard = ({ job, onSaveToggle }) => {
         <div className="mt-3 pt-3 border-top">
           <div className="d-flex justify-content-between align-items-center">
             <Link 
-              to={`/career/jobs/${job.id}`} 
+              to={`/career/job/${job.id}`} 
               className="btn btn-primary btn-sm"
             >
               View Details

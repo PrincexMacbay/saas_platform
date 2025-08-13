@@ -7,10 +7,13 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Spaces from './pages/Spaces';
+import MySpaces from './pages/MySpaces';
 import SpaceDetail from './pages/SpaceDetail';
 import CreateSpace from './pages/CreateSpace';
 import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
+import JobDetail from './components/career/JobDetail';
+import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -24,6 +27,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/debug" element={<DebugRegistration />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route
                 path="/dashboard"
@@ -46,6 +50,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Spaces />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/spaces/my-spaces"
+                element={
+                  <ProtectedRoute>
+                    <MySpaces />
                   </ProtectedRoute>
                 }
               />
@@ -78,6 +90,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <CareerCenter />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/career/job/:jobId"
+                element={
+                  <ProtectedRoute>
+                    <JobDetail />
                   </ProtectedRoute>
                 }
               />

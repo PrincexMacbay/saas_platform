@@ -97,7 +97,7 @@ Comment.belongsTo(Post, {
   as: 'post'
 });
 
-// Follow relationships
+// Follow relationships - simple associations
 User.hasMany(Follow, { 
   foreignKey: 'userId',
   as: 'following',
@@ -164,6 +164,16 @@ Job.belongsToMany(User, {
   foreignKey: 'jobId',
   otherKey: 'userId',
   as: 'savedByUsers'
+});
+
+// Direct SavedJob associations for easier querying
+SavedJob.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user'
+});
+SavedJob.belongsTo(Job, {
+  foreignKey: 'jobId',
+  as: 'job'
 });
 
 module.exports = {

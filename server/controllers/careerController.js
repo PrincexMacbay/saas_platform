@@ -504,11 +504,11 @@ const getSavedJobs = async (req, res) => {
     res.json({
       success: true,
       data: {
-        savedJobs,
+        jobs: savedJobs.map(savedJob => savedJob.job),
         pagination: {
           currentPage: page,
           totalPages,
-          totalSavedJobs: count,
+          totalJobs: count,
           hasNext: page < totalPages,
           hasPrev: page > 1,
         },
