@@ -6,16 +6,27 @@ const Spaces = () => {
   const [spaces, setSpaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [actionLoading, setActionLoading] = useState({});
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Load spaces when debounced search changes
   useEffect(() => {
     loadSpaces();
-  }, [search]);
+  }, [debouncedSearch]);
 
   const loadSpaces = async () => {
     setIsLoading(true);
     try {
-      const response = await getSpaces({ search, limit: 50 });
+      const response = await getSpaces({ search: debouncedSearch, limit: 50 });
       setSpaces(response.data.spaces);
     } catch (error) {
       console.error('Error loading spaces:', error);
@@ -28,10 +39,32 @@ const Spaces = () => {
     
     setActionLoading({ ...actionLoading, [spaceId]: true });
     try {
-      await joinSpace(spaceId);
-      loadSpaces(); // Reload to update membership status
+      const response = await joinSpace(spaceId);
+      
+      // Update the space's membership status locally
+      setSpaces(prevSpaces => 
+        prevSpaces.map(space => {
+          if (space.id === spaceId) {
+            return {
+              ...space,
+              isMember: response.data.isMember,
+              membershipStatus: response.data.membershipStatus,
+              isPending: response.data.isPending,
+            };
+          }
+          return space;
+        })
+      );
+      
+      // Show success message
+      if (response.data.isMember) {
+        alert('Successfully joined the space!');
+      } else if (response.data.isPending) {
+        alert('Your request has been submitted and is pending approval.');
+      }
     } catch (error) {
       console.error('Error joining space:', error);
+      alert(error.response?.data?.message || 'Error joining space');
     }
     setActionLoading({ ...actionLoading, [spaceId]: false });
   };
@@ -41,8 +74,15 @@ const Spaces = () => {
     
     setActionLoading({ ...actionLoading, [spaceId]: true });
     try {
-      await toggleFollowSpace(spaceId);
-      loadSpaces(); // Reload to update follow status
+      const response = await toggleFollowSpace(spaceId);
+      // Update the local state instead of reloading all data
+      setSpaces(prevSpaces => 
+        prevSpaces.map(space => 
+          space.id === spaceId 
+            ? { ...space, isFollowing: response.data.isFollowing }
+            : space
+        )
+      );
     } catch (error) {
       console.error('Error following space:', error);
       // Show user-friendly error message
@@ -67,6 +107,32 @@ const Spaces = () => {
       case 2: return 'Public';
       default: return 'Unknown';
     }
+  };
+
+  const getMembershipButtonText = (space) => {
+    if (space.isMember) {
+      return 'Member';
+    } else if (space.membershipStatus === 0) {
+      return 'Request Sent';
+    } else if (space.joinPolicy === 2) {
+      return 'Join';
+    } else {
+      return 'Request to Join';
+    }
+  };
+
+  const getMembershipButtonClass = (space) => {
+    if (space.isMember) {
+      return 'btn-success';
+    } else if (space.membershipStatus === 0) {
+      return 'btn-secondary';
+    } else {
+      return 'btn-primary';
+    }
+  };
+
+  const isMembershipButtonDisabled = (space) => {
+    return space.isMember || space.membershipStatus === 0;
   };
 
   if (isLoading) {
@@ -149,24 +215,19 @@ const Spaces = () => {
                   </div>
 
                   <div>
-                    {space.isMember ? (
-                      <span className="btn btn-success btn-sm" style={{ cursor: 'default' }}>
-                        <i className="fas fa-check"></i> Member
-                      </span>
-                    ) : space.joinPolicy === 0 ? (
+                    {space.joinPolicy === 0 ? (
                       <span className="btn btn-secondary btn-sm" style={{ cursor: 'default' }}>
                         Invitation Only
                       </span>
                     ) : (
                       <div>
                         <button
-                          className="btn btn-primary btn-sm"
+                          className={`btn ${getMembershipButtonClass(space)} btn-sm`}
                           onClick={() => handleJoinSpace(space.id)}
-                          disabled={actionLoading[space.id]}
+                          disabled={actionLoading[space.id] || isMembershipButtonDisabled(space)}
                           style={{ marginBottom: '5px', width: '100%' }}
                         >
-                          {actionLoading[space.id] ? 'Joining...' : 
-                           space.joinPolicy === 2 ? 'Join' : 'Request to Join'}
+                          {actionLoading[space.id] ? 'Processing...' : getMembershipButtonText(space)}
                         </button>
                         
                         {!space.isMember && space.membershipStatus === null && (

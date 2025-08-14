@@ -220,7 +220,7 @@ const Navbar = () => {
                   View Profile
                 </Link>
                 <Link 
-                  to="/profile/edit"
+                  to={`/profile/${user.username}?edit=true`}
                   className="dropdown-item"
                   onClick={() => setIsProfileDropdownOpen(false)}
                   style={{

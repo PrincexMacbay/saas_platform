@@ -217,6 +217,37 @@ const getSpaces = async (req, res) => {
       ],
     });
 
+    // Add membership information for each space if user is logged in
+    if (req.user) {
+      const spaceIds = spaces.map(space => space.id);
+      const memberships = await Membership.findAll({
+        where: {
+          userId: req.user.id,
+          spaceId: { [Op.in]: spaceIds },
+        },
+      });
+
+      const follows = await Follow.findAll({
+        where: {
+          userId: req.user.id,
+          objectModel: 'Space',
+          objectId: { [Op.in]: spaceIds },
+        },
+      });
+
+      const membershipMap = new Map(memberships.map(m => [m.spaceId, m]));
+      const followMap = new Map(follows.map(f => [f.objectId, f]));
+
+      spaces.forEach(space => {
+        const membership = membershipMap.get(space.id);
+        const follow = followMap.get(space.id);
+        
+        space.dataValues.isMember = !!membership;
+        space.dataValues.membershipStatus = membership ? membership.status : null;
+        space.dataValues.isFollowing = !!follow;
+      });
+    }
+
     const totalPages = Math.ceil(count / limit);
 
     res.json({
@@ -281,6 +312,7 @@ const joinSpace = async (req, res) => {
           data: {
             membershipStatus: existingMembership.status,
             alreadyMember: true,
+            membership: existingMembership.toJSON(),
           }
         });
       }
@@ -293,6 +325,7 @@ const joinSpace = async (req, res) => {
           data: {
             membershipStatus: 0,
             pending: true,
+            membership: existingMembership.toJSON(),
           }
         });
       }
@@ -344,6 +377,8 @@ const joinSpace = async (req, res) => {
       data: {
         membershipStatus,
         membership: membership.toJSON(),
+        isMember: membershipStatus > 0,
+        isPending: membershipStatus === 0,
       }
     });
   } catch (error) {
@@ -351,7 +386,6 @@ const joinSpace = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 };
@@ -472,6 +506,332 @@ const toggleFollowSpace = async (req, res) => {
   }
 };
 
+// Get space members
+const getSpaceMembers = async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+    
+    // Find space by ID or URL
+    const isNumeric = /^\d+$/.test(identifier);
+    const space = await Space.findOne({
+      where: isNumeric ? { id: identifier } : { url: identifier }
+    });
+    
+    if (!space) {
+      return res.status(404).json({
+        success: false,
+        message: 'Space not found'
+      });
+    }
+
+    // Check if user has permission to view members
+    if (req.user) {
+      const membership = await Membership.findOne({
+        where: {
+          userId: req.user.id,
+          spaceId: space.id,
+        },
+      });
+      
+      if (!membership && space.visibility === 0) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied'
+        });
+      }
+    }
+
+    const { count, rows: members } = await Membership.findAndCountAll({
+      where: {
+        spaceId: space.id,
+        status: { [Op.gte]: 1 }, // Only approved members
+      },
+      limit,
+      offset,
+      order: [['createdAt', 'ASC']],
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
+        },
+      ],
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      success: true,
+      data: {
+        members,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalMembers: count,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get space members error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Get pending membership requests
+const getPendingRequests = async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    
+    // Find space by ID or URL
+    const isNumeric = /^\d+$/.test(identifier);
+    const space = await Space.findOne({
+      where: isNumeric ? { id: identifier } : { url: identifier }
+    });
+    
+    if (!space) {
+      return res.status(404).json({
+        success: false,
+        message: 'Space not found'
+      });
+    }
+
+    // Check if user is space owner or admin
+    const membership = await Membership.findOne({
+      where: {
+        userId: req.user.id,
+        spaceId: space.id,
+      },
+    });
+    
+    if (!membership || membership.status < 2) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    const pendingRequests = await Membership.findAll({
+      where: {
+        spaceId: space.id,
+        status: 0, // Pending requests
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
+        },
+      ],
+      order: [['createdAt', 'ASC']],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        pendingRequests,
+      }
+    });
+  } catch (error) {
+    console.error('Get pending requests error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Approve or reject membership request
+const handleMembershipRequest = async (req, res) => {
+  try {
+    const { identifier, userId } = req.params;
+    const { action } = req.body; // 'approve' or 'reject'
+    
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid action'
+      });
+    }
+    
+    // Find space by ID or URL
+    const isNumeric = /^\d+$/.test(identifier);
+    const space = await Space.findOne({
+      where: isNumeric ? { id: identifier } : { url: identifier }
+    });
+    
+    if (!space) {
+      return res.status(404).json({
+        success: false,
+        message: 'Space not found'
+      });
+    }
+
+    // Check if user is space owner or admin
+    const membership = await Membership.findOne({
+      where: {
+        userId: req.user.id,
+        spaceId: space.id,
+      },
+    });
+    
+    if (!membership || membership.status < 2) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    // Find the membership request
+    const requestMembership = await Membership.findOne({
+      where: {
+        userId: parseInt(userId),
+        spaceId: space.id,
+        status: 0,
+      },
+    });
+    
+    if (!requestMembership) {
+      return res.status(404).json({
+        success: false,
+        message: 'Membership request not found'
+      });
+    }
+
+    if (action === 'approve') {
+      await requestMembership.update({ status: 1 });
+      
+      // Send notification to user
+      try {
+        const user = await User.findByPk(userId);
+        const emailService = require('../services/emailService');
+        emailService.sendSpaceJoinApprovalNotification(user, space).catch(error => {
+          console.error('Failed to send space join approval notification:', error);
+        });
+      } catch (error) {
+        console.error('Error sending approval notification:', error);
+      }
+      
+      res.json({
+        success: true,
+        message: 'Membership request approved',
+        data: {
+          membership: requestMembership.toJSON(),
+        }
+      });
+    } else {
+      // Delete the membership request
+      await requestMembership.destroy();
+      
+      // Send notification to user
+      try {
+        const user = await User.findByPk(userId);
+        const emailService = require('../services/emailService');
+        emailService.sendSpaceJoinRejectionNotification(user, space).catch(error => {
+          console.error('Failed to send space join rejection notification:', error);
+        });
+      } catch (error) {
+        console.error('Error sending rejection notification:', error);
+      }
+      
+      res.json({
+        success: true,
+        message: 'Membership request rejected',
+      });
+    }
+  } catch (error) {
+    console.error('Handle membership request error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Remove member from space
+const removeMember = async (req, res) => {
+  try {
+    const { identifier, userId } = req.params;
+    
+    // Find space by ID or URL
+    const isNumeric = /^\d+$/.test(identifier);
+    const space = await Space.findOne({
+      where: isNumeric ? { id: identifier } : { url: identifier }
+    });
+    
+    if (!space) {
+      return res.status(404).json({
+        success: false,
+        message: 'Space not found'
+      });
+    }
+
+    // Check if user is space owner or admin
+    const membership = await Membership.findOne({
+      where: {
+        userId: req.user.id,
+        spaceId: space.id,
+      },
+    });
+    
+    if (!membership || membership.status < 2) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied'
+      });
+    }
+
+    // Find the member to remove
+    const memberMembership = await Membership.findOne({
+      where: {
+        userId: parseInt(userId),
+        spaceId: space.id,
+      },
+    });
+    
+    if (!memberMembership) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found'
+      });
+    }
+
+    // Prevent removing owner
+    if (memberMembership.status === 4) {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot remove space owner'
+      });
+    }
+
+    // Prevent removing yourself if you're not the owner
+    if (parseInt(userId) === req.user.id && membership.status < 4) {
+      return res.status(403).json({
+        success: false,
+        message: 'Cannot remove yourself'
+      });
+    }
+
+    await memberMembership.destroy();
+    
+    res.json({
+      success: true,
+      message: 'Member removed successfully',
+    });
+  } catch (error) {
+    console.error('Remove member error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
 module.exports = {
   createSpace: [createSpaceValidation, handleValidationErrors, createSpace],
   getSpace,
@@ -479,4 +839,8 @@ module.exports = {
   joinSpace,
   leaveSpace,
   toggleFollowSpace,
+  getSpaceMembers,
+  getPendingRequests,
+  handleMembershipRequest,
+  removeMember,
 };

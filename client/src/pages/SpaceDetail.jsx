@@ -73,8 +73,12 @@ const SpaceDetail = () => {
     
     setActionLoading(true);
     try {
-      await toggleFollowSpace(space.id);
-      loadSpaceData(); // Reload to update follow status
+      const response = await toggleFollowSpace(space.id);
+      // Update the local state instead of reloading all data
+      setSpace(prevSpace => ({
+        ...prevSpace,
+        isFollowing: response.data.isFollowing
+      }));
     } catch (error) {
       console.error('Error following space:', error);
     }

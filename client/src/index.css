@@ -934,3 +934,7 @@ li {
 .col-md-4 {
   margin-right: 10px;
 }
+
+.d-flex.flex-wrap.gap-2.mb-3 span{
+  padding-right: 10px;
+}

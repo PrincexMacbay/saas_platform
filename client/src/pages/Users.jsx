@@ -6,16 +6,27 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [actionLoading, setActionLoading] = useState({});
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Load users when debounced search changes
   useEffect(() => {
     loadUsers();
-  }, [search]);
+  }, [debouncedSearch]);
 
   const loadUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await getUsers({ search, limit: 50 });
+      const response = await getUsers({ search: debouncedSearch, limit: 50 });
       setUsers(response.data.users);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -28,8 +39,15 @@ const Users = () => {
     
     setActionLoading({ ...actionLoading, [userId]: true });
     try {
-      await toggleFollowUser(userId);
-      loadUsers(); // Reload to update follow status
+      const response = await toggleFollowUser(userId);
+      // Update the local state instead of reloading all data
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId 
+            ? { ...user, isFollowing: response.data.isFollowing }
+            : user
+        )
+      );
     } catch (error) {
       console.error('Error following user:', error);
     }

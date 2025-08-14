@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
 import { getSpaces } from '../services/spaceService';
@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Profile = () => {
   const { identifier } = useParams();
+  const [searchParams] = useSearchParams();
   const [profileUser, setProfileUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -27,6 +28,14 @@ const Profile = () => {
   useEffect(() => {
     loadProfileData();
   }, [identifier]);
+
+  useEffect(() => {
+    // Check if edit mode should be enabled from URL parameter
+    const shouldEdit = searchParams.get('edit') === 'true';
+    if (shouldEdit && isOwnProfile) {
+      setIsEditing(true);
+    }
+  }, [searchParams, isOwnProfile]);
 
   const loadProfileData = async () => {
     setIsLoading(true);
@@ -74,8 +83,12 @@ const Profile = () => {
     
     setActionLoading(true);
     try {
-      await toggleFollowUser(profileUser.id);
-      loadProfileData(); // Reload to update follow status
+      const response = await toggleFollowUser(profileUser.id);
+      // Update the local state instead of reloading all data
+      setProfileUser(prev => ({
+        ...prev,
+        isFollowing: response.data.isFollowing
+      }));
     } catch (error) {
       console.error('Error following user:', error);
     }
