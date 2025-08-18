@@ -29,6 +29,12 @@ const createCommentValidation = [
     .withMessage('Comment must be between 1 and 1000 characters'),
 ];
 
+const updatePostValidation = [
+  body('message')
+    .isLength({ min: 1, max: 5000 })
+    .withMessage('Post message must be between 1 and 5000 characters'),
+];
+
 // Create new post
 const createPost = async (req, res) => {
   try {
@@ -526,10 +532,142 @@ const toggleLike = async (req, res) => {
   }
 };
 
+// Update post
+const updatePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+
+    // Find the post
+    const post = await Post.findByPk(id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Check if user owns the post
+    if (post.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only edit your own posts'
+      });
+    }
+
+    // Update the post
+    await post.update({ message });
+
+    // Get updated post with author information
+    const updatedPost = await Post.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
+        },
+        {
+          model: Space,
+          as: 'space',
+          attributes: ['id', 'name', 'url', 'color'],
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          include: [
+            {
+              model: User,
+              as: 'author',
+              attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
+            },
+          ],
+          order: [['createdAt', 'ASC']],
+        },
+      ],
+    });
+
+    // Add like status for current user
+    const like = await Like.findOne({
+      where: {
+        userId: req.user.id,
+        objectModel: 'Post',
+        objectId: id,
+      },
+    });
+
+    const likeCount = await Like.count({
+      where: {
+        objectModel: 'Post',
+        objectId: id,
+      },
+    });
+
+    const postData = {
+      ...updatedPost.toJSON(),
+      isLiked: !!like,
+      likeCount,
+    };
+
+    res.json({
+      success: true,
+      message: 'Post updated successfully',
+      data: { post: postData }
+    });
+
+  } catch (error) {
+    console.error('Update post error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Delete post
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the post
+    const post = await Post.findByPk(id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Check if user owns the post
+    if (post.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete your own posts'
+      });
+    }
+
+    // Delete the post (this will also cascade delete comments and likes due to foreign key constraints)
+    await post.destroy();
+
+    res.json({
+      success: true,
+      message: 'Post deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete post error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
 module.exports = {
   createPost: [createPostValidation, handleValidationErrors, createPost],
   getPosts,
   getPost,
+  updatePost: [updatePostValidation, handleValidationErrors, updatePost],
+  deletePost,
   createComment: [createCommentValidation, handleValidationErrors, createComment],
   toggleLike,
 };

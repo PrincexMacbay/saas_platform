@@ -8,6 +8,8 @@ const spaceRoutes = require('./spaces');
 const postRoutes = require('./posts');
 const uploadRoutes = require('./upload');
 const careerRoutes = require('./career');
+const membershipRoutes = require('./membership');
+const publicRoutes = require('./public');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -16,6 +18,8 @@ router.use('/spaces', spaceRoutes);
 router.use('/posts', postRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/career', careerRoutes);
+router.use('/membership', membershipRoutes);
+router.use('/public', publicRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

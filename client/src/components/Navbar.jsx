@@ -23,8 +23,44 @@ const Navbar = () => {
     return user.username[0].toUpperCase();
   };
 
+  // Show limited navbar for public pages
   if (!isAuthenticated) {
-    return null; // Don't show navbar on login/register pages
+    return (
+      <nav className="navbar">
+        <div className="navbar-container">
+          <Link to="/" className="navbar-brand">
+            Social Network
+          </Link>
+          
+          <ul className="navbar-nav">
+            <li className="nav-item">
+              <Link 
+                to="/browse-memberships" 
+                className={`nav-link ${isActive('/browse-memberships') ? 'active' : ''}`}
+              >
+                <i className="fas fa-search"></i> Browse Memberships
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
+                to="/login" 
+                className={`nav-link ${isActive('/login') ? 'active' : ''}`}
+              >
+                <i className="fas fa-sign-in-alt"></i> Login
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
+                to="/register" 
+                className={`nav-link ${isActive('/register') ? 'active' : ''}`}
+              >
+                <i className="fas fa-user-plus"></i> Register
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    );
   }
 
   return (
@@ -45,10 +81,10 @@ const Navbar = () => {
           </li>
           <li className="nav-item">
             <Link 
-              to="/spaces" 
-              className={`nav-link ${isActive('/spaces') ? 'active' : ''}`}
+              to="/membership" 
+              className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
             >
-              <i className="fas fa-users"></i> Spaces
+              <i className="fas fa-users"></i> Membership
             </Link>
           </li>
           <li className="nav-item">
@@ -196,9 +232,9 @@ const Navbar = () => {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                    {user?.ownedSpaces?.length || 0}
+                    {user?.subscriptions?.length || 0}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Spaces</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>Memberships</div>
                 </div>
               </div>
 

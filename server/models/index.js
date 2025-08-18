@@ -10,6 +10,21 @@ const Job = require('./Job');
 const JobApplication = require('./JobApplication');
 const SavedJob = require('./SavedJob');
 
+// Membership System Models
+const Organization = require('./Organization');
+const Plan = require('./Plan');
+const Subscription = require('./Subscription');
+const Payment = require('./Payment');
+const Invoice = require('./Invoice');
+const ScheduledPayment = require('./ScheduledPayment');
+const Debt = require('./Debt');
+const Reminder = require('./Reminder');
+const Application = require('./Application');
+const Coupon = require('./Coupon');
+const MembershipSettings = require('./MembershipSettings');
+const ApplicationForm = require('./ApplicationForm');
+const DigitalCard = require('./DigitalCard');
+
 // Define associations
 User.hasMany(Space, { 
   foreignKey: 'ownerId', 
@@ -176,6 +191,258 @@ SavedJob.belongsTo(Job, {
   as: 'job'
 });
 
+// Membership System Associations
+
+// Organization relationships
+User.hasMany(Organization, { 
+  foreignKey: 'ownerId', 
+  as: 'ownedOrganizations',
+  onDelete: 'CASCADE'
+});
+Organization.belongsTo(User, { 
+  foreignKey: 'ownerId', 
+  as: 'owner'
+});
+
+User.belongsTo(Organization, { 
+  foreignKey: 'organizationId', 
+  as: 'organization'
+});
+Organization.hasMany(User, { 
+  foreignKey: 'organizationId', 
+  as: 'members',
+  onDelete: 'SET NULL'
+});
+
+Organization.hasMany(Plan, {
+  foreignKey: 'organizationId',
+  as: 'plans',
+  onDelete: 'CASCADE'
+});
+Plan.belongsTo(Organization, {
+  foreignKey: 'organizationId',
+  as: 'organization'
+});
+
+Organization.hasOne(ApplicationForm, {
+  foreignKey: 'organizationId',
+  as: 'applicationForm',
+  onDelete: 'CASCADE'
+});
+ApplicationForm.belongsTo(Organization, {
+  foreignKey: 'organizationId',
+  as: 'organization'
+});
+
+// User relationships
+User.hasMany(Subscription, { 
+  foreignKey: 'userId', 
+  as: 'subscriptions',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Payment, { 
+  foreignKey: 'userId', 
+  as: 'payments',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Invoice, { 
+  foreignKey: 'userId', 
+  as: 'invoices',
+  onDelete: 'CASCADE'
+});
+User.hasMany(ScheduledPayment, { 
+  foreignKey: 'userId', 
+  as: 'scheduledPayments',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Debt, { 
+  foreignKey: 'userId', 
+  as: 'debts',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Reminder, { 
+  foreignKey: 'userId', 
+  as: 'reminders',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Application, { 
+  foreignKey: 'userId', 
+  as: 'applications',
+  onDelete: 'SET NULL'
+});
+User.hasMany(DigitalCard, { 
+  foreignKey: 'userId', 
+  as: 'digitalCards',
+  onDelete: 'CASCADE'
+});
+
+// Plan relationships
+Plan.hasMany(Subscription, { 
+  foreignKey: 'planId', 
+  as: 'subscriptions',
+  onDelete: 'RESTRICT'
+});
+Plan.hasMany(Payment, { 
+  foreignKey: 'planId', 
+  as: 'payments',
+  onDelete: 'SET NULL'
+});
+Plan.hasMany(Invoice, { 
+  foreignKey: 'planId', 
+  as: 'invoices',
+  onDelete: 'SET NULL'
+});
+Plan.hasMany(ScheduledPayment, { 
+  foreignKey: 'planId', 
+  as: 'scheduledPayments',
+  onDelete: 'SET NULL'
+});
+Plan.hasMany(Debt, { 
+  foreignKey: 'planId', 
+  as: 'debts',
+  onDelete: 'SET NULL'
+});
+Plan.hasMany(Reminder, { 
+  foreignKey: 'planId', 
+  as: 'reminders',
+  onDelete: 'SET NULL'
+});
+Plan.hasMany(Application, { 
+  foreignKey: 'planId', 
+  as: 'applications',
+  onDelete: 'RESTRICT'
+});
+
+// Subscription relationships
+Subscription.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+Subscription.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Subscription.hasMany(Payment, { 
+  foreignKey: 'subscriptionId', 
+  as: 'payments',
+  onDelete: 'SET NULL'
+});
+Subscription.hasMany(ScheduledPayment, { 
+  foreignKey: 'subscriptionId', 
+  as: 'scheduledPayments',
+  onDelete: 'SET NULL'
+});
+Subscription.hasMany(Debt, { 
+  foreignKey: 'subscriptionId', 
+  as: 'debts',
+  onDelete: 'SET NULL'
+});
+Subscription.hasMany(Reminder, { 
+  foreignKey: 'subscriptionId', 
+  as: 'reminders',
+  onDelete: 'SET NULL'
+});
+Subscription.hasMany(DigitalCard, { 
+  foreignKey: 'subscriptionId', 
+  as: 'digitalCards',
+  onDelete: 'CASCADE'
+});
+
+// Payment relationships
+Payment.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+Payment.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Payment.belongsTo(Subscription, { 
+  foreignKey: 'subscriptionId', 
+  as: 'subscription'
+});
+Payment.hasOne(Invoice, { 
+  foreignKey: 'paymentId', 
+  as: 'invoice',
+  onDelete: 'SET NULL'
+});
+
+// Invoice relationships
+Invoice.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+Invoice.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Invoice.belongsTo(Payment, { 
+  foreignKey: 'paymentId', 
+  as: 'payment'
+});
+
+// ScheduledPayment relationships
+ScheduledPayment.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+ScheduledPayment.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+ScheduledPayment.belongsTo(Subscription, { 
+  foreignKey: 'subscriptionId', 
+  as: 'subscription'
+});
+
+// Debt relationships
+Debt.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+Debt.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Debt.belongsTo(Subscription, { 
+  foreignKey: 'subscriptionId', 
+  as: 'subscription'
+});
+
+// Reminder relationships
+Reminder.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+Reminder.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Reminder.belongsTo(Subscription, { 
+  foreignKey: 'subscriptionId', 
+  as: 'subscription'
+});
+
+// Application relationships
+Application.belongsTo(Plan, { 
+  foreignKey: 'planId', 
+  as: 'plan'
+});
+Application.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
+// DigitalCard relationships
+DigitalCard.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+DigitalCard.belongsTo(Subscription, { 
+  foreignKey: 'subscriptionId', 
+  as: 'subscription'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -188,4 +455,18 @@ module.exports = {
   Job,
   JobApplication,
   SavedJob,
+  // Membership System
+  Organization,
+  Plan,
+  Subscription,
+  Payment,
+  Invoice,
+  ScheduledPayment,
+  Debt,
+  Reminder,
+  Application,
+  Coupon,
+  MembershipSettings,
+  ApplicationForm,
+  DigitalCard,
 };

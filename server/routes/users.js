@@ -13,6 +13,11 @@ router.get('/:userid/following', optionalAuth, userController.getFollowing);
 router.put('/profile', authenticateToken, userController.updateProfile);
 router.post('/:userid/follow', authenticateToken, userController.toggleFollow);
 
+// Organization routes
+router.get('/organizations/available', authenticateToken, userController.getAvailableOrganizations);
+router.post('/organizations/join', authenticateToken, userController.joinOrganization);
+router.post('/organizations/leave', authenticateToken, userController.leaveOrganization);
+
 // Test endpoint to check if user exists
 router.get('/test/:username', async (req, res) => {
   try {

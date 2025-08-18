@@ -279,6 +279,12 @@ const getJob = async (req, res) => {
 // Apply for a job
 const applyForJob = async (req, res) => {
   try {
+    console.log('Apply for job request:', {
+      body: req.body,
+      file: req.file,
+      params: req.params
+    });
+
     // Check if user is an individual
     if (req.user.userType !== 'individual') {
       return res.status(403).json({
@@ -288,7 +294,14 @@ const applyForJob = async (req, res) => {
     }
 
     const { jobId } = req.params;
-    const { coverLetter, resume } = req.body;
+    const { coverLetter } = req.body;
+    
+    // Handle resume file upload
+    let resumePath = null;
+    if (req.file) {
+      // Store the relative path for database
+      resumePath = `/uploads/${req.file.filename}`;
+    }
 
     // Check if job exists and is active
     const job = await Job.findByPk(jobId);
@@ -318,7 +331,7 @@ const applyForJob = async (req, res) => {
       jobId,
       applicantId: req.user.id,
       coverLetter,
-      resume,
+      resume: resumePath,
     });
 
     const applicationWithDetails = await JobApplication.findByPk(application.id, {

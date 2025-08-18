@@ -1,0 +1,196 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import MembershipDashboard from '../components/membership/MembershipDashboard';
+import Payments from '../components/membership/Payments';
+import ScheduledPayments from '../components/membership/ScheduledPayments';
+import Debts from '../components/membership/Debts';
+import Plans from '../components/membership/Plans';
+import Reminders from '../components/membership/Reminders';
+import Applications from '../components/membership/Applications';
+import MembershipSettings from '../components/membership/MembershipSettings';
+import Coupons from '../components/membership/Coupons';
+import ApplicationFormBuilder from '../components/membership/ApplicationFormBuilder';
+import DigitalCard from '../components/membership/DigitalCard';
+import ErrorBoundary from '../components/ErrorBoundary';
+
+const Membership = () => {
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    const path = location.pathname.split('/').pop();
+    if (path === 'membership') {
+      setActiveTab('dashboard');
+    } else {
+      setActiveTab(path);
+    }
+  }, [location]);
+
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-pie', path: '/membership' },
+    { id: 'payments', label: 'Payments', icon: 'fas fa-credit-card', path: '/membership/payments' },
+    { id: 'scheduled-payments', label: 'Scheduled Payments', icon: 'fas fa-calendar-alt', path: '/membership/scheduled-payments' },
+    { id: 'debts', label: 'Debts', icon: 'fas fa-exclamation-triangle', path: '/membership/debts' },
+    { id: 'plans', label: 'Plans', icon: 'fas fa-layer-group', path: '/membership/plans' },
+    { id: 'reminders', label: 'Reminders', icon: 'fas fa-bell', path: '/membership/reminders' },
+    { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', path: '/membership/applications' },
+    { id: 'settings', label: 'Settings', icon: 'fas fa-cog', path: '/membership/settings' },
+    { id: 'coupons', label: 'Coupons', icon: 'fas fa-ticket-alt', path: '/membership/coupons' },
+    { id: 'application-form', label: 'Application Form', icon: 'fas fa-edit', path: '/membership/application-form' },
+    { id: 'digital-card', label: 'Digital Card', icon: 'fas fa-id-card', path: '/membership/digital-card' }
+  ];
+
+  return (
+    <div className="membership-container">
+      <div className="membership-header">
+        <h1>
+          <i className="fas fa-users" style={{ marginRight: '12px', color: '#3498db' }}></i>
+          Membership Management
+        </h1>
+        <p>Manage subscriptions, payments, and member data</p>
+      </div>
+
+      <div className="membership-tabs">
+        <div className="tab-list">
+          {tabs.map(tab => (
+            <Link
+              key={tab.id}
+              to={tab.path}
+              className={`tab-item ${activeTab === tab.id ? 'active' : ''}`}
+            >
+              <i className={tab.icon}></i>
+              <span>{tab.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="membership-content">
+        <Routes>
+          <Route path="/" element={<MembershipDashboard />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/scheduled-payments" element={<ScheduledPayments />} />
+          <Route path="/debts" element={<Debts />} />
+          <Route path="/plans" element={<ErrorBoundary><Plans /></ErrorBoundary>} />
+          <Route path="/reminders" element={<Reminders />} />
+          <Route path="/applications" element={<Applications />} />
+          <Route path="/settings" element={<MembershipSettings />} />
+          <Route path="/coupons" element={<Coupons />} />
+          <Route path="/application-form" element={<ApplicationFormBuilder />} />
+          <Route path="/digital-card" element={<DigitalCard />} />
+        </Routes>
+      </div>
+
+      <style jsx>{`
+        .membership-container {
+          padding: 20px;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        .membership-header {
+          margin-bottom: 30px;
+          text-align: center;
+        }
+
+        .membership-header h1 {
+          margin: 0;
+          font-size: 2.5rem;
+          color: #2c3e50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .membership-header p {
+          margin: 10px 0 0 0;
+          color: #7f8c8d;
+          font-size: 1.1rem;
+        }
+
+        .membership-tabs {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin-bottom: 30px;
+          overflow: hidden;
+        }
+
+        .tab-list {
+          display: flex;
+          flex-wrap: wrap;
+          border-bottom: 1px solid #ecf0f1;
+        }
+
+        .tab-item {
+          display: flex;
+          align-items: center;
+          padding: 15px 20px;
+          text-decoration: none;
+          color: #7f8c8d;
+          transition: all 0.3s ease;
+          min-width: 0;
+          flex: 1;
+          justify-content: center;
+          border-bottom: 3px solid transparent;
+        }
+
+        .tab-item:hover {
+          background-color: #f8f9fa;
+          color: #3498db;
+        }
+
+        .tab-item.active {
+          color: #3498db;
+          background-color: #f8f9fa;
+          border-bottom-color: #3498db;
+        }
+
+        .tab-item i {
+          margin-right: 8px;
+          font-size: 1.1rem;
+        }
+
+        .tab-item span {
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+
+        .membership-content {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          min-height: 500px;
+        }
+
+        @media (max-width: 768px) {
+          .membership-container {
+            padding: 10px;
+          }
+
+          .membership-header h1 {
+            font-size: 2rem;
+            flex-direction: column;
+          }
+
+          .tab-list {
+            flex-direction: column;
+          }
+
+          .tab-item {
+            justify-content: flex-start;
+            border-bottom: 1px solid #ecf0f1;
+            border-right: none;
+          }
+
+          .tab-item.active {
+            border-bottom-color: transparent;
+            border-left: 3px solid #3498db;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Membership;

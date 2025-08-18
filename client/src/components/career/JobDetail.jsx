@@ -136,184 +136,176 @@ const JobDetail = () => {
   }
 
   return (
-    <div className="job-detail">
-      <div className="row">
-        {/* Job Details */}
-        <div className="col-lg-8">
-          <div className="card mb-4">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h2 className="card-title mb-2">{job.title}</h2>
-                  <p className="text-muted mb-0">
-                    {job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
-                  </p>
+    <div className="job-detail-container">
+      {/* Header Section */}
+      <div className="job-header">
+        <div className="header-content">
+          <div className="job-title-section">
+            <div className="company-logo">
+              {job.employer.companyLogo ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyLogo}`}
+                  alt={job.employer.companyName || job.employer.firstName}
+                />
+              ) : (
+                <div className="logo-placeholder">
+                  <i className="fas fa-building"></i>
                 </div>
-                <div className="d-flex gap-2">
-                  <button
-                    className={`btn ${job.isSaved ? 'btn-danger' : 'btn-outline-primary'}`}
-                    onClick={handleSaveJob}
-                    disabled={user?.userType !== 'individual'}
-                  >
-                    <i className={`fas ${job.isSaved ? 'fa-heart' : 'fa-heart'}`}></i>
-                    {job.isSaved ? ' Saved' : ' Save'}
-                  </button>
-                  {user?.userType === 'individual' && (
-                    <button
-                      className="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#applyModal"
-                    >
-                      <i className="fas fa-paper-plane me-2"></i>
-                      Apply Now
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="d-flex flex-wrap gap-2 mb-4">
-                <span className={`badge bg-${getJobTypeColor(job.jobType)}`}>
-                  {job.jobType.replace('-', ' ').toUpperCase()}
+              )}
+            </div>
+            <div className="job-info">
+              <h1 className="job-title">{job.title}</h1>
+              <h2 className="company-name">
+                {job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
+              </h2>
+              <div className="job-meta">
+                <span className="location">
+                  <i className="fas fa-map-marker-alt"></i>
+                  {job.location}
                 </span>
-                <span className={`badge bg-${getExperienceLevelColor(job.experienceLevel)}`}>
-                  {job.experienceLevel.toUpperCase()}
+                <span className="salary">
+                  <i className="fas fa-dollar-sign"></i>
+                  {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
                 </span>
-                {job.remoteWork && (
-                  <span className="badge bg-info">
-                    <i className="fas fa-home"></i> Remote
-                  </span>
-                )}
-                {job.employer.industry && (
-                  <span className="badge bg-secondary">
-                    {job.employer.industry}
-                  </span>
-                )}
+                <span className="posted-date">
+                  <i className="fas fa-calendar"></i>
+                  Posted {new Date(job.createdAt).toLocaleDateString()}
+                </span>
               </div>
-
-              <div className="row text-muted mb-4">
-                <div className="col-md-4">
-                  <i className="fas fa-map-marker-alt"></i> {job.location}
-                </div>
-                <div className="col-md-4">
-                  <i className="fas fa-money-bill-wave"></i> {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
-                </div>
-                <div className="col-md-4">
-                  <i className="fas fa-calendar"></i> Posted {new Date(job.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <h5>Job Description</h5>
-                <p className="text-muted">{job.description}</p>
-              </div>
-
-              {job.requirements && (
-                <div className="mb-4">
-                  <h5>Requirements</h5>
-                  <p className="text-muted">{job.requirements}</p>
-                </div>
-              )}
-
-              {job.benefits && (
-                <div className="mb-4">
-                  <h5>Benefits</h5>
-                  <p className="text-muted">{job.benefits}</p>
-                </div>
-              )}
-
-              {job.applicationDeadline && (
-                <div className="alert alert-info">
-                  <i className="fas fa-clock me-2"></i>
-                  Application deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
-                </div>
-              )}
             </div>
           </div>
+          
+          <div className="action-buttons">
+            {user?.userType === 'individual' && (
+              <button
+                className={`btn-save ${job.isSaved ? 'saved' : ''}`}
+                onClick={handleSaveJob}
+              >
+                <i className={`fas fa-heart`}></i>
+                {job.isSaved ? 'Saved' : 'Save'}
+              </button>
+            )}
+          </div>
+        </div>
+        
+        <div className="job-badges">
+          <span className={`badge job-type ${job.jobType}`}>
+            {job.jobType.replace('-', ' ')}
+          </span>
+          <span className={`badge experience ${job.experienceLevel}`}>
+            {job.experienceLevel}
+          </span>
+          {job.remoteWork && (
+            <span className="badge remote">
+              <i className="fas fa-home"></i>
+              Remote
+            </span>
+          )}
+          {job.employer.industry && (
+            <span className="badge industry">
+              {job.employer.industry}
+            </span>
+          )}
+        </div>
+        
+        {job.applicationDeadline && (
+          <div className="deadline-alert">
+            <i className="fas fa-clock"></i>
+            Application deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
+          </div>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="job-content">
+        <div className="main-content">
+          <section className="job-section">
+            <h3>
+              <i className="fas fa-align-left"></i>
+              Job Description
+            </h3>
+            <div className="section-content">
+              <p>{job.description}</p>
+            </div>
+          </section>
+
+          {job.requirements && (
+            <section className="job-section">
+              <h3>
+                <i className="fas fa-list-check"></i>
+                Requirements
+              </h3>
+              <div className="section-content">
+                <p>{job.requirements}</p>
+              </div>
+            </section>
+          )}
+
+          {job.benefits && (
+            <section className="job-section">
+              <h3>
+                <i className="fas fa-gift"></i>
+                Benefits & Perks
+              </h3>
+              <div className="section-content">
+                <p>{job.benefits}</p>
+              </div>
+            </section>
+          )}
         </div>
 
-        {/* Company Information */}
-        <div className="col-lg-4">
-          <div className="card mb-4">
-            <div className="card-header">
-              <h6 className="mb-0">About the Company</h6>
-            </div>
-            <div className="card-body">
+        <div className="sidebar">
+          <div className="company-card">
+            <h3>About the Company</h3>
+            <div className="company-info">
               {job.employer.companyLogo && (
-                <div className="text-center mb-3">
+                <div className="company-logo-large">
                   <img
                     src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyLogo}`}
                     alt={job.employer.companyName || job.employer.firstName}
-                    className="img-fluid"
-                    style={{ maxHeight: '100px', borderRadius: '8px' }}
                   />
                 </div>
               )}
+              <h4>{job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}</h4>
               
-              <h6>{job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}</h6>
-              
-              {job.employer.industry && (
-                <p className="text-muted mb-2">
-                  <i className="fas fa-industry me-2"></i>
-                  {job.employer.industry}
-                </p>
-              )}
-              
-              {job.employer.location && (
-                <p className="text-muted mb-2">
-                  <i className="fas fa-map-marker-alt me-2"></i>
-                  {job.employer.location}
-                </p>
-              )}
+              <div className="company-details">
+                {job.employer.industry && (
+                  <div className="detail-item">
+                    <i className="fas fa-industry"></i>
+                    <span>{job.employer.industry}</span>
+                  </div>
+                )}
+                
+                {job.employer.location && (
+                  <div className="detail-item">
+                    <i className="fas fa-map-marker-alt"></i>
+                    <span>{job.employer.location}</span>
+                  </div>
+                )}
+                
+                {job.employer.companySize && (
+                  <div className="detail-item">
+                    <i className="fas fa-users"></i>
+                    <span>{job.employer.companySize}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
           {user?.userType === 'individual' && (
-            <div className="card">
-              <div className="card-header">
-                <h6 className="mb-0">Quick Actions</h6>
-              </div>
-              <div className="card-body">
-                <button
-                  className="btn btn-primary w-100 mb-2"
-                  data-bs-toggle="modal"
-                  data-bs-target="#applyModal"
-                >
-                  <i className="fas fa-paper-plane me-2"></i>
-                  Apply for this position
-                </button>
-                <button
-                  className={`btn ${job.isSaved ? 'btn-danger' : 'btn-outline-primary'} w-100`}
-                  onClick={handleSaveJob}
-                >
-                  <i className={`fas ${job.isSaved ? 'fa-heart' : 'fa-heart'}`}></i>
-                  {job.isSaved ? ' Remove from Saved' : ' Save for Later'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Apply Modal */}
-      {user?.userType === 'individual' && (
-        <div className="modal fade" id="applyModal" tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Apply for {job.title}</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <form onSubmit={handleApply}>
-                <div className="modal-body">
+            <div className="application-section">
+              <h3>Apply for this Position</h3>
+              <div className="application-form-container">
+                <form onSubmit={handleApply}>
                   {error && (
                     <div className="alert alert-danger" role="alert">
                       {error}
                     </div>
                   )}
 
-                  <div className="mb-3">
-                    <label htmlFor="coverLetter" className="form-label">Cover Letter</label>
+                  <div className="form-group">
+                    <label htmlFor="coverLetter" className="form-label">Cover Letter *</label>
                     <textarea
                       id="coverLetter"
                       name="coverLetter"
@@ -326,7 +318,7 @@ const JobDetail = () => {
                     ></textarea>
                   </div>
 
-                  <div className="mb-3">
+                  <div className="form-group">
                     <label htmlFor="resume" className="form-label">Resume (Optional)</label>
                     <input
                       type="file"
@@ -338,20 +330,16 @@ const JobDetail = () => {
                     />
                     <small className="text-muted">Upload PDF, DOC, or DOCX file</small>
                   </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancel
-                  </button>
+
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="apply-submit-btn"
                     disabled={applying}
                   >
                     {applying ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                        Submitting...
+                        Submitting Application...
                       </>
                     ) : (
                       <>
@@ -360,12 +348,588 @@ const JobDetail = () => {
                       </>
                     )}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
+
+
+
+      <style jsx>{`
+        .job-detail-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background-color: #f5f6fa;
+          min-height: 100vh;
+        }
+
+        /* Header Section */
+        .job-header {
+          background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+          border-radius: 12px;
+          padding: 32px;
+          margin-bottom: 32px;
+          color: white;
+          box-shadow: 0 4px 20px rgba(44, 62, 80, 0.15);
+        }
+
+        .header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 24px;
+        }
+
+        .job-title-section {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          flex: 1;
+        }
+
+        .company-logo {
+          width: 80px;
+          height: 80px;
+          border-radius: 12px;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.15);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .company-logo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .logo-placeholder {
+          color: white;
+          font-size: 24px;
+        }
+
+        .job-info {
+          flex: 1;
+        }
+
+        .job-title {
+          font-size: 2.5rem;
+          font-weight: 700;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
+        }
+
+        .company-name {
+          font-size: 1.5rem;
+          font-weight: 500;
+          margin: 0 0 16px 0;
+          opacity: 0.9;
+        }
+
+        .job-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 24px;
+          font-size: 1rem;
+        }
+
+        .job-meta span {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.9;
+        }
+
+        .job-meta i {
+          font-size: 0.9rem;
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+
+        .btn-apply {
+          background: #27ae60;
+          color: white;
+          border: none;
+          padding: 14px 28px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
+        }
+
+        .btn-apply:hover {
+          background: #219a52;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-save {
+          background: rgba(255, 255, 255, 0.15);
+          color: white;
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-save:hover {
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-save.saved {
+          background: #e74c3c;
+          border-color: #e74c3c;
+          color: white;
+        }
+
+        .btn-save.saved:hover {
+          background: #c0392b;
+          border-color: #c0392b;
+        }
+
+        .job-badges {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .badge {
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-weight: 500;
+          font-size: 0.85rem;
+          text-transform: capitalize;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .badge.job-type {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .badge.experience {
+          background: rgba(255, 255, 255, 0.2);
+          color: #f39c12;
+          border-color: rgba(243, 156, 18, 0.3);
+        }
+
+        .badge.remote {
+          background: rgba(255, 255, 255, 0.2);
+          color: #3498db;
+          border-color: rgba(52, 152, 219, 0.3);
+        }
+
+        .badge.industry {
+          background: rgba(255, 255, 255, 0.2);
+          color: #95a5a6;
+          border-color: rgba(149, 165, 166, 0.3);
+        }
+
+        .deadline-alert {
+          background: rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          color: #f39c12;
+          padding: 12px 16px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+        }
+
+        /* Main Content */
+        .job-content {
+          display: grid;
+          grid-template-columns: 1fr 350px;
+          gap: 32px;
+        }
+
+        .main-content {
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          overflow: hidden;
+          max-height: 70vh;
+          overflow-y: auto;
+        }
+
+        .job-section {
+          padding: 24px;
+          border-bottom: 1px solid #e9ecef;
+        }
+
+        .job-section:last-child {
+          border-bottom: none;
+        }
+
+        .job-section h3 {
+          color: #2c3e50;
+          font-size: 1.4rem;
+          font-weight: 600;
+          margin: 0 0 20px 0;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .job-section h3 i {
+          color: #3498db;
+          font-size: 1.2rem;
+        }
+
+        .section-content {
+          color: #2c3e50;
+          line-height: 1.6;
+          font-size: 0.95rem;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+
+        .section-content p {
+          margin: 0;
+          white-space: pre-line;
+        }
+
+        /* Sidebar */
+        .sidebar {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .company-card,
+        .quick-actions {
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .company-card h3,
+        .quick-actions h3 {
+          color: #2c3e50;
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin: 0 0 20px 0;
+        }
+
+        .company-logo-large {
+          width: 80px;
+          height: 80px;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 16px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .company-logo-large img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .company-info h4 {
+          color: #2c3e50;
+          font-size: 1.3rem;
+          font-weight: 600;
+          margin: 0 0 16px 0;
+        }
+
+        .company-details {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #2c3e50;
+          font-size: 0.95rem;
+        }
+
+        .detail-item i {
+          color: #3498db;
+          width: 16px;
+          text-align: center;
+        }
+
+        .action-btn {
+          width: 100%;
+          padding: 14px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 12px;
+          text-decoration: none;
+        }
+
+        .action-btn.primary {
+          background: #3498db;
+          color: white;
+          border: none;
+        }
+
+        .action-btn.primary:hover {
+          background: #2980b9;
+          transform: translateY(-1px);
+        }
+
+        .action-btn.outline {
+          background: transparent;
+          color: #3498db;
+          border: 2px solid #3498db;
+        }
+
+        .action-btn.outline:hover {
+          background: #3498db;
+          color: white;
+        }
+
+        .action-btn.danger {
+          background: #e74c3c;
+          color: white;
+          border: none;
+        }
+
+        .action-btn.danger:hover {
+          background: #c0392b;
+        }
+
+        /* Application Section */
+        .application-section {
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 2px solid #27ae60;
+        }
+
+        .application-section h3 {
+          color: #2c3e50;
+          font-size: 1.3rem;
+          font-weight: 600;
+          margin: 0 0 20px 0;
+          text-align: center;
+        }
+
+        .application-form-container {
+          width: 100%;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-label {
+          display: block;
+          margin-bottom: 8px;
+          color: #2c3e50;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .form-control {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          transition: border-color 0.3s ease;
+          font-family: inherit;
+        }
+
+        .form-control:focus {
+          outline: none;
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-control::placeholder {
+          color: #95a5a6;
+        }
+
+        .text-muted {
+          color: #7f8c8d;
+          font-size: 0.85rem;
+          margin-top: 4px;
+          display: block;
+        }
+
+        .apply-submit-btn {
+          width: 100%;
+          background: #27ae60;
+          color: white;
+          border: none;
+          padding: 16px 24px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 20px;
+        }
+
+        .apply-submit-btn:hover {
+          background: #219a52;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .apply-submit-btn:disabled {
+          background: #95a5a6;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .alert {
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+          border: 1px solid transparent;
+        }
+
+        .alert-danger {
+          background-color: #f8d7da;
+          border-color: #f5c6cb;
+          color: #721c24;
+        }
+
+        .spinner-border {
+          width: 1rem;
+          height: 1rem;
+          border-width: 0.125em;
+        }
+
+        .spinner-border-sm {
+          width: 0.875rem;
+          height: 0.875rem;
+          border-width: 0.1em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+          .job-content {
+            grid-template-columns: 1fr;
+          }
+          
+          .sidebar {
+            order: -1;
+          }
+
+          .main-content {
+            max-height: 50vh;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .job-detail-container {
+            padding: 16px;
+          }
+
+          .job-header {
+            padding: 24px;
+          }
+
+          .header-content {
+            flex-direction: column;
+            gap: 20px;
+            align-items: stretch;
+          }
+
+          .job-title-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+          }
+
+          .job-title {
+            font-size: 2rem;
+          }
+
+          .company-name {
+            font-size: 1.2rem;
+          }
+
+          .job-meta {
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .action-buttons {
+            justify-content: center;
+          }
+
+          .job-section {
+            padding: 24px;
+          }
+
+          .company-card,
+          .application-section {
+            padding: 20px;
+          }
+
+          .main-content {
+            max-height: 40vh;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .job-title {
+            font-size: 1.5rem;
+          }
+
+          .company-name {
+            font-size: 1.1rem;
+          }
+
+          .action-buttons {
+            flex-direction: column;
+            width: 100%;
+          }
+
+          .btn-apply,
+          .btn-save {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 };

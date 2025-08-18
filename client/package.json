@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
+    "dev:3000": "vite --port 3000",
+    "dev:3001": "vite --config vite.config.3001.js",
+    "dev:3002": "vite --config vite.config.3002.js",
     "build": "vite build",
     "preview": "vite preview",
     "start": "vite",
@@ -18,7 +21,8 @@
     "axios": "^1.11.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.7.1"
+    "react-router-dom": "^7.7.1",
+    "recharts": "^3.1.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",

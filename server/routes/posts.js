@@ -9,6 +9,8 @@ router.get('/:postid', optionalAuth, postController.getPost);
 
 // Protected routes
 router.post('/', authenticateToken, postController.createPost);
+router.put('/:id', authenticateToken, postController.updatePost);
+router.delete('/:id', authenticateToken, postController.deletePost);
 router.post('/:postid/comments', authenticateToken, postController.createComment);
 router.post('/:objectmodel/:objectid/like', authenticateToken, postController.toggleLike);
 

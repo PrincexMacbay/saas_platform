@@ -117,6 +117,22 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
+  // Organization membership fields
+  organizationId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'organizations',
+      key: 'id',
+    },
+  },
+  organizationRole: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    validate: {
+      isIn: [['admin', 'member']]
+    }
+  },
 }, {
   tableName: 'users',
   timestamps: true,

@@ -6,10 +6,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import Spaces from './pages/Spaces';
-import MySpaces from './pages/MySpaces';
-import SpaceDetail from './pages/SpaceDetail';
-import CreateSpace from './pages/CreateSpace';
+import Membership from './pages/Membership';
+import BrowseMemberships from './pages/BrowseMemberships';
+import ApplyMembership from './pages/ApplyMembership';
 import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
 import JobDetail from './components/career/JobDetail';
@@ -28,6 +27,8 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/debug" element={<DebugRegistration />} />
+              <Route path="/browse-memberships" element={<BrowseMemberships />} />
+              <Route path="/apply/:planId" element={<ApplyMembership />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route
                 path="/dashboard"
@@ -46,34 +47,10 @@ function App() {
                 }
               />
               <Route
-                path="/spaces"
+                path="/membership/*"
                 element={
                   <ProtectedRoute>
-                    <Spaces />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/spaces/my-spaces"
-                element={
-                  <ProtectedRoute>
-                    <MySpaces />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/spaces/create"
-                element={
-                  <ProtectedRoute>
-                    <CreateSpace />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/spaces/:identifier"
-                element={
-                  <ProtectedRoute>
-                    <SpaceDetail />
+                    <Membership />
                   </ProtectedRoute>
                 }
               />

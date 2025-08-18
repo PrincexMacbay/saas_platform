@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { getPosts } from '../services/postService';
-import { getSpaces } from '../services/spaceService';
+import { getUserMemberships } from '../services/membershipService';
 import PostCard from '../components/PostCard';
 import PostWithAttachment from '../components/PostWithAttachment';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
-  const [spaces, setSpaces] = useState([]);
+  const [memberships, setMemberships] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -18,12 +19,12 @@ const Dashboard = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [postsResponse, spacesResponse] = await Promise.all([
+      const [postsResponse, membershipsResponse] = await Promise.all([
         getPosts({ limit: 20 }),
-        getSpaces({ limit: 10 })
+        getUserMemberships().catch(() => ({ data: [] })) // Handle error gracefully
       ]);
       setPosts(postsResponse.data.posts);
-      setSpaces(spacesResponse.data.spaces);
+      setMemberships(membershipsResponse.data || []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     }
@@ -76,40 +77,63 @@ const Dashboard = () => {
         </div>
 
         <div className="sidebar">
-          <div className="sidebar-title">My Spaces</div>
-          {spaces.filter(space => space.isMember).length === 0 ? (
-            <p className="text-muted">You haven't joined any spaces yet.</p>
+          <div className="sidebar-title">My Memberships</div>
+          {memberships.length === 0 ? (
+            <p className="text-muted">You don't have any active memberships yet.</p>
           ) : (
-            <div className="spaces-list">
-              {spaces.filter(space => space.isMember).slice(0, 5).map((space) => (
-                <div key={space.id} className="space-item" style={{ marginBottom: '10px' }}>
-                  <a href={`/spaces/${space.url || space.id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      padding: '8px',
-                      borderRadius: '5px',
-                      backgroundColor: '#f8f9fa'
-                    }}>
+            <div className="memberships-list">
+              {memberships.slice(0, 5).map((membership) => (
+                <div key={membership.id} className="membership-item" style={{ marginBottom: '12px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f9fa',
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
                       <div style={{
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '3px',
-                        backgroundColor: space.color || '#3498db',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: membership.status === 'active' ? '#28a745' : 
+                                       membership.status === 'pending' ? '#ffc107' : '#6c757d',
                         marginRight: '8px'
                       }}></div>
-                      <span style={{ fontSize: '14px' }}>{space.name}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '600' }}>
+                        {membership.plan?.name || 'Membership Plan'}
+                      </span>
                     </div>
-                  </a>
+                    <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '4px' }}>
+                      {membership.plan?.organization?.name || 'Organization'}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ 
+                        fontSize: '11px', 
+                        textTransform: 'uppercase',
+                        color: membership.status === 'active' ? '#28a745' : 
+                               membership.status === 'pending' ? '#ffc107' : '#6c757d',
+                        fontWeight: '600'
+                      }}>
+                        {membership.status}
+                      </span>
+                      {membership.memberNumber && (
+                        <span style={{ fontSize: '11px', color: '#6c757d' }}>
+                          #{membership.memberNumber}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
           
           <div className="mt-3">
-            <a href="/spaces" className="btn btn-outline btn-sm">
-              Browse All Spaces
-            </a>
+            <Link to="/browse-memberships" className="btn btn-outline btn-sm">
+              Browse All Memberships
+            </Link>
           </div>
         </div>
       </div>

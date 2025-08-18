@@ -21,8 +21,8 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter function
-const fileFilter = (req, file, cb) => {
+// File filter function for images
+const imageFilter = (req, file, cb) => {
   // Allow images only
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
@@ -31,13 +31,38 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer
+// File filter function for documents
+const documentFilter = (req, file, cb) => {
+  // Allow PDF, DOC, DOCX files
+  const allowedMimeTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF, DOC, and DOCX files are allowed!'), false);
+  }
+};
+
+// Configure multer for images
 const upload = multer({
   storage: storage,
   limits: {
     fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB default
   },
-  fileFilter: fileFilter
+  fileFilter: imageFilter
+});
+
+// Configure multer for documents
+const uploadDocument = multer({
+  storage: storage,
+  limits: {
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB default
+  },
+  fileFilter: documentFilter
 });
 
 // Image processing middleware
@@ -115,6 +140,7 @@ const processProfileImage = async (req, res, next) => {
 
 module.exports = {
   upload,
+  uploadDocument,
   processImage,
   processProfileImage,
 };
