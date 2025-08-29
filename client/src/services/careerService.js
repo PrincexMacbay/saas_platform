@@ -31,6 +31,12 @@ export const createJob = async (jobData) => {
   return response.data;
 };
 
+// Update existing job posting
+export const updateJob = async (jobId, jobData) => {
+  const response = await api.put(`/career/jobs/${jobId}`, jobData);
+  return response.data;
+};
+
 // Apply for a job
 export const applyForJob = async (jobId, applicationData) => {
   const response = await api.post(`/career/jobs/${jobId}/apply`, applicationData);
@@ -56,8 +62,11 @@ export const getSavedJobs = async (page = 1) => {
 };
 
 // Get company's posted jobs
-export const getCompanyJobs = async (page = 1) => {
-  const response = await api.get(`/career/company/jobs?page=${page}`);
+export const getCompanyJobs = async (page = 1, limit = null) => {
+  const params = new URLSearchParams({ page: page.toString() });
+  if (limit) params.append('limit', limit.toString());
+  
+  const response = await api.get(`/career/company/jobs?${params}`);
   return response.data;
 };
 
@@ -70,5 +79,16 @@ export const updateJobStatus = async (jobId, status) => {
 // Update application status
 export const updateApplicationStatus = async (applicationId, status, notes) => {
   const response = await api.put(`/career/applications/${applicationId}/status`, { status, notes });
+  return response.data;
+};
+
+// Get applications for company's jobs
+export const getCompanyApplications = async (page = 1, status = null, jobId = null, limit = null) => {
+  const params = new URLSearchParams({ page: page.toString() });
+  if (status) params.append('status', status);
+  if (jobId) params.append('jobId', jobId.toString());
+  if (limit) params.append('limit', limit.toString());
+  
+  const response = await api.get(`/career/company/applications?${params}`);
   return response.data;
 };

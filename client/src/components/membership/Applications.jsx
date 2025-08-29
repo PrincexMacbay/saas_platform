@@ -67,11 +67,17 @@ const Applications = () => {
     }
   };
 
-  const handleApprove = async (applicationId) => {
-    if (!confirm('Approve this application and create user account?')) return;
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [actionType, setActionType] = useState('');
+  const [notes, setNotes] = useState('');
 
+  const handleApprove = async (applicationId, notes = '') => {
     try {
-      const response = await api.post(`/membership/applications/${applicationId}/approve`, { createUser: true });
+      const response = await api.post(`/membership/applications/${applicationId}/approve`, { 
+        createUser: true,
+        notes: notes
+      });
       alert(`Application approved! ${response.data.data.credentials ? `User created with username: ${response.data.data.credentials.username}` : ''}`);
       fetchApplications();
     } catch (error) {
@@ -79,11 +85,9 @@ const Applications = () => {
     }
   };
 
-  const handleReject = async (applicationId) => {
-    if (!confirm('Are you sure you want to reject this application?')) return;
-
+  const handleReject = async (applicationId, notes = '') => {
     try {
-      await api.post(`/membership/applications/${applicationId}/reject`);
+      await api.post(`/membership/applications/${applicationId}/reject`, { notes });
       fetchApplications();
     } catch (error) {
       alert('Error rejecting application: ' + (error.response?.data?.message || error.message));
@@ -91,8 +95,6 @@ const Applications = () => {
   };
 
   const handleDelete = async (applicationId) => {
-    if (!confirm('Are you sure you want to delete this application?')) return;
-
     try {
       await api.delete(`/membership/applications/${applicationId}`);
       fetchApplications();
@@ -101,18 +103,40 @@ const Applications = () => {
     }
   };
 
+  const openActionModal = (application, type) => {
+    setSelectedApplication(application);
+    setActionType(type);
+    setNotes('');
+    setShowActionModal(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedApplication) return;
+
+    try {
+      if (actionType === 'approve') {
+        await handleApprove(selectedApplication.id, notes);
+      } else if (actionType === 'reject') {
+        await handleReject(selectedApplication.id, notes);
+      }
+      setShowActionModal(false);
+      setSelectedApplication(null);
+      setActionType('');
+      setNotes('');
+    } catch (error) {
+      console.error('Error performing action:', error);
+    }
+  };
+
   const getStatusBadge = (status) => {
-    const statusColors = {
-      pending: 'warning',
-      approved: 'success',
-      rejected: 'danger'
+    const statusConfig = {
+      'pending': { class: 'bg-warning', text: 'Pending' },
+      'approved': { class: 'bg-success', text: 'Approved' },
+      'rejected': { class: 'bg-danger', text: 'Rejected' },
     };
     
-    return (
-      <span className={`status-badge ${statusColors[status] || 'secondary'}`}>
-        {status}
-      </span>
-    );
+    const config = statusConfig[status] || { class: 'bg-secondary', text: status };
+    return <span className={`badge ${config.class}`}>{config.text}</span>;
   };
 
   const formatDate = (date) => {
@@ -356,14 +380,14 @@ const Applications = () => {
                     {application.status === 'pending' && (
                       <>
                         <button
-                          onClick={() => handleApprove(application.id)}
+                          onClick={() => openActionModal(application, 'approve')}
                           className="approve-button"
                           title="Approve Application"
                         >
                           <i className="fas fa-check"></i>
                         </button>
                         <button
-                          onClick={() => handleReject(application.id)}
+                          onClick={() => openActionModal(application, 'reject')}
                           className="reject-button"
                           title="Reject Application"
                         >
@@ -371,6 +395,13 @@ const Applications = () => {
                         </button>
                       </>
                     )}
+                    <button
+                      onClick={() => openActionModal(application, 'view')}
+                      className="view-button"
+                      title="View Application Details"
+                    >
+                      <i className="fas fa-eye"></i>
+                    </button>
                     <button
                       onClick={() => handleDelete(application.id)}
                       className="delete-button"
@@ -392,6 +423,161 @@ const Applications = () => {
           </div>
         )}
       </div>
+
+      {/* Action Modal */}
+      {showActionModal && selectedApplication && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content border-0 shadow">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title">
+                  <i className={`fas fa-${actionType === 'view' ? 'eye text-info' : actionType === 'approve' ? 'check-circle text-success' : 'times-circle text-danger'} me-2`}></i>
+                  {actionType === 'view' ? 'View Application Details' : actionType === 'approve' ? 'Approve Application' : 'Reject Application'}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setShowActionModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {actionType === 'view' ? (
+                  <div className="application-details">
+                    <div className="basic-info mb-4">
+                      <h6 className="text-muted mb-3">Basic Information</h6>
+                      <div className="row">
+                        <div className="col-md-6">
+                          <p><strong>Name:</strong> {selectedApplication.firstName} {selectedApplication.lastName}</p>
+                          <p><strong>Email:</strong> {selectedApplication.email}</p>
+                          <p><strong>Phone:</strong> {selectedApplication.phone || 'Not provided'}</p>
+                          <p><strong>Student ID:</strong> {selectedApplication.studentId || 'Not provided'}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <p><strong>Plan:</strong> {selectedApplication.plan?.name || 'N/A'}</p>
+                          <p><strong>Status:</strong> {getStatusBadge(selectedApplication.status)}</p>
+                          <p><strong>Applied:</strong> {formatDate(selectedApplication.createdAt)}</p>
+                          <p><strong>Referral:</strong> {selectedApplication.referral || 'None'}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedApplication.formData && (
+                      <div className="custom-form-data mb-4">
+                        <h6 className="text-muted mb-3">Custom Form Data</h6>
+                        <div className="form-data-display">
+                          {(() => {
+                            try {
+                              const formData = JSON.parse(selectedApplication.formData);
+                              return Object.entries(formData).map(([key, value]) => {
+                                // Skip basic fields that are already shown
+                                if (['firstName', 'lastName', 'email', 'phone', 'studentId', 'planId', 'applicationFee'].includes(key)) {
+                                  return null;
+                                }
+                                return (
+                                  <div key={key} className="form-field">
+                                    <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong>
+                                    <span>{value || 'Not provided'}</span>
+                                  </div>
+                                );
+                              }).filter(Boolean);
+                            } catch (e) {
+                              return <p className="text-muted">Unable to parse custom form data</p>;
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedApplication.paymentInfo && (
+                      <div className="payment-info mb-4">
+                        <h6 className="text-muted mb-3">Payment Information</h6>
+                        <div className="payment-data-display">
+                          {(() => {
+                            try {
+                              const paymentInfo = JSON.parse(selectedApplication.paymentInfo);
+                              return (
+                                <div className="row">
+                                  <div className="col-md-6">
+                                    <p><strong>Payment Method:</strong> {paymentInfo.method}</p>
+                                    <p><strong>Amount:</strong> ${paymentInfo.amount}</p>
+                                    <p><strong>Transaction ID:</strong> {paymentInfo.transactionId}</p>
+                                  </div>
+                                  <div className="col-md-6">
+                                    <p><strong>Processed:</strong> {new Date(paymentInfo.processedAt).toLocaleString()}</p>
+                                  </div>
+                                </div>
+                              );
+                            } catch (e) {
+                              return <p className="text-muted">Unable to parse payment information</p>;
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-3">
+                      <p className="mb-2">
+                        <strong>Applicant:</strong> {selectedApplication.firstName} {selectedApplication.lastName}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Email:</strong> {selectedApplication.email}
+                      </p>
+                      <p className="mb-2">
+                        <strong>Plan:</strong> {selectedApplication.plan?.name || 'N/A'}
+                      </p>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="form-label fw-medium">
+                        {actionType === 'approve' ? 'Approval' : 'Rejection'} Notes (Optional)
+                      </label>
+                      <textarea
+                        className="form-control"
+                        rows="4"
+                        placeholder={`Add notes about this ${actionType === 'approve' ? 'approval' : 'rejection'}...`}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                      ></textarea>
+                      <div className="form-text">
+                        Notes will be saved with the application and can be viewed later.
+                      </div>
+                    </div>
+                    
+                    <div className={`alert alert-${actionType === 'approve' ? 'success' : 'danger'} d-flex align-items-center`}>
+                      <i className={`fas fa-${actionType === 'approve' ? 'check-circle' : 'exclamation-triangle'} me-2`}></i>
+                      <div>
+                        <strong>Action:</strong> {actionType === 'approve' ? 'Approve' : 'Reject'} application for {selectedApplication.firstName} {selectedApplication.lastName}
+                        {actionType === 'approve' && ' and create user account'}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="modal-footer border-0 pt-0">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowActionModal(false)}
+                >
+                  {actionType === 'view' ? 'Close' : 'Cancel'}
+                </button>
+                {actionType !== 'view' && (
+                  <button 
+                    type="button" 
+                    className={`btn btn-${actionType === 'approve' ? 'success' : 'danger'}`}
+                    onClick={handleConfirmAction}
+                  >
+                    <i className={`fas fa-${actionType === 'approve' ? 'check' : 'times'} me-2`}></i>
+                    {actionType === 'approve' ? 'Approve' : 'Reject'} Application
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {totalPages > 1 && (
         <div className="pagination">
@@ -541,6 +727,7 @@ const Applications = () => {
 
         .approve-button,
         .reject-button,
+        .view-button,
         .delete-button {
           padding: 8px;
           border: none;
@@ -577,6 +764,52 @@ const Applications = () => {
         .delete-button:hover {
           background: #6c757d;
           color: white;
+        }
+
+        .view-button {
+          background: #f8f9fa;
+          color: #3498db;
+        }
+
+        .view-button:hover {
+          background: #3498db;
+          color: white;
+        }
+
+        .form-data-display {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 20px;
+        }
+
+        .form-field {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-field:last-child {
+          border-bottom: none;
+        }
+
+        .form-field strong {
+          color: #2c3e50;
+          min-width: 150px;
+        }
+
+        .form-field span {
+          color: #7f8c8d;
+          text-align: right;
+          flex: 1;
+          margin-left: 20px;
+        }
+
+        .payment-data-display {
+          background: #e8f4fd;
+          border-radius: 8px;
+          padding: 20px;
         }
 
         .no-data {

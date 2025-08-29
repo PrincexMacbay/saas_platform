@@ -18,7 +18,7 @@ const getUserSubscriptions = async (req, res) => {
           include: [
             {
               model: Organization,
-              as: 'organization',
+              as: 'planOrganization',
               attributes: ['id', 'name', 'logo']
             }
           ]
@@ -272,6 +272,44 @@ const updateSubscription = async (req, res) => {
   }
 };
 
+// Update subscription status
+const updateSubscriptionStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const subscription = await Subscription.findByPk(id);
+    if (!subscription) {
+      return res.status(404).json({
+        success: false,
+        message: 'Subscription not found'
+      });
+    }
+
+    await subscription.update({ status });
+
+    const updatedSubscription = await Subscription.findByPk(id, {
+      include: [
+        { model: User, as: 'user', attributes: ['firstName', 'lastName', 'email'] },
+        { model: Plan, as: 'plan' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      message: 'Subscription status updated successfully',
+      data: updatedSubscription
+    });
+  } catch (error) {
+    console.error('Update subscription status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update subscription status',
+      error: error.message
+    });
+  }
+};
+
 // Delete subscription
 const deleteSubscription = async (req, res) => {
   try {
@@ -344,5 +382,6 @@ module.exports = {
   getSubscription,
   createSubscription,
   updateSubscription,
+  updateSubscriptionStatus,
   deleteSubscription
 };

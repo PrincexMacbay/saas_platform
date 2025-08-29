@@ -8,12 +8,15 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Membership from './pages/Membership';
 import BrowseMemberships from './pages/BrowseMemberships';
+import PlanDetail from './pages/PlanDetail';
 import ApplyMembership from './pages/ApplyMembership';
+import ApplicationPayment from './pages/ApplicationPayment';
 import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
 import JobDetail from './components/career/JobDetail';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
+import SimpleErrorLogger from './components/SimpleErrorLogger';
 import './App.css';
 
 function App() {
@@ -28,8 +31,10 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/debug" element={<DebugRegistration />} />
               <Route path="/browse-memberships" element={<BrowseMemberships />} />
-              <Route path="/apply/:planId" element={<ApplyMembership />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/plan/:id" element={<PlanDetail />} />
+                              <Route path="/apply/:planId" element={<ApplyMembership />} />
+                <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route
                 path="/dashboard"
                 element={
@@ -80,6 +85,7 @@ function App() {
               />
             </Routes>
           </main>
+          <SimpleErrorLogger />
         </div>
       </Router>
     </AuthProvider>

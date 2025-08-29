@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { createJob } from '../../services/careerService';
+import React, { useState, useEffect } from 'react';
+import { createJob, updateJob } from '../../services/careerService';
 import { useNavigate } from 'react-router-dom';
 
-const CreateJobForm = ({ onJobCreated }) => {
+const CreateJobForm = ({ onJobCreated, onJobUpdated, editingJob }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +22,27 @@ const CreateJobForm = ({ onJobCreated }) => {
     applicationDeadline: '',
   });
 
+  // Populate form when editing
+  useEffect(() => {
+    if (editingJob) {
+      setFormData({
+        title: editingJob.title || '',
+        description: editingJob.description || '',
+        requirements: editingJob.requirements || '',
+        benefits: editingJob.benefits || '',
+        category: editingJob.category || '',
+        jobType: editingJob.jobType || '',
+        location: editingJob.location || '',
+        salaryMin: editingJob.salaryMin || '',
+        salaryMax: editingJob.salaryMax || '',
+        salaryCurrency: editingJob.salaryCurrency || 'USD',
+        experienceLevel: editingJob.experienceLevel || '',
+        remoteWork: editingJob.remoteWork || false,
+        applicationDeadline: editingJob.applicationDeadline || '',
+      });
+    }
+  }, [editingJob]);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -36,16 +57,24 @@ const CreateJobForm = ({ onJobCreated }) => {
     setError('');
 
     try {
-      const response = await createJob(formData);
+      let response;
       
-      if (onJobCreated) {
-        onJobCreated(response.data.job);
+      if (editingJob) {
+        response = await updateJob(editingJob.id, formData);
+        if (onJobUpdated) {
+          onJobUpdated(response.data.job);
+        }
       } else {
-        navigate('/career');
+        response = await createJob(formData);
+        if (onJobCreated) {
+          onJobCreated(response.data.job);
+        } else {
+          navigate('/career');
+        }
       }
     } catch (error) {
-      console.error('Error creating job:', error);
-      setError(error.response?.data?.message || 'Failed to create job posting');
+      console.error('Error saving job:', error);
+      setError(error.response?.data?.message || `Failed to ${editingJob ? 'update' : 'create'} job posting`);
     } finally {
       setLoading(false);
     }
@@ -93,8 +122,8 @@ const CreateJobForm = ({ onJobCreated }) => {
       <div className="card">
         <div className="card-header">
           <h5 className="mb-0">
-            <i className="fas fa-plus me-2"></i>
-            Post a New Job
+            <i className={`fas ${editingJob ? 'fa-edit' : 'fa-plus'} me-2`}></i>
+            {editingJob ? 'Edit Job Posting' : 'Post a New Job'}
           </h5>
         </div>
         <div className="card-body">
@@ -327,12 +356,12 @@ const CreateJobForm = ({ onJobCreated }) => {
                 {loading ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                    Creating...
+                    {editingJob ? 'Updating...' : 'Creating...'}
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-paper-plane me-2"></i>
-                    Post Job
+                    <i className={`fas ${editingJob ? 'fa-save' : 'fa-paper-plane'} me-2`}></i>
+                    {editingJob ? 'Update Job' : 'Post Job'}
                   </>
                 )}
               </button>

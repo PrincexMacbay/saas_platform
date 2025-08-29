@@ -142,10 +142,10 @@ const JobDetail = () => {
         <div className="header-content">
           <div className="job-title-section">
             <div className="company-logo">
-              {job.employer.companyLogo ? (
+              {job.employer.companyProfile?.companyLogo ? (
                 <img
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyLogo}`}
-                  alt={job.employer.companyName || job.employer.firstName}
+                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                  alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                 />
               ) : (
                 <div className="logo-placeholder">
@@ -156,7 +156,7 @@ const JobDetail = () => {
             <div className="job-info">
               <h1 className="job-title">{job.title}</h1>
               <h2 className="company-name">
-                {job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
+                {job.employer.companyProfile?.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
               </h2>
               <div className="job-meta">
                 <span className="location">
@@ -176,7 +176,7 @@ const JobDetail = () => {
           </div>
           
           <div className="action-buttons">
-            {user?.userType === 'individual' && (
+            {user?.profile?.userType === 'individual' && (
               <button
                 className={`btn-save ${job.isSaved ? 'saved' : ''}`}
                 onClick={handleSaveJob}
@@ -201,9 +201,9 @@ const JobDetail = () => {
               Remote
             </span>
           )}
-          {job.employer.industry && (
+          {job.employer.companyProfile?.industry && (
             <span className="badge industry">
-              {job.employer.industry}
+              {job.employer.companyProfile.industry}
             </span>
           )}
         </div>
@@ -258,42 +258,42 @@ const JobDetail = () => {
           <div className="company-card">
             <h3>About the Company</h3>
             <div className="company-info">
-              {job.employer.companyLogo && (
+              {job.employer.companyProfile?.companyLogo && (
                 <div className="company-logo-large">
                   <img
-                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyLogo}`}
-                    alt={job.employer.companyName || job.employer.firstName}
+                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                    alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                   />
                 </div>
               )}
-              <h4>{job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}</h4>
+              <h4>{job.employer.companyProfile?.companyName || `${job.employer.firstName} ${job.employer.lastName}`}</h4>
               
               <div className="company-details">
-                {job.employer.industry && (
+                {job.employer.companyProfile?.industry && (
                   <div className="detail-item">
                     <i className="fas fa-industry"></i>
-                    <span>{job.employer.industry}</span>
+                    <span>{job.employer.companyProfile.industry}</span>
                   </div>
                 )}
                 
-                {job.employer.location && (
+                {job.employer.companyProfile?.location && (
                   <div className="detail-item">
                     <i className="fas fa-map-marker-alt"></i>
-                    <span>{job.employer.location}</span>
+                    <span>{job.employer.companyProfile.location}</span>
                   </div>
                 )}
                 
-                {job.employer.companySize && (
+                {job.employer.companyProfile?.companySize && (
                   <div className="detail-item">
                     <i className="fas fa-users"></i>
-                    <span>{job.employer.companySize}</span>
+                    <span>{job.employer.companyProfile.companySize}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {user?.userType === 'individual' && (
+          {user?.profile?.userType === 'individual' && (
             <div className="application-section">
               <h3>Apply for this Position</h3>
               <div className="application-form-container">

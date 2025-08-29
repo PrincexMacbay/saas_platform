@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { body } = require('express-validator');
-const { User } = require('../models');
+const { User, UserProfile, IndividualProfile, CompanyProfile } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const emailService = require('../services/emailService');
 const { Op } = require('sequelize');
@@ -89,6 +89,12 @@ const register = async (req, res) => {
       lastName,
     });
 
+    // Don't create a default user profile - let user choose their role
+    // The profile will be created when they select their role in the career center
+
+    // Get user without profile data initially
+    const userWithoutProfile = await User.findByPk(user.id);
+
     // Generate token
     const token = generateToken(user.id);
 
@@ -112,7 +118,7 @@ const register = async (req, res) => {
       message: 'User registered successfully',
       data: {
         token,
-        user: user.toJSON(),
+        user: userWithoutProfile.toJSON(),
       }
     });
   } catch (error) {
@@ -162,14 +168,28 @@ const login = async (req, res) => {
   try {
     const { login, password } = req.body;
 
-    // Find user by username or email
+    // Find user by username or email with profile data
     const user = await User.findOne({
       where: {
         [Op.or]: [
           { email: login },
           { username: login }
         ]
-      }
+      },
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        }
+      ]
     });
 
     if (!user) {
@@ -222,10 +242,28 @@ const login = async (req, res) => {
 // Get current user profile
 const getProfile = async (req, res) => {
   try {
+    // Get user with profile data
+    const userWithProfile = await User.findByPk(req.user.id, {
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        }
+      ]
+    });
+
     res.json({
       success: true,
       data: {
-        user: req.user.toJSON(),
+        user: userWithProfile.toJSON(),
       }
     });
   } catch (error) {

@@ -1,0 +1,273 @@
+Table Name,Column Name,Data Type,Constraints,Description
+USERS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique user identifier
+USERS,guid,UUID,UNIQUE NOT NULL,Global unique identifier
+USERS,email,VARCHAR(255),UNIQUE NOT NULL,User email address
+USERS,username,VARCHAR(100),UNIQUE NOT NULL,Unique username
+USERS,password,VARCHAR(255),NOT NULL,Encrypted password
+USERS,firstName,VARCHAR(100),,First name
+USERS,lastName,VARCHAR(100),,Last name
+USERS,phone,VARCHAR(20),,Phone number
+USERS,location,VARCHAR(255),,User location
+USERS,website,VARCHAR(255),,Personal website
+USERS,about,TEXT,,User bio/description
+USERS,profileImage,VARCHAR(500),,Profile image URL
+USERS,visibility,INTEGER,DEFAULT 1,Profile visibility setting
+USERS,organizationId,INTEGER,FOREIGN KEY → organizations.id,Organization membership
+USERS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+USERS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+ORGANIZATIONS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique organization identifier
+ORGANIZATIONS,name,VARCHAR(255),NOT NULL,Organization name
+ORGANIZATIONS,description,TEXT,,Organization description
+ORGANIZATIONS,logo,VARCHAR(500),,Logo image URL
+ORGANIZATIONS,website,VARCHAR(255),,Organization website
+ORGANIZATIONS,email,VARCHAR(255),,Contact email
+ORGANIZATIONS,phone,VARCHAR(20),,Contact phone
+ORGANIZATIONS,address,TEXT,,Physical address
+ORGANIZATIONS,isActive,BOOLEAN,DEFAULT true,Active status
+ORGANIZATIONS,membershipSettings,TEXT,,JSON settings for membership
+ORGANIZATIONS,ownerId,INTEGER,FOREIGN KEY → users.id NOT NULL,Organization owner
+ORGANIZATIONS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+ORGANIZATIONS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+PLANS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique plan identifier
+PLANS,name,VARCHAR(255),NOT NULL,Plan name
+PLANS,description,TEXT,,Plan description
+PLANS,fee,DECIMAL(10\,2),NOT NULL,Membership fee
+PLANS,renewalInterval,VARCHAR(20),NOT NULL,Renewal frequency
+PLANS,benefits,TEXT,,JSON array of benefits
+PLANS,isActive,BOOLEAN,DEFAULT true,Plan active status
+PLANS,maxMembers,INTEGER,,Maximum member limit
+PLANS,isPublic,BOOLEAN,DEFAULT true,Public visibility
+PLANS,organizationId,INTEGER,FOREIGN KEY → organizations.id,Plan owner organization
+PLANS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+PLANS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+SUBSCRIPTIONS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique subscription identifier
+SUBSCRIPTIONS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Subscriber user
+SUBSCRIPTIONS,planId,INTEGER,FOREIGN KEY → plans.id NOT NULL,Subscribed plan
+SUBSCRIPTIONS,memberNumber,VARCHAR(50),UNIQUE,Unique member number
+SUBSCRIPTIONS,startDate,DATE,NOT NULL,Subscription start date
+SUBSCRIPTIONS,endDate,DATE,,Subscription end date
+SUBSCRIPTIONS,status,VARCHAR(20),NOT NULL,Subscription status
+SUBSCRIPTIONS,currentFee,DECIMAL(10\,2),,Current fee amount
+SUBSCRIPTIONS,autoRenew,BOOLEAN,DEFAULT true,Auto-renewal setting
+SUBSCRIPTIONS,notes,TEXT,,Additional notes
+SUBSCRIPTIONS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+SUBSCRIPTIONS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+APPLICATIONS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique application identifier
+APPLICATIONS,email,VARCHAR(255),NOT NULL,Applicant email
+APPLICATIONS,firstName,VARCHAR(100),NOT NULL,Applicant first name
+APPLICATIONS,lastName,VARCHAR(100),,Applicant last name
+APPLICATIONS,phone,VARCHAR(20),,Applicant phone
+APPLICATIONS,referral,VARCHAR(255),,Referral source
+APPLICATIONS,studentId,VARCHAR(50),,Student ID if applicable
+APPLICATIONS,applicationFee,DECIMAL(10\,2),,Application fee amount
+APPLICATIONS,paymentInfo,TEXT,,JSON payment information
+APPLICATIONS,status,VARCHAR(20),NOT NULL,Application status
+APPLICATIONS,formData,TEXT,,JSON dynamic form data
+APPLICATIONS,planId,INTEGER,FOREIGN KEY → plans.id NOT NULL,Applied plan
+APPLICATIONS,userId,INTEGER,FOREIGN KEY → users.id,Created user after approval
+APPLICATIONS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+APPLICATIONS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+PAYMENTS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique payment identifier
+PAYMENTS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Paying user
+PAYMENTS,planId,INTEGER,FOREIGN KEY → plans.id,Related plan
+PAYMENTS,subscriptionId,INTEGER,FOREIGN KEY → subscriptions.id,Related subscription
+PAYMENTS,amount,DECIMAL(10\,2),NOT NULL,Payment amount
+PAYMENTS,paymentMethod,VARCHAR(50),,Payment method used
+PAYMENTS,transactionId,VARCHAR(255),,External transaction ID
+PAYMENTS,status,VARCHAR(20),NOT NULL,Payment status
+PAYMENTS,paymentDate,TIMESTAMP,,Payment completion date
+PAYMENTS,description,TEXT,,Payment description
+PAYMENTS,paymentDetails,TEXT,,JSON payment details
+PAYMENTS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+PAYMENTS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+JOBS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique job identifier
+JOBS,title,VARCHAR(255),NOT NULL,Job title
+JOBS,description,TEXT,NOT NULL,Job description
+JOBS,company,VARCHAR(255),NOT NULL,Company name
+JOBS,location,VARCHAR(255),,Job location
+JOBS,salary,VARCHAR(100),,Salary range
+JOBS,jobType,VARCHAR(50),,Employment type
+JOBS,experienceLevel,VARCHAR(50),,Required experience level
+JOBS,industry,VARCHAR(100),,Industry category
+JOBS,requirements,TEXT,,Job requirements
+JOBS,benefits,TEXT,,Job benefits
+JOBS,isRemote,BOOLEAN,DEFAULT false,Remote work option
+JOBS,deadline,DATE,,Application deadline
+JOBS,status,VARCHAR(20),DEFAULT 'active',Job posting status
+JOBS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Job poster
+JOBS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+JOBS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+JOB_APPLICATIONS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique job application identifier
+JOB_APPLICATIONS,jobId,INTEGER,FOREIGN KEY → jobs.id NOT NULL,Applied job
+JOB_APPLICATIONS,applicantId,INTEGER,FOREIGN KEY → users.id NOT NULL,Job applicant
+JOB_APPLICATIONS,coverLetter,TEXT,,Cover letter content
+JOB_APPLICATIONS,resume,VARCHAR(500),,Resume file path
+JOB_APPLICATIONS,status,VARCHAR(20),DEFAULT 'pending',Application status
+JOB_APPLICATIONS,notes,TEXT,,Application notes
+JOB_APPLICATIONS,appliedAt,TIMESTAMP,,Application submission time
+JOB_APPLICATIONS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+JOB_APPLICATIONS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+SAVED_JOBS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique saved job identifier
+SAVED_JOBS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,User who saved
+SAVED_JOBS,jobId,INTEGER,FOREIGN KEY → jobs.id NOT NULL,Saved job
+SAVED_JOBS,savedAt,TIMESTAMP,,Save timestamp
+SAVED_JOBS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+SAVED_JOBS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+SPACES,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique space identifier
+SPACES,name,VARCHAR(255),NOT NULL,Space name
+SPACES,description,TEXT,,Space description
+SPACES,image,VARCHAR(500),,Space image URL
+SPACES,url,VARCHAR(255),UNIQUE,Unique space URL
+SPACES,visibility,INTEGER,DEFAULT 1,Space visibility setting
+SPACES,joinType,INTEGER,DEFAULT 1,Join requirement type
+SPACES,status,VARCHAR(20),DEFAULT 'active',Space status
+SPACES,settings,TEXT,,JSON space settings
+SPACES,memberLimit,INTEGER,,Maximum member limit
+SPACES,ownerId,INTEGER,FOREIGN KEY → users.id NOT NULL,Space owner
+SPACES,createdAt,TIMESTAMP,NOT NULL,Record creation time
+SPACES,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+POSTS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique post identifier
+POSTS,content,TEXT,NOT NULL,Post content
+POSTS,attachment,VARCHAR(500),,Attachment file path
+POSTS,processedAttachment,VARCHAR(500),,Processed attachment path
+POSTS,visibility,INTEGER,DEFAULT 1,Post visibility setting
+POSTS,archived,BOOLEAN,DEFAULT false,Archive status
+POSTS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Post author
+POSTS,spaceId,INTEGER,FOREIGN KEY → spaces.id,Associated space
+POSTS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+POSTS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+COMMENTS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique comment identifier
+COMMENTS,content,TEXT,NOT NULL,Comment content
+COMMENTS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Comment author
+COMMENTS,postId,INTEGER,FOREIGN KEY → posts.id NOT NULL,Parent post
+COMMENTS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+COMMENTS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+MEMBERSHIPS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique membership identifier
+MEMBERSHIPS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Member user
+MEMBERSHIPS,spaceId,INTEGER,FOREIGN KEY → spaces.id NOT NULL,Member space
+MEMBERSHIPS,role,VARCHAR(50),DEFAULT 'member',Member role
+MEMBERSHIPS,joinedAt,TIMESTAMP,,Join timestamp
+MEMBERSHIPS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+MEMBERSHIPS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+FOLLOWS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique follow identifier
+FOLLOWS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Follower user
+FOLLOWS,targetUserId,INTEGER,FOREIGN KEY → users.id NOT NULL,Followed user
+FOLLOWS,followedAt,TIMESTAMP,,Follow timestamp
+FOLLOWS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+FOLLOWS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+LIKES,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique like identifier
+LIKES,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,User who liked
+LIKES,postId,INTEGER,FOREIGN KEY → posts.id NOT NULL,Liked post
+LIKES,likedAt,TIMESTAMP,,Like timestamp
+LIKES,createdAt,TIMESTAMP,NOT NULL,Record creation time
+LIKES,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+APPLICATION_FORMS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique form identifier
+APPLICATION_FORMS,title,VARCHAR(255),NOT NULL,Form title
+APPLICATION_FORMS,description,TEXT,,Form description
+APPLICATION_FORMS,footer,TEXT,,Form footer text
+APPLICATION_FORMS,terms,TEXT,,Terms and conditions
+APPLICATION_FORMS,agreement,TEXT,,Agreement text
+APPLICATION_FORMS,fields,TEXT,NOT NULL,JSON form field definitions
+APPLICATION_FORMS,isPublished,BOOLEAN,DEFAULT false,Publication status
+APPLICATION_FORMS,organizationId,INTEGER,FOREIGN KEY → organizations.id NOT NULL,Form owner organization
+APPLICATION_FORMS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+APPLICATION_FORMS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+DIGITAL_CARDS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique card identifier
+DIGITAL_CARDS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Card owner
+DIGITAL_CARDS,subscriptionId,INTEGER,FOREIGN KEY → subscriptions.id NOT NULL,Associated subscription
+DIGITAL_CARDS,template,TEXT,,JSON card template
+DIGITAL_CARDS,logoUrl,VARCHAR(500),,Card logo URL
+DIGITAL_CARDS,primaryColor,VARCHAR(7),,Primary color hex
+DIGITAL_CARDS,secondaryColor,VARCHAR(7),,Secondary color hex
+DIGITAL_CARDS,qrCodeData,TEXT,,QR code data
+DIGITAL_CARDS,isActive,BOOLEAN,DEFAULT true,Card active status
+DIGITAL_CARDS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+DIGITAL_CARDS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+INVOICES,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique invoice identifier
+INVOICES,invoiceNumber,VARCHAR(100),UNIQUE NOT NULL,Invoice number
+INVOICES,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Invoice recipient
+INVOICES,planId,INTEGER,FOREIGN KEY → plans.id,Related plan
+INVOICES,paymentId,INTEGER,FOREIGN KEY → payments.id,Related payment
+INVOICES,amount,DECIMAL(10\,2),NOT NULL,Invoice amount
+INVOICES,taxAmount,DECIMAL(10\,2),,Tax amount
+INVOICES,totalAmount,DECIMAL(10\,2),NOT NULL,Total amount
+INVOICES,issueDate,DATE,NOT NULL,Invoice issue date
+INVOICES,dueDate,DATE,,Payment due date
+INVOICES,status,VARCHAR(20),NOT NULL,Invoice status
+INVOICES,description,TEXT,,Invoice description
+INVOICES,createdAt,TIMESTAMP,NOT NULL,Record creation time
+INVOICES,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+DEBTS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique debt identifier
+DEBTS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Debtor user
+DEBTS,planId,INTEGER,FOREIGN KEY → plans.id,Related plan
+DEBTS,subscriptionId,INTEGER,FOREIGN KEY → subscriptions.id,Related subscription
+DEBTS,amount,DECIMAL(10\,2),NOT NULL,Debt amount
+DEBTS,description,TEXT,,Debt description
+DEBTS,dueDate,DATE,,Payment due date
+DEBTS,status,VARCHAR(20),DEFAULT 'pending',Debt status
+DEBTS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+DEBTS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+SCHEDULED_PAYMENTS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique scheduled payment identifier
+SCHEDULED_PAYMENTS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Payer user
+SCHEDULED_PAYMENTS,planId,INTEGER,FOREIGN KEY → plans.id,Related plan
+SCHEDULED_PAYMENTS,subscriptionId,INTEGER,FOREIGN KEY → subscriptions.id,Related subscription
+SCHEDULED_PAYMENTS,amount,DECIMAL(10\,2),NOT NULL,Scheduled amount
+SCHEDULED_PAYMENTS,scheduledDate,DATE,NOT NULL,Scheduled payment date
+SCHEDULED_PAYMENTS,status,VARCHAR(20),DEFAULT 'pending',Payment status
+SCHEDULED_PAYMENTS,description,TEXT,,Payment description
+SCHEDULED_PAYMENTS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+SCHEDULED_PAYMENTS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+REMINDERS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique reminder identifier
+REMINDERS,userId,INTEGER,FOREIGN KEY → users.id NOT NULL,Reminder recipient
+REMINDERS,planId,INTEGER,FOREIGN KEY → plans.id,Related plan
+REMINDERS,subscriptionId,INTEGER,FOREIGN KEY → subscriptions.id,Related subscription
+REMINDERS,type,VARCHAR(50),NOT NULL,Reminder type
+REMINDERS,title,VARCHAR(255),NOT NULL,Reminder title
+REMINDERS,message,TEXT,NOT NULL,Reminder message
+REMINDERS,scheduledDate,TIMESTAMP,NOT NULL,Scheduled reminder date
+REMINDERS,sentDate,TIMESTAMP,,Actual send date
+REMINDERS,status,VARCHAR(20),DEFAULT 'pending',Reminder status
+REMINDERS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+REMINDERS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+COUPONS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique coupon identifier
+COUPONS,code,VARCHAR(50),UNIQUE NOT NULL,Coupon code
+COUPONS,description,TEXT,,Coupon description
+COUPONS,discountType,VARCHAR(20),NOT NULL,Discount type
+COUPONS,discountValue,DECIMAL(10\,2),NOT NULL,Discount amount/percentage
+COUPONS,maxUses,INTEGER,,Maximum usage count
+COUPONS,usedCount,INTEGER,DEFAULT 0,Current usage count
+COUPONS,startDate,DATE,,Coupon start date
+COUPONS,endDate,DATE,,Coupon end date
+COUPONS,isActive,BOOLEAN,DEFAULT true,Coupon active status
+COUPONS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+COUPONS,updatedAt,TIMESTAMP,NOT NULL,Last update time
+
+MEMBERSHIP_SETTINGS,id,INTEGER,PRIMARY KEY AUTO_INCREMENT,Unique setting identifier
+MEMBERSHIP_SETTINGS,organizationId,INTEGER,FOREIGN KEY → organizations.id NOT NULL,Organization owner
+MEMBERSHIP_SETTINGS,settingKey,VARCHAR(100),NOT NULL,Setting key name
+MEMBERSHIP_SETTINGS,settingValue,TEXT,,Setting value
+MEMBERSHIP_SETTINGS,dataType,VARCHAR(20),DEFAULT 'string',Value data type
+MEMBERSHIP_SETTINGS,description,TEXT,,Setting description
+MEMBERSHIP_SETTINGS,createdAt,TIMESTAMP,NOT NULL,Record creation time
+MEMBERSHIP_SETTINGS,updatedAt,TIMESTAMP,NOT NULL,Last update time

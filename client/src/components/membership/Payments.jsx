@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import CryptoPayment from './CryptoPayment';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -13,6 +14,13 @@ const Payments = () => {
   const [editingPayment, setEditingPayment] = useState(null);
   const [plans, setPlans] = useState([]);
   const [users, setUsers] = useState([]);
+  
+  // Payment modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('crypto');
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentPlanId, setPaymentPlanId] = useState(null);
+  const [paymentDescription, setPaymentDescription] = useState('');
 
   useEffect(() => {
     fetchPayments();
@@ -101,7 +109,20 @@ const Payments = () => {
 
   const handleAddPayment = () => {
     setEditingPayment(null);
-    setShowAddModal(true);
+    setShowPaymentModal(true);
+  };
+
+  const handleCryptoPayment = (amount, planId, description) => {
+    setPaymentAmount(amount);
+    setPaymentPlanId(planId);
+    setPaymentDescription(description);
+    setSelectedPaymentMethod('crypto');
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    fetchPayments();
   };
 
   const handleEditPayment = (payment) => {
@@ -838,6 +859,21 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             }
           }
         `}</style>
+
+        {/* Crypto Payment Modal */}
+        {showPaymentModal && selectedPaymentMethod === 'crypto' && (
+          <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <CryptoPayment
+                amount={paymentAmount}
+                planId={paymentPlanId}
+                description={paymentDescription}
+                onSuccess={handlePaymentSuccess}
+                onCancel={() => setShowPaymentModal(false)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

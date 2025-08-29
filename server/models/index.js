@@ -1,5 +1,8 @@
 const sequelize = require('../config/database');
 const User = require('./User');
+const UserProfile = require('./UserProfile');
+const IndividualProfile = require('./IndividualProfile');
+const CompanyProfile = require('./CompanyProfile');
 const Space = require('./Space');
 const Post = require('./Post');
 const Comment = require('./Comment');
@@ -206,7 +209,7 @@ Organization.belongsTo(User, {
 
 User.belongsTo(Organization, { 
   foreignKey: 'organizationId', 
-  as: 'organization'
+  as: 'userOrganization'
 });
 Organization.hasMany(User, { 
   foreignKey: 'organizationId', 
@@ -221,7 +224,7 @@ Organization.hasMany(Plan, {
 });
 Plan.belongsTo(Organization, {
   foreignKey: 'organizationId',
-  as: 'organization'
+  as: 'planOrganization'
 });
 
 Organization.hasOne(ApplicationForm, {
@@ -231,7 +234,7 @@ Organization.hasOne(ApplicationForm, {
 });
 ApplicationForm.belongsTo(Organization, {
   foreignKey: 'organizationId',
-  as: 'organization'
+  as: 'formOrganization'
 });
 
 // User relationships
@@ -433,6 +436,16 @@ Application.belongsTo(User, {
   as: 'user'
 });
 
+// Plan-specific relationships
+Plan.belongsTo(ApplicationForm, { 
+  foreignKey: 'applicationFormId', 
+  as: 'applicationForm'
+});
+Plan.belongsTo(DigitalCard, { 
+  foreignKey: 'digitalCardTemplateId', 
+  as: 'digitalCardTemplate'
+});
+
 // DigitalCard relationships
 DigitalCard.belongsTo(User, { 
   foreignKey: 'userId', 
@@ -442,10 +455,56 @@ DigitalCard.belongsTo(Subscription, {
   foreignKey: 'subscriptionId', 
   as: 'subscription'
 });
+DigitalCard.belongsTo(Organization, { 
+  foreignKey: 'organizationId', 
+  as: 'cardOrganization'
+});
+
+// User Profile relationships
+User.hasOne(UserProfile, { 
+  foreignKey: 'userId', 
+  as: 'profile',
+  onDelete: 'CASCADE'
+});
+UserProfile.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
+// Individual Profile relationships
+User.hasOne(IndividualProfile, { 
+  foreignKey: 'userId', 
+  as: 'individualProfile',
+  onDelete: 'CASCADE'
+});
+IndividualProfile.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
+// Company Profile relationships
+User.hasOne(CompanyProfile, { 
+  foreignKey: 'userId', 
+  as: 'companyProfile',
+  onDelete: 'CASCADE'
+});
+CompanyProfile.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
+// Organization relationships for UserProfile
+UserProfile.belongsTo(Organization, { 
+  foreignKey: 'organizationId', 
+  as: 'profileOrganization'
+});
 
 module.exports = {
   sequelize,
   User,
+  UserProfile,
+  IndividualProfile,
+  CompanyProfile,
   Space,
   Post,
   Comment,

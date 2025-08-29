@@ -202,9 +202,9 @@ const Navbar = () => {
                     <div style={{ color: '#666', fontSize: '14px' }}>
                       @{user?.username}
                     </div>
-                    {user?.userType && (
+                    {user?.profile?.userType && (
                       <div style={{ color: '#3498db', fontSize: '12px', textTransform: 'capitalize' }}>
-                        {user.userType}
+                        {user.profile.userType}
                       </div>
                     )}
                   </div>

@@ -26,14 +26,37 @@ const ApplyMembership = () => {
       const plans = planResponse.data.data;
       const selectedPlan = plans.find(p => p.id === parseInt(planId));
       
+      console.log('Selected plan:', selectedPlan); // Debug log
+      
       if (!selectedPlan) {
         throw new Error('Plan not found');
       }
       
       setPlan(selectedPlan);
       
-      // Then get the application form for this organization
-      const formResponse = await api.get(`/public/application-form/${selectedPlan.organizationId}`);
+      // Get the application form based on plan configuration
+      let formResponse;
+      
+      console.log('Plan form config:', {
+        applicationFormId: selectedPlan.applicationFormId,
+        useDefaultForm: selectedPlan.useDefaultForm,
+        organizationId: selectedPlan.organizationId
+      }); // Debug log
+      
+      if (selectedPlan.applicationFormId && !selectedPlan.useDefaultForm) {
+        // Use plan-specific form
+        formResponse = await api.get(`/public/application-form/plan/${selectedPlan.applicationFormId}`);
+      } else if (selectedPlan.organizationId) {
+        // Use organization's default form
+        formResponse = await api.get(`/public/application-form/${selectedPlan.organizationId}`);
+      } else {
+        // If no organization, try to get a default form
+        console.log('Fetching default form'); // Debug log
+        formResponse = await api.get('/public/application-form');
+      }
+      
+      console.log('Form response:', formResponse.data); // Debug log
+      
       setForm(formResponse.data.data);
       
       // Initialize form data with default values
@@ -44,11 +67,13 @@ const ApplyMembership = () => {
       
       // Add fields from the custom form
       if (formResponse.data.data.fields) {
+        console.log('Form fields:', formResponse.data.data.fields); // Debug log
         formResponse.data.data.fields.forEach(field => {
           initialData[field.name] = '';
         });
       }
       
+      console.log('Initial form data:', initialData); // Debug log
       setFormData(initialData);
       
     } catch (error) {
@@ -85,8 +110,22 @@ const ApplyMembership = () => {
 
       const response = await api.post('/public/apply', submitData);
       
-      alert(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`);
-      navigate('/browse-memberships');
+      // Check if payment is required
+      if (plan.fee > 0) {
+        // Redirect to payment page
+        navigate(`/payment/application/${response.data.data.applicationId}`, {
+          state: {
+            applicationId: response.data.data.applicationId,
+            planId: planId,
+            amount: plan.fee,
+            planName: plan.name
+          }
+        });
+      } else {
+        // Free plan - show success message
+        alert(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`);
+        navigate('/browse-memberships');
+      }
       
     } catch (error) {
       console.error('Submit application error:', error);
@@ -193,6 +232,8 @@ const ApplyMembership = () => {
     );
   }
 
+  console.log('Rendering form with:', { form, formData }); // Debug log
+  
   return (
     <div className="apply-membership">
       <div className="apply-header">

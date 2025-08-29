@@ -1,0 +1,701 @@
+// =====================================================
+// HumHub Clone Database Schema - DBML Format
+// Comprehensive database schema for multi-tenant SaaS platform
+// with membership management, career center, and social features
+// =====================================================
+
+// =====================================================
+// CORE USER MANAGEMENT TABLES
+// =====================================================
+
+Table users {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  username varchar(100) [unique, not null]
+  email varchar(255) [unique, not null]
+  password varchar(255) [not null]
+  firstName varchar(100)
+  lastName varchar(100)
+  about text
+  profileImage varchar(255)
+  coverImage varchar(255)
+  status integer [default: 1] // 0: disabled, 1: enabled, 2: needs approval
+  visibility integer [default: 1] // 1: registered only, 2: public, 3: hidden
+  language varchar(10) [default: 'en']
+  timezone varchar(50) [default: 'UTC']
+  lastLogin timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    username
+    email
+    status
+  }
+}
+
+Table user_profiles {
+  id integer [primary key, increment]
+  userId integer [not null, unique]
+  userType varchar(50) [not null] // Flexible for future types: individual, company, freelancer, etc.
+  organizationId integer
+  organizationRole varchar(10) // 'admin', 'member'
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId [unique]
+    userType
+    organizationId
+  }
+}
+
+Table individual_profiles {
+  id integer [primary key, increment]
+  userId integer [not null, unique]
+  resume varchar(500)
+  workExperience text
+  jobPreferences text
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId [unique]
+  }
+}
+
+Table company_profiles {
+  id integer [primary key, increment]
+  userId integer [not null, unique]
+  companyName varchar(255)
+  companyLogo varchar(500)
+  industry varchar(100)
+  companySize varchar(50)
+  website varchar(255)
+  location varchar(255)
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId [unique]
+    companyName
+    industry
+    companySize
+  }
+}
+
+Table organizations {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  description text
+  logo varchar(500)
+  website varchar(255)
+  email varchar(255)
+  phone varchar(20)
+  address text
+  isActive boolean [default: true]
+  membershipSettings text // JSON string for organization-specific settings
+  ownerId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    ownerId
+    isActive
+    name
+  }
+}
+
+// =====================================================
+// MEMBERSHIP SYSTEM TABLES
+// =====================================================
+
+Table plans {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  description text
+  fee decimal(10,2) [not null]
+  renewalInterval varchar(20) [not null, default: 'monthly'] // monthly, quarterly, yearly, one-time
+  benefits text // JSON array of benefits
+  isActive boolean [default: true]
+  maxMembers integer
+  isPublic boolean [default: true]
+  organizationId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    organizationId
+    isActive
+    isPublic
+  }
+}
+
+Table subscriptions {
+  id integer [primary key, increment]
+  memberNumber varchar(50) [unique, not null]
+  status varchar(20) [not null, default: 'pending'] // pending, active, past_due, cancelled, expired
+  startDate date
+  endDate date
+  renewalDate date
+  autoRenew boolean [default: true]
+  notes text
+  userId integer [not null]
+  planId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    memberNumber [unique]
+    userId
+    planId
+    status
+  }
+}
+
+Table applications {
+  id integer [primary key, increment]
+  email varchar(255) [not null]
+  firstName varchar(100) [not null]
+  lastName varchar(100)
+  phone varchar(20)
+  referral varchar(255)
+  studentId varchar(50)
+  applicationFee decimal(10,2)
+  paymentInfo text // JSON string for payment information
+  status varchar(20) [not null, default: 'pending'] // pending, approved, rejected
+  formData text // JSON string for dynamic form fields
+  planId integer [not null]
+  userId integer // Set when application is approved
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    email
+    planId
+    userId
+    status
+  }
+}
+
+Table payments {
+  id integer [primary key, increment]
+  amount decimal(10,2) [not null]
+  paymentMethod varchar(50) [not null] // cash, bank_transfer, credit_card, debit_card, mobile_payment, other
+  paymentDate timestamp [not null, default: `now()`]
+  identifier varchar(255) // Transaction ID or identifier
+  referenceNumber varchar(255)
+  status varchar(20) [not null, default: 'pending'] // pending, completed, failed, refunded
+  notes text
+  userId integer [not null]
+  planId integer
+  subscriptionId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    planId
+    subscriptionId
+    status
+    paymentDate
+  }
+}
+
+Table invoices {
+  id integer [primary key, increment]
+  invoiceNumber varchar(100) [unique, not null]
+  amount decimal(10,2) [not null]
+  issueDate timestamp [not null, default: `now()`]
+  dueDate timestamp [not null]
+  status enum('pending', 'paid', 'overdue', 'cancelled') [not null, default: 'pending']
+  description text
+  invoiceText text // Custom invoice text from settings
+  userId integer [not null]
+  planId integer
+  paymentId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    invoiceNumber [unique]
+    userId
+    planId
+    status
+    dueDate
+  }
+}
+
+Table scheduled_payments {
+  id integer [primary key, increment]
+  amount decimal(10,2) [not null]
+  scheduledDate timestamp [not null]
+  frequency enum('one-time', 'monthly', 'quarterly', 'yearly') [not null, default: 'one-time']
+  status enum('pending', 'processed', 'failed', 'cancelled') [not null, default: 'pending']
+  description text
+  userId integer [not null]
+  planId integer
+  subscriptionId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    planId
+    subscriptionId
+    scheduledDate
+    status
+  }
+}
+
+Table debts {
+  id integer [primary key, increment]
+  amount decimal(10,2) [not null]
+  issuedOn timestamp [not null, default: `now()`]
+  isManualEntry boolean [default: false]
+  dataType enum('subscription', 'fee', 'penalty', 'other') [not null, default: 'subscription']
+  description text
+  status enum('outstanding', 'paid', 'written_off') [not null, default: 'outstanding']
+  userId integer [not null]
+  planId integer
+  subscriptionId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    planId
+    subscriptionId
+    status
+    issuedOn
+  }
+}
+
+Table reminders {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  status enum('pending', 'sent', 'failed') [not null, default: 'pending']
+  type enum('renewal', 'payment_due', 'overdue', 'welcome', 'custom') [not null]
+  reminderDate timestamp [not null]
+  message text
+  userId integer [not null]
+  planId integer
+  subscriptionId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    planId
+    subscriptionId
+    status
+    reminderDate
+  }
+}
+
+Table coupons {
+  id integer [primary key, increment]
+  name varchar(255) [not null]
+  couponId varchar(100) [unique, not null]
+  discount decimal(10,2) [not null]
+  discountType enum('percentage', 'fixed') [not null, default: 'percentage']
+  maxRedemptions integer // Null means unlimited
+  currentRedemptions integer [default: 0]
+  expiryDate timestamp
+  isActive boolean [default: true]
+  applicablePlans text // JSON array of plan IDs this coupon applies to
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    couponId [unique]
+    isActive
+    expiryDate
+  }
+}
+
+Table digital_cards {
+  id integer [primary key, increment]
+  
+  // Card Template Settings
+  logo varchar(500)
+  organizationName varchar(255)
+  cardTitle varchar(255) [default: 'Membership Card']
+  headerText text
+  footerText text
+  
+  // Barcode Settings
+  enableBarcode boolean [default: true]
+  barcodeType enum('qr', 'code128', 'code39') [default: 'qr']
+  barcodeData enum('member_number', 'user_id', 'custom') [default: 'member_number']
+  
+  // Colors
+  primaryColor varchar(7) [default: '#3498db']
+  secondaryColor varchar(7) [default: '#2c3e50']
+  textColor varchar(7) [default: '#ffffff']
+  
+  // User-specific card data
+  userId integer
+  subscriptionId integer
+  
+  // Card generation status
+  isGenerated boolean [default: false]
+  cardImagePath varchar(500)
+  
+  // Template or instance flag
+  isTemplate boolean [default: false] // True for card template, false for user-specific cards
+  
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    subscriptionId
+    isTemplate
+  }
+}
+
+Table application_forms {
+  id integer [primary key, increment]
+  title varchar(255) [not null, default: 'Membership Application']
+  description text
+  footer text
+  terms text
+  agreement text
+  fields text // JSON string for dynamic form fields configuration
+  isPublished boolean [default: false]
+  organizationId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table membership_settings {
+  id integer [primary key, increment]
+  
+  // General Settings
+  autoApproveApplications boolean [default: false]
+  enableApplicationForm boolean [default: true]
+  allowBankTransfers boolean [default: true]
+  
+  // Invoice Settings
+  invoiceText text
+  
+  // Email Notification Settings
+  emailNotifications text // JSON string for email notification preferences
+  
+  // Other Settings
+  memberNumberPrefix varchar(10) [default: 'MEM']
+  memberNumberLength integer [default: 6]
+  
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// =====================================================
+// SOCIAL FEATURES TABLES
+// =====================================================
+
+Table spaces {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  name varchar(100) [not null]
+  description text
+  about text
+  url varchar(45) [unique]
+  joinPolicy integer [default: 1] // 0: No self join, 1: Application required, 2: Free for all
+  visibility integer [default: 1] // 0: Private, 1: Registered users, 2: Public
+  status integer [default: 1] // 0: disabled, 1: enabled, 2: archived
+  color varchar(7) [default: '#3498db']
+  coverImage varchar(255)
+  sortOrder integer [default: 0]
+  autoAddNewMembers boolean [default: false]
+  defaultContentVisibility integer [default: 1]
+  ownerId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    url [unique]
+    ownerId
+    status
+    visibility
+  }
+}
+
+Table posts {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  message text [not null]
+  visibility integer [default: 1] // 0: private, 1: public for space members, 2: public for all
+  pinned boolean [default: false]
+  archived boolean [default: false]
+  attachmentUrl varchar(500)
+  userId integer [not null]
+  spaceId integer
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    spaceId
+    visibility
+    archived
+    createdAt
+  }
+}
+
+Table comments {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  message text [not null]
+  userId integer [not null]
+  postId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    postId
+    userId
+    createdAt
+  }
+}
+
+Table memberships {
+  id integer [primary key, increment]
+  status integer [default: 1] // 0: request pending, 1: member, 2: admin, 3: moderator, 4: owner
+  groupId varchar(50) // For role-based permissions
+  adminGroupShow boolean [default: true]
+  userId integer [not null]
+  spaceId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (userId, spaceId) [unique]
+    userId
+    spaceId
+    status
+  }
+}
+
+Table follows {
+  id integer [primary key, increment]
+  objectModel varchar(100) [not null] // 'User' or 'Space'
+  objectId integer [not null] // ID of the user or space being followed
+  userId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (userId, objectModel, objectId) [unique]
+    userId
+    (objectModel, objectId)
+  }
+}
+
+Table likes {
+  id integer [primary key, increment]
+  objectModel varchar(100) [not null] // 'Post' or 'Comment'
+  objectId integer [not null] // ID of the post or comment being liked
+  userId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (userId, objectModel, objectId) [unique]
+    userId
+    (objectModel, objectId)
+  }
+}
+
+// =====================================================
+// CAREER CENTER TABLES
+// =====================================================
+
+Table jobs {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  description text [not null]
+  requirements text
+  benefits text
+  category varchar(100) [not null]
+  jobType enum('full-time', 'part-time', 'contract', 'internship', 'freelance') [not null]
+  location varchar(255) [not null]
+  salaryMin integer
+  salaryMax integer
+  salaryCurrency varchar(3) [default: 'USD']
+  experienceLevel enum('entry', 'mid', 'senior', 'executive') [not null]
+  remoteWork boolean [default: false]
+  status enum('active', 'paused', 'closed') [default: 'active']
+  applicationDeadline timestamp
+  userId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    category
+    jobType
+    location
+    status
+    experienceLevel
+    remoteWork
+  }
+}
+
+Table job_applications {
+  id integer [primary key, increment]
+  guid uuid [unique, not null, default: `gen_random_uuid()`]
+  coverLetter text
+  resume varchar(500)
+  status enum('applied', 'reviewing', 'shortlisted', 'interviewed', 'rejected', 'hired') [default: 'applied']
+  notes text
+  appliedAt timestamp [default: `now()`]
+  jobId integer [not null]
+  applicantId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    jobId
+    applicantId
+    status
+    appliedAt
+  }
+}
+
+Table saved_jobs {
+  id integer [primary key, increment]
+  userId integer [not null]
+  jobId integer [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    (userId, jobId) [unique]
+    userId
+    jobId
+  }
+}
+
+// =====================================================
+// RELATIONSHIPS
+// =====================================================
+
+// User Profile relationships
+Ref: user_profiles.userId > users.id
+Ref: user_profiles.organizationId > organizations.id
+Ref: individual_profiles.userId > users.id
+Ref: company_profiles.userId > users.id
+
+// Organization relationships
+Ref: organizations.ownerId > users.id
+
+// Membership System relationships
+Ref: plans.organizationId > organizations.id
+Ref: subscriptions.userId > users.id
+Ref: subscriptions.planId > plans.id
+Ref: applications.planId > plans.id
+Ref: applications.userId > users.id
+Ref: payments.userId > users.id
+Ref: payments.planId > plans.id
+Ref: payments.subscriptionId > subscriptions.id
+Ref: invoices.userId > users.id
+Ref: invoices.planId > plans.id
+Ref: invoices.paymentId > payments.id
+Ref: scheduled_payments.userId > users.id
+Ref: scheduled_payments.planId > plans.id
+Ref: scheduled_payments.subscriptionId > subscriptions.id
+Ref: debts.userId > users.id
+Ref: debts.planId > plans.id
+Ref: debts.subscriptionId > subscriptions.id
+Ref: reminders.userId > users.id
+Ref: reminders.planId > plans.id
+Ref: reminders.subscriptionId > subscriptions.id
+Ref: digital_cards.userId > users.id
+Ref: digital_cards.subscriptionId > subscriptions.id
+Ref: application_forms.organizationId > organizations.id
+
+// Social Features relationships
+Ref: spaces.ownerId > users.id
+Ref: posts.userId > users.id
+Ref: posts.spaceId > spaces.id
+Ref: comments.userId > users.id
+Ref: comments.postId > posts.id
+Ref: memberships.userId > users.id
+Ref: memberships.spaceId > spaces.id
+Ref: follows.userId > users.id
+Ref: likes.userId > users.id
+
+// Career Center relationships
+Ref: jobs.userId > users.id
+Ref: job_applications.jobId > jobs.id
+Ref: job_applications.applicantId > users.id
+Ref: saved_jobs.userId > users.id
+Ref: saved_jobs.jobId > jobs.id
+
+// =====================================================
+// NOTES
+// =====================================================
+
+/*
+This DBML schema represents a comprehensive multi-tenant SaaS platform with:
+
+Key Features:
+1. Multi-tenant organization system
+2. Membership management with plans and subscriptions
+3. Payment processing and billing system
+4. Social features (spaces, posts, comments, likes, follows)
+5. Career center with job posting and applications
+6. Digital membership cards
+7. Application forms and workflow
+8. Debt tracking and reminders
+9. Coupon system
+
+Database: humhub_clone
+Total Tables: 27
+
+Core Tables:
+- users (core personal information only)
+- user_profiles (profile type and organization membership)
+- individual_profiles (job seeker specific information)
+- company_profiles (employer specific information)
+- organizations (multi-tenant support)
+- plans (membership plans)
+- subscriptions (user subscriptions)
+- applications (membership applications)
+- payments (payment tracking)
+- invoices (billing)
+- scheduled_payments (recurring payments)
+- debts (outstanding amounts)
+- reminders (notification system)
+- coupons (discount system)
+- digital_cards (membership cards)
+- application_forms (custom forms)
+- membership_settings (organization settings)
+
+Social Tables:
+- spaces (communities/groups)
+- posts (content sharing)
+- comments (interactions)
+- memberships (user-space relationships)
+- follows (user following system)
+- likes (engagement tracking)
+
+Career Tables:
+- jobs (job postings)
+- job_applications (applications)
+- saved_jobs (bookmarks)
+
+Database Design Benefits:
+- Normalized structure (3NF compliance)
+- Flexible user type system (varchar(50) instead of enum)
+- Clear separation of concerns
+- Easy to extend with new user types
+- Better performance with focused tables
+- Maintainable and scalable architecture
+
+All tables include proper foreign key relationships, indexes for performance,
+and comprehensive data types with constraints.
+*/

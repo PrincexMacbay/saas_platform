@@ -51,6 +51,9 @@ const Plans = () => {
   };
 
   const formatCurrency = (amount) => {
+    if (amount === 0 || amount === '0' || amount === null || amount === undefined) {
+      return 'Free';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
@@ -186,7 +189,9 @@ const Plans = () => {
 
             <div className="plan-content">
               <div className="plan-price">
-                <span className="price">{formatCurrency(plan.fee)}</span>
+                <span className={`price ${plan.fee === 0 || plan.fee === '0' ? 'free-price' : ''}`}>
+                  {formatCurrency(plan.fee)}
+                </span>
                 <span className="interval">/{getRenewalText(plan.renewalInterval)}</span>
               </div>
 
@@ -532,6 +537,14 @@ const Plans = () => {
           color: #2c3e50;
         }
 
+        .plan-price .price.free-price {
+          color: #27ae60;
+          background: linear-gradient(135deg, #27ae60, #2ecc71);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
         .plan-price .interval {
           font-size: 1rem;
           color: #7f8c8d;
@@ -705,9 +718,12 @@ const PlanModal = ({ plan, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: plan?.name || '',
     description: plan?.description || '',
+    planType: plan?.fee === 0 || plan?.fee === '0' ? 'free' : 'paid',
     fee: plan?.fee || '',
     renewalInterval: plan?.renewalInterval || 'monthly',
     maxMembers: plan?.maxMembers || '',
+    useDefaultForm: plan?.useDefaultForm !== false,
+    applicationFormId: plan?.applicationFormId || null,
     benefits: (() => {
       if (!plan?.benefits) return [''];
       try {
@@ -719,6 +735,25 @@ const PlanModal = ({ plan, onClose, onSave }) => {
     })()
   });
   const [loading, setLoading] = useState(false);
+  const [availableForms, setAvailableForms] = useState([]);
+  const [loadingForms, setLoadingForms] = useState(false);
+
+  // Fetch available application forms
+  useEffect(() => {
+    const fetchAvailableForms = async () => {
+      try {
+        setLoadingForms(true);
+        const response = await api.get('/membership/application-forms');
+        setAvailableForms(response.data.data || []);
+      } catch (error) {
+        console.error('Error fetching application forms:', error);
+      } finally {
+        setLoadingForms(false);
+      }
+    };
+
+    fetchAvailableForms();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -800,7 +835,45 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Fee *</label>
+              <label>Plan Type *</label>
+              <div className="plan-type-selector">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="planType"
+                    value="paid"
+                    checked={formData.planType === 'paid'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        planType: e.target.value,
+                        fee: e.target.value === 'free' ? '0' : prev.fee
+                      }));
+                    }}
+                  />
+                  <span>Paid Plan</span>
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="planType"
+                    value="free"
+                    checked={formData.planType === 'free'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        planType: e.target.value,
+                        fee: e.target.value === 'free' ? '0' : prev.fee
+                      }));
+                    }}
+                  />
+                  <span>Free Plan</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Fee {formData.planType === 'paid' ? '*' : ''}</label>
               <input
                 type="number"
                 name="fee"
@@ -808,8 +881,9 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                 onChange={handleChange}
                 step="0.01"
                 min="0"
-                required
-                placeholder="0.00"
+                required={formData.planType === 'paid'}
+                disabled={formData.planType === 'free'}
+                placeholder={formData.planType === 'free' ? 'Free' : '0.00'}
               />
             </div>
 
@@ -839,6 +913,67 @@ const PlanModal = ({ plan, onClose, onSave }) => {
               min="1"
               placeholder="Leave empty for unlimited"
             />
+          </div>
+
+          <div className="form-group">
+            <label>Application Form</label>
+            <div className="form-type-selector">
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="useDefaultForm"
+                  value="true"
+                  checked={formData.useDefaultForm === true}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      useDefaultForm: true,
+                      applicationFormId: null
+                    }));
+                  }}
+                />
+                <span>Use Organization Default Form</span>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="useDefaultForm"
+                  value="false"
+                  checked={formData.useDefaultForm === false}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      useDefaultForm: false
+                    }));
+                  }}
+                />
+                <span>Use Custom Form</span>
+              </label>
+            </div>
+            
+            {!formData.useDefaultForm && (
+              <div className="form-group">
+                <label>Select Custom Application Form</label>
+                <select
+                  name="applicationFormId"
+                  value={formData.applicationFormId || ''}
+                  onChange={handleChange}
+                  required={!formData.useDefaultForm}
+                  disabled={loadingForms}
+                >
+                  <option value="">{loadingForms ? 'Loading forms...' : 'Select a form...'}</option>
+                  {availableForms.map(form => (
+                    <option key={form.id} value={form.id}>
+                      {form.title} {form.isPublished ? '(Published)' : '(Draft)'}
+                    </option>
+                  ))}
+                </select>
+                <small className="form-help">
+                  Choose a custom application form that will be used when users apply for this plan. 
+                  Only published forms are available for selection.
+                </small>
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -983,13 +1118,134 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           }
 
           .add-benefit {
-            background: #f8f9fa;
-            color: #3498db;
-            border: 1px solid #3498db;
-            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            align-self: flex-start;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+          }
+
+          .add-benefit:hover {
+            background: #2980b9;
+          }
+
+          .checkbox-group {
+            margin-bottom: 10px;
+          }
+
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+          }
+
+          .checkbox-label input[type="checkbox"] {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+          }
+
+          .checkbox-label span {
+            user-select: none;
+          }
+
+          .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+          }
+
+          .form-group select:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+          }
+
+          .checkbox-group {
+            margin-bottom: 10px;
+          }
+
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+          }
+
+          .checkbox-label input[type="checkbox"] {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+          }
+
+          .checkbox-label span {
+            user-select: none;
+          }
+
+          .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+          }
+
+          .form-group select:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+          }
+
+          .plan-type-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+          }
+
+          .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+          }
+
+          .radio-label:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+          }
+
+          .radio-label input[type="radio"] {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+            accent-color: #3498db;
+          }
+
+          .radio-label input[type="radio"]:checked + span {
+            color: #3498db;
+            font-weight: 500;
+          }
+
+          .radio-label input[type="radio"]:checked {
+            border-color: #3498db;
           }
 
           .modal-footer {

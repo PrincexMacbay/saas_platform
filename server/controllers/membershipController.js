@@ -112,6 +112,55 @@ const getDashboard = async (req, res) => {
   }
 };
 
+// Get membership settings
+const getSettings = async (req, res) => {
+  try {
+    const settings = await MembershipSettings.findOne();
+    
+    res.json({
+      success: true,
+      data: settings || {}
+    });
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch settings',
+      error: error.message
+    });
+  }
+};
+
+// Update membership settings
+const updateSettings = async (req, res) => {
+  try {
+    const updateData = req.body;
+    
+    let settings = await MembershipSettings.findOne();
+    
+    if (settings) {
+      await settings.update(updateData);
+    } else {
+      settings = await MembershipSettings.create(updateData);
+    }
+
+    res.json({
+      success: true,
+      message: 'Settings updated successfully',
+      data: settings
+    });
+  } catch (error) {
+    console.error('Update settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update settings',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  getDashboard
+  getDashboard,
+  getSettings,
+  updateSettings
 };

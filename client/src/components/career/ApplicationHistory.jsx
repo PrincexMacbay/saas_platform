@@ -104,7 +104,7 @@ const ApplicationHistory = () => {
                         {application.job.title}
                       </h6>
                       <p className="text-muted mb-2">
-                        {application.job.employer.companyName || 
+                        {application.job.employer.companyProfile?.companyName || 
                          `${application.job.employer.firstName} ${application.job.employer.lastName}`}
                       </p>
                       

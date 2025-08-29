@@ -23,10 +23,14 @@ const Dashboard = () => {
         getPosts({ limit: 20 }),
         getUserMemberships().catch(() => ({ data: [] })) // Handle error gracefully
       ]);
-      setPosts(postsResponse.data.posts);
-      setMemberships(membershipsResponse.data || []);
+      setPosts(postsResponse.data.posts || []);
+      // Ensure memberships is always an array
+      const membershipsData = membershipsResponse?.data;
+      setMemberships(Array.isArray(membershipsData) ? membershipsData : []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      setPosts([]);
+      setMemberships([]);
     }
     setIsLoading(false);
   };
@@ -60,12 +64,12 @@ const Dashboard = () => {
 
           {/* Posts Feed */}
           <div className="posts-feed">
-            {posts.length === 0 ? (
+            {(!posts || posts.length === 0) ? (
               <div className="card text-center">
                 <p>No posts yet. Create your first post above!</p>
               </div>
             ) : (
-              posts.map((post) => (
+              (Array.isArray(posts) ? posts : []).map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
@@ -78,11 +82,11 @@ const Dashboard = () => {
 
         <div className="sidebar">
           <div className="sidebar-title">My Memberships</div>
-          {memberships.length === 0 ? (
+          {(!memberships || memberships.length === 0) ? (
             <p className="text-muted">You don't have any active memberships yet.</p>
           ) : (
             <div className="memberships-list">
-              {memberships.slice(0, 5).map((membership) => (
+              {(Array.isArray(memberships) ? memberships : []).slice(0, 5).map((membership) => (
                 <div key={membership.id} className="membership-item" style={{ marginBottom: '12px' }}>
                   <div style={{ 
                     display: 'flex', 

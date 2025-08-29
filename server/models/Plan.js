@@ -57,6 +57,35 @@ const Plan = sequelize.define('Plan', {
       key: 'id',
     },
   },
+  // Direct links to application form and digital card template
+  applicationFormId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'application_forms',
+      key: 'id',
+    },
+    comment: 'Direct link to specific application form for this plan'
+  },
+  useDefaultForm: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    comment: 'Use organization default form if true, plan-specific form if false'
+  },
+  digitalCardTemplateId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'digital_cards',
+      key: 'id',
+    },
+    comment: 'Direct link to digital card template for this plan'
+  },
+  useDefaultCardTemplate: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    comment: 'Use organization default card template if true, plan-specific template if false'
+  }
 }, {
   tableName: 'plans',
   timestamps: true,

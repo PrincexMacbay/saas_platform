@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
-import { getSpaces } from '../services/spaceService';
+import { getUserMemberships } from '../services/membershipService';
+import api from '../services/api';
 import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
+import MembershipCard from '../components/membership/MembershipCard';
 import { useAuth } from '../contexts/AuthContext';
 
 const Profile = () => {
@@ -14,7 +16,7 @@ const Profile = () => {
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-  const [userSpaces, setUserSpaces] = useState([]);
+  const [userMemberships, setUserMemberships] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
@@ -37,18 +39,28 @@ const Profile = () => {
     }
   }, [searchParams, isOwnProfile]);
 
+  const fetchUserMemberships = async (userId) => {
+    try {
+      const response = await getUserMemberships();
+      return response.data.data || [];
+    } catch (error) {
+      console.error('Error fetching user memberships:', error);
+      return [];
+    }
+  };
+
   const loadProfileData = async () => {
     setIsLoading(true);
     try {
-      const [userResponse, postsResponse, spacesResponse] = await Promise.all([
+      const [userResponse, postsResponse, membershipsResponse] = await Promise.all([
         getUser(identifier),
         getPosts({ userId: identifier, limit: 20 }),
-        getSpaces({ userId: identifier, limit: 50 })
+        fetchUserMemberships(identifier)
       ]);
       
       setProfileUser(userResponse.data.user);
       setPosts(postsResponse.data.posts);
-      setUserSpaces(spacesResponse.data.spaces);
+      setUserMemberships(membershipsResponse);
       
       if (userResponse.data.user.id === user?.id) {
         setEditData({
@@ -127,12 +139,12 @@ const Profile = () => {
   };
 
   const getProfession = (user) => {
-    if (user.userType === 'company' && user.companyName) {
-      return `Company: ${user.companyName}`;
-    } else if (user.userType === 'individual' && user.workExperience) {
-      return user.workExperience.split('\n')[0]; // First line of work experience
-    } else if (user.userType) {
-      return user.userType.charAt(0).toUpperCase() + user.userType.slice(1);
+    if (user.profile?.userType === 'company' && user.companyProfile?.companyName) {
+      return `Company: ${user.companyProfile.companyName}`;
+    } else if (user.profile?.userType === 'individual' && user.individualProfile?.workExperience) {
+      return user.individualProfile.workExperience.split('\n')[0]; // First line of work experience
+    } else if (user.profile?.userType) {
+      return user.profile.userType.charAt(0).toUpperCase() + user.profile.userType.slice(1);
     }
     return 'Not specified';
   };
@@ -261,9 +273,9 @@ const Profile = () => {
             <div className="col-2">
               <div className="text-center">
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {userSpaces.length}
+                  {userMemberships.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Spaces</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Memberships</div>
               </div>
             </div>
             <div className="col-2">
@@ -409,10 +421,10 @@ const Profile = () => {
             </li>
             <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'spaces' ? 'active' : ''}`}
-                onClick={() => setActiveTab('spaces')}
+                className={`nav-link ${activeTab === 'memberships' ? 'active' : ''}`}
+                onClick={() => setActiveTab('memberships')}
               >
-                <i className="fas fa-users me-2"></i> Spaces ({userSpaces.length})
+                <i className="fas fa-id-card me-2"></i> Memberships ({userMemberships.length})
               </button>
             </li>
             <li className="nav-item">
@@ -460,37 +472,28 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Spaces Tab */}
-          {activeTab === 'spaces' && (
+          {/* Memberships Tab */}
+          {activeTab === 'memberships' && (
             <div>
-              <h4>Spaces</h4>
-              {userSpaces.length === 0 ? (
+              <h4>Memberships</h4>
+              {userMemberships.length === 0 ? (
                 <div className="text-center py-4">
-                  <i className="fas fa-users fa-3x text-muted mb-3"></i>
-                  <p>{isOwnProfile ? 'You haven\'t joined any spaces yet.' : 'No spaces to show.'}</p>
+                  <i className="fas fa-id-card fa-3x text-muted mb-3"></i>
+                  <p>{isOwnProfile ? 'You haven\'t joined any memberships yet.' : 'No memberships to show.'}</p>
+                  {isOwnProfile && (
+                    <a href="/membership" className="btn btn-primary">
+                      <i className="fas fa-plus"></i> Browse Memberships
+                    </a>
+                  )}
                 </div>
               ) : (
                 <div className="row">
-                  {userSpaces.map((space) => (
-                    <div key={space.id} className="col-md-6 col-lg-4 mb-3">
-                      <div className="card h-100">
-                        <div className="card-body">
-                          <h6 className="card-title">{space.name}</h6>
-                          <p className="card-text text-muted small">
-                            {space.description && space.description.length > 100 
-                              ? `${space.description.substring(0, 100)}...` 
-                              : space.description}
-                          </p>
-                          <div className="d-flex justify-content-between align-items-center">
-                            <small className="text-muted">
-                              {space.membersCount || 0} members
-                            </small>
-                            <a href={`/spaces/${space.url || space.id}`} className="btn btn-sm btn-outline-primary">
-                              View Space
-                            </a>
-                          </div>
-                        </div>
-                      </div>
+                  {userMemberships.map((membership) => (
+                    <div key={membership.id} className="col-md-6 col-lg-4 mb-3">
+                      <MembershipCard 
+                        membership={membership}
+                        onViewCard={() => {}}
+                      />
                     </div>
                   ))}
                 </div>

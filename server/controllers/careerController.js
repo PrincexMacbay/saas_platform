@@ -1,5 +1,5 @@
 const { body } = require('express-validator');
-const { Job, JobApplication, SavedJob, User } = require('../models');
+const { Job, JobApplication, SavedJob, User, UserProfile, IndividualProfile, CompanyProfile } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 
@@ -36,17 +36,94 @@ const updateUserType = async (req, res) => {
   try {
     const { userType, ...additionalData } = req.body;
 
-    // Update user with new type and additional data
-    await req.user.update({
-      userType,
-      ...additionalData,
+    // Get or create user profile
+    let userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+
+    if (!userProfile) {
+      userProfile = await UserProfile.create({
+        userId: req.user.id,
+        userType: userType || 'individual'
+      });
+    } else {
+      await userProfile.update({ userType });
+    }
+
+    // Handle specific profile data based on user type
+    if (userType === 'individual') {
+      const { resume, workExperience, jobPreferences } = additionalData;
+      
+      let individualProfile = await IndividualProfile.findOne({
+        where: { userId: req.user.id }
+      });
+
+      if (!individualProfile) {
+        individualProfile = await IndividualProfile.create({
+          userId: req.user.id,
+          resume,
+          workExperience,
+          jobPreferences
+        });
+      } else {
+        await individualProfile.update({
+          resume,
+          workExperience,
+          jobPreferences
+        });
+      }
+    } else if (userType === 'company') {
+      const { companyName, companyLogo, industry, companySize, website, location } = additionalData;
+      
+      let companyProfile = await CompanyProfile.findOne({
+        where: { userId: req.user.id }
+      });
+
+      if (!companyProfile) {
+        companyProfile = await CompanyProfile.create({
+          userId: req.user.id,
+          companyName,
+          companyLogo,
+          industry,
+          companySize,
+          website,
+          location
+        });
+      } else {
+        await companyProfile.update({
+          companyName,
+          companyLogo,
+          industry,
+          companySize,
+          website,
+          location
+        });
+      }
+    }
+
+    // Get updated user with profiles
+    const updatedUser = await User.findByPk(req.user.id, {
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        }
+      ]
     });
 
     res.json({
       success: true,
       message: 'User type updated successfully',
       data: {
-        user: req.user,
+        user: updatedUser,
       },
     });
   } catch (error) {
@@ -62,7 +139,11 @@ const updateUserType = async (req, res) => {
 const createJob = async (req, res) => {
   try {
     // Check if user is a company
-    if (req.user.userType !== 'company') {
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
+    if (!userProfile || userProfile.userType !== 'company') {
       return res.status(403).json({
         success: false,
         message: 'Only companies can post jobs',
@@ -82,7 +163,14 @@ const createJob = async (req, res) => {
         {
           model: User,
           as: 'employer',
-          attributes: ['id', 'username', 'firstName', 'lastName', 'companyName', 'companyLogo', 'industry'],
+          attributes: ['id', 'username', 'firstName', 'lastName'],
+          include: [
+            {
+              model: CompanyProfile,
+              as: 'companyProfile',
+              attributes: ['companyName', 'companyLogo', 'industry', 'location']
+            }
+          ]
         },
       ],
     });
@@ -96,6 +184,75 @@ const createJob = async (req, res) => {
     });
   } catch (error) {
     console.error('Create job error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+// Update existing job posting
+const updateJob = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    // Check if user is a company
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
+    if (!userProfile || userProfile.userType !== 'company') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only companies can update jobs',
+      });
+    }
+
+    // Find the job and check ownership
+    const job = await Job.findOne({
+      where: { 
+        id: jobId,
+        userId: req.user.id // Ensure user owns the job
+      }
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: 'Job not found or you do not have permission to edit it',
+      });
+    }
+
+    // Update the job
+    await job.update(req.body);
+
+    // Get updated job with employer information
+    const updatedJob = await Job.findByPk(jobId, {
+      include: [
+        {
+          model: User,
+          as: 'employer',
+          attributes: ['id', 'username', 'firstName', 'lastName'],
+          include: [
+            {
+              model: CompanyProfile,
+              as: 'companyProfile',
+              attributes: ['companyName', 'companyLogo', 'industry', 'location']
+            }
+          ]
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      message: 'Job updated successfully',
+      data: {
+        job: updatedJob,
+      },
+    });
+  } catch (error) {
+    console.error('Update job error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -175,7 +332,14 @@ const getJobs = async (req, res) => {
         {
           model: User,
           as: 'employer',
-          attributes: ['id', 'username', 'firstName', 'lastName', 'companyName', 'companyLogo', 'industry'],
+          attributes: ['id', 'username', 'firstName', 'lastName'],
+          include: [
+            {
+              model: CompanyProfile,
+              as: 'companyProfile',
+              attributes: ['companyName', 'companyLogo', 'industry']
+            }
+          ]
         },
       ],
     });
@@ -184,14 +348,19 @@ const getJobs = async (req, res) => {
     const jobsWithSavedStatus = await Promise.all(
       jobs.map(async (job) => {
         let isSaved = false;
-        if (req.user && req.user.userType === 'individual') {
-          const savedJob = await SavedJob.findOne({
-            where: {
-              userId: req.user.id,
-              jobId: job.id,
-            },
+        if (req.user) {
+          const userProfile = await UserProfile.findOne({
+            where: { userId: req.user.id }
           });
-          isSaved = !!savedJob;
+          if (userProfile && userProfile.userType === 'individual') {
+            const savedJob = await SavedJob.findOne({
+              where: {
+                userId: req.user.id,
+                jobId: job.id,
+              },
+            });
+            isSaved = !!savedJob;
+          }
         }
 
         const jobData = job.toJSON();
@@ -234,7 +403,14 @@ const getJob = async (req, res) => {
         {
           model: User,
           as: 'employer',
-          attributes: ['id', 'username', 'firstName', 'lastName', 'companyName', 'companyLogo', 'industry', 'location'],
+          attributes: ['id', 'username', 'firstName', 'lastName'],
+          include: [
+            {
+              model: CompanyProfile,
+              as: 'companyProfile',
+              attributes: ['companyName', 'companyLogo', 'industry', 'location']
+            }
+          ]
         },
       ],
     });
@@ -248,14 +424,19 @@ const getJob = async (req, res) => {
 
     // Check if user has saved this job
     let isSaved = false;
-    if (req.user && req.user.userType === 'individual') {
-      const savedJob = await SavedJob.findOne({
-        where: {
-          userId: req.user.id,
-          jobId: job.id,
-        },
+    if (req.user) {
+      const userProfile = await UserProfile.findOne({
+        where: { userId: req.user.id }
       });
-      isSaved = !!savedJob;
+      if (userProfile && userProfile.userType === 'individual') {
+        const savedJob = await SavedJob.findOne({
+          where: {
+            userId: req.user.id,
+            jobId: job.id,
+          },
+        });
+        isSaved = !!savedJob;
+      }
     }
 
     const jobData = job.toJSON();
@@ -286,7 +467,11 @@ const applyForJob = async (req, res) => {
     });
 
     // Check if user is an individual
-    if (req.user.userType !== 'individual') {
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
+    if (!userProfile || userProfile.userType !== 'individual') {
       return res.status(403).json({
         success: false,
         message: 'Only individuals can apply for jobs',
@@ -343,7 +528,14 @@ const applyForJob = async (req, res) => {
             {
               model: User,
               as: 'employer',
-              attributes: ['id', 'username', 'firstName', 'lastName', 'companyName'],
+              attributes: ['id', 'username', 'firstName', 'lastName'],
+              include: [
+                {
+                  model: CompanyProfile,
+                  as: 'companyProfile',
+                  attributes: ['companyName']
+                }
+              ]
             },
           ],
         },
@@ -393,7 +585,14 @@ const getUserApplications = async (req, res) => {
             {
               model: User,
               as: 'employer',
-              attributes: ['id', 'username', 'firstName', 'lastName', 'companyName', 'companyLogo'],
+              attributes: ['id', 'username', 'firstName', 'lastName'],
+              include: [
+                {
+                  model: CompanyProfile,
+                  as: 'companyProfile',
+                  attributes: ['companyName', 'companyLogo']
+                }
+              ]
             },
           ],
         },
@@ -430,7 +629,11 @@ const toggleSavedJob = async (req, res) => {
     const { jobId } = req.params;
 
     // Check if user is an individual
-    if (req.user.userType !== 'individual') {
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
+    if (!userProfile || userProfile.userType !== 'individual') {
       return res.status(403).json({
         success: false,
         message: 'Only individuals can save jobs',
@@ -505,7 +708,14 @@ const getSavedJobs = async (req, res) => {
             {
               model: User,
               as: 'employer',
-              attributes: ['id', 'username', 'firstName', 'lastName', 'companyName', 'companyLogo', 'industry'],
+              attributes: ['id', 'username', 'firstName', 'lastName'],
+              include: [
+                {
+                  model: CompanyProfile,
+                  as: 'companyProfile',
+                  attributes: ['companyName', 'companyLogo', 'industry']
+                }
+              ]
             },
           ],
         },
@@ -540,7 +750,8 @@ const getSavedJobs = async (req, res) => {
 const getCompanyJobs = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const requestedLimit = parseInt(req.query.limit) || 20;
+    const limit = requestedLimit > 1000 ? 1000 : Math.min(1000, Math.max(1, requestedLimit));
     const offset = (page - 1) * limit;
 
     const { count, rows: jobs } = await Job.findAndCountAll({
@@ -625,6 +836,95 @@ const updateJobStatus = async (req, res) => {
   }
 };
 
+// Get applications for company's jobs
+const getCompanyApplications = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const requestedLimit = parseInt(req.query.limit) || 10;
+    const limit = requestedLimit > 1000 ? 1000 : Math.min(1000, Math.max(1, requestedLimit));
+    const offset = (page - 1) * limit;
+    const status = req.query.status; // Filter by application status
+    const jobId = req.query.jobId; // Filter by specific job
+
+    // Build where clause for applications
+    const applicationWhere = {};
+    if (status && status !== 'null') {
+      applicationWhere.status = status;
+    }
+
+    // Build where clause for jobs (only company's jobs)
+    const jobWhere = { userId };
+    if (jobId && jobId !== 'null') {
+      jobWhere.id = jobId;
+    }
+
+    const { count, rows: applications } = await JobApplication.findAndCountAll({
+      where: applicationWhere,
+      include: [
+        {
+          model: User,
+          as: 'applicant',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+          include: [
+            {
+              model: IndividualProfile,
+              as: 'individualProfile',
+              attributes: ['resume', 'workExperience'],
+              required: false
+            }
+          ]
+        },
+        {
+          model: Job,
+          as: 'job',
+          where: jobWhere,
+          attributes: ['id', 'title', 'location', 'jobType', 'category'],
+          include: [
+            {
+              model: User,
+              as: 'employer',
+              attributes: ['id', 'firstName', 'lastName'],
+              include: [
+                {
+                  model: CompanyProfile,
+                  as: 'companyProfile',
+                  attributes: ['companyName', 'industry'],
+                }
+              ]
+            },
+          ],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      success: true,
+      data: {
+        applications,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalApplications: count,
+          limit,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get company applications error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get applications',
+      error: error.message,
+    });
+  }
+};
+
 // Update application status
 const updateApplicationStatus = async (req, res) => {
   try {
@@ -667,6 +967,7 @@ const updateApplicationStatus = async (req, res) => {
 module.exports = {
   updateUserType: [updateUserTypeValidation, handleValidationErrors, updateUserType],
   createJob: [createJobValidation, handleValidationErrors, createJob],
+  updateJob: [createJobValidation, handleValidationErrors, updateJob],
   getJobs,
   getJob,
   applyForJob,
@@ -675,5 +976,6 @@ module.exports = {
   getSavedJobs,
   getCompanyJobs,
   updateJobStatus,
+  getCompanyApplications,
   updateApplicationStatus,
 };

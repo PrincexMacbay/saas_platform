@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Application, Plan, User, Subscription } = require('../models');
+const { Application, Plan, User, Subscription, Organization } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 const bcrypt = require('bcryptjs');
 
@@ -135,9 +135,51 @@ const createApplication = async (req, res) => {
       formData 
     } = req.body;
 
+    // Parse formData if it's a JSON string
+    let parsedFormData = null;
+    let extractedEmail = email;
+    let extractedFirstName = firstName;
+    let extractedLastName = lastName;
+    let extractedPhone = phone;
+
+    if (formData) {
+      try {
+        parsedFormData = typeof formData === 'string' ? JSON.parse(formData) : formData;
+        
+        // Extract common fields from formData if they're not provided at top level
+        if (!extractedEmail && parsedFormData.email) {
+          extractedEmail = parsedFormData.email;
+        }
+        if (!extractedFirstName && parsedFormData.firstName) {
+          extractedFirstName = parsedFormData.firstName;
+        }
+        if (!extractedLastName && parsedFormData.lastName) {
+          extractedLastName = parsedFormData.lastName;
+        }
+        if (!extractedPhone && parsedFormData.phone) {
+          extractedPhone = parsedFormData.phone;
+        }
+      } catch (parseError) {
+        console.error('Error parsing formData:', parseError);
+        // Continue with original values if parsing fails
+      }
+    }
+
+    // Validate required fields
+    if (!extractedEmail || !extractedFirstName || !extractedLastName || !planId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, first name, last name, and plan ID are required'
+      });
+    }
+
     // Check if email already has an application for this plan
     const existingApplication = await Application.findOne({
-      where: { email, planId, status: ['pending', 'approved'] }
+      where: { 
+        email: extractedEmail, 
+        planId, 
+        status: ['pending', 'approved'] 
+      }
     });
 
     if (existingApplication) {
@@ -148,16 +190,16 @@ const createApplication = async (req, res) => {
     }
 
     const application = await Application.create({
-      email,
-      firstName,
-      lastName,
-      phone,
+      email: extractedEmail,
+      firstName: extractedFirstName,
+      lastName: extractedLastName,
+      phone: extractedPhone,
       referral,
       studentId,
       planId,
       applicationFee,
       paymentInfo: paymentInfo ? JSON.stringify(paymentInfo) : null,
-      formData: formData ? JSON.stringify(formData) : null,
+      formData: parsedFormData ? JSON.stringify(parsedFormData) : null,
       status: 'pending'
     });
 
@@ -169,7 +211,10 @@ const createApplication = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully',
-      data: fullApplication
+      data: {
+        applicationId: application.id,
+        application: fullApplication
+      }
     });
   } catch (error) {
     console.error('Create application error:', error);
@@ -324,6 +369,76 @@ const rejectApplication = async (req, res) => {
   }
 };
 
+// Update application
+const updateApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const application = await Application.findByPk(id);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    await application.update(updateData);
+
+    const updatedApplication = await Application.findByPk(id, {
+      include: [{ model: Plan, as: 'plan' }]
+    });
+
+    res.json({
+      success: true,
+      message: 'Application updated successfully',
+      data: updatedApplication
+    });
+  } catch (error) {
+    console.error('Update application error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update application',
+      error: error.message
+    });
+  }
+};
+
+// Update application status
+const updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const application = await Application.findByPk(id);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    await application.update({ status });
+
+    const updatedApplication = await Application.findByPk(id, {
+      include: [{ model: Plan, as: 'plan' }]
+    });
+
+    res.json({
+      success: true,
+      message: 'Application status updated successfully',
+      data: updatedApplication
+    });
+  } catch (error) {
+    console.error('Update application status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update application status',
+      error: error.message
+    });
+  }
+};
+
 // Delete application
 const deleteApplication = async (req, res) => {
   try {
@@ -373,5 +488,7 @@ module.exports = {
   createApplication,
   approveApplication,
   rejectApplication,
+  updateApplication,
+  updateApplicationStatus,
   deleteApplication
 };

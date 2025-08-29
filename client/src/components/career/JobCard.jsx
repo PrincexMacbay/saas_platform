@@ -47,10 +47,10 @@ const JobCard = ({ job, onSaveToggle }) => {
         <div className="d-flex justify-content-between align-items-start">
           <div className="flex-grow-1">
             <div className="d-flex align-items-center mb-2">
-              {job.employer.companyLogo && (
+              {job.employer.companyProfile?.companyLogo && (
                 <img
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyLogo}`}
-                  alt={job.employer.companyName || job.employer.firstName}
+                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                  alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                   className="me-3"
                   style={{ width: '50px', height: '50px', borderRadius: '8px', objectFit: 'cover' }}
                 />
@@ -62,7 +62,7 @@ const JobCard = ({ job, onSaveToggle }) => {
                   </Link>
                 </h5>
                 <p className="text-muted mb-0">
-                  {job.employer.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
+                  {job.employer.companyProfile?.companyName || `${job.employer.firstName} ${job.employer.lastName}`}
                 </p>
               </div>
             </div>
@@ -88,9 +88,9 @@ const JobCard = ({ job, onSaveToggle }) => {
                   <i className="fas fa-home"></i> Remote
                 </span>
               )}
-              {job.employer.industry && (
+              {job.employer.companyProfile?.industry && (
                 <span className="badge bg-secondary">
-                  {job.employer.industry}
+                  {job.employer.companyProfile.industry}
                 </span>
               )}
             </div>

@@ -1,0 +1,326 @@
+{
+  "database": {
+    "name": "SaaS_Platform_Database",
+    "description": "Comprehensive database schema for multi-tenant SaaS platform with membership management, career center, and social features",
+    "version": "1.0",
+    "created": "2025-01-18",
+    "tables": {
+      "users": {
+        "description": "Central user management with organization membership",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique user identifier"},
+          "guid": {"type": "UUID", "constraints": ["UNIQUE", "NOT NULL"], "description": "Global unique identifier"},
+          "email": {"type": "VARCHAR(255)", "constraints": ["UNIQUE", "NOT NULL"], "description": "User email address"},
+          "username": {"type": "VARCHAR(100)", "constraints": ["UNIQUE", "NOT NULL"], "description": "Unique username"},
+          "password": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Encrypted password"},
+          "firstName": {"type": "VARCHAR(100)", "constraints": [], "description": "First name"},
+          "lastName": {"type": "VARCHAR(100)", "constraints": [], "description": "Last name"},
+          "phone": {"type": "VARCHAR(20)", "constraints": [], "description": "Phone number"},
+          "location": {"type": "VARCHAR(255)", "constraints": [], "description": "User location"},
+          "website": {"type": "VARCHAR(255)", "constraints": [], "description": "Personal website"},
+          "about": {"type": "TEXT", "constraints": [], "description": "User bio/description"},
+          "profileImage": {"type": "VARCHAR(500)", "constraints": [], "description": "Profile image URL"},
+          "visibility": {"type": "INTEGER", "constraints": ["DEFAULT 1"], "description": "Profile visibility setting"},
+          "organizationId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "organizations.id", "description": "Organization membership"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["email", "username", "organizationId"],
+        "relationships": {
+          "belongsTo": ["organizations"],
+          "hasMany": ["subscriptions", "payments", "jobs", "jobApplications", "posts", "comments", "applications", "digitalCards"]
+        }
+      },
+      "organizations": {
+        "description": "Multi-tenant organization system",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique organization identifier"},
+          "name": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Organization name"},
+          "description": {"type": "TEXT", "constraints": [], "description": "Organization description"},
+          "logo": {"type": "VARCHAR(500)", "constraints": [], "description": "Logo image URL"},
+          "website": {"type": "VARCHAR(255)", "constraints": [], "description": "Organization website"},
+          "email": {"type": "VARCHAR(255)", "constraints": [], "description": "Contact email"},
+          "phone": {"type": "VARCHAR(20)", "constraints": [], "description": "Contact phone"},
+          "address": {"type": "TEXT", "constraints": [], "description": "Physical address"},
+          "isActive": {"type": "BOOLEAN", "constraints": ["DEFAULT true"], "description": "Active status"},
+          "membershipSettings": {"type": "TEXT", "constraints": [], "description": "JSON settings for membership"},
+          "ownerId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Organization owner"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["ownerId", "isActive", "name"],
+        "relationships": {
+          "belongsTo": ["users"],
+          "hasMany": ["plans", "applicationForms", "users", "membershipSettings"]
+        }
+      },
+      "plans": {
+        "description": "Flexible membership plans with pricing",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique plan identifier"},
+          "name": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Plan name"},
+          "description": {"type": "TEXT", "constraints": [], "description": "Plan description"},
+          "fee": {"type": "DECIMAL(10,2)", "constraints": ["NOT NULL"], "description": "Membership fee"},
+          "renewalInterval": {"type": "VARCHAR(20)", "constraints": ["NOT NULL"], "description": "Renewal frequency (monthly, quarterly, yearly, one-time)"},
+          "benefits": {"type": "TEXT", "constraints": [], "description": "JSON array of benefits"},
+          "isActive": {"type": "BOOLEAN", "constraints": ["DEFAULT true"], "description": "Plan active status"},
+          "maxMembers": {"type": "INTEGER", "constraints": [], "description": "Maximum member limit"},
+          "isPublic": {"type": "BOOLEAN", "constraints": ["DEFAULT true"], "description": "Public visibility"},
+          "organizationId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "organizations.id", "description": "Plan owner organization"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["organizationId", "isActive", "isPublic"],
+        "relationships": {
+          "belongsTo": ["organizations"],
+          "hasMany": ["subscriptions", "applications", "payments", "invoices"]
+        }
+      },
+      "subscriptions": {
+        "description": "User subscriptions to plans",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique subscription identifier"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Subscriber user"},
+          "planId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "plans.id", "description": "Subscribed plan"},
+          "memberNumber": {"type": "VARCHAR(50)", "constraints": ["UNIQUE"], "description": "Unique member number"},
+          "startDate": {"type": "DATE", "constraints": ["NOT NULL"], "description": "Subscription start date"},
+          "endDate": {"type": "DATE", "constraints": [], "description": "Subscription end date"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["NOT NULL"], "description": "Subscription status (active, inactive, suspended, cancelled)"},
+          "currentFee": {"type": "DECIMAL(10,2)", "constraints": [], "description": "Current fee amount"},
+          "autoRenew": {"type": "BOOLEAN", "constraints": ["DEFAULT true"], "description": "Auto-renewal setting"},
+          "notes": {"type": "TEXT", "constraints": [], "description": "Additional notes"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["userId", "planId", "status", "memberNumber"],
+        "relationships": {
+          "belongsTo": ["users", "plans"],
+          "hasMany": ["payments", "digitalCards", "debts", "scheduledPayments", "reminders"]
+        }
+      },
+      "applications": {
+        "description": "Membership application workflow",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique application identifier"},
+          "email": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Applicant email"},
+          "firstName": {"type": "VARCHAR(100)", "constraints": ["NOT NULL"], "description": "Applicant first name"},
+          "lastName": {"type": "VARCHAR(100)", "constraints": [], "description": "Applicant last name"},
+          "phone": {"type": "VARCHAR(20)", "constraints": [], "description": "Applicant phone"},
+          "referral": {"type": "VARCHAR(255)", "constraints": [], "description": "Referral source"},
+          "studentId": {"type": "VARCHAR(50)", "constraints": [], "description": "Student ID if applicable"},
+          "applicationFee": {"type": "DECIMAL(10,2)", "constraints": [], "description": "Application fee amount"},
+          "paymentInfo": {"type": "TEXT", "constraints": [], "description": "JSON payment information"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["NOT NULL"], "description": "Application status (pending, approved, rejected)"},
+          "formData": {"type": "TEXT", "constraints": [], "description": "JSON dynamic form data"},
+          "planId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "plans.id", "description": "Applied plan"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "users.id", "description": "Created user after approval"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["email", "planId", "userId", "status"],
+        "relationships": {
+          "belongsTo": ["plans", "users"]
+        }
+      },
+      "payments": {
+        "description": "Payment processing and tracking",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique payment identifier"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Paying user"},
+          "planId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "plans.id", "description": "Related plan"},
+          "subscriptionId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "subscriptions.id", "description": "Related subscription"},
+          "amount": {"type": "DECIMAL(10,2)", "constraints": ["NOT NULL"], "description": "Payment amount"},
+          "paymentMethod": {"type": "VARCHAR(50)", "constraints": [], "description": "Payment method used"},
+          "transactionId": {"type": "VARCHAR(255)", "constraints": [], "description": "External transaction ID"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["NOT NULL"], "description": "Payment status (pending, completed, failed, refunded)"},
+          "paymentDate": {"type": "TIMESTAMP", "constraints": [], "description": "Payment completion date"},
+          "description": {"type": "TEXT", "constraints": [], "description": "Payment description"},
+          "paymentDetails": {"type": "TEXT", "constraints": [], "description": "JSON payment details"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["userId", "planId", "subscriptionId", "status", "transactionId"],
+        "relationships": {
+          "belongsTo": ["users", "plans", "subscriptions"],
+          "hasOne": ["invoices"]
+        }
+      },
+      "jobs": {
+        "description": "Job posting and management",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique job identifier"},
+          "title": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Job title"},
+          "description": {"type": "TEXT", "constraints": ["NOT NULL"], "description": "Job description"},
+          "company": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Company name"},
+          "location": {"type": "VARCHAR(255)", "constraints": [], "description": "Job location"},
+          "salary": {"type": "VARCHAR(100)", "constraints": [], "description": "Salary range"},
+          "jobType": {"type": "VARCHAR(50)", "constraints": [], "description": "Employment type (full-time, part-time, contract, internship)"},
+          "experienceLevel": {"type": "VARCHAR(50)", "constraints": [], "description": "Required experience level"},
+          "industry": {"type": "VARCHAR(100)", "constraints": [], "description": "Industry category"},
+          "requirements": {"type": "TEXT", "constraints": [], "description": "Job requirements"},
+          "benefits": {"type": "TEXT", "constraints": [], "description": "Job benefits"},
+          "isRemote": {"type": "BOOLEAN", "constraints": ["DEFAULT false"], "description": "Remote work option"},
+          "deadline": {"type": "DATE", "constraints": [], "description": "Application deadline"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["DEFAULT 'active'"], "description": "Job posting status"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Job poster"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["userId", "status", "jobType", "industry", "deadline"],
+        "relationships": {
+          "belongsTo": ["users"],
+          "hasMany": ["jobApplications"],
+          "manyToMany": ["users (via savedJobs)"]
+        }
+      },
+      "jobApplications": {
+        "description": "Job application workflow",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique job application identifier"},
+          "jobId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "jobs.id", "description": "Applied job"},
+          "applicantId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Job applicant"},
+          "coverLetter": {"type": "TEXT", "constraints": [], "description": "Cover letter content"},
+          "resume": {"type": "VARCHAR(500)", "constraints": [], "description": "Resume file path"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["DEFAULT 'pending'"], "description": "Application status (pending, reviewing, interview, accepted, rejected)"},
+          "notes": {"type": "TEXT", "constraints": [], "description": "Application notes"},
+          "appliedAt": {"type": "TIMESTAMP", "constraints": [], "description": "Application submission time"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["jobId", "applicantId", "status"],
+        "relationships": {
+          "belongsTo": ["jobs", "users"]
+        }
+      },
+      "spaces": {
+        "description": "Community spaces/groups",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique space identifier"},
+          "name": {"type": "VARCHAR(255)", "constraints": ["NOT NULL"], "description": "Space name"},
+          "description": {"type": "TEXT", "constraints": [], "description": "Space description"},
+          "image": {"type": "VARCHAR(500)", "constraints": [], "description": "Space image URL"},
+          "url": {"type": "VARCHAR(255)", "constraints": ["UNIQUE"], "description": "Unique space URL"},
+          "visibility": {"type": "INTEGER", "constraints": ["DEFAULT 1"], "description": "Space visibility setting"},
+          "joinType": {"type": "INTEGER", "constraints": ["DEFAULT 1"], "description": "Join requirement type"},
+          "status": {"type": "VARCHAR(20)", "constraints": ["DEFAULT 'active'"], "description": "Space status"},
+          "settings": {"type": "TEXT", "constraints": [], "description": "JSON space settings"},
+          "memberLimit": {"type": "INTEGER", "constraints": [], "description": "Maximum member limit"},
+          "ownerId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Space owner"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["ownerId", "status", "visibility", "url"],
+        "relationships": {
+          "belongsTo": ["users"],
+          "hasMany": ["posts"],
+          "manyToMany": ["users (via memberships)"]
+        }
+      },
+      "posts": {
+        "description": "Content sharing system",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique post identifier"},
+          "content": {"type": "TEXT", "constraints": ["NOT NULL"], "description": "Post content"},
+          "attachment": {"type": "VARCHAR(500)", "constraints": [], "description": "Attachment file path"},
+          "processedAttachment": {"type": "VARCHAR(500)", "constraints": [], "description": "Processed attachment path"},
+          "visibility": {"type": "INTEGER", "constraints": ["DEFAULT 1"], "description": "Post visibility setting"},
+          "archived": {"type": "BOOLEAN", "constraints": ["DEFAULT false"], "description": "Archive status"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Post author"},
+          "spaceId": {"type": "INTEGER", "constraints": ["FOREIGN KEY"], "references": "spaces.id", "description": "Associated space"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["userId", "spaceId", "visibility", "archived"],
+        "relationships": {
+          "belongsTo": ["users", "spaces"],
+          "hasMany": ["comments"],
+          "manyToMany": ["users (via likes)"]
+        }
+      },
+      "comments": {
+        "description": "Post interaction system",
+        "primary_key": "id",
+        "columns": {
+          "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTO_INCREMENT"], "description": "Unique comment identifier"},
+          "content": {"type": "TEXT", "constraints": ["NOT NULL"], "description": "Comment content"},
+          "userId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "users.id", "description": "Comment author"},
+          "postId": {"type": "INTEGER", "constraints": ["FOREIGN KEY", "NOT NULL"], "references": "posts.id", "description": "Parent post"},
+          "createdAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Record creation time"},
+          "updatedAt": {"type": "TIMESTAMP", "constraints": ["NOT NULL"], "description": "Last update time"}
+        },
+        "indexes": ["userId", "postId"],
+        "relationships": {
+          "belongsTo": ["users", "posts"]
+        }
+      }
+    },
+    "junction_tables": {
+      "memberships": {
+        "description": "User-space relationships (Many-to-Many)",
+        "purpose": "Links users to spaces with role information",
+        "primary_key": "id",
+        "foreign_keys": ["userId", "spaceId"]
+      },
+      "follows": {
+        "description": "User following system (Many-to-Many)",
+        "purpose": "User-to-user following relationships",
+        "primary_key": "id",
+        "foreign_keys": ["userId", "targetUserId"]
+      },
+      "likes": {
+        "description": "Post engagement tracking (Many-to-Many)",
+        "purpose": "User-to-post like relationships",
+        "primary_key": "id",
+        "foreign_keys": ["userId", "postId"]
+      },
+      "savedJobs": {
+        "description": "User job bookmarking (Many-to-Many)",
+        "purpose": "User-to-job saved relationships",
+        "primary_key": "id",
+        "foreign_keys": ["userId", "jobId"]
+      }
+    },
+    "features": {
+      "multi_tenancy": "Organization-based data separation",
+      "authentication": "JWT-based with role management",
+      "file_storage": "Local file system with static serving",
+      "payment_ready": "Structured for payment gateway integration",
+      "social_features": "Posts, comments, likes, follows",
+      "career_center": "Job posting and application system",
+      "membership_management": "Plans, subscriptions, applications",
+      "digital_cards": "Digital membership card generation",
+      "billing_system": "Invoices, payments, debts, scheduled payments"
+    },
+    "relationships_summary": {
+      "one_to_many": [
+        "organizations → users",
+        "organizations → plans", 
+        "organizations → applicationForms",
+        "users → subscriptions",
+        "users → jobs",
+        "users → posts",
+        "plans → subscriptions",
+        "plans → applications",
+        "jobs → jobApplications",
+        "posts → comments",
+        "subscriptions → digitalCards"
+      ],
+      "many_to_many": [
+        "users ↔ spaces (via memberships)",
+        "users ↔ users (via follows)",
+        "users ↔ posts (via likes)",
+        "users ↔ jobs (via savedJobs)"
+      ]
+    }
+  }
+}

@@ -10,6 +10,18 @@ const CareerCenter = () => {
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasCompletedRoleSelection, setHasCompletedRoleSelection] = useState(false);
+
+  useEffect(() => {
+    // Check if user has completed role selection
+    if (user?.profile?.userType) {
+      // If user has a userType set, consider role selection complete
+      // The profile data can be filled in later
+      setHasCompletedRoleSelection(true);
+    } else {
+      setHasCompletedRoleSelection(false);
+    }
+  }, [user]);
 
   const handleRoleSelection = async (userType, additionalData) => {
     setLoading(true);
@@ -23,6 +35,7 @@ const CareerCenter = () => {
       
       // Update user context with new data
       updateUser(response.data.user);
+      setHasCompletedRoleSelection(true);
       
     } catch (error) {
       console.error('Error updating user type:', error);
@@ -32,8 +45,8 @@ const CareerCenter = () => {
     }
   };
 
-  // If user hasn't selected a role yet
-  if (!user.userType) {
+  // If user hasn't completed role selection yet
+  if (!hasCompletedRoleSelection) {
     return (
       <div className="career-center">
         <div className="container">
@@ -70,13 +83,13 @@ const CareerCenter = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h1>Career Center</h1>
               <div className="user-type-badge">
-                <span className={`badge ${user.userType === 'individual' ? 'bg-primary' : 'bg-success'}`}>
-                  {user.userType === 'individual' ? 'Job Seeker' : 'Employer'}
+                <span className={`badge ${user.profile?.userType === 'individual' ? 'bg-primary' : 'bg-success'}`}>
+                  {user.profile?.userType === 'individual' ? 'Job Seeker' : 'Employer'}
                 </span>
               </div>
             </div>
             
-            {user.userType === 'individual' ? (
+            {user.profile?.userType === 'individual' ? (
               <IndividualDashboard />
             ) : (
               <CompanyDashboard />

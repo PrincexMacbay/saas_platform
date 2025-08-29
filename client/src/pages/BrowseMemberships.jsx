@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const BrowseMemberships = () => {
   const [plans, setPlans] = useState([]);
@@ -28,7 +29,8 @@ const BrowseMemberships = () => {
       }
 
       const data = await response.json();
-      setPlans(data.data);
+      console.log('Browse memberships data:', data);
+      setPlans(Array.isArray(data.data) ? data.data : []);
     } catch (error) {
       console.error('Error fetching plans:', error);
       setError(error.message);
@@ -42,7 +44,8 @@ const BrowseMemberships = () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/public/organizations`);
       if (response.ok) {
         const data = await response.json();
-        setOrganizations(data.data);
+        console.log('Organizations data:', data);
+        setOrganizations(Array.isArray(data.data) ? data.data : []);
       }
     } catch (error) {
       console.error('Error fetching organizations:', error);
@@ -50,6 +53,9 @@ const BrowseMemberships = () => {
   };
 
   const formatCurrency = (amount) => {
+    if (amount === 0 || amount === '0' || amount === null || amount === undefined) {
+      return 'Free';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
@@ -76,6 +82,7 @@ const BrowseMemberships = () => {
   }
 
   return (
+    <ErrorBoundary>
     <div className="browse-memberships">
       <div className="browse-header">
         <h1>Browse Memberships</h1>
@@ -115,7 +122,7 @@ const BrowseMemberships = () => {
       )}
 
       <div className="plans-grid">
-        {plans.map(plan => (
+                        {Array.isArray(plans) && plans.map(plan => (
           <div key={plan.id} className="plan-card">
             <div className="plan-header">
               {plan.organization?.logo && (
@@ -144,7 +151,9 @@ const BrowseMemberships = () => {
             <div className="plan-content">
               <h3>{plan.name}</h3>
               <div className="plan-price">
-                <span className="price">{formatCurrency(plan.fee)}</span>
+                <span className={`price ${plan.fee === 0 || plan.fee === '0' ? 'free-price' : ''}`}>
+                  {formatCurrency(plan.fee)}
+                </span>
                 <span className="interval">{getRenewalText(plan.renewalInterval)}</span>
               </div>
 
@@ -152,19 +161,27 @@ const BrowseMemberships = () => {
                 <p className="plan-description">{plan.description}</p>
               )}
 
-              {plan.benefits && (
-                <div className="plan-benefits">
-                  <h5>What's included:</h5>
-                  <ul>
-                    {JSON.parse(plan.benefits).map((benefit, index) => (
-                      <li key={index}>
-                        <i className="fas fa-check"></i>
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {(() => {
+                try {
+                  const benefits = typeof plan.benefits === 'string' ? JSON.parse(plan.benefits) : plan.benefits;
+                  return Array.isArray(benefits) && benefits.length > 0 && benefits.some(b => b && b.trim()) ? (
+                    <div className="plan-benefits">
+                      <h5>What's included:</h5>
+                      <ul>
+                        {benefits.filter(b => b && b.trim()).map((benefit, index) => (
+                          <li key={index}>
+                            <i className="fas fa-check"></i>
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null;
+                } catch (e) {
+                  console.warn('Invalid benefits data for plan:', plan.id, plan.benefits);
+                  return null;
+                }
+              })()}
 
               {plan.maxMembers && (
                 <div className="plan-limit">
@@ -358,6 +375,14 @@ const BrowseMemberships = () => {
           color: #27ae60;
         }
 
+        .plan-price .price.free-price {
+          background: linear-gradient(135deg, #27ae60, #2ecc71);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-weight: 800;
+        }
+
         .plan-price .interval {
           font-size: 1rem;
           color: #7f8c8d;
@@ -518,6 +543,7 @@ const BrowseMemberships = () => {
         }
       `}</style>
     </div>
+    </ErrorBoundary>
   );
 };
 

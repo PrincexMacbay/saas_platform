@@ -16,6 +16,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 const Membership = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const path = location.pathname.split('/').pop();
@@ -40,6 +41,8 @@ const Membership = () => {
     { id: 'digital-card', label: 'Digital Card', icon: 'fas fa-id-card', path: '/membership/digital-card' }
   ];
 
+  const activeTabData = tabs.find(tab => tab.id === activeTab);
+
   return (
     <div className="membership-container">
       <div className="membership-header">
@@ -51,6 +54,35 @@ const Membership = () => {
       </div>
 
       <div className="membership-tabs">
+        {/* Mobile Dropdown Menu */}
+        <div className="mobile-tab-dropdown">
+          <button 
+            className="mobile-tab-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <i className={activeTabData?.icon}></i>
+            <span>{activeTabData?.label}</span>
+            <i className={`fas fa-chevron-${isMobileMenuOpen ? 'up' : 'down'}`}></i>
+          </button>
+          
+          {isMobileMenuOpen && (
+            <div className="mobile-tab-menu">
+              {tabs.map(tab => (
+                <Link
+                  key={tab.id}
+                  to={tab.path}
+                  className={`mobile-tab-item ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <i className={tab.icon}></i>
+                  <span>{tab.label}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Tab List */}
         <div className="tab-list">
           {tabs.map(tab => (
             <Link
@@ -116,6 +148,64 @@ const Membership = () => {
           overflow: hidden;
         }
 
+        /* Mobile Tab Styles */
+        .mobile-tab-dropdown {
+          display: none;
+        }
+
+        .mobile-tab-toggle {
+          width: 100%;
+          padding: 15px 20px;
+          background: white;
+          border: none;
+          border-bottom: 1px solid #ecf0f1;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #2c3e50;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .mobile-tab-toggle:hover {
+          background-color: #f8f9fa;
+        }
+
+        .mobile-tab-menu {
+          background: white;
+          border-top: 1px solid #ecf0f1;
+        }
+
+        .mobile-tab-item {
+          display: flex;
+          align-items: center;
+          padding: 15px 20px;
+          text-decoration: none;
+          color: #7f8c8d;
+          transition: all 0.3s ease;
+          border-bottom: 1px solid #f8f9fa;
+        }
+
+        .mobile-tab-item:hover {
+          background-color: #f8f9fa;
+          color: #3498db;
+        }
+
+        .mobile-tab-item.active {
+          color: #3498db;
+          background-color: #f8f9fa;
+          border-left: 3px solid #3498db;
+        }
+
+        .mobile-tab-item i {
+          margin-right: 10px;
+          font-size: 1.1rem;
+          width: 20px;
+          text-align: center;
+        }
+
+        /* Desktop Tab Styles */
         .tab-list {
           display: flex;
           flex-wrap: wrap;
@@ -163,6 +253,27 @@ const Membership = () => {
           min-height: 500px;
         }
 
+        /* Responsive Design */
+        @media (max-width: 991px) {
+          .mobile-tab-dropdown {
+            display: block;
+          }
+          
+          .tab-list {
+            display: none !important;
+          }
+        }
+
+        @media (min-width: 992px) {
+          .mobile-tab-dropdown {
+            display: none !important;
+          }
+          
+          .tab-list {
+            display: flex !important;
+          }
+        }
+
         @media (max-width: 768px) {
           .membership-container {
             padding: 10px;
@@ -172,20 +283,25 @@ const Membership = () => {
             font-size: 2rem;
             flex-direction: column;
           }
+        }
 
-          .tab-list {
-            flex-direction: column;
+        @media (max-width: 576px) {
+          .membership-container {
+            padding: 8px;
           }
 
-          .tab-item {
-            justify-content: flex-start;
-            border-bottom: 1px solid #ecf0f1;
-            border-right: none;
+          .membership-header h1 {
+            font-size: 1.8rem;
           }
 
-          .tab-item.active {
-            border-bottom-color: transparent;
-            border-left: 3px solid #3498db;
+          .mobile-tab-toggle {
+            padding: 12px 15px;
+            font-size: 0.9rem;
+          }
+
+          .mobile-tab-item {
+            padding: 12px 15px;
+            font-size: 0.9rem;
           }
         }
       `}</style>

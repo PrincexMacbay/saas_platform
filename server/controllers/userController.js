@@ -1,5 +1,5 @@
 const { body } = require('express-validator');
-const { User, Follow, Space, Membership, Organization } = require('../models');
+const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Membership, Organization } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
@@ -63,6 +63,19 @@ const getUser = async (req, res) => {
     const user = await User.findOne({
       where: whereClause,
       include: [
+        {
+          model: UserProfile,
+          as: 'profile',
+          include: [{ model: Organization, as: 'profileOrganization' }]
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        },
         {
           model: Space,
           as: 'ownedSpaces',
@@ -315,7 +328,21 @@ const getFollowers = async (req, res) => {
       where: {
         id: followerIds
       },
-      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage', 'userType', 'companyName', 'workExperience'],
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        }
+      ],
+      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
     });
 
     res.json({
@@ -357,7 +384,21 @@ const getFollowing = async (req, res) => {
       where: {
         id: followedIds
       },
-      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage', 'userType', 'companyName', 'workExperience'],
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        },
+        {
+          model: IndividualProfile,
+          as: 'individualProfile'
+        },
+        {
+          model: CompanyProfile,
+          as: 'companyProfile'
+        }
+      ],
+      attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage'],
     });
 
     res.json({

@@ -64,6 +64,16 @@ const DigitalCard = sequelize.define('DigitalCard', {
       is: /^#[0-9A-F]{6}$/i,
     },
   },
+  // Organization link for templates
+  organizationId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'organizations',
+      key: 'id',
+    },
+    comment: 'Organization this card template belongs to'
+  },
   // User-specific card data
   userId: {
     type: DataTypes.INTEGER,
@@ -108,6 +118,9 @@ const DigitalCard = sequelize.define('DigitalCard', {
     },
     {
       fields: ['isTemplate'],
+    },
+    {
+      fields: ['organizationId'],
     },
   ],
 });

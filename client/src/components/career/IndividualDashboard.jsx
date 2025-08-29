@@ -40,7 +40,7 @@ const IndividualDashboard = () => {
               className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <i className={tab.icon}></i> {tab.label}
+              <i className={`${tab.icon} me-2`}></i> {tab.label}
             </button>
           </li>
         ))}

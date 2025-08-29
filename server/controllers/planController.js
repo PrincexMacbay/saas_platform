@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Plan, Subscription, User } = require('../models');
+const { Plan, Subscription, User, UserProfile } = require('../models');
 
 // Get all plans
 const getPlans = async (req, res) => {
@@ -9,38 +9,27 @@ const getPlans = async (req, res) => {
     
     const whereClause = {};
     
+    // Get user's organization from UserProfile
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
     // Filter by organization if user has one
-    if (req.user.organizationId) {
-      whereClause.organizationId = req.user.organizationId;
+    if (userProfile && userProfile.organizationId) {
+      whereClause.organizationId = userProfile.organizationId;
     } else {
-      // If user has no organization, show plans with no organization or public plans
-      whereClause[Op.or] = [
-        { organizationId: null },
-        { isPublic: true }
-      ];
+      // If user has no organization, show plans with no organization
+      whereClause.organizationId = null;
     }
     
     if (search) {
-      const searchCondition = {
+      whereClause[Op.and] = whereClause[Op.and] || [];
+      whereClause[Op.and].push({
         [Op.or]: [
           { name: { [Op.iLike]: `%${search}%` } },
           { description: { [Op.iLike]: `%${search}%` } }
         ]
-      };
-      
-      // Combine search with existing where clause
-      if (whereClause[Op.or]) {
-        whereClause[Op.and] = [
-          { [Op.or]: whereClause[Op.or] },
-          searchCondition
-        ];
-        delete whereClause[Op.or];
-      } else {
-        whereClause[Op.and] = [
-          { organizationId: req.user.organizationId },
-          searchCondition
-        ];
-      }
+      });
     }
     
     if (isActive !== undefined) {
@@ -103,6 +92,11 @@ const getPlan = async (req, res) => {
   try {
     const { id } = req.params;
     
+    // Get user's organization from UserProfile
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+    
     const plan = await Plan.findByPk(id, {
       include: [
         {
@@ -127,6 +121,24 @@ const getPlan = async (req, res) => {
       });
     }
 
+    // Security check: Ensure user can only view plans from their organization
+    if (userProfile && userProfile.organizationId) {
+      if (plan.organizationId !== userProfile.organizationId) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only view plans from your organization'
+        });
+      }
+    } else {
+      // If user has no organization, they can only view plans with no organization
+      if (plan.organizationId !== null) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only view plans from your organization'
+        });
+      }
+    }
+
     res.json({
       success: true,
       data: plan
@@ -146,6 +158,11 @@ const createPlan = async (req, res) => {
   try {
     const { name, description, fee, renewalInterval, benefits, maxMembers } = req.body;
 
+    // Get user's organization from UserProfile
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+
     const plan = await Plan.create({
       name,
       description,
@@ -153,7 +170,8 @@ const createPlan = async (req, res) => {
       renewalInterval,
       benefits: JSON.stringify(benefits || []),
       maxMembers,
-      isActive: true
+      isActive: true,
+      organizationId: userProfile ? userProfile.organizationId : null
     });
 
     res.status(201).json({
@@ -177,12 +195,35 @@ const updatePlan = async (req, res) => {
     const { id } = req.params;
     const { name, description, fee, renewalInterval, benefits, maxMembers, isActive } = req.body;
 
+    // Get user's organization from UserProfile
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+
     const plan = await Plan.findByPk(id);
     if (!plan) {
       return res.status(404).json({
         success: false,
         message: 'Plan not found'
       });
+    }
+
+    // Security check: Ensure user can only update plans from their organization
+    if (userProfile && userProfile.organizationId) {
+      if (plan.organizationId !== userProfile.organizationId) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only update plans from your organization'
+        });
+      }
+    } else {
+      // If user has no organization, they can only update plans with no organization
+      if (plan.organizationId !== null) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only update plans from your organization'
+        });
+      }
     }
 
     // Handle benefits field carefully to avoid double-encoding
@@ -231,6 +272,11 @@ const deletePlan = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Get user's organization from UserProfile
+    const userProfile = await UserProfile.findOne({
+      where: { userId: req.user.id }
+    });
+
     const plan = await Plan.findByPk(id, {
       include: [{ model: Subscription, as: 'subscriptions' }]
     });
@@ -240,6 +286,24 @@ const deletePlan = async (req, res) => {
         success: false,
         message: 'Plan not found'
       });
+    }
+
+    // Security check: Ensure user can only delete plans from their organization
+    if (userProfile && userProfile.organizationId) {
+      if (plan.organizationId !== userProfile.organizationId) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only delete plans from your organization'
+        });
+      }
+    } else {
+      // If user has no organization, they can only delete plans with no organization
+      if (plan.organizationId !== null) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only delete plans from your organization'
+        });
+      }
     }
 
     // Check if plan has active subscriptions

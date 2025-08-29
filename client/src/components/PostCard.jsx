@@ -292,7 +292,7 @@ const PostCard = ({ post, onUpdate }) => {
                     console.error('Image failed to load:', e.target.src);
                     e.target.style.display = 'none';
                   }}
-                  onLoad={() => {
+                  onLoad={(e) => {
                     console.log('Image loaded successfully:', e.target.src);
                   }}
                 />
