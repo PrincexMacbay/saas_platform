@@ -1,4 +1,4 @@
-# HumHub Clone - Social Network Platform
+# Social Network Platform
 
 A modern social networking platform built with React.js, Node.js/Express, and PostgreSQL. This is a complete rebuild of HumHub with the same core features and functionality.
 
