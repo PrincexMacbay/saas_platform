@@ -37,13 +37,14 @@ const ApplicationForm = sequelize.define('ApplicationForm', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  organizationId: {
+  createdBy: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'organizations',
+      model: 'users',
       key: 'id',
     },
+    comment: 'User who created this application form'
   },
 }, {
   tableName: 'application_forms',

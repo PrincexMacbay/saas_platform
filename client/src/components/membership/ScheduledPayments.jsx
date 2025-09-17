@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createScheduledPayment, getScheduledPayments, deleteScheduledPayment } from '../../services/membershipService';
+import ConfirmDialog from '../ConfirmDialog';
 
 const ScheduledPayments = () => {
   const [scheduledPayments, setScheduledPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const [formData, setFormData] = useState({
     amount: '',
     scheduledDate: '',
@@ -64,14 +66,20 @@ const ScheduledPayments = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this scheduled payment?')) {
-      try {
-        await deleteScheduledPayment(id);
-        loadScheduledPayments();
-      } catch (error) {
-        console.error('Error deleting scheduled payment:', error);
-        setError('Failed to delete scheduled payment');
-      }
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this scheduled payment?',
+      onConfirm: () => deleteScheduledPaymentItem(id)
+    });
+  };
+
+  const deleteScheduledPaymentItem = async (id) => {
+    try {
+      await deleteScheduledPayment(id);
+      loadScheduledPayments();
+    } catch (error) {
+      console.error('Error deleting scheduled payment:', error);
+      setError('Failed to delete scheduled payment');
     }
   };
 
@@ -570,6 +578,18 @@ const ScheduledPayments = () => {
           }
         }
       `}</style>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

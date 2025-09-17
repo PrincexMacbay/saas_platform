@@ -10,6 +10,7 @@ const uploadRoutes = require('./upload');
 const careerRoutes = require('./career');
 const membershipRoutes = require('./membership');
 const publicRoutes = require('./public');
+const userPaymentInfoRoutes = require('./userPaymentInfo');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -20,6 +21,7 @@ router.use('/upload', uploadRoutes);
 router.use('/career', careerRoutes);
 router.use('/membership', membershipRoutes);
 router.use('/public', publicRoutes);
+router.use('/user-payment-info', userPaymentInfoRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

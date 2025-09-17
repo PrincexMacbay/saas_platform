@@ -33,14 +33,67 @@ const ApplicationFormBuilder = () => {
   });
 
   useEffect(() => {
-    fetchFormConfig();
+    // Check if we're editing an existing form by ID (secure approach)
+    const urlParams = new URLSearchParams(window.location.search);
+    const formId = urlParams.get('formId');
+    
+    if (formId) {
+      // Fetch the form by ID from the server (this will verify user access)
+      fetchFormById(formId);
+    } else {
+      fetchFormConfig();
+    }
   }, []);
+
+  const fetchFormById = async (formId) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/membership/application-forms/${formId}`);
+      const form = response.data.data;
+      
+      if (form) {
+        setFormConfig({
+          id: form.id,
+          title: form.title || 'Membership Application',
+          description: form.description || '',
+          footer: form.footer || '',
+          terms: form.terms || '',
+          agreement: form.agreement || '',
+          fields: form.fields || [],
+          isPublished: form.isPublished || false
+        });
+      } else {
+        // Form not found or user doesn't have access
+        alert('Form not found or you do not have access to this form.');
+        fetchFormConfig();
+      }
+    } catch (error) {
+      console.error('Error fetching form by ID:', error);
+      if (error.response?.status === 404 || error.response?.status === 403) {
+        alert('Form not found or you do not have access to this form.');
+      }
+      fetchFormConfig();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchFormConfig = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/membership/application-form');
-      setFormConfig(response.data.data);
+      const response = await api.get('/membership/application-forms');
+      // Get the first form for the organization, or create a new one
+      const forms = response.data.data || [];
+      if (forms.length > 0) {
+        setFormConfig(forms[0]);
+      } else {
+        // Create a new form config
+        setFormConfig({
+          title: 'Membership Application',
+          description: 'Please fill out this form to apply for membership.',
+          fields: []
+        });
+      }
       setShowOrganizationSelector(false);
     } catch (error) {
       console.error('Error fetching form config:', error);
@@ -79,8 +132,18 @@ const ApplicationFormBuilder = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await api.post('/membership/application-form', formConfig);
-      alert('Application form saved successfully!');
+      if (formConfig.id) {
+        // Update existing form
+        await api.put(`/membership/application-forms/${formConfig.id}`, formConfig);
+        alert('Application form updated successfully!');
+      } else {
+        // Create new form
+        const response = await api.post('/membership/application-forms', formConfig);
+        setFormConfig(prev => ({ ...prev, id: response.data.data.id }));
+        alert('Application form saved successfully!');
+      }
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
       console.error('Error saving form:', error);
       if (error.response?.data?.code === 'NO_ORGANIZATION') {
@@ -97,12 +160,21 @@ const ApplicationFormBuilder = () => {
   const handlePublish = async () => {
     try {
       setSaving(true);
-      // First save the current form
-      await api.post('/membership/application-form', formConfig);
-      // Then publish it
-      await api.post('/membership/application-form/publish');
+      let formId = formConfig.id;
+      
+      // First save the current form if it doesn't have an ID
+      if (!formId) {
+        const response = await api.post('/membership/application-forms', formConfig);
+        formId = response.data.data.id;
+        setFormConfig(prev => ({ ...prev, id: formId }));
+      }
+      
+      // Then publish it using the correct ID
+      await api.patch(`/membership/application-forms/${formId}/publish`);
       setFormConfig(prev => ({ ...prev, isPublished: true }));
       alert('Application form published successfully!');
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
       console.error('Error publishing form:', error);
       if (error.response?.data?.code === 'NO_ORGANIZATION') {
@@ -119,9 +191,15 @@ const ApplicationFormBuilder = () => {
   const handleUnpublish = async () => {
     try {
       setSaving(true);
-      await api.post('/membership/application-form/unpublish');
+      if (!formConfig.id) {
+        alert('Cannot unpublish a form that has not been saved yet');
+        return;
+      }
+      await api.patch(`/membership/application-forms/${formConfig.id}/unpublish`);
       setFormConfig(prev => ({ ...prev, isPublished: false }));
       alert('Application form unpublished successfully!');
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
       console.error('Error unpublishing form:', error);
       alert('Error unpublishing form: ' + (error.response?.data?.message || error.message));
@@ -151,7 +229,7 @@ const ApplicationFormBuilder = () => {
     const { name, value, type, checked } = e.target;
     setNewField(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : (type === 'radio' ? value === 'true' : value)
     }));
   };
 
@@ -367,7 +445,7 @@ const ApplicationFormBuilder = () => {
   return (
     <div className="form-builder-container">
       <div className="form-builder-header">
-        <h2>Application Form Builder</h2>
+        <h2>{formConfig.id ? 'Edit Application Form' : 'Application Form Builder'}</h2>
         <div className="header-actions">
           <button onClick={handleSave} className="save-button" disabled={saving}>
             <i className="fas fa-save"></i> {saving ? 'Saving...' : 'Save'}
@@ -1110,6 +1188,84 @@ const ApplicationFormBuilder = () => {
           color: #2c3e50;
         }
 
+        /* Options Management Styles */
+        .options-container {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .option-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 8px;
+          background: white;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .option-item:hover {
+          border-color: #3498db;
+          box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+
+        .option-input {
+          flex: 1;
+          margin: 0;
+          border: none;
+          background: transparent;
+          padding: 8px 12px;
+        }
+
+        .option-input:focus {
+          box-shadow: none;
+          transform: none;
+        }
+
+        .remove-option-btn {
+          background: #e74c3c;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 36px;
+          height: 36px;
+        }
+
+        .remove-option-btn:hover {
+          background: #c0392b;
+          transform: scale(1.05);
+        }
+
+        .add-option-btn {
+          background: #27ae60;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 20px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          align-self: flex-start;
+        }
+
+        .add-option-btn:hover {
+          background: #219a52;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
         .btn {
           display: inline-flex;
           align-items: center;
@@ -1330,6 +1486,50 @@ const ApplicationFormBuilder = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Options Section - Only show for select fields */}
+                {newField.inputType === 'select' && (
+                  <div className="form-group">
+                    <label>Dropdown Options</label>
+                    <div className="options-container">
+                      {newField.options.map((option, index) => (
+                        <div key={index} className="option-item">
+                          <input
+                            type="text"
+                            value={typeof option === 'string' ? option : option.label || option.value}
+                            onChange={(e) => {
+                              const newOptions = [...newField.options];
+                              newOptions[index] = e.target.value;
+                              setNewField(prev => ({ ...prev, options: newOptions }));
+                            }}
+                            placeholder={`Option ${index + 1}`}
+                            className="form-input option-input"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = newField.options.filter((_, i) => i !== index);
+                              setNewField(prev => ({ ...prev, options: newOptions }));
+                            }}
+                            className="remove-option-btn"
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewField(prev => ({ ...prev, options: [...prev.options, ''] }));
+                        }}
+                        className="add-option-btn"
+                      >
+                        <i className="fas fa-plus"></i> Add Option
+                      </button>
+                    </div>
+                    <small>Add options for the dropdown menu</small>
+                  </div>
+                )}
               </div>
 
               {/* Permissions Section */}
@@ -1385,3 +1585,4 @@ const ApplicationFormBuilder = () => {
 };
 
 export default ApplicationFormBuilder;
+

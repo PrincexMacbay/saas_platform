@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Plan, Subscription, User, UserProfile } = require('../models');
+const { Plan, Subscription, User, UserProfile, ApplicationForm } = require('../models');
 
 // Get all plans
 const getPlans = async (req, res) => {
@@ -9,18 +9,8 @@ const getPlans = async (req, res) => {
     
     const whereClause = {};
     
-    // Get user's organization from UserProfile
-    const userProfile = await UserProfile.findOne({
-      where: { userId: req.user.id }
-    });
-    
-    // Filter by organization if user has one
-    if (userProfile && userProfile.organizationId) {
-      whereClause.organizationId = userProfile.organizationId;
-    } else {
-      // If user has no organization, show plans with no organization
-      whereClause.organizationId = null;
-    }
+    // USER-ONLY ACCESS: Only show plans created by the current user
+    whereClause.createdBy = req.user.id;
     
     if (search) {
       whereClause[Op.and] = whereClause[Op.and] || [];
@@ -92,11 +82,6 @@ const getPlan = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Get user's organization from UserProfile
-    const userProfile = await UserProfile.findOne({
-      where: { userId: req.user.id }
-    });
-    
     const plan = await Plan.findByPk(id, {
       include: [
         {
@@ -121,22 +106,12 @@ const getPlan = async (req, res) => {
       });
     }
 
-    // Security check: Ensure user can only view plans from their organization
-    if (userProfile && userProfile.organizationId) {
-      if (plan.organizationId !== userProfile.organizationId) {
-        return res.status(403).json({
-          success: false,
-          message: 'You can only view plans from your organization'
-        });
-      }
-    } else {
-      // If user has no organization, they can only view plans with no organization
-      if (plan.organizationId !== null) {
-        return res.status(403).json({
-          success: false,
-          message: 'You can only view plans from your organization'
-        });
-      }
+    // Security check: Ensure user can only view plans they created
+    if (plan.createdBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only view plans you created'
+      });
     }
 
     res.json({
@@ -156,12 +131,67 @@ const getPlan = async (req, res) => {
 // Create plan
 const createPlan = async (req, res) => {
   try {
-    const { name, description, fee, renewalInterval, benefits, maxMembers } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, applicationFormId, useDefaultForm } = req.body;
+    
+    console.log('Creating plan with data:', {
+      name,
+      description,
+      fee,
+      renewalInterval,
+      benefits,
+      maxMembers,
+      applicationFormId,
+      useDefaultForm
+    });
 
     // Get user's organization from UserProfile
     const userProfile = await UserProfile.findOne({
       where: { userId: req.user.id }
     });
+
+    // Validate form selection
+    if (!useDefaultForm && !applicationFormId) {
+      return res.status(400).json({
+        success: false,
+        message: 'You must either select a specific application form or use the default form'
+      });
+    }
+
+    // If using a specific form, validate it exists and is published
+    if (applicationFormId && !useDefaultForm) {
+      console.log('Validating application form:', {
+        applicationFormId,
+        useDefaultForm,
+        userProfile: userProfile ? userProfile.organizationId : null
+      });
+
+      // First, just check if the form exists and is published
+      const form = await ApplicationForm.findOne({
+        where: { 
+          id: applicationFormId,
+          isPublished: true
+        }
+      });
+
+      console.log('Found form:', form ? form.id : 'not found');
+
+      if (!form) {
+        return res.status(400).json({
+          success: false,
+          message: 'Selected application form not found or not published. Please create and publish a form first.'
+        });
+      }
+
+      // If user has an organization, also check that the form belongs to their organization
+      if (userProfile && userProfile.organizationId) {
+        if (form.organizationId !== userProfile.organizationId) {
+          return res.status(400).json({
+            success: false,
+            message: 'You can only use application forms from your organization.'
+          });
+        }
+      }
+    }
 
     const plan = await Plan.create({
       name,
@@ -171,7 +201,10 @@ const createPlan = async (req, res) => {
       benefits: JSON.stringify(benefits || []),
       maxMembers,
       isActive: true,
-      organizationId: userProfile ? userProfile.organizationId : null
+      createdBy: req.user.id,
+      organizationId: userProfile ? userProfile.organizationId : null,
+      applicationFormId: useDefaultForm ? null : applicationFormId,
+      useDefaultForm: useDefaultForm || false
     });
 
     res.status(201).json({
@@ -193,7 +226,7 @@ const createPlan = async (req, res) => {
 const updatePlan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive, applicationFormId, useDefaultForm } = req.body;
 
     // Get user's organization from UserProfile
     const userProfile = await UserProfile.findOne({
@@ -208,21 +241,48 @@ const updatePlan = async (req, res) => {
       });
     }
 
-    // Security check: Ensure user can only update plans from their organization
-    if (userProfile && userProfile.organizationId) {
-      if (plan.organizationId !== userProfile.organizationId) {
-        return res.status(403).json({
+    // Security check: Ensure user can only update plans they created
+    if (plan.createdBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only update plans you created'
+      });
+    }
+
+    // Validate form selection if provided
+    if (applicationFormId !== undefined || useDefaultForm !== undefined) {
+      if (!useDefaultForm && !applicationFormId) {
+        return res.status(400).json({
           success: false,
-          message: 'You can only update plans from your organization'
+          message: 'You must either select a specific application form or use the default form'
         });
       }
-    } else {
-      // If user has no organization, they can only update plans with no organization
-      if (plan.organizationId !== null) {
-        return res.status(403).json({
-          success: false,
-          message: 'You can only update plans from your organization'
+
+      // If using a specific form, validate it exists and is published
+      if (applicationFormId && !useDefaultForm) {
+        const form = await ApplicationForm.findOne({
+          where: { 
+            id: applicationFormId,
+            isPublished: true
+          }
         });
+
+        if (!form) {
+          return res.status(400).json({
+            success: false,
+            message: 'Selected application form not found or not published. Please create and publish a form first.'
+          });
+        }
+
+        // If user has an organization, also check that the form belongs to their organization
+        if (userProfile && userProfile.organizationId) {
+          if (form.organizationId !== userProfile.organizationId) {
+            return res.status(400).json({
+              success: false,
+              message: 'You can only use application forms from your organization.'
+            });
+          }
+        }
       }
     }
 
@@ -242,7 +302,7 @@ const updatePlan = async (req, res) => {
       }
     }
 
-    await plan.update({
+    const updateData = {
       name,
       description,
       fee,
@@ -250,7 +310,17 @@ const updatePlan = async (req, res) => {
       benefits: benefitsToStore,
       maxMembers,
       isActive
-    });
+    };
+
+    // Add form-related fields if provided
+    if (applicationFormId !== undefined) {
+      updateData.applicationFormId = useDefaultForm ? null : applicationFormId;
+    }
+    if (useDefaultForm !== undefined) {
+      updateData.useDefaultForm = useDefaultForm;
+    }
+
+    await plan.update(updateData);
 
     res.json({
       success: true,
@@ -288,22 +358,12 @@ const deletePlan = async (req, res) => {
       });
     }
 
-    // Security check: Ensure user can only delete plans from their organization
-    if (userProfile && userProfile.organizationId) {
-      if (plan.organizationId !== userProfile.organizationId) {
-        return res.status(403).json({
-          success: false,
-          message: 'You can only delete plans from your organization'
-        });
-      }
-    } else {
-      // If user has no organization, they can only delete plans with no organization
-      if (plan.organizationId !== null) {
-        return res.status(403).json({
-          success: false,
-          message: 'You can only delete plans from your organization'
-        });
-      }
+    // Security check: Ensure user can only delete plans they created
+    if (plan.createdBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You can only delete plans you created'
+      });
     }
 
     // Check if plan has active subscriptions

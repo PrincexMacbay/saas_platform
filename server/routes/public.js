@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Plan, Organization, Application } = require('../models');
+const { Plan, Organization, Application, Coupon } = require('../models');
 const applicationFormController = require('../controllers/applicationFormController');
 const { Op } = require('sequelize');
 
@@ -90,6 +90,114 @@ router.get('/plans/:id', async (req, res) => {
   }
 });
 
+// Validate coupon code (public endpoint)
+router.post('/validate-coupon', async (req, res) => {
+  try {
+    const { couponCode, planId } = req.body;
+
+    if (!couponCode || !planId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coupon code and plan ID are required'
+      });
+    }
+
+    // Find the coupon
+    const coupon = await Coupon.findOne({
+      where: {
+        couponId: couponCode.trim(),
+        isActive: true
+      }
+    });
+
+    if (!coupon) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid coupon code'
+      });
+    }
+
+    // Check if coupon has expired
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: 'This coupon has expired'
+      });
+    }
+
+    // Check if coupon has reached max redemptions
+    if (coupon.maxRedemptions && coupon.currentRedemptions >= coupon.maxRedemptions) {
+      return res.status(400).json({
+        success: false,
+        message: 'This coupon has reached its usage limit'
+      });
+    }
+
+    // Check if coupon is applicable to this plan
+    let isApplicable = true;
+    if (coupon.applicablePlans) {
+      try {
+        const applicablePlans = JSON.parse(coupon.applicablePlans);
+        if (Array.isArray(applicablePlans) && applicablePlans.length > 0) {
+          isApplicable = applicablePlans.includes(parseInt(planId));
+        }
+      } catch (parseError) {
+        console.error('Error parsing applicablePlans:', parseError);
+        // If parsing fails, assume coupon is applicable to all plans
+      }
+    }
+
+    if (!isApplicable) {
+      return res.status(400).json({
+        success: false,
+        message: 'This coupon is not valid for the selected plan'
+      });
+    }
+
+    // Get plan details for validation
+    const plan = await Plan.findByPk(planId);
+    if (!plan) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid plan'
+      });
+    }
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (coupon.discountType === 'percentage') {
+      discountAmount = (parseFloat(plan.fee) * parseFloat(coupon.discount)) / 100;
+    } else if (coupon.discountType === 'fixed') {
+      discountAmount = parseFloat(coupon.discount);
+    }
+
+    const finalAmount = Math.max(0, parseFloat(plan.fee) - discountAmount);
+
+    res.json({
+      success: true,
+      message: 'Coupon is valid',
+      coupon: {
+        id: coupon.id,
+        name: coupon.name,
+        couponId: coupon.couponId,
+        discount: coupon.discount,
+        discountType: coupon.discountType,
+        discountAmount: discountAmount,
+        finalAmount: finalAmount,
+        originalAmount: parseFloat(plan.fee)
+      }
+    });
+
+  } catch (error) {
+    console.error('Validate coupon error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to validate coupon',
+      error: error.message
+    });
+  }
+});
+
 // Submit membership application (public endpoint)
 router.post('/apply', async (req, res) => {
   try {
@@ -103,7 +211,9 @@ router.post('/apply', async (req, res) => {
       planId, 
       applicationFee, 
       paymentInfo, 
-      formData 
+      formData,
+      couponCode,
+      couponId
     } = req.body;
 
     // Parse formData if it's a JSON string
@@ -175,6 +285,77 @@ router.post('/apply', async (req, res) => {
       });
     }
 
+    // Check if there's an incomplete application for this email and plan
+    const incompleteApplication = await Application.findOne({
+      where: { 
+        email: extractedEmail, 
+        planId, 
+        status: 'incomplete' 
+      }
+    });
+
+    if (incompleteApplication) {
+      // Return the incomplete application so user can continue
+      return res.status(200).json({
+        success: true,
+        message: 'Found incomplete application. You can continue with your previous submission.',
+        data: {
+          applicationId: incompleteApplication.id,
+          status: incompleteApplication.status,
+          planName: plan.name,
+          isIncomplete: true
+        }
+      });
+    }
+
+    // Calculate coupon discount if coupon is provided
+    let originalAmount = parseFloat(plan.fee);
+    let discountAmount = 0;
+    let finalAmount = originalAmount;
+    let validatedCoupon = null;
+
+    if (couponCode && couponId) {
+      // Validate the coupon again to ensure it's still valid
+      const coupon = await Coupon.findOne({
+        where: {
+          id: couponId,
+          couponId: couponCode,
+          isActive: true
+        }
+      });
+
+      if (coupon) {
+        // Check if coupon has expired
+        const isExpired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
+        const isMaxRedemptionsReached = coupon.maxRedemptions && coupon.currentRedemptions >= coupon.maxRedemptions;
+        
+        if (!isExpired && !isMaxRedemptionsReached) {
+          // Check if coupon is applicable to this plan
+          let isApplicable = true;
+          if (coupon.applicablePlans) {
+            try {
+              const applicablePlans = JSON.parse(coupon.applicablePlans);
+              if (Array.isArray(applicablePlans) && applicablePlans.length > 0) {
+                isApplicable = applicablePlans.includes(parseInt(planId));
+              }
+            } catch (parseError) {
+              console.error('Error parsing applicablePlans:', parseError);
+            }
+          }
+
+          if (isApplicable) {
+            validatedCoupon = coupon;
+            if (coupon.discountType === 'percentage') {
+              discountAmount = (originalAmount * parseFloat(coupon.discount)) / 100;
+            } else if (coupon.discountType === 'fixed') {
+              discountAmount = parseFloat(coupon.discount);
+            }
+            finalAmount = Math.max(0, originalAmount - discountAmount);
+          }
+        }
+      }
+    }
+
     const application = await Application.create({
       email: extractedEmail,
       firstName: extractedFirstName,
@@ -186,7 +367,12 @@ router.post('/apply', async (req, res) => {
       applicationFee,
       paymentInfo: paymentInfo ? JSON.stringify(paymentInfo) : null,
       formData: parsedFormData ? JSON.stringify(parsedFormData) : null,
-      status: 'pending'
+      status: 'incomplete',
+      couponId: validatedCoupon ? validatedCoupon.id : null,
+      couponCode: validatedCoupon ? validatedCoupon.couponId : null,
+      originalAmount: originalAmount,
+      discountAmount: discountAmount,
+      finalAmount: finalAmount
     });
 
     // TODO: Send notification email to organization admins
@@ -247,11 +433,12 @@ router.post('/application-payment', async (req, res) => {
       });
     }
 
-    // Validate amount matches plan fee
-    if (parseFloat(amount) !== parseFloat(plan.fee)) {
+    // Validate amount matches the final amount (after coupon discount)
+    const expectedAmount = application.finalAmount || parseFloat(plan.fee);
+    if (parseFloat(amount) !== parseFloat(expectedAmount)) {
       return res.status(400).json({
         success: false,
-        message: 'Payment amount does not match plan fee'
+        message: `Payment amount does not match expected amount. Expected: $${expectedAmount}, Received: $${amount}`
       });
     }
 
@@ -295,7 +482,7 @@ router.post('/application-payment', async (req, res) => {
         paymentDetails: paymentDetails,
         processedAt: new Date().toISOString()
       }),
-      status: 'payment_received'
+      status: 'pending'
     });
 
     // TODO: Send notification emails to organization admins and applicant
@@ -369,6 +556,50 @@ router.get('/organizations', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch organizations',
+      error: error.message
+    });
+  }
+});
+
+// Check for incomplete applications by email
+router.get('/incomplete-applications/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const incompleteApplications = await Application.findAll({
+      where: {
+        email: email,
+        status: 'incomplete'
+      },
+      include: [
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['id', 'name', 'fee', 'description']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({
+      success: true,
+      data: {
+        applications: incompleteApplications,
+        count: incompleteApplications.length
+      }
+    });
+  } catch (error) {
+    console.error('Get incomplete applications error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch incomplete applications',
       error: error.message
     });
   }

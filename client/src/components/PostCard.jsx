@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toggleLike, createComment, updatePost, deletePost } from '../services/postService';
 import { useAuth } from '../contexts/AuthContext';
+import ConfirmDialog from './ConfirmDialog';
 
 const PostCard = ({ post, onUpdate }) => {
   const [showComments, setShowComments] = useState(false);
@@ -13,6 +14,7 @@ const PostCard = ({ post, onUpdate }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const { user } = useAuth();
 
   // Close dropdown when editing starts
@@ -69,8 +71,14 @@ const PostCard = ({ post, onUpdate }) => {
   const handleDelete = async () => {
     if (isDeleting) return;
     
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this post?',
+      onConfirm: () => deletePostItem()
+    });
+  };
 
+  const deletePostItem = async () => {
     setIsDeleting(true);
     try {
       await deletePost(post.id);
@@ -378,6 +386,18 @@ const PostCard = ({ post, onUpdate }) => {
           </form>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

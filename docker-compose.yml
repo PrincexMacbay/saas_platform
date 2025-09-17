@@ -1,0 +1,72 @@
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: saas_database
+    environment:
+      POSTGRES_DB: saas_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/setup-database.sql:/docker-entrypoint-initdb.d/setup-database.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - saas_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: saas_backend
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres123@database:5432/saas_platform
+      JWT_SECRET: your_jwt_secret_here_change_in_production
+      EMAIL_USER: your_email@gmail.com
+      EMAIL_PASS: your_email_password
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - saas_network
+    volumes:
+      # Mount source code for live updates
+      - ./server:/app
+      - /app/node_modules
+      - ./server/uploads:/app/uploads
+    restart: unless-stopped
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: saas_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - saas_network
+    volumes:
+      # Mount source code for live updates
+      - ./client:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  saas_network:
+    driver: bridge

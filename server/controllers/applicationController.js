@@ -11,14 +11,7 @@ const getApplications = async (req, res) => {
     
     const whereClause = {};
     
-    // Check if user has organizationId - if not, they might not have permission
-    if (!req.user.organizationId) {
-      return res.status(400).json({
-        success: false,
-        message: 'User is not associated with any organization. Please join an organization to view applications.',
-        code: 'NO_ORGANIZATION'
-      });
-    }
+    // USER-ONLY ACCESS: No organization check needed
     
     if (search) {
       whereClause[Op.or] = [
@@ -37,6 +30,7 @@ const getApplications = async (req, res) => {
       whereClause.planId = planId;
     }
 
+    // USER-ONLY ACCESS: Only show applications for plans created by the current user
     const { count, rows } = await Application.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
@@ -46,7 +40,11 @@ const getApplications = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          where: {
+            createdBy: req.user.id // Only plans created by current user
+          },
+          required: true // This ensures only applications with valid plans are returned
         },
         {
           model: User,
@@ -84,11 +82,18 @@ const getApplication = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const application = await Application.findByPk(id, {
+    // CRITICAL SECURITY FIX: Only allow access to applications for plans the user created
+    // or for plans in the user's organization
+    const application = await Application.findOne({
+      where: { id },
       include: [
         {
           model: Plan,
-          as: 'plan'
+          as: 'plan',
+          where: {
+            createdBy: req.user.id // Only plans created by current user
+          },
+          required: true
         },
         {
           model: User,
@@ -251,10 +256,12 @@ const approveApplication = async (req, res) => {
     }
 
     let user = null;
+    let existingUser = null;
+    let temporaryPassword = null;
 
     if (createUser) {
       // Check if user already exists
-      const existingUser = await User.findOne({
+      existingUser = await User.findOne({
         where: { email: application.email }
       });
 
@@ -263,7 +270,7 @@ const approveApplication = async (req, res) => {
       } else {
         // Create new user
         const username = await generateUniqueUsername(application.firstName, application.lastName);
-        const temporaryPassword = Math.random().toString(36).slice(-8);
+        temporaryPassword = Math.random().toString(36).slice(-8);
 
         user = await User.create({
           username,

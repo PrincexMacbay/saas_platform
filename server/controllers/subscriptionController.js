@@ -40,7 +40,7 @@ const getUserSubscriptions = async (req, res) => {
   }
 };
 
-// Get all subscriptions (admin)
+// Get all subscriptions (admin) - SECURITY FIXED: Only show subscriptions for plans user created
 const getSubscriptions = async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status, planId } = req.query;
@@ -65,6 +65,8 @@ const getSubscriptions = async (req, res) => {
       whereClause.planId = planId;
     }
 
+    // CRITICAL SECURITY FIX: Only show subscriptions for plans created by the current user
+    // or for plans in the user's organization
     const { count, rows } = await Subscription.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
@@ -79,7 +81,11 @@ const getSubscriptions = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'renewalInterval']
+          attributes: ['id', 'name', 'fee', 'renewalInterval', 'createdBy', 'organizationId'],
+          where: {
+            createdBy: req.user.id // Only plans created by current user
+          },
+          required: true
         }
       ]
     });

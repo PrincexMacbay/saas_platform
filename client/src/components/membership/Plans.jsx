@@ -1,5 +1,742 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import ConfirmDialog from '../ConfirmDialog';
+
+// Plan Modal Component
+const PlanModal = ({ plan, onClose, onSave }) => {
+  console.log('PlanModal rendering with plan:', plan);
+  
+  // Initialize form data with safe defaults
+  const [formData, setFormData] = useState(() => {
+    try {
+      return {
+        name: plan?.name || '',
+        description: plan?.description || '',
+        planType: plan?.fee === 0 || plan?.fee === '0' ? 'free' : 'paid',
+        fee: plan?.fee || '',
+        renewalInterval: plan?.renewalInterval || 'monthly',
+        maxMembers: plan?.maxMembers || '',
+        useDefaultForm: plan?.useDefaultForm !== false,
+        applicationFormId: plan?.applicationFormId || null,
+        benefits: (() => {
+          if (!plan?.benefits) return [''];
+          try {
+            return JSON.parse(plan.benefits);
+          } catch (e) {
+            console.warn('Invalid benefits JSON for plan in modal:', plan?.id || 'new plan', plan.benefits);
+            return [''];
+          }
+        })()
+      };
+    } catch (error) {
+      console.error('Error initializing form data:', error);
+      return {
+        name: '',
+        description: '',
+        planType: 'free',
+        fee: '',
+        renewalInterval: 'monthly',
+        maxMembers: '',
+        useDefaultForm: true,
+        applicationFormId: null,
+        benefits: ['']
+      };
+    }
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [availableForms, setAvailableForms] = useState([]);
+  const [loadingForms, setLoadingForms] = useState(false);
+
+  // Fetch available application forms
+  const fetchAvailableForms = async () => {
+    try {
+      setLoadingForms(true);
+      const response = await api.get('/membership/application-forms');
+      // Only show published forms for selection
+      const forms = response.data?.data || [];
+      const publishedForms = Array.isArray(forms) ? forms.filter(form => form.isPublished) : [];
+      setAvailableForms(publishedForms);
+    } catch (error) {
+      console.error('Error fetching application forms:', error);
+      setAvailableForms([]); // Set empty array on error
+    } finally {
+      setLoadingForms(false);
+    }
+  };
+
+  // Fetch forms when component mounts or when plan changes
+  useEffect(() => {
+    try {
+      fetchAvailableForms();
+    } catch (error) {
+      console.error('Error in fetchAvailableForms useEffect:', error);
+    }
+  }, [plan?.id]); // Refresh when editing a different plan
+
+  // Listen for form updates from other components
+  useEffect(() => {
+    try {
+      const handleFormUpdate = () => {
+        fetchAvailableForms();
+      };
+
+      // Add event listener for form updates
+      window.addEventListener('formUpdated', handleFormUpdate);
+      
+      return () => {
+        window.removeEventListener('formUpdated', handleFormUpdate);
+      };
+    } catch (error) {
+      console.error('Error in form update listener useEffect:', error);
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleBenefitChange = (index, value) => {
+    const newBenefits = [...formData.benefits];
+    newBenefits[index] = value;
+    setFormData(prev => ({ ...prev, benefits: newBenefits }));
+  };
+
+  const addBenefit = () => {
+    setFormData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }));
+  };
+
+  const removeBenefit = (index) => {
+    const newBenefits = formData.benefits.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, benefits: newBenefits }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const submitData = {
+        ...formData,
+        benefits: formData.benefits.filter(benefit => benefit.trim())
+      };
+
+      // Debug logging
+      console.log('Submitting plan data:', submitData);
+      console.log('useDefaultForm:', submitData.useDefaultForm);
+      console.log('applicationFormId:', submitData.applicationFormId);
+
+      if (plan) {
+        await api.put(`/membership/plans/${plan.id}`, submitData);
+      } else {
+        await api.post('/membership/plans', submitData);
+      }
+      
+      onSave();
+    } catch (error) {
+      console.error('Plan submission error:', error.response?.data);
+      alert('Error saving plan: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log('PlanModal about to render return statement');
+  
+  return (
+    <div className="modal-overlay" onClick={onClose} style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      right: 0, 
+      bottom: 0, 
+      background: 'rgba(0, 0, 0, 0.5)', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      zIndex: 9999 
+    }}>
+      <div className="modal-content" onClick={e => e.stopPropagation()} style={{ 
+        background: 'white', 
+        padding: '20px', 
+        borderRadius: '8px',
+        minWidth: '400px',
+        maxWidth: '600px',
+        maxHeight: '80vh',
+        overflow: 'auto'
+      }}>
+        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0 }}>{plan ? 'Edit Plan' : 'Add Plan'}</h3>
+          <button onClick={onClose} className="close-button" style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label>Plan Name *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="e.g., Basic Plan"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="3"
+              placeholder="Plan description..."
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Plan Type *</label>
+              <div className="plan-type-selector">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="planType"
+                    value="paid"
+                    checked={formData.planType === 'paid'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        planType: e.target.value,
+                        fee: e.target.value === 'free' ? '0' : prev.fee
+                      }));
+                    }}
+                  />
+                  <span>Paid Plan</span>
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="planType"
+                    value="free"
+                    checked={formData.planType === 'free'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        planType: e.target.value,
+                        fee: e.target.value === 'free' ? '0' : prev.fee
+                      }));
+                    }}
+                  />
+                  <span>Free Plan</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Fee {formData.planType === 'paid' ? '*' : ''}</label>
+              <input
+                type="number"
+                name="fee"
+                value={formData.fee}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                required={formData.planType === 'paid'}
+                disabled={formData.planType === 'free'}
+                placeholder={formData.planType === 'free' ? 'Free' : '0.00'}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Renewal Interval *</label>
+              <select
+                name="renewalInterval"
+                value={formData.renewalInterval}
+                onChange={handleChange}
+                required
+              >
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+                <option value="one-time">One-time</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Max Members (optional)</label>
+            <input
+              type="number"
+              name="maxMembers"
+              value={formData.maxMembers}
+              onChange={handleChange}
+              min="1"
+              placeholder="Leave empty for unlimited"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Application Form</label>
+            <div className="form-type-selector">
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="useDefaultForm"
+                  value="default"
+                  checked={formData.useDefaultForm === true}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      useDefaultForm: true,
+                      applicationFormId: null
+                    }));
+                  }}
+                />
+                <span>Use Organization Default Form</span>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="useDefaultForm"
+                  value="custom"
+                  checked={formData.useDefaultForm === false}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      useDefaultForm: false
+                    }));
+                  }}
+                />
+                <span>Use Custom Form</span>
+              </label>
+            </div>
+            
+            {!formData.useDefaultForm && (
+              <div className="form-group">
+                <label>Select Custom Application Form</label>
+                {availableForms.length === 0 ? (
+                  <div className="form-warning">
+                    <i className="fas fa-exclamation-triangle"></i>
+                    <p>No published application forms available. Please create and publish a form first.</p>
+                    <button 
+                      type="button" 
+                      className="create-form-button"
+                      onClick={() => {
+                        // Navigate to application forms management
+                        window.location.href = '/membership/application-forms';
+                      }}
+                    >
+                      Create Application Form
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="form-select-container">
+                      <select
+                        name="applicationFormId"
+                        value={formData.applicationFormId || ''}
+                        onChange={handleChange}
+                        required={!formData.useDefaultForm}
+                        disabled={loadingForms}
+                      >
+                        <option value="">{loadingForms ? 'Loading forms...' : 'Select a form...'}</option>
+                        {availableForms.map(form => (
+                          <option key={form.id} value={form.id}>
+                            {form.title}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={fetchAvailableForms}
+                        disabled={loadingForms}
+                        className="refresh-forms-button"
+                        title="Refresh available forms"
+                      >
+                        <i className={`fas ${loadingForms ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
+                      </button>
+                    </div>
+                    <small className="form-help">
+                      Choose a custom application form that will be used when users apply for this plan. 
+                      Only published forms are available for selection. Click the refresh button to update the list.
+                    </small>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>Benefits</label>
+            <div className="benefits-list">
+              {formData.benefits.map((benefit, index) => (
+                <div key={index} className="benefit-item">
+                  <input
+                    type="text"
+                    value={benefit}
+                    onChange={(e) => handleBenefitChange(index, e.target.value)}
+                    placeholder="Enter benefit..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeBenefit(index)}
+                    className="remove-benefit"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addBenefit}
+                className="add-benefit"
+              >
+                <i className="fas fa-plus"></i> Add Benefit
+              </button>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="cancel-button">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading} className="save-button">
+              {loading ? 'Saving...' : 'Save Plan'}
+            </button>
+          </div>
+        </form>
+
+        <style jsx>{`
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+          }
+
+          .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          }
+
+          .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ecf0f1;
+          }
+
+          .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+          }
+
+          .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #7f8c8d;
+            cursor: pointer;
+          }
+
+          .modal-form {
+            padding: 30px;
+          }
+
+          .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+          }
+
+          .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+          }
+
+          .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+          }
+
+          .form-group input,
+          .form-group select,
+          .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+          }
+
+          .benefits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          }
+
+          .benefit-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+          }
+
+          .benefit-item input {
+            flex: 1;
+          }
+
+          .remove-benefit {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+
+          .add-benefit {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+          }
+
+          .add-benefit:hover {
+            background: #2980b9;
+          }
+
+          .checkbox-group {
+            margin-bottom: 10px;
+          }
+
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+          }
+
+          .checkbox-label input[type="checkbox"] {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+          }
+
+          .checkbox-label span {
+            user-select: none;
+          }
+
+          .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+          }
+
+          .form-group select:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+          }
+
+          .plan-type-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+          }
+
+          .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+          }
+
+          .radio-label:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+          }
+
+          .radio-label input[type="radio"] {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+            accent-color: #3498db;
+          }
+
+          .radio-label input[type="radio"]:checked + span {
+            color: #3498db;
+            font-weight: 500;
+          }
+
+          .radio-label input[type="radio"]:checked {
+            border-color: #3498db;
+          }
+
+          .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+          }
+
+          .cancel-button,
+          .save-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+          }
+
+          .cancel-button {
+            background: #f8f9fa;
+            color: #6c757d;
+          }
+
+          .save-button {
+            background: #3498db;
+            color: white;
+          }
+
+          .save-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .form-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+          }
+
+          .form-warning i {
+            color: #f39c12;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+          }
+
+          .form-warning p {
+            margin: 10px 0;
+            color: #856404;
+            font-weight: 500;
+          }
+
+          .create-form-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            margin-top: 10px;
+          }
+
+          .create-form-button:hover {
+            background: #2980b9;
+          }
+
+          .form-select-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+          }
+
+          .form-select-container select {
+            flex: 1;
+          }
+
+          .refresh-forms-button {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 12px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .refresh-forms-button:hover:not(:disabled) {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            color: #495057;
+          }
+
+          .refresh-forms-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .refresh-forms-button i {
+            font-size: 1rem;
+          }
+
+          @media (max-width: 768px) {
+            .form-row {
+              grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+              width: 95%;
+              max-height: 95vh;
+              margin: 20px;
+            }
+            
+            .modal-overlay {
+              padding: 10px;
+            }
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+};
 
 const Plans = () => {
   const [plans, setPlans] = useState([]);
@@ -11,6 +748,7 @@ const Plans = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
 
   useEffect(() => {
     fetchPlans();
@@ -71,8 +809,10 @@ const Plans = () => {
   };
 
   const handleAddPlan = () => {
+    console.log('Add Plan button clicked');
     setEditingPlan(null);
     setShowModal(true);
+    console.log('Modal should be showing now');
   };
 
   const handleEditPlan = (plan) => {
@@ -81,13 +821,23 @@ const Plans = () => {
   };
 
   const handleDeletePlan = async (planId) => {
-    if (!confirm('Are you sure you want to delete this plan? This cannot be undone.')) return;
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this plan? This cannot be undone.',
+      onConfirm: () => deletePlan(planId)
+    });
+  };
 
+  const deletePlan = async (planId) => {
     try {
       await api.delete(`/membership/plans/${planId}`);
       fetchPlans();
+      // Show success message (optional)
+      console.log('Plan deleted successfully');
     } catch (error) {
-      alert('Error deleting plan: ' + error.message);
+      console.error('Delete plan error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete plan';
+      alert(`Error deleting plan: ${errorMessage}`);
     }
   };
 
@@ -297,8 +1047,12 @@ const Plans = () => {
       {showModal && (
         <PlanModal
           plan={editingPlan}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            console.log('Closing modal');
+            setShowModal(false);
+          }}
           onSave={() => {
+            console.log('Saving plan');
             setShowModal(false);
             fetchPlans();
           }}
@@ -709,586 +1463,21 @@ const Plans = () => {
           }
         }
       `}</style>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };
 
-// Plan Modal Component
-const PlanModal = ({ plan, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    name: plan?.name || '',
-    description: plan?.description || '',
-    planType: plan?.fee === 0 || plan?.fee === '0' ? 'free' : 'paid',
-    fee: plan?.fee || '',
-    renewalInterval: plan?.renewalInterval || 'monthly',
-    maxMembers: plan?.maxMembers || '',
-    useDefaultForm: plan?.useDefaultForm !== false,
-    applicationFormId: plan?.applicationFormId || null,
-    benefits: (() => {
-      if (!plan?.benefits) return [''];
-      try {
-        return JSON.parse(plan.benefits);
-      } catch (e) {
-        console.warn('Invalid benefits JSON for plan in modal:', plan.id, plan.benefits);
-        return [''];
-      }
-    })()
-  });
-  const [loading, setLoading] = useState(false);
-  const [availableForms, setAvailableForms] = useState([]);
-  const [loadingForms, setLoadingForms] = useState(false);
-
-  // Fetch available application forms
-  useEffect(() => {
-    const fetchAvailableForms = async () => {
-      try {
-        setLoadingForms(true);
-        const response = await api.get('/membership/application-forms');
-        setAvailableForms(response.data.data || []);
-      } catch (error) {
-        console.error('Error fetching application forms:', error);
-      } finally {
-        setLoadingForms(false);
-      }
-    };
-
-    fetchAvailableForms();
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleBenefitChange = (index, value) => {
-    const newBenefits = [...formData.benefits];
-    newBenefits[index] = value;
-    setFormData(prev => ({ ...prev, benefits: newBenefits }));
-  };
-
-  const addBenefit = () => {
-    setFormData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }));
-  };
-
-  const removeBenefit = (index) => {
-    const newBenefits = formData.benefits.filter((_, i) => i !== index);
-    setFormData(prev => ({ ...prev, benefits: newBenefits }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const submitData = {
-        ...formData,
-        benefits: formData.benefits.filter(benefit => benefit.trim())
-      };
-
-      if (plan) {
-        await api.put(`/membership/plans/${plan.id}`, submitData);
-      } else {
-        await api.post('/membership/plans', submitData);
-      }
-      
-      onSave();
-    } catch (error) {
-      alert('Error saving plan: ' + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>{plan ? 'Edit Plan' : 'Add Plan'}</h3>
-          <button onClick={onClose} className="close-button">
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="modal-form">
-          <div className="form-group">
-            <label>Plan Name *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              placeholder="e.g., Basic Plan"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              placeholder="Plan description..."
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Plan Type *</label>
-              <div className="plan-type-selector">
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="planType"
-                    value="paid"
-                    checked={formData.planType === 'paid'}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        planType: e.target.value,
-                        fee: e.target.value === 'free' ? '0' : prev.fee
-                      }));
-                    }}
-                  />
-                  <span>Paid Plan</span>
-                </label>
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="planType"
-                    value="free"
-                    checked={formData.planType === 'free'}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        planType: e.target.value,
-                        fee: e.target.value === 'free' ? '0' : prev.fee
-                      }));
-                    }}
-                  />
-                  <span>Free Plan</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Fee {formData.planType === 'paid' ? '*' : ''}</label>
-              <input
-                type="number"
-                name="fee"
-                value={formData.fee}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                required={formData.planType === 'paid'}
-                disabled={formData.planType === 'free'}
-                placeholder={formData.planType === 'free' ? 'Free' : '0.00'}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Renewal Interval *</label>
-              <select
-                name="renewalInterval"
-                value={formData.renewalInterval}
-                onChange={handleChange}
-                required
-              >
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-                <option value="one-time">One-time</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Max Members (optional)</label>
-            <input
-              type="number"
-              name="maxMembers"
-              value={formData.maxMembers}
-              onChange={handleChange}
-              min="1"
-              placeholder="Leave empty for unlimited"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Application Form</label>
-            <div className="form-type-selector">
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="useDefaultForm"
-                  value="true"
-                  checked={formData.useDefaultForm === true}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      useDefaultForm: true,
-                      applicationFormId: null
-                    }));
-                  }}
-                />
-                <span>Use Organization Default Form</span>
-              </label>
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="useDefaultForm"
-                  value="false"
-                  checked={formData.useDefaultForm === false}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      useDefaultForm: false
-                    }));
-                  }}
-                />
-                <span>Use Custom Form</span>
-              </label>
-            </div>
-            
-            {!formData.useDefaultForm && (
-              <div className="form-group">
-                <label>Select Custom Application Form</label>
-                <select
-                  name="applicationFormId"
-                  value={formData.applicationFormId || ''}
-                  onChange={handleChange}
-                  required={!formData.useDefaultForm}
-                  disabled={loadingForms}
-                >
-                  <option value="">{loadingForms ? 'Loading forms...' : 'Select a form...'}</option>
-                  {availableForms.map(form => (
-                    <option key={form.id} value={form.id}>
-                      {form.title} {form.isPublished ? '(Published)' : '(Draft)'}
-                    </option>
-                  ))}
-                </select>
-                <small className="form-help">
-                  Choose a custom application form that will be used when users apply for this plan. 
-                  Only published forms are available for selection.
-                </small>
-              </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>Benefits</label>
-            <div className="benefits-list">
-              {formData.benefits.map((benefit, index) => (
-                <div key={index} className="benefit-item">
-                  <input
-                    type="text"
-                    value={benefit}
-                    onChange={(e) => handleBenefitChange(index, e.target.value)}
-                    placeholder="Enter benefit..."
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeBenefit(index)}
-                    className="remove-benefit"
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addBenefit}
-                className="add-benefit"
-              >
-                <i className="fas fa-plus"></i> Add Benefit
-              </button>
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="save-button">
-              {loading ? 'Saving...' : 'Save Plan'}
-            </button>
-          </div>
-        </form>
-
-        <style jsx>{`
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-          }
-
-          .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-          }
-
-          .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 30px;
-            border-bottom: 1px solid #ecf0f1;
-          }
-
-          .modal-header h3 {
-            margin: 0;
-            color: #2c3e50;
-          }
-
-          .close-button {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #7f8c8d;
-            cursor: pointer;
-          }
-
-          .modal-form {
-            padding: 30px;
-          }
-
-          .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-          }
-
-          .form-group {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-          }
-
-          .form-group label {
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e50;
-          }
-
-          .form-group input,
-          .form-group select,
-          .form-group textarea {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-          }
-
-          .benefits-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-          }
-
-          .benefit-item {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-          }
-
-          .benefit-item input {
-            flex: 1;
-          }
-
-          .remove-benefit {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-          }
-
-          .add-benefit {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.3s ease;
-          }
-
-          .add-benefit:hover {
-            background: #2980b9;
-          }
-
-          .checkbox-group {
-            margin-bottom: 10px;
-          }
-
-          .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #555;
-          }
-
-          .checkbox-label input[type="checkbox"] {
-            margin: 0;
-            width: 16px;
-            height: 16px;
-          }
-
-          .checkbox-label span {
-            user-select: none;
-          }
-
-          .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            background: white;
-          }
-
-          .form-group select:disabled {
-            background: #f8f9fa;
-            color: #6c757d;
-            cursor: not-allowed;
-          }
-
-          .checkbox-group {
-            margin-bottom: 10px;
-          }
-
-          .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #555;
-          }
-
-          .checkbox-label input[type="checkbox"] {
-            margin: 0;
-            width: 16px;
-            height: 16px;
-          }
-
-          .checkbox-label span {
-            user-select: none;
-          }
-
-          .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            background: white;
-          }
-
-          .form-group select:disabled {
-            background: #f8f9fa;
-            color: #6c757d;
-            cursor: not-allowed;
-          }
-
-          .plan-type-selector {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 10px;
-          }
-
-          .radio-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #555;
-            padding: 8px 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-          }
-
-          .radio-label:hover {
-            border-color: #3498db;
-            background: #f8f9fa;
-          }
-
-          .radio-label input[type="radio"] {
-            margin: 0;
-            width: 16px;
-            height: 16px;
-            accent-color: #3498db;
-          }
-
-          .radio-label input[type="radio"]:checked + span {
-            color: #3498db;
-            font-weight: 500;
-          }
-
-          .radio-label input[type="radio"]:checked {
-            border-color: #3498db;
-          }
-
-          .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
-          }
-
-          .cancel-button,
-          .save-button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-          }
-
-          .cancel-button {
-            background: #f8f9fa;
-            color: #6c757d;
-          }
-
-          .save-button {
-            background: #3498db;
-            color: white;
-          }
-
-          .save-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          @media (max-width: 768px) {
-            .form-row {
-              grid-template-columns: 1fr;
-            }
-          }
-        `}</style>
-      </div>
-    </div>
-  );
-};
 
 export default Plans;

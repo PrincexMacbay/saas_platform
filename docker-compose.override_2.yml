@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./server:/app       # mount local backend code
+      - /app/node_modules   # keep node_modules inside container
+    ports:
+      - "5000:5000"
+
+  frontend:
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"         # vite dev server

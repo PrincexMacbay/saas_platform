@@ -12,6 +12,12 @@ const ApplyMembership = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [incompleteApplication, setIncompleteApplication] = useState(null);
+  const [showIncompleteModal, setShowIncompleteModal] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   useEffect(() => {
     fetchPlanAndForm();
@@ -90,6 +96,102 @@ const ApplyMembership = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Check for incomplete applications when email is entered
+    if (name === 'email' && value && value.includes('@')) {
+      checkIncompleteApplications(value);
+    }
+  };
+
+  const checkIncompleteApplications = async (email) => {
+    try {
+      const response = await api.get(`/public/incomplete-applications/${encodeURIComponent(email)}`);
+      const applications = response.data.data.applications;
+      
+      // Filter applications for the current plan
+      const currentPlanIncomplete = applications.find(app => app.planId === parseInt(planId));
+      
+      if (currentPlanIncomplete) {
+        setIncompleteApplication(currentPlanIncomplete);
+        setShowIncompleteModal(true);
+      }
+    } catch (error) {
+      // Silently handle errors - this is just a check
+      console.log('No incomplete applications found or error occurred');
+    }
+  };
+
+  const handleContinueIncomplete = () => {
+    // Pre-fill the form with the incomplete application data
+    if (incompleteApplication.formData) {
+      try {
+        const savedFormData = JSON.parse(incompleteApplication.formData);
+        setFormData(prev => ({
+          ...prev,
+          ...savedFormData
+        }));
+      } catch (e) {
+        console.error('Error parsing saved form data:', e);
+      }
+    }
+    setShowIncompleteModal(false);
+  };
+
+  const handleStartNew = () => {
+    setIncompleteApplication(null);
+    setShowIncompleteModal(false);
+  };
+
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    setValidatingCoupon(true);
+    setCouponError('');
+
+    try {
+      const response = await api.post('/public/validate-coupon', {
+        couponCode: couponCode.trim(),
+        planId: parseInt(planId)
+      });
+
+      if (response.data.success) {
+        setAppliedCoupon(response.data.coupon);
+        setCouponError('');
+      } else {
+        setCouponError(response.data.message || 'Invalid coupon code');
+        setAppliedCoupon(null);
+      }
+    } catch (error) {
+      setCouponError(error.response?.data?.message || 'Error validating coupon');
+      setAppliedCoupon(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
+
+  const calculateDiscountedAmount = () => {
+    if (!plan || !appliedCoupon) return plan?.fee || 0;
+    
+    const originalAmount = parseFloat(plan.fee);
+    let discountAmount = 0;
+
+    if (appliedCoupon.discountType === 'percentage') {
+      discountAmount = (originalAmount * parseFloat(appliedCoupon.discount)) / 100;
+    } else if (appliedCoupon.discountType === 'fixed') {
+      discountAmount = parseFloat(appliedCoupon.discount);
+    }
+
+    const finalAmount = Math.max(0, originalAmount - discountAmount);
+    return finalAmount;
   };
 
   const handleSubmit = async (e) => {
@@ -105,26 +207,54 @@ const ApplyMembership = () => {
       const submitData = {
         ...formData,
         planId: parseInt(planId),
-        formData: JSON.stringify(formData)
+        formData: JSON.stringify(formData),
+        couponCode: appliedCoupon ? appliedCoupon.couponId : null,
+        couponId: appliedCoupon ? appliedCoupon.id : null
       };
 
       const response = await api.post('/public/apply', submitData);
       
-      // Check if payment is required
-      if (plan.fee > 0) {
-        // Redirect to payment page
-        navigate(`/payment/application/${response.data.data.applicationId}`, {
-          state: {
-            applicationId: response.data.data.applicationId,
-            planId: planId,
-            amount: plan.fee,
-            planName: plan.name
-          }
-        });
+      // Check if this is an incomplete application being continued
+      if (response.data.data.isIncomplete) {
+        // User is continuing an incomplete application
+        const finalAmount = calculateDiscountedAmount();
+        if (finalAmount > 0) {
+          // Redirect to payment page
+          navigate(`/payment/application/${response.data.data.applicationId}`, {
+            state: {
+              applicationId: response.data.data.applicationId,
+              planId: planId,
+              amount: finalAmount,
+              originalAmount: plan.fee,
+              planName: plan.name,
+              appliedCoupon: appliedCoupon
+            }
+          });
+        } else {
+          // Free plan - show success message
+          alert(`Application completed successfully! Application ID: ${response.data.data.applicationId}`);
+          navigate('/browse-memberships');
+        }
       } else {
-        // Free plan - show success message
-        alert(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`);
-        navigate('/browse-memberships');
+        // New application
+        const finalAmount = calculateDiscountedAmount();
+        if (finalAmount > 0) {
+          // Redirect to payment page
+          navigate(`/payment/application/${response.data.data.applicationId}`, {
+            state: {
+              applicationId: response.data.data.applicationId,
+              planId: planId,
+              amount: finalAmount,
+              originalAmount: plan.fee,
+              planName: plan.name,
+              appliedCoupon: appliedCoupon
+            }
+          });
+        } else {
+          // Free plan - show success message
+          alert(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`);
+          navigate('/browse-memberships');
+        }
       }
       
     } catch (error) {
@@ -266,6 +396,64 @@ const ApplyMembership = () => {
           ))}
         </div>
 
+        {/* Coupon Code Section */}
+        {plan.fee > 0 && (
+          <div className="coupon-section">
+            <h3>Discount Coupon (Optional)</h3>
+            <div className="coupon-input-group">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                placeholder="Enter coupon code"
+                className="form-control coupon-input"
+                disabled={appliedCoupon}
+              />
+              {!appliedCoupon ? (
+                <button
+                  type="button"
+                  onClick={validateCoupon}
+                  disabled={validatingCoupon || !couponCode.trim()}
+                  className="btn btn-secondary"
+                >
+                  {validatingCoupon ? 'Validating...' : 'Apply Coupon'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  className="btn btn-outline-secondary"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            
+            {couponError && (
+              <div className="coupon-error">
+                <p className="error-text">{couponError}</p>
+              </div>
+            )}
+            
+            {appliedCoupon && (
+              <div className="coupon-success">
+                <p className="success-text">
+                  ✅ Coupon "{appliedCoupon.name}" applied! 
+                  {appliedCoupon.discountType === 'percentage' 
+                    ? ` ${appliedCoupon.discount}% off`
+                    : ` $${appliedCoupon.discount} off`
+                  }
+                </p>
+                <div className="price-breakdown">
+                  <p>Original Price: <span className="original-price">${plan.fee}</span></p>
+                  <p>Discount: <span className="discount-amount">-${(plan.fee - calculateDiscountedAmount()).toFixed(2)}</span></p>
+                  <p><strong>Final Price: <span className="final-price">${calculateDiscountedAmount().toFixed(2)}</span></strong></p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {form.terms && (
           <div className="terms-section">
             <h3>Terms and Conditions</h3>
@@ -315,6 +503,34 @@ const ApplyMembership = () => {
           </div>
         )}
       </form>
+
+      {/* Incomplete Application Modal */}
+      {showIncompleteModal && incompleteApplication && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Continue Previous Application?</h3>
+            <p>
+              We found an incomplete application for <strong>{plan.name}</strong> with the email <strong>{incompleteApplication.email}</strong>.
+            </p>
+            <p>Would you like to continue with your previous application or start a new one?</p>
+            
+            <div className="modal-actions">
+              <button
+                onClick={handleContinueIncomplete}
+                className="btn btn-primary"
+              >
+                Continue Previous Application
+              </button>
+              <button
+                onClick={handleStartNew}
+                className="btn btn-secondary"
+              >
+                Start New Application
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .apply-membership {
@@ -497,6 +713,91 @@ const ApplyMembership = () => {
           100% { transform: rotate(360deg); }
         }
 
+        /* Coupon Section Styles */
+        .coupon-section {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+        }
+
+        .coupon-section h3 {
+          margin: 0 0 15px 0;
+          color: #495057;
+          font-size: 1.1rem;
+        }
+
+        .coupon-input-group {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 15px;
+        }
+
+        .coupon-input {
+          flex: 1;
+          padding: 10px 12px;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+
+        .coupon-input:disabled {
+          background-color: #e9ecef;
+          color: #6c757d;
+        }
+
+        .coupon-error {
+          margin-top: 10px;
+        }
+
+        .error-text {
+          color: #dc3545;
+          font-size: 14px;
+          margin: 0;
+        }
+
+        .coupon-success {
+          background: #d4edda;
+          border: 1px solid #c3e6cb;
+          border-radius: 4px;
+          padding: 15px;
+          margin-top: 15px;
+        }
+
+        .success-text {
+          color: #155724;
+          font-weight: 500;
+          margin: 0 0 10px 0;
+        }
+
+        .price-breakdown {
+          background: white;
+          border-radius: 4px;
+          padding: 10px;
+          margin-top: 10px;
+        }
+
+        .price-breakdown p {
+          margin: 5px 0;
+          font-size: 14px;
+        }
+
+        .original-price {
+          text-decoration: line-through;
+          color: #6c757d;
+        }
+
+        .discount-amount {
+          color: #28a745;
+          font-weight: 500;
+        }
+
+        .final-price {
+          color: #007bff;
+          font-size: 16px;
+        }
+
         @media (max-width: 768px) {
           .apply-membership {
             padding: 10px;
@@ -508,6 +809,67 @@ const ApplyMembership = () => {
 
           .form-actions {
             flex-direction: column;
+          }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+
+        .modal-content {
+          background: white;
+          padding: 30px;
+          border-radius: 12px;
+          max-width: 500px;
+          width: 90%;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h3 {
+          color: #2c3e50;
+          margin-bottom: 15px;
+        }
+
+        .modal-content p {
+          color: #555;
+          margin-bottom: 15px;
+          line-height: 1.5;
+        }
+
+        .modal-actions {
+          display: flex;
+          gap: 15px;
+          justify-content: center;
+          margin-top: 25px;
+        }
+
+        .modal-actions .btn {
+          min-width: 180px;
+        }
+
+        @media (max-width: 768px) {
+          .modal-content {
+            padding: 20px;
+            margin: 20px;
+          }
+
+          .modal-actions {
+            flex-direction: column;
+          }
+
+          .modal-actions .btn {
+            min-width: auto;
           }
         }
       `}</style>

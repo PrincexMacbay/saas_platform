@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createReminder, getReminders, deleteReminder, sendReminder } from '../../services/membershipService';
+import ConfirmDialog from '../ConfirmDialog';
 
 const Reminders = () => {
   const [reminders, setReminders] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const [formData, setFormData] = useState({
     name: '',
     type: 'renewal',
@@ -62,14 +64,20 @@ const Reminders = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this reminder?')) {
-      try {
-        await deleteReminder(id);
-        loadReminders();
-      } catch (error) {
-        console.error('Error deleting reminder:', error);
-        setError('Failed to delete reminder');
-      }
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this reminder?',
+      onConfirm: () => deleteReminderItem(id)
+    });
+  };
+
+  const deleteReminderItem = async (id) => {
+    try {
+      await deleteReminder(id);
+      loadReminders();
+    } catch (error) {
+      console.error('Error deleting reminder:', error);
+      setError('Failed to delete reminder');
     }
   };
 
@@ -644,6 +652,18 @@ const Reminders = () => {
           }
         }
       `}</style>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

@@ -1,0 +1,1010 @@
+[
+  {
+    "id": 1757452004387.2092,
+    "timestamp": "2025-09-09T21:06:44.387Z",
+    "type": "frontend",
+    "message": "Error loading cryptocurrencies: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:101:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/cryptocurrencies\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}",
+    "stack": "Error: Error loading cryptocurrencies: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:101:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/cryptocurrencies\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:106:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004385.1812,
+    "timestamp": "2025-09-09T21:06:44.385Z",
+    "type": "api",
+    "message": "Request failed with status code 404",
+    "stack": "AxiosError: Request failed with status code 404\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/user-payment-info/cryptocurrencies",
+      "method": "get",
+      "status": 404,
+      "statusText": "Not Found"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004383.58,
+    "timestamp": "2025-09-09T21:06:44.383Z",
+    "type": "frontend",
+    "message": "Error loading payment info: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:62:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/my-payment-info\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}",
+    "stack": "Error: Error loading payment info: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:62:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/my-payment-info\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:91:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004381.2136,
+    "timestamp": "2025-09-09T21:06:44.381Z",
+    "type": "api",
+    "message": "Request failed with status code 404",
+    "stack": "AxiosError: Request failed with status code 404\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/user-payment-info/my-payment-info",
+      "method": "get",
+      "status": 404,
+      "statusText": "Not Found"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004379.332,
+    "timestamp": "2025-09-09T21:06:44.379Z",
+    "type": "frontend",
+    "message": "Error loading cryptocurrencies: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:101:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/cryptocurrencies\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}",
+    "stack": "Error: Error loading cryptocurrencies: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:101:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/cryptocurrencies\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadCryptocurrencies (http://localhost:3001/src/components/membership/PaymentInfo.jsx:106:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004377.9944,
+    "timestamp": "2025-09-09T21:06:44.377Z",
+    "type": "api",
+    "message": "Request failed with status code 404",
+    "stack": "AxiosError: Request failed with status code 404\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/user-payment-info/cryptocurrencies",
+      "method": "get",
+      "status": 404,
+      "statusText": "Not Found"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004021.4353,
+    "timestamp": "2025-09-09T21:06:44.021Z",
+    "type": "frontend",
+    "message": "Error loading payment info: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:62:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/my-payment-info\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}",
+    "stack": "Error: Error loading payment info: {\n  \"message\": \"Request failed with status code 404\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 404\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:62:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/user-payment-info/my-payment-info\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 404\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadPaymentInfo (http://localhost:3001/src/components/membership/PaymentInfo.jsx:91:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757452004019.6074,
+    "timestamp": "2025-09-09T21:06:44.019Z",
+    "type": "api",
+    "message": "Request failed with status code 404",
+    "stack": "AxiosError: Request failed with status code 404\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/user-payment-info/my-payment-info",
+      "method": "get",
+      "status": 404,
+      "statusText": "Not Found"
+    },
+    "url": "http://localhost:3001/membership/payment-info",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451992967.0583,
+    "timestamp": "2025-09-09T21:06:32.967Z",
+    "type": "frontend",
+    "message": "Error loading coupons: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getCoupons (http://localhost:3001/src/services/membershipService.js:102:20)\\n    at async loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:42:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"get\",\n    \"url\": \"http://localhost:5000/api/membership/coupons\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}",
+    "stack": "Error: Error loading coupons: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getCoupons (http://localhost:3001/src/services/membershipService.js:102:20)\\n    at async loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:42:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"get\",\n    \"url\": \"http://localhost:5000/api/membership/coupons\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:45:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/coupons",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451992009.1023,
+    "timestamp": "2025-09-09T21:06:32.009Z",
+    "type": "frontend",
+    "message": "Error loading coupons: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getCoupons (http://localhost:3001/src/services/membershipService.js:102:20)\\n    at async loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:42:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"get\",\n    \"url\": \"http://localhost:5000/api/membership/coupons\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}",
+    "stack": "Error: Error loading coupons: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getCoupons (http://localhost:3001/src/services/membershipService.js:102:20)\\n    at async loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:42:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"get\",\n    \"url\": \"http://localhost:5000/api/membership/coupons\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadCoupons (http://localhost:3001/src/components/membership/Coupons.jsx:45:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/coupons",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451958144.159,
+    "timestamp": "2025-09-09T21:05:58.144Z",
+    "type": "frontend",
+    "message": "Error fetching applications: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:45:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"page\": 1,\n      \"limit\": 10\n    },\n    \"method\": \"get\",\n    \"url\": \"/membership/applications\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching applications: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:45:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"page\": 1,\n      \"limit\": 10\n    },\n    \"method\": \"get\",\n    \"url\": \"/membership/applications\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:50:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/applications",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451958143.17,
+    "timestamp": "2025-09-09T21:05:58.143Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/applications",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/applications",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451956782.597,
+    "timestamp": "2025-09-09T21:05:56.782Z",
+    "type": "frontend",
+    "message": "Error fetching applications: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:45:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"page\": 1,\n      \"limit\": 10\n    },\n    \"method\": \"get\",\n    \"url\": \"/membership/applications\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching applications: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:45:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"page\": 1,\n      \"limit\": 10\n    },\n    \"method\": \"get\",\n    \"url\": \"/membership/applications\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchApplications (http://localhost:3001/src/components/membership/Applications.jsx:50:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/applications",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451956781.259,
+    "timestamp": "2025-09-09T21:05:56.781Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/applications",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/applications",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451941872.765,
+    "timestamp": "2025-09-09T21:05:41.872Z",
+    "type": "frontend",
+    "message": "Error creating reminder: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async createReminder (http://localhost:3001/src/services/membershipService.js:76:20)\\n    at async handleSubmit (http://localhost:3001/src/components/membership/Reminders.jsx:60:7)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"post\",\n    \"url\": \"http://localhost:5000/api/membership/reminders\",\n    \"data\": \"{\\\"name\\\":\\\"Wanna Join\\\",\\\"type\\\":\\\"payment_due\\\",\\\"reminderDate\\\":\\\"22222-02-22T14:02\\\",\\\"message\\\":\\\"edcedx\\\"}\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}",
+    "stack": "Error: Error creating reminder: {\n  \"message\": \"Request failed with status code 500\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 500\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async createReminder (http://localhost:3001/src/services/membershipService.js:76:20)\\n    at async handleSubmit (http://localhost:3001/src/components/membership/Reminders.jsx:60:7)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"method\": \"post\",\n    \"url\": \"http://localhost:5000/api/membership/reminders\",\n    \"data\": \"{\\\"name\\\":\\\"Wanna Join\\\",\\\"type\\\":\\\"payment_due\\\",\\\"reminderDate\\\":\\\"22222-02-22T14:02\\\",\\\"message\\\":\\\"edcedx\\\"}\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_RESPONSE\",\n  \"status\": 500\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at handleSubmit (http://localhost:3001/src/components/membership/Reminders.jsx:70:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/reminders",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451911884.8948,
+    "timestamp": "2025-09-09T21:05:11.884Z",
+    "type": "frontend",
+    "message": "Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:42:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451911883.3872,
+    "timestamp": "2025-09-09T21:05:11.883Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451910944.3328,
+    "timestamp": "2025-09-09T21:05:10.944Z",
+    "type": "frontend",
+    "message": "Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:42:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451910943.6753,
+    "timestamp": "2025-09-09T21:05:10.943Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451907343.557,
+    "timestamp": "2025-09-09T21:05:07.343Z",
+    "type": "frontend",
+    "message": "Error fetching form config: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:78:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching form config: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:78:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:91:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-form",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451907341.7644,
+    "timestamp": "2025-09-09T21:05:07.341Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-form",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451905824.0437,
+    "timestamp": "2025-09-09T21:05:05.824Z",
+    "type": "frontend",
+    "message": "Error fetching form config: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:78:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching form config: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:78:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchFormConfig (http://localhost:3001/src/components/membership/ApplicationFormBuilder.jsx:91:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-form",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451905823.3977,
+    "timestamp": "2025-09-09T21:05:05.823Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-form",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451895521.077,
+    "timestamp": "2025-09-09T21:04:55.521Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451895519.0269,
+    "timestamp": "2025-09-09T21:04:55.519Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451894559.889,
+    "timestamp": "2025-09-09T21:04:54.559Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451894558.8857,
+    "timestamp": "2025-09-09T21:04:54.558Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451893589.3538,
+    "timestamp": "2025-09-09T21:04:53.589Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451893588.6428,
+    "timestamp": "2025-09-09T21:04:53.588Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451892574.282,
+    "timestamp": "2025-09-09T21:04:52.574Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449953031:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757451892573.1877,
+    "timestamp": "2025-09-09T21:04:52.573Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757450994664.6453,
+    "timestamp": "2025-09-09T20:49:54.664Z",
+    "type": "frontend",
+    "message": "[vite] Failed to reload /src/pages/Membership.jsx. This could be due to syntax errors or importing non-existent modules. (see errors above)",
+    "stack": "Error: [vite] Failed to reload /src/pages/Membership.jsx. This could be due to syntax errors or importing non-existent modules. (see errors above)\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at Object.error (http://localhost:3001/@vite/client:809:26)\n    at HMRClient.warnFailedUpdate (http://localhost:3001/@vite/client:181:15)\n    at HMRClient.fetchUpdate (http://localhost:3001/@vite/client:212:10)\n    at async Promise.all (index 0)\n    at async HMRClient.queueUpdate (http://localhost:3001/@vite/client:196:5)\n    at async Promise.all (index 0)\n    at async handleMessage (http://localhost:3001/@vite/client:838:4)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449595529.0405,
+    "timestamp": "2025-09-09T20:26:35.529Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449595528.8127,
+    "timestamp": "2025-09-09T20:26:35.528Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449593850.146,
+    "timestamp": "2025-09-09T20:26:33.850Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449593849.6877,
+    "timestamp": "2025-09-09T20:26:33.849Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449592581.601,
+    "timestamp": "2025-09-09T20:26:32.581Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449592580.029,
+    "timestamp": "2025-09-09T20:26:32.580Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449591206.7078,
+    "timestamp": "2025-09-09T20:26:31.206Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449591204.689,
+    "timestamp": "2025-09-09T20:26:31.204Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449481425.001,
+    "timestamp": "2025-09-09T20:24:41.425Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449481424.286,
+    "timestamp": "2025-09-09T20:24:41.424Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449479995.4226,
+    "timestamp": "2025-09-09T20:24:39.995Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449479993.0042,
+    "timestamp": "2025-09-09T20:24:39.993Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449478624.8394,
+    "timestamp": "2025-09-09T20:24:38.624Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449478623.0635,
+    "timestamp": "2025-09-09T20:24:38.623Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449477493.3018,
+    "timestamp": "2025-09-09T20:24:37.493Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449477492.2285,
+    "timestamp": "2025-09-09T20:24:37.492Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449476120.561,
+    "timestamp": "2025-09-09T20:24:36.120Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449476119.3955,
+    "timestamp": "2025-09-09T20:24:36.119Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449474505.4348,
+    "timestamp": "2025-09-09T20:24:34.505Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449474504.4604,
+    "timestamp": "2025-09-09T20:24:34.504Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449472227.98,
+    "timestamp": "2025-09-09T20:24:32.227Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449472224.1987,
+    "timestamp": "2025-09-09T20:24:32.224Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449468219.8376,
+    "timestamp": "2025-09-09T20:24:28.219Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx?t=1757449453567:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449468214.3665,
+    "timestamp": "2025-09-09T20:24:28.214Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449032394.9854,
+    "timestamp": "2025-09-09T20:17:12.394Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449032392.98,
+    "timestamp": "2025-09-09T20:17:12.392Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449030645.6536,
+    "timestamp": "2025-09-09T20:17:10.645Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449030643.1282,
+    "timestamp": "2025-09-09T20:17:10.643Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449028270.9636,
+    "timestamp": "2025-09-09T20:17:08.270Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449028262.8674,
+    "timestamp": "2025-09-09T20:17:08.262Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449026288.132,
+    "timestamp": "2025-09-09T20:17:06.288Z",
+    "type": "frontend",
+    "message": "Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching application forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:627:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchAvailableForms (http://localhost:3001/src/components/membership/Plans.jsx:631:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449026285.4094,
+    "timestamp": "2025-09-09T20:17:06.285Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/plans",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449014081.1694,
+    "timestamp": "2025-09-09T20:16:54.081Z",
+    "type": "frontend",
+    "message": "Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:42:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449014079.0903,
+    "timestamp": "2025-09-09T20:16:54.079Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449012465.9006,
+    "timestamp": "2025-09-09T20:16:52.465Z",
+    "type": "frontend",
+    "message": "Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}",
+    "stack": "Error: Error fetching forms: {\n  \"message\": \"Request failed with status code 400\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Request failed with status code 400\\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:38:24)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODg3NiwiZXhwIjoxNzU4MDUzNjc2fQ.hnnWBR_rnBI0XlpM1a8dYQxNZ4kNGqdaP4j-L18JiQ8\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"method\": \"get\",\n    \"url\": \"/membership/application-forms\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_BAD_REQUEST\",\n  \"status\": 400\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at fetchForms (http://localhost:3001/src/components/membership/ApplicationForms.jsx:42:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757449012461.1946,
+    "timestamp": "2025-09-09T20:16:52.461Z",
+    "type": "api",
+    "message": "Request failed with status code 400",
+    "stack": "AxiosError: Request failed with status code 400\n    at settle (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1253:12)\n    at XMLHttpRequest.onloadend (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1585:7)",
+    "context": {
+      "url": "/membership/application-forms",
+      "method": "get",
+      "status": 400,
+      "statusText": "Bad Request"
+    },
+    "url": "http://localhost:3001/membership/application-forms",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448803607.3728,
+    "timestamp": "2025-09-09T20:13:23.607Z",
+    "type": "frontend",
+    "message": "User rejected the request.",
+    "stack": "Error: User rejected the request.\n    at a (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:132629)\n    at Object.userRejectedRequest (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:133857)\n    at G._dispose (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:166280)\n    at X.dispose (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:166979)\n    at se (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:168341)",
+    "context": {
+      "type": "unhandledRejection"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448803607.7039,
+    "timestamp": "2025-09-09T20:13:23.607Z",
+    "type": "frontend",
+    "message": "User rejected the request.",
+    "context": {
+      "type": "unhandledRejection"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448803607.453,
+    "timestamp": "2025-09-09T20:13:23.607Z",
+    "type": "frontend",
+    "message": "User rejected the request.",
+    "context": {
+      "type": "unhandledRejection"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448803606.3904,
+    "timestamp": "2025-09-09T20:13:23.606Z",
+    "type": "frontend",
+    "message": "User rejected the request.",
+    "stack": "Error: User rejected the request.\n    at a (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:132629)\n    at Object.userRejectedRequest (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:133857)\n    at G._dispose (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:166280)\n    at X.dispose (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:166979)\n    at se (chrome-extension://acmacodkjbdgmoleebolmdjonilkdbch/content-script.js:2:168341)",
+    "context": {
+      "type": "unhandledRejection"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448778835.1636,
+    "timestamp": "2025-09-09T20:12:58.835Z",
+    "type": "frontend",
+    "message": "Error loading dashboard data: {\n  \"message\": \"Network Error\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Network Error\\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getPosts (http://localhost:3001/src/services/postService.js:3:20)\\n    at async Promise.all (index 0)\\n    at async loadData (http://localhost:3001/src/pages/Dashboard.jsx:37:52)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODc3MywiZXhwIjoxNzU4MDUzNTczfQ.gnKhxqDGyJdd63O-JDUd2XA4mkJGxkIa_icPh284qHY\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"limit\": 20\n    },\n    \"method\": \"get\",\n    \"url\": \"/posts\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_NETWORK\"\n}",
+    "stack": "Error: Error loading dashboard data: {\n  \"message\": \"Network Error\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Network Error\\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getPosts (http://localhost:3001/src/services/postService.js:3:20)\\n    at async Promise.all (index 0)\\n    at async loadData (http://localhost:3001/src/pages/Dashboard.jsx:37:52)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODc3MywiZXhwIjoxNzU4MDUzNTczfQ.gnKhxqDGyJdd63O-JDUd2XA4mkJGxkIa_icPh284qHY\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"limit\": 20\n    },\n    \"method\": \"get\",\n    \"url\": \"/posts\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_NETWORK\"\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadData (http://localhost:3001/src/pages/Dashboard.jsx:46:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448778834.6355,
+    "timestamp": "2025-09-09T20:12:58.834Z",
+    "type": "api",
+    "message": "Network Error",
+    "stack": "AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)",
+    "context": {
+      "url": "/posts",
+      "method": "get"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448778814.066,
+    "timestamp": "2025-09-09T20:12:58.814Z",
+    "type": "frontend",
+    "message": "Error loading dashboard data: {\n  \"message\": \"Network Error\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Network Error\\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getPosts (http://localhost:3001/src/services/postService.js:3:20)\\n    at async Promise.all (index 0)\\n    at async loadData (http://localhost:3001/src/pages/Dashboard.jsx:37:52)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODc3MywiZXhwIjoxNzU4MDUzNTczfQ.gnKhxqDGyJdd63O-JDUd2XA4mkJGxkIa_icPh284qHY\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"limit\": 20\n    },\n    \"method\": \"get\",\n    \"url\": \"/posts\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_NETWORK\"\n}",
+    "stack": "Error: Error loading dashboard data: {\n  \"message\": \"Network Error\",\n  \"name\": \"AxiosError\",\n  \"stack\": \"AxiosError: Network Error\\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)\\n    at Axios.request (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:2143:41)\\n    at async getPosts (http://localhost:3001/src/services/postService.js:3:20)\\n    at async Promise.all (index 0)\\n    at async loadData (http://localhost:3001/src/pages/Dashboard.jsx:37:52)\",\n  \"config\": {\n    \"transitional\": {\n      \"silentJSONParsing\": true,\n      \"forcedJSONParsing\": true,\n      \"clarifyTimeoutError\": false\n    },\n    \"adapter\": [\n      \"xhr\",\n      \"http\",\n      \"fetch\"\n    ],\n    \"transformRequest\": [\n      null\n    ],\n    \"transformResponse\": [\n      null\n    ],\n    \"timeout\": 0,\n    \"xsrfCookieName\": \"XSRF-TOKEN\",\n    \"xsrfHeaderName\": \"X-XSRF-TOKEN\",\n    \"maxContentLength\": -1,\n    \"maxBodyLength\": -1,\n    \"env\": {},\n    \"headers\": {\n      \"Accept\": \"application/json, text/plain, */*\",\n      \"Content-Type\": \"application/json\",\n      \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc1NzQ0ODc3MywiZXhwIjoxNzU4MDUzNTczfQ.gnKhxqDGyJdd63O-JDUd2XA4mkJGxkIa_icPh284qHY\"\n    },\n    \"baseURL\": \"http://localhost:5000/api\",\n    \"params\": {\n      \"limit\": 20\n    },\n    \"method\": \"get\",\n    \"url\": \"/posts\",\n    \"allowAbsoluteUrls\": true\n  },\n  \"code\": \"ERR_NETWORK\"\n}\n    at console.error (http://localhost:3001/src/components/SimpleErrorLogger.jsx:77:16)\n    at loadData (http://localhost:3001/src/pages/Dashboard.jsx:46:15)",
+    "context": {
+      "source": "console.error"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  },
+  {
+    "id": 1757448778811.4924,
+    "timestamp": "2025-09-09T20:12:58.811Z",
+    "type": "api",
+    "message": "Network Error",
+    "stack": "AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3001/node_modules/.vite/deps/axios.js?v=82acc33f:1615:14)",
+    "context": {
+      "url": "/posts",
+      "method": "get"
+    },
+    "url": "http://localhost:3001/dashboard",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+  }
+]

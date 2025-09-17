@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSpace, joinSpace, leaveSpace, toggleFollowSpace } from '../services/spaceService';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { getPosts, createPost } from '../services/postService';
 import PostCard from '../components/PostCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +14,7 @@ const SpaceDetail = () => {
   const [newPost, setNewPost] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -54,10 +56,14 @@ const SpaceDetail = () => {
   const handleLeaveSpace = async () => {
     if (actionLoading) return;
     
-    if (!window.confirm('Are you sure you want to leave this space?')) {
-      return;
-    }
-    
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to leave this space?',
+      onConfirm: () => leaveSpaceItem()
+    });
+  };
+
+  const leaveSpaceItem = async () => {
     setActionLoading(true);
     try {
       await leaveSpace(space.id);
@@ -372,6 +378,18 @@ const SpaceDetail = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Leave"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

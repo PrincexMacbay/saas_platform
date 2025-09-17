@@ -22,40 +22,88 @@ const getDashboard = async (req, res) => {
     const thisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
-    // Subscription stats
-    const totalSubscriptions = await Subscription.count();
+    // SECURITY FIX: Only show data for plans created by the current user
+    // Organization members should NOT see payment data - only plan creators/admins should
+    const userFilter = {
+      createdBy: req.user.id // Only plans created by current user
+    };
+
+    // Get plans that the user has access to
+    const userPlans = await Plan.findAll({
+      where: userFilter,
+      attributes: ['id']
+    });
+    const userPlanIds = userPlans.map(plan => plan.id);
+
+    if (userPlanIds.length === 0) {
+      // User has no plans, return empty dashboard
+      return res.json({
+        success: true,
+        data: {
+          stats: {
+            totalSubscriptions: 0,
+            newSubscriptions: 0,
+            activeSubscriptions: 0,
+            pastDueSubscriptions: 0,
+            totalRevenue: 0,
+            monthlyRevenue: 0
+          },
+          recentPayments: [],
+          chartData: []
+        }
+      });
+    }
+
+    // Subscription stats - only for user's plans
+    const totalSubscriptions = await Subscription.count({
+      where: { planId: { [Op.in]: userPlanIds } }
+    });
     const newSubscriptions = await Subscription.count({
-      where: { createdAt: { [Op.gte]: thisMonth } }
+      where: { 
+        planId: { [Op.in]: userPlanIds },
+        createdAt: { [Op.gte]: thisMonth } 
+      }
     });
     const activeSubscriptions = await Subscription.count({
-      where: { status: 'active' }
+      where: { 
+        planId: { [Op.in]: userPlanIds },
+        status: 'active' 
+      }
     });
     const pastDueSubscriptions = await Subscription.count({
-      where: { status: 'past_due' }
+      where: { 
+        planId: { [Op.in]: userPlanIds },
+        status: 'past_due' 
+      }
     });
 
-    // Payment stats
+    // Payment stats - only for user's plans
     const totalRevenue = await Payment.sum('amount', {
-      where: { status: 'completed' }
+      where: { 
+        status: 'completed',
+        planId: { [Op.in]: userPlanIds }
+      }
     });
     const monthlyRevenue = await Payment.sum('amount', {
       where: { 
         status: 'completed',
+        planId: { [Op.in]: userPlanIds },
         paymentDate: { [Op.gte]: thisMonth }
       }
     });
 
-    // Recent activity
+    // Recent activity - only for user's plans
     const recentPayments = await Payment.findAll({
       limit: 10,
       order: [['paymentDate', 'DESC']],
+      where: { planId: { [Op.in]: userPlanIds } },
       include: [
         { model: User, as: 'user', attributes: ['firstName', 'lastName', 'username'] },
         { model: Plan, as: 'plan', attributes: ['name'] }
       ]
     });
 
-    // Charts data - last 6 months
+    // Charts data - last 6 months (filtered by user's plans)
     const chartData = [];
     for (let i = 5; i >= 0; i--) {
       const month = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
@@ -63,6 +111,7 @@ const getDashboard = async (req, res) => {
       
       const subscriptions = await Subscription.count({
         where: { 
+          planId: { [Op.in]: userPlanIds },
           createdAt: { 
             [Op.gte]: month,
             [Op.lt]: nextMonth
@@ -73,6 +122,7 @@ const getDashboard = async (req, res) => {
       const revenue = await Payment.sum('amount', {
         where: { 
           status: 'completed',
+          planId: { [Op.in]: userPlanIds },
           paymentDate: { 
             [Op.gte]: month,
             [Op.lt]: nextMonth

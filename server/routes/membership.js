@@ -63,25 +63,21 @@ router.get('/applications/:id', applicationController.getApplication);
 router.put('/applications/:id', applicationController.updateApplication);
 router.delete('/applications/:id', applicationController.deleteApplication);
 router.patch('/applications/:id/status', applicationController.updateApplicationStatus);
+router.post('/applications/:id/approve', applicationController.approveApplication);
+router.post('/applications/:id/reject', applicationController.rejectApplication);
 
 // =====================================================
 // APPLICATION FORMS
 // =====================================================
 router.get('/application-forms', applicationFormController.getApplicationForms);
 router.post('/application-forms', applicationFormController.createApplicationForm);
-router.get('/application-forms/:id', applicationFormController.getApplicationForm);
+router.get('/application-forms/:id', applicationFormController.getApplicationFormById);
 router.put('/application-forms/:id', applicationFormController.updateApplicationForm);
 router.delete('/application-forms/:id', applicationFormController.deleteApplicationForm);
 router.patch('/application-forms/:id/publish', applicationFormController.publishApplicationForm);
+router.patch('/application-forms/:id/unpublish', applicationFormController.unpublishApplicationForm);
 
-// =====================================================
-// APPLICATION FORM (SINGULAR - FOR FRONTEND COMPATIBILITY)
-// =====================================================
-router.get('/application-form', applicationFormController.getApplicationForm);
-router.post('/application-form', applicationFormController.createApplicationForm);
-router.put('/application-form', applicationFormController.updateApplicationForm);
-router.post('/application-form/publish', applicationFormController.publishApplicationForm);
-router.post('/application-form/unpublish', applicationFormController.unpublishApplicationForm);
+
 
 // =====================================================
 // SCHEDULED PAYMENTS

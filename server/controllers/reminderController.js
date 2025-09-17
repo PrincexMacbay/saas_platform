@@ -2,10 +2,14 @@ const { Reminder, User, Plan, Subscription } = require('../models');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
 
-// Get all reminders
+// Get all reminders - USER-ONLY ACCESS
 const getReminders = async (req, res) => {
   try {
+    // USER-ONLY ACCESS: Only show reminders created by the current user
     const reminders = await Reminder.findAll({
+      where: {
+        userId: req.user.id // Only show reminders created by the current user
+      },
       include: [
         {
           model: User,
@@ -15,12 +19,20 @@ const getReminders = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          where: {
+            [Op.or]: [
+              { createdBy: req.user.id }, // Plans created by current user
+              { id: null } // Allow reminders without plans (if planId is null)
+            ]
+          },
+          required: false // Allow null plans
         },
         {
           model: Subscription,
           as: 'subscription',
-          attributes: ['id', 'memberNumber', 'status']
+          attributes: ['id', 'memberNumber', 'status'],
+          required: false // Allow null subscriptions
         }
       ],
       order: [['reminderDate', 'ASC']]

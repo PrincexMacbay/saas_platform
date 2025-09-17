@@ -2,7 +2,30 @@ const { Op } = require('sequelize');
 const { Payment, User, Plan, Subscription, Invoice } = require('../models');
 const cryptoPaymentService = require('../services/cryptoPaymentService');
 
-// Get all payments
+// Helper function to check if user has access to a payment
+const checkPaymentAccess = async (paymentId, userId, userOrganizationId) => {
+  // SECURITY FIX: Only allow access to payments for plans created by the current user
+  // Organization members should NOT see payment data - only plan creators/admins should
+  const planFilter = {
+    createdBy: userId // Only plans created by current user
+  };
+
+  const payment = await Payment.findOne({
+    where: { id: paymentId },
+    include: [
+      {
+        model: Plan,
+        as: 'plan',
+        where: planFilter,
+        required: true
+      }
+    ]
+  });
+
+  return payment;
+};
+
+// Get all payments - SECURITY FIXED: Only show payments for plans user created
 const getPayments = async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status, planId, userId, startDate, endDate } = req.query;
@@ -37,6 +60,12 @@ const getPayments = async (req, res) => {
       };
     }
 
+    // SECURITY FIX: Only show payments for plans created by the current user
+    // Organization members should NOT see payment data - only plan creators/admins should
+    const planFilter = {
+      createdBy: req.user.id // Only plans created by current user
+    };
+
     const { count, rows } = await Payment.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
@@ -51,7 +80,9 @@ const getPayments = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          where: planFilter,
+          required: true
         },
         {
           model: Subscription,
@@ -83,12 +114,19 @@ const getPayments = async (req, res) => {
   }
 };
 
-// Get single payment
+// Get single payment - SECURITY FIXED: Only allow access to payments for plans user created
 const getPayment = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const payment = await Payment.findByPk(id, {
+    // SECURITY FIX: Only allow access to payments for plans created by the current user
+    // Organization members should NOT see payment data - only plan creators/admins should
+    const planFilter = {
+      createdBy: req.user.id // Only plans created by current user
+    };
+
+    const payment = await Payment.findOne({
+      where: { id },
       include: [
         {
           model: User,
@@ -96,7 +134,9 @@ const getPayment = async (req, res) => {
         },
         {
           model: Plan,
-          as: 'plan'
+          as: 'plan',
+          where: planFilter,
+          required: true
         },
         {
           model: Subscription,
@@ -196,11 +236,12 @@ const updatePayment = async (req, res) => {
       notes 
     } = req.body;
 
-    const payment = await Payment.findByPk(id);
+    // SECURITY FIX: Check if user has access to this payment
+    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: 'Payment not found'
+        message: 'Payment not found or access denied'
       });
     }
 
@@ -248,11 +289,12 @@ const updatePaymentStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const payment = await Payment.findByPk(id);
+    // SECURITY FIX: Check if user has access to this payment
+    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: 'Payment not found'
+        message: 'Payment not found or access denied'
       });
     }
 
@@ -291,11 +333,12 @@ const deletePayment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const payment = await Payment.findByPk(id);
+    // SECURITY FIX: Check if user has access to this payment
+    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: 'Payment not found'
+        message: 'Payment not found or access denied'
       });
     }
 
@@ -430,11 +473,12 @@ const getCryptoPaymentStatus = async (req, res) => {
   try {
     const { paymentId } = req.params;
 
-    const payment = await Payment.findByPk(paymentId);
+    // SECURITY FIX: Check if user has access to this payment
+    const payment = await checkPaymentAccess(paymentId, req.user.id, req.user.organizationId);
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: 'Payment not found'
+        message: 'Payment not found or access denied'
       });
     }
 

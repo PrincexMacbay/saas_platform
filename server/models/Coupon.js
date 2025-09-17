@@ -50,6 +50,15 @@ const Coupon = sequelize.define('Coupon', {
     allowNull: true,
     comment: 'JSON array of plan IDs this coupon applies to',
   },
+  createdBy: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id',
+    },
+    comment: 'User who created this coupon'
+  },
 }, {
   tableName: 'coupons',
   timestamps: true,

@@ -1,9 +1,14 @@
+const { Op } = require('sequelize');
 const { Debt, User, Plan, Subscription, sequelize } = require('../models');
 
-// Get all debts
+// Get all debts - USER-ONLY ACCESS
 const getDebts = async (req, res) => {
   try {
+    // USER-ONLY ACCESS: Only show debts created by the current user
     const debts = await Debt.findAll({
+      where: {
+        userId: req.user.id // Only show debts created by the current user
+      },
       include: [
         {
           model: User,
@@ -13,12 +18,20 @@ const getDebts = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          where: {
+            [Op.or]: [
+              { createdBy: req.user.id }, // Plans created by current user
+              { id: null } // Allow debts without plans (if planId is null)
+            ]
+          },
+          required: false // Allow null plans
         },
         {
           model: Subscription,
           as: 'subscription',
-          attributes: ['id', 'memberNumber', 'status']
+          attributes: ['id', 'memberNumber', 'status'],
+          required: false // Allow null subscriptions
         }
       ],
       order: [['issuedOn', 'DESC']]

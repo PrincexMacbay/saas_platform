@@ -1,0 +1,65 @@
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: saas_database_prod
+    environment:
+      POSTGRES_DB: saas_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./server/setup-database.sql:/docker-entrypoint-initdb.d/setup-database.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - saas_network_prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Server (Production)
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: saas_backend_prod
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres123@database:5432/saas_platform
+      JWT_SECRET: your_jwt_secret_here_change_in_production
+      EMAIL_USER: your_email@gmail.com
+      EMAIL_PASS: your_email_password
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - saas_network_prod
+    volumes:
+      - ./server/uploads:/app/uploads
+    restart: unless-stopped
+
+  # Frontend React App (Production)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: saas_frontend_prod
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - saas_network_prod
+    restart: unless-stopped
+
+volumes:
+  postgres_data_prod:
+
+networks:
+  saas_network_prod:
+    driver: bridge

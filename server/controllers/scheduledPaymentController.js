@@ -1,10 +1,14 @@
 const { ScheduledPayment, User, Plan } = require('../models');
 const { Op } = require('sequelize');
 
-// Get all scheduled payments
+// Get all scheduled payments - USER-ONLY ACCESS
 const getScheduledPayments = async (req, res) => {
   try {
+    // USER-ONLY ACCESS: Only show scheduled payments created by the current user
     const scheduledPayments = await ScheduledPayment.findAll({
+      where: {
+        userId: req.user.id // Only show payments created by the current user
+      },
       include: [
         {
           model: User,
@@ -14,7 +18,14 @@ const getScheduledPayments = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          where: {
+            [Op.or]: [
+              { createdBy: req.user.id }, // Plans created by current user
+              { id: null } // Allow payments without plans (if planId is null)
+            ]
+          },
+          required: false // Allow null plans
         }
       ],
       order: [['scheduledDate', 'ASC']]

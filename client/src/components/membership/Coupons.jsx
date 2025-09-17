@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createCoupon, getCoupons, deleteCoupon, updateCoupon } from '../../services/membershipService';
+import ConfirmDialog from '../ConfirmDialog';
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const [formData, setFormData] = useState({
     name: '',
     couponId: '',
@@ -77,14 +79,20 @@ const Coupons = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this coupon?')) {
-      try {
-        await deleteCoupon(id);
-        loadCoupons();
-      } catch (error) {
-        console.error('Error deleting coupon:', error);
-        setError('Failed to delete coupon');
-      }
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this coupon?',
+      onConfirm: () => deleteCouponItem(id)
+    });
+  };
+
+  const deleteCouponItem = async (id) => {
+    try {
+      await deleteCoupon(id);
+      loadCoupons();
+    } catch (error) {
+      console.error('Error deleting coupon:', error);
+      setError('Failed to delete coupon');
     }
   };
 
@@ -771,6 +779,18 @@ const Coupons = () => {
           }
         }
       `}</style>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

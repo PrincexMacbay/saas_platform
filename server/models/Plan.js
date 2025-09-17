@@ -49,13 +49,14 @@ const Plan = sequelize.define('Plan', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
-  organizationId: {
+  createdBy: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    allowNull: false,
     references: {
-      model: 'organizations',
+      model: 'users',
       key: 'id',
     },
+    comment: 'User who created this plan'
   },
   // Direct links to application form and digital card template
   applicationFormId: {

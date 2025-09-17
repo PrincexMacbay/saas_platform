@@ -1,368 +1,181 @@
 # Membership Management Workflow Implementation
 
-## Overview
+## ✅ **COMPLETE WORKFLOW IMPLEMENTED**
 
-This document outlines the complete implementation of the membership management workflow, focusing on the Plans, Applications, Application Form, and Digital Card tabs. The system allows users to create custom application forms and link them to specific plans, with a complete flow from application submission to payment processing.
+The membership management system now follows a proper workflow where users must create and publish application forms before creating plans. Here's the complete implementation:
 
-## 🎯 Core Workflow
+## 🔄 **Workflow Steps**
 
-### 1. **Application Form Builder** (`/membership/application-form`)
-- **Purpose**: Allows organization admins to create custom application forms
-- **Features**:
-  - Drag-and-drop form builder
-  - Multiple field types (text, textarea, select, checkbox, etc.)
-  - Field validation and requirements
-  - Form publishing/unpublishing
-  - Organization-specific forms
+### **Step 1: Create Application Form**
+1. **Navigate to**: `/membership/application-form-builder`
+2. **Create Form**: Design custom application form with fields
+3. **Publish Form**: Make form available for plan selection
+4. **Status**: Form must be published to be used in plans
 
-### 2. **Plans Management** (`/membership/plans`)
-- **Purpose**: Create and manage membership plans with custom application forms
-- **Features**:
-  - Plan creation with basic details (name, description, fee, benefits)
-  - **Application Form Linking**: Each plan can be linked to a specific application form
-  - Two options for form selection:
-    - **Use Organization Default Form**: Uses the organization's published default form
-    - **Use Custom Form**: Select a specific custom form for this plan
-  - Plan activation/deactivation
-  - Subscription tracking
+### **Step 2: Create Plan with Form Selection**
+1. **Navigate to**: `/membership/plans`
+2. **Click "Add Plan"**: Opens plan creation modal
+3. **Form Selection**: 
+   - Choose "Use Default Form" OR
+   - Choose "Use Custom Form" and select from published forms
+4. **Validation**: System ensures form is published before allowing plan creation
 
-### 3. **Application Submission Flow**
-- **Public Plan Browsing**: Users can browse available plans
-- **Application Form Display**: When applying for a plan, the system shows:
-  - Organization's default form (if `useDefaultForm = true`)
-  - Plan-specific custom form (if `useDefaultForm = false` and `applicationFormId` is set)
-- **Form Submission**: Custom form data is captured and stored
-- **Payment Processing**: After form submission, users are redirected to payment if required
+### **Step 3: Public Application Process**
+1. **Browse Plans**: Users visit `/browse-memberships`
+2. **Select Plan**: Click "Apply Now" on any plan
+3. **Fill Form**: Users see the plan's specific application form
+4. **Submit**: Application is saved and processed
 
-### 4. **Applications Management** (`/membership/applications`)
-- **Purpose**: Review and manage submitted applications
-- **Features**:
-  - View all applications with filtering and search
-  - **Custom Form Data Display**: Shows all custom fields from the application form
-  - Application approval/rejection with notes
-  - Payment information display
-  - User account creation upon approval
+## 🛡️ **Security Implementation**
 
-### 5. **Digital Card Management** (`/membership/digital-card`)
-- **Purpose**: Generate and manage digital membership cards
-- **Features**:
-  - Card template customization
-  - Plan-specific card designs
-  - QR code generation for member verification
+### **Plan Creator Access Control**
+- ✅ **User-Level Security**: Users can only see and manage plans they created
+- ✅ **Form-Level Security**: Users can only select forms from their organization
+- ✅ **Published Form Requirement**: Only published forms can be selected for plans
 
-## 🔧 Technical Implementation
+### **Database Changes**
+- ✅ **Added `createdBy` field** to Plan model
+- ✅ **Updated associations** for User-Plan relationship
+- ✅ **Enforced form selection** in plan creation/update
 
-### Database Schema
+## 🔧 **Technical Implementation**
 
-#### Plans Table
-```sql
-CREATE TABLE plans (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  fee DECIMAL(10,2) NOT NULL,
-  renewal_interval VARCHAR(20) DEFAULT 'monthly',
-  benefits TEXT,
-  is_active BOOLEAN DEFAULT true,
-  max_members INTEGER,
-  organization_id INTEGER REFERENCES organizations(id),
-  application_form_id INTEGER REFERENCES application_forms(id),
-  use_default_form BOOLEAN DEFAULT true,
-  digital_card_template_id INTEGER REFERENCES digital_cards(id),
-  use_default_card_template BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### **Backend Changes**
 
-#### Application Forms Table
-```sql
-CREATE TABLE application_forms (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL DEFAULT 'Membership Application',
-  description TEXT,
-  footer TEXT,
-  terms TEXT,
-  agreement TEXT,
-  fields TEXT, -- JSON string for dynamic form fields
-  is_published BOOLEAN DEFAULT false,
-  organization_id INTEGER NOT NULL REFERENCES organizations(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-#### Applications Table
-```sql
-CREATE TABLE applications (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) NOT NULL,
-  first_name VARCHAR(255) NOT NULL,
-  last_name VARCHAR(255) NOT NULL,
-  phone VARCHAR(50),
-  referral VARCHAR(255),
-  student_id VARCHAR(100),
-  plan_id INTEGER NOT NULL REFERENCES plans(id),
-  application_fee DECIMAL(10,2),
-  payment_info TEXT, -- JSON string for payment details
-  form_data TEXT, -- JSON string for custom form responses
-  status VARCHAR(50) DEFAULT 'pending',
-  user_id INTEGER REFERENCES users(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### Frontend Components
-
-#### 1. **ApplicationFormBuilder.jsx**
-- Form builder interface with drag-and-drop functionality
-- Field type selection and configuration
-- Form preview and testing
-- Publishing/unpublishing controls
-
-#### 2. **Plans.jsx**
-- Plan management interface
-- **Application Form Selection**: Radio buttons to choose between default and custom forms
-- **Form Dropdown**: Populated with available published forms
-- Plan creation and editing
-
-#### 3. **ApplyMembership.jsx**
-- Dynamic form rendering based on plan configuration
-- Form validation and submission
-- Payment flow integration
-
-#### 4. **ApplicationPayment.jsx**
-- Payment form for application fees
-- Multiple payment methods (card, crypto)
-- Payment processing and confirmation
-
-#### 5. **Applications.jsx**
-- Application listing with filters and search
-- **View Application Details**: Modal showing all custom form data
-- Application approval/rejection workflow
-- Payment information display
-
-### Backend API Endpoints
-
-#### Application Forms
-```
-GET    /api/membership/application-form          # Get organization's form
-POST   /api/membership/application-form          # Create/update form
-POST   /api/membership/application-form/publish  # Publish form
-POST   /api/membership/application-form/unpublish # Unpublish form
-```
-
-#### Plans
-```
-GET    /api/membership/plans                     # Get all plans
-POST   /api/membership/plans                     # Create plan
-PUT    /api/membership/plans/:id                 # Update plan
-DELETE /api/membership/plans/:id                 # Delete plan
-```
-
-#### Applications
-```
-GET    /api/membership/applications              # Get all applications
-POST   /api/public/apply                         # Submit application (public)
-POST   /api/public/application-payment           # Process payment (public)
-POST   /api/membership/applications/:id/approve  # Approve application
-POST   /api/membership/applications/:id/reject   # Reject application
-```
-
-#### Public Endpoints
-```
-GET    /api/public/plans                         # Get public plans
-GET    /api/public/application-form/:orgId       # Get organization's form
-GET    /api/public/application-form/plan/:formId # Get plan-specific form
-```
-
-## 🔄 Complete Workflow Steps
-
-### For Organization Admins:
-
-1. **Create Application Form**
-   - Go to `/membership/application-form`
-   - Build custom form with desired fields
-   - Publish the form
-
-2. **Create Plan with Form Link**
-   - Go to `/membership/plans`
-   - Click "Add Plan"
-   - Fill in plan details
-   - **Choose Application Form**:
-     - Select "Use Organization Default Form" OR
-     - Select "Use Custom Form" and choose from dropdown
-   - Save plan
-
-3. **Review Applications**
-   - Go to `/membership/applications`
-   - View submitted applications
-   - Click "View" to see custom form data
-   - Approve/reject applications
-
-### For Applicants:
-
-1. **Browse Plans**
-   - Visit public plans page
-   - Select desired plan
-
-2. **Fill Application Form**
-   - System shows the appropriate form:
-     - Organization's default form OR
-     - Plan-specific custom form
-   - Fill in all required fields
-   - Submit application
-
-3. **Payment Processing**
-   - If plan has a fee, redirected to payment page
-   - Complete payment (card or crypto)
-   - Receive confirmation
-
-4. **Application Review**
-   - Application appears in organization's admin panel
-   - Admins can review custom form data
-   - Application approved/rejected with notes
-
-## 🎨 Key Features
-
-### 1. **Dynamic Form Rendering**
-- Forms are rendered dynamically based on JSON configuration
-- Supports multiple field types and validation
-- Responsive design for mobile and desktop
-
-### 2. **Plan-Form Linking**
-- Flexible form selection per plan
-- Fallback to organization default
-- Easy switching between form types
-
-### 3. **Custom Data Storage**
-- All custom form responses stored as JSON
-- Easy retrieval and display in admin panel
-- Structured data for reporting
-
-### 4. **Payment Integration**
-- Seamless payment flow after application
-- Multiple payment methods
-- Payment verification and status tracking
-
-### 5. **Application Management**
-- Comprehensive application review interface
-- Custom form data display
-- Approval workflow with notes
-- Payment information tracking
-
-## 🔒 Security & Validation
-
-### Form Validation
-- Client-side validation for required fields
-- Server-side validation for all submissions
-- XSS protection for form data
-
-### Payment Security
-- Secure payment processing
-- Transaction verification
-- Payment status tracking
-
-### Access Control
-- Organization-based access control
-- Public endpoints for application submission
-- Admin-only endpoints for management
-
-## 🚀 Future Enhancements
-
-### 1. **Advanced Form Builder**
-- Drag-and-drop interface
-- Conditional field logic
-- File upload support
-- Multi-step forms
-
-### 2. **Payment Integration**
-- Stripe integration for card payments
-- Bitcoin/Lightning Network for crypto
-- Payment webhooks for real-time updates
-
-### 3. **Digital Cards**
-- QR code generation
-- Card template customization
-- Mobile app integration
-
-### 4. **Analytics & Reporting**
-- Application analytics
-- Form completion rates
-- Payment success rates
-- Custom reports
-
-## 📝 Usage Examples
-
-### Creating a Custom Form
+#### **Plan Controller Updates**
 ```javascript
-// Example form configuration
-const formConfig = {
-  title: "Student Membership Application",
-  fields: [
-    {
-      name: "university",
-      label: "University/College",
-      type: "text",
-      required: true
-    },
-    {
-      name: "graduation_year",
-      label: "Expected Graduation Year",
-      type: "select",
-      options: ["2024", "2025", "2026", "2027"],
-      required: true
-    },
-    {
-      name: "interests",
-      label: "Areas of Interest",
-      type: "textarea",
-      required: false
+// Plan creation now requires form selection
+const createPlan = async (req, res) => {
+  const { applicationFormId, useDefaultForm } = req.body;
+  
+  // Validate form selection
+  if (!useDefaultForm && !applicationFormId) {
+    return res.status(400).json({
+      message: 'You must either select a specific application form or use the default form'
+    });
+  }
+  
+  // Validate form exists and is published
+  if (applicationFormId && !useDefaultForm) {
+    const form = await ApplicationForm.findOne({
+      where: { 
+        id: applicationFormId,
+        organizationId: userProfile.organizationId,
+        isPublished: true
+      }
+    });
+    
+    if (!form) {
+      return res.status(400).json({
+        message: 'Selected application form not found or not published. Please create and publish a form first.'
+      });
     }
-  ]
+  }
 };
 ```
 
-### Linking Form to Plan
+#### **Security Filters**
 ```javascript
-// Plan creation with custom form
-const planData = {
-  name: "Student Membership",
-  fee: 25.00,
-  useDefaultForm: false,
-  applicationFormId: 123, // Custom form ID
-  benefits: ["Access to events", "Networking opportunities"]
+// Plans are filtered by creator
+const getPlans = async (req, res) => {
+  const whereClause = {
+    createdBy: req.user.id  // Only show user's own plans
+  };
+};
+
+// Plan access is restricted to creator
+const getPlan = async (req, res) => {
+  if (plan.createdBy !== req.user.id) {
+    return res.status(403).json({
+      message: 'You can only view plans you created'
+    });
+  }
 };
 ```
 
-### Viewing Application Data
-```javascript
-// Application with custom form data
-const application = {
-  id: 456,
-  firstName: "John",
-  lastName: "Doe",
-  email: "john@example.com",
-  formData: JSON.stringify({
-    university: "MIT",
-    graduation_year: "2025",
-    interests: "Computer Science, AI"
-  }),
-  status: "pending"
-};
+### **Frontend Changes**
+
+#### **Plan Creation Modal**
+- ✅ **Form Selection UI**: Radio buttons for default vs custom form
+- ✅ **Form Dropdown**: Shows only published forms
+- ✅ **Validation**: Prevents plan creation without form selection
+- ✅ **Warning System**: Shows warning when no published forms available
+- ✅ **Direct Link**: "Create Application Form" button when no forms exist
+
+#### **Application Form Display**
+- ✅ **Plan-Specific Forms**: Each plan shows its selected form
+- ✅ **Dynamic Field Rendering**: Custom fields based on form configuration
+- ✅ **Validation**: Required field validation
+- ✅ **Terms Agreement**: Terms and conditions handling
+
+## 📊 **Current System Status**
+
+### **Working Plans** ✅
+- **Gym Membership** (ID: 10) → Uses "Gym Membership Application" form
+- **RoadToWeb3** (ID: 8) → Uses "Gym Membership Application" form  
+- **Trading Psychology Masterclass** (ID: 7) → Uses "Trading Master Class" form
+
+### **Published Forms** ✅
+- **Gym Membership Application** (ID: 5) → 13 fields, fully functional
+- **Trading Master Class** (ID: 3) → Published and linked
+- **Membership Application** (ID: 1) → Default form available
+
+### **Security Status** ✅
+- ✅ **Plan Creator Access**: Users only see their own plans
+- ✅ **Form Validation**: Only published forms can be selected
+- ✅ **Organization Isolation**: Forms are organization-specific
+
+## 🎯 **User Experience Flow**
+
+### **For Organization Admins:**
+1. **Create Form**: Go to Application Form Builder
+2. **Design Fields**: Add custom fields, terms, descriptions
+3. **Publish Form**: Make form available for plans
+4. **Create Plan**: Go to Plans management
+5. **Select Form**: Choose from published forms or use default
+6. **Save Plan**: Plan is now ready for applications
+
+### **For Applicants:**
+1. **Browse Plans**: Visit `/browse-memberships`
+2. **Select Plan**: Click "Apply Now" on desired plan
+3. **Fill Form**: Complete the plan's specific application form
+4. **Submit**: Application is processed and saved
+
+### **For Application Review:**
+1. **View Applications**: Go to `/membership/applications`
+2. **Review Details**: See all submitted form data
+3. **Approve/Reject**: Process applications
+4. **Create Users**: Automatically create accounts for approved applications
+
+## 🔗 **API Endpoints**
+
+### **Admin Endpoints** (Protected)
+```
+GET    /api/membership/application-forms     - List user's forms
+POST   /api/membership/application-form      - Create form
+POST   /api/membership/application-form/publish - Publish form
+GET    /api/membership/plans                 - List user's plans
+POST   /api/membership/plans                 - Create plan (requires form)
+PUT    /api/membership/plans/:id             - Update plan
+DELETE /api/membership/plans/:id             - Delete plan
 ```
 
-## ✅ Implementation Status
+### **Public Endpoints**
+```
+GET    /api/public/plans                     - List public plans
+GET    /api/public/application-form/:orgId   - Get form for plan
+POST   /api/public/apply                     - Submit application
+```
 
-- [x] Application Form Builder
-- [x] Plan Creation with Form Linking
-- [x] Dynamic Form Rendering
-- [x] Application Submission
-- [x] Payment Processing
-- [x] Application Management
-- [x] Custom Data Display
-- [x] Digital Card Framework
+## 🎉 **Result**
 
-The membership workflow is now fully implemented and ready for production use. The system provides a complete solution for organizations to create custom application forms, link them to plans, and manage the entire application lifecycle from submission to approval.
+The membership management system now has:
+
+✅ **Proper Workflow**: Form creation → Publishing → Plan creation → Application
+✅ **Security**: User-level access control for plans
+✅ **Form Validation**: Only published forms can be used
+✅ **Dynamic Forms**: Each plan shows its specific application form
+✅ **Complete Integration**: From form creation to application submission
+
+**The system is now ready for production use with proper workflow enforcement and security measures in place.**
 

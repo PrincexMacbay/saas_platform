@@ -12,8 +12,10 @@ const ApplicationPayment = () => {
   const [paymentData, setPaymentData] = useState({
     applicationId: applicationId,
     planId: location.state?.planId,
-    amount: location.state?.amount || 0,
+    amount: parseFloat(location.state?.amount) || 0,
+    originalAmount: parseFloat(location.state?.originalAmount) || 0,
     planName: location.state?.planName || '',
+    appliedCoupon: location.state?.appliedCoupon || null,
     paymentMethod: 'card',
     cardNumber: '',
     cardExpiry: '',
@@ -121,12 +123,28 @@ const ApplicationPayment = () => {
           <span>{paymentData.planName}</span>
         </div>
         <div className="summary-item">
-          <span>Application Fee:</span>
-          <span>${paymentData.amount.toFixed(2)}</span>
+          <span>Original Fee:</span>
+          <span>${(parseFloat(paymentData.originalAmount) || 0).toFixed(2)}</span>
         </div>
+        
+        {paymentData.appliedCoupon && (
+          <>
+            <div className="summary-item coupon-info">
+              <span>Coupon Applied:</span>
+              <span className="coupon-name">{paymentData.appliedCoupon.name}</span>
+            </div>
+            <div className="summary-item discount">
+              <span>Discount:</span>
+              <span className="discount-amount">
+                -${(parseFloat(paymentData.originalAmount) - parseFloat(paymentData.amount)).toFixed(2)}
+              </span>
+            </div>
+          </>
+        )}
+        
         <div className="summary-total">
           <span>Total:</span>
-          <span>${paymentData.amount.toFixed(2)}</span>
+          <span>${(parseFloat(paymentData.amount) || 0).toFixed(2)}</span>
         </div>
       </div>
 
@@ -521,6 +539,29 @@ const ApplicationPayment = () => {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        /* Coupon Information Styles */
+        .coupon-info {
+          background: #d4edda;
+          border: 1px solid #c3e6cb;
+          border-radius: 4px;
+          padding: 8px 12px;
+          margin: 5px 0;
+        }
+
+        .coupon-name {
+          color: #155724;
+          font-weight: 500;
+        }
+
+        .discount {
+          color: #28a745;
+        }
+
+        .discount-amount {
+          color: #28a745;
+          font-weight: 500;
         }
 
         @media (max-width: 768px) {

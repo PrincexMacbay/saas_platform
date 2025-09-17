@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import CryptoPayment from './CryptoPayment';
+import ConfirmDialog from '../ConfirmDialog';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
@@ -14,6 +15,7 @@ const Payments = () => {
   const [editingPayment, setEditingPayment] = useState(null);
   const [plans, setPlans] = useState([]);
   const [users, setUsers] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   
   // Payment modal state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -131,8 +133,14 @@ const Payments = () => {
   };
 
   const handleDeletePayment = async (paymentId) => {
-    if (!confirm('Are you sure you want to delete this payment?')) return;
+    setConfirmDialog({
+      isOpen: true,
+      message: 'Are you sure you want to delete this payment?',
+      onConfirm: () => deletePaymentItem(paymentId)
+    });
+  };
 
+  const deletePaymentItem = async (paymentId) => {
     try {
       await api.delete(`/membership/payments/${paymentId}`);
       fetchPayments();
@@ -874,6 +882,18 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             </div>
           </div>
         )}
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          message={confirmDialog.message}
+          onConfirm={() => {
+            confirmDialog.onConfirm?.();
+            setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+          }}
+          onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
       </div>
     </div>
   );

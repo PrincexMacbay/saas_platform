@@ -3,6 +3,7 @@ import { getCompanyJobs, updateJobStatus, getCompanyApplications, updateApplicat
 import CreateJobForm from './CreateJobForm';
 import CompanyAnalytics from './CompanyAnalytics';
 import EnhancedApplicationDropdown from './EnhancedApplicationDropdown';
+import './CareerSelectStyles.css';
 
 // Custom Dropdown Component
 const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications }) => {
@@ -558,30 +559,34 @@ const CompanyDashboard = () => {
       {/* Filters */}
       <div className="row mb-4">
         <div className="col-md-6">
-          <select
-            className="form-select"
-            value={applicationFilters.status}
-            onChange={(e) => setApplicationFilters(prev => ({ ...prev, status: e.target.value }))}
-          >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="reviewing">Reviewing</option>
-            <option value="interview">Interview</option>
-            <option value="accepted">Accepted</option>
-            <option value="rejected">Rejected</option>
-          </select>
+          <div className="career-select career-select-primary">
+            <label className="career-select-label">Filter by Status</label>
+            <select
+              value={applicationFilters.status}
+              onChange={(e) => setApplicationFilters(prev => ({ ...prev, status: e.target.value }))}
+            >
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="reviewing">Reviewing</option>
+              <option value="interview">Interview</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
         </div>
         <div className="col-md-6">
-          <select
-            className="form-select"
-            value={applicationFilters.jobId}
-            onChange={(e) => setApplicationFilters(prev => ({ ...prev, jobId: e.target.value }))}
-          >
-            <option value="">All Jobs</option>
-            {jobs.map(job => (
-              <option key={job.id} value={job.id}>{job.title}</option>
-            ))}
-          </select>
+          <div className="career-select career-select-primary">
+            <label className="career-select-label">Filter by Job</label>
+            <select
+              value={applicationFilters.jobId}
+              onChange={(e) => setApplicationFilters(prev => ({ ...prev, jobId: e.target.value }))}
+            >
+              <option value="">All Jobs</option>
+              {jobs.map(job => (
+                <option key={job.id} value={job.id}>{job.title}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

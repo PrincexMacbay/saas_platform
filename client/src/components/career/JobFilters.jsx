@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './CareerSelectStyles.css';
 
 const JobFilters = ({ filters, onFilterChange }) => {
   const [localFilters, setLocalFilters] = useState(filters);
@@ -59,7 +60,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
           </h6>
         </div>
         <div className="card-body">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="career-filters">
             {/* Search */}
             <div className="form-group mb-3">
               <label htmlFor="search" className="form-label">Search</label>
@@ -90,75 +91,79 @@ const JobFilters = ({ filters, onFilterChange }) => {
 
             {/* Job Type */}
             <div className="form-group mb-3">
-              <label htmlFor="jobType" className="form-label">Job Type</label>
-              <select
-                id="jobType"
-                name="jobType"
-                className="form-control"
-                value={localFilters.jobType || ''}
-                onChange={handleInputChange}
-              >
-                <option value="">All Types</option>
-                {jobTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+              <div className="career-select career-select-primary">
+                <label htmlFor="jobType" className="career-select-label">Job Type</label>
+                <select
+                  id="jobType"
+                  name="jobType"
+                  value={localFilters.jobType || ''}
+                  onChange={handleInputChange}
+                >
+                  <option value="">All Types</option>
+                  {jobTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Category */}
             <div className="form-group mb-3">
-              <label htmlFor="category" className="form-label">Category</label>
-              <select
-                id="category"
-                name="category"
-                className="form-control"
-                value={localFilters.category || ''}
-                onChange={handleInputChange}
-              >
-                <option value="">All Categories</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+              <div className="career-select career-select-primary">
+                <label htmlFor="category" className="career-select-label">Category</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={localFilters.category || ''}
+                  onChange={handleInputChange}
+                >
+                  <option value="">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Experience Level */}
             <div className="form-group mb-3">
-              <label htmlFor="experienceLevel" className="form-label">Experience Level</label>
-              <select
-                id="experienceLevel"
-                name="experienceLevel"
-                className="form-control"
-                value={localFilters.experienceLevel || ''}
-                onChange={handleInputChange}
-              >
-                <option value="">All Levels</option>
-                {experienceLevels.map(level => (
-                  <option key={level.value} value={level.value}>
-                    {level.label}
-                  </option>
-                ))}
-              </select>
+              <div className="career-select career-select-primary">
+                <label htmlFor="experienceLevel" className="career-select-label">Experience Level</label>
+                <select
+                  id="experienceLevel"
+                  name="experienceLevel"
+                  value={localFilters.experienceLevel || ''}
+                  onChange={handleInputChange}
+                >
+                  <option value="">All Levels</option>
+                  {experienceLevels.map(level => (
+                    <option key={level.value} value={level.value}>
+                      {level.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Remote Work */}
             <div className="form-group mb-3">
-              <label htmlFor="remoteWork" className="form-label">Remote Work</label>
-              <select
-                id="remoteWork"
-                name="remoteWork"
-                className="form-control"
-                value={localFilters.remoteWork || ''}
-                onChange={handleInputChange}
-              >
-                <option value="">All</option>
-                <option value="true">Remote Only</option>
-                <option value="false">On-site Only</option>
-              </select>
+              <div className="career-select career-select-primary">
+                <label htmlFor="remoteWork" className="career-select-label">Remote Work</label>
+                <select
+                  id="remoteWork"
+                  name="remoteWork"
+                  value={localFilters.remoteWork || ''}
+                  onChange={handleInputChange}
+                >
+                  <option value="">All</option>
+                  <option value="true">Remote Only</option>
+                  <option value="false">On-site Only</option>
+                </select>
+              </div>
             </div>
 
             {/* Salary Range */}

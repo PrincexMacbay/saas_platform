@@ -239,6 +239,10 @@ const MembershipDashboard = () => {
           padding: 30px;
         }
 
+
+
+
+
         .dashboard-loading, .dashboard-error {
           display: flex;
           flex-direction: column;
@@ -299,6 +303,7 @@ const MembershipDashboard = () => {
           height: 60px;
           border-radius: 12px;
           display: flex;
+          margin-bottom: 35px;
           align-items: center;
           justify-content: center;
           margin-right: 20px;

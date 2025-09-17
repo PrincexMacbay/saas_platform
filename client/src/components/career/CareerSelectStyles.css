@@ -1,0 +1,250 @@
+/* Modern Select Dropdown Styling for Career Center */
+
+/* Base Select Styling */
+.career-select {
+  position: relative;
+  width: 100%;
+}
+
+.career-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #ffffff;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+  padding-right: 50px;
+}
+
+/* Hover State */
+.career-select select:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Focus State */
+.career-select select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Active/Selected State */
+.career-select select:active {
+  transform: translateY(0);
+}
+
+/* Disabled State */
+.career-select select:disabled {
+  background-color: #f7fafc;
+  color: #a0aec0;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+/* Option Styling */
+.career-select select option {
+  padding: 12px 20px;
+  font-size: 14px;
+  color: #2d3748;
+  background: #ffffff;
+  border: none;
+}
+
+.career-select select option:hover {
+  background-color: #f7fafc;
+}
+
+.career-select select option:checked {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  font-weight: 600;
+}
+
+/* Label Styling */
+.career-select-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #4a5568;
+  letter-spacing: 0.025em;
+}
+
+/* Select Group Container */
+.career-select-group {
+  margin-bottom: 20px;
+}
+
+/* Small Select Variant */
+.career-select.career-select-sm select {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+/* Large Select Variant */
+.career-select.career-select-lg select {
+  padding: 18px 24px;
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+/* Primary Color Variant */
+.career-select.career-select-primary select:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* Success Color Variant */
+.career-select.career-select-success select:focus {
+  border-color: #38a169;
+  box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+}
+
+/* Warning Color Variant */
+.career-select.career-select-warning select:focus {
+  border-color: #d69e2e;
+  box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.1);
+}
+
+/* Error Color Variant */
+.career-select.career-select-error select:focus {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+/* Dark Theme Variant */
+.career-select.career-select-dark select {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.career-select.career-select-dark select:hover {
+  border-color: #718096;
+}
+
+.career-select.career-select-dark select:focus {
+  border-color: #3182ce;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .career-select select {
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .career-select.career-select-lg select {
+    padding: 16px 20px;
+  }
+}
+
+/* Animation for dropdown arrow */
+.career-select select:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233182ce' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Custom scrollbar for long option lists */
+.career-select select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.career-select select::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.career-select select::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.career-select select::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Enhanced form styling for career forms */
+.career-form .career-select {
+  margin-bottom: 20px;
+}
+
+.career-form .career-select-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+/* Filter section styling */
+.career-filters .career-select {
+  margin-bottom: 15px;
+}
+
+.career-filters .career-select-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+/* Success state for completed selections */
+.career-select.career-select-success select {
+  border-color: #38a169;
+  background-color: #f0fff4;
+}
+
+.career-select.career-select-success select:focus {
+  border-color: #38a169;
+  box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+}
+
+/* Error state for validation */
+.career-select.career-select-error select {
+  border-color: #e53e3e;
+  background-color: #fff5f5;
+}
+
+.career-select.career-select-error select:focus {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+/* Loading state */
+.career-select.career-select-loading select {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.career-select.career-select-loading::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #3182ce;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}

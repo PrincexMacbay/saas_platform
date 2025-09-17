@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './CareerSelectStyles.css';
 
 const RoleSelection = ({ onRoleSelect, loading }) => {
   const [selectedRole, setSelectedRole] = useState(null);
@@ -23,7 +24,7 @@ const RoleSelection = ({ onRoleSelect, loading }) => {
   };
 
   const renderIndividualForm = () => (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="career-form">
       <div className="form-group mb-3">
         <label htmlFor="workExperience" className="form-label">Work Experience</label>
         <textarea
@@ -59,7 +60,7 @@ const RoleSelection = ({ onRoleSelect, loading }) => {
   );
 
   const renderCompanyForm = () => (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="career-form">
       <div className="row">
         <div className="col-md-6">
           <div className="form-group mb-3">
@@ -90,22 +91,23 @@ const RoleSelection = ({ onRoleSelect, loading }) => {
           </div>
           
           <div className="form-group mb-3">
-            <label htmlFor="companySize" className="form-label">Company Size</label>
-            <select
-              id="companySize"
-              name="companySize"
-              className="form-control"
-              value={formData.companySize || ''}
-              onChange={handleInputChange}
-            >
-              <option value="">Select company size</option>
-              <option value="1-10">1-10 employees</option>
-              <option value="11-50">11-50 employees</option>
-              <option value="51-200">51-200 employees</option>
-              <option value="201-500">201-500 employees</option>
-              <option value="501-1000">501-1000 employees</option>
-              <option value="1000+">1000+ employees</option>
-            </select>
+            <div className="career-select career-select-primary">
+              <label htmlFor="companySize" className="career-select-label">Company Size</label>
+              <select
+                id="companySize"
+                name="companySize"
+                value={formData.companySize || ''}
+                onChange={handleInputChange}
+              >
+                <option value="">Select company size</option>
+                <option value="1-10">1-10 employees</option>
+                <option value="11-50">11-50 employees</option>
+                <option value="51-200">51-200 employees</option>
+                <option value="201-500">201-500 employees</option>
+                <option value="501-1000">501-1000 employees</option>
+                <option value="1000+">1000+ employees</option>
+              </select>
+            </div>
           </div>
         </div>
         

@@ -1,17 +1,14 @@
 const { Coupon, User, Plan, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
-// Get all coupons
+// Get all coupons - USER-ONLY ACCESS
 const getCoupons = async (req, res) => {
   try {
+    // USER-ONLY ACCESS: Only show coupons created by the current user
     const coupons = await Coupon.findAll({
-      include: [
-        {
-          model: Plan,
-          as: 'plan',
-          attributes: ['id', 'name', 'fee']
-        }
-      ],
+      where: {
+        createdBy: req.user.id // Only show coupons created by the current user
+      },
       order: [['createdAt', 'DESC']]
     });
 
@@ -62,18 +59,11 @@ const createCoupon = async (req, res) => {
       expiryDate: expiryDate ? new Date(expiryDate) : null,
       applicablePlans: applicablePlans ? JSON.stringify(applicablePlans) : null,
       currentRedemptions: 0,
-      isActive: true
+      isActive: true,
+      createdBy: req.user.id // USER-ONLY ACCESS: Set the creator
     });
 
-    const couponWithAssociations = await Coupon.findByPk(coupon.id, {
-      include: [
-        {
-          model: Plan,
-          as: 'plan',
-          attributes: ['id', 'name', 'fee']
-        }
-      ]
-    });
+    const couponWithAssociations = await Coupon.findByPk(coupon.id);
 
     res.status(201).json({
       success: true,

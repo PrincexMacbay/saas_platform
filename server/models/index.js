@@ -14,7 +14,6 @@ const JobApplication = require('./JobApplication');
 const SavedJob = require('./SavedJob');
 
 // Membership System Models
-const Organization = require('./Organization');
 const Plan = require('./Plan');
 const Subscription = require('./Subscription');
 const Payment = require('./Payment');
@@ -27,6 +26,7 @@ const Coupon = require('./Coupon');
 const MembershipSettings = require('./MembershipSettings');
 const ApplicationForm = require('./ApplicationForm');
 const DigitalCard = require('./DigitalCard');
+const UserPaymentInfo = require('./UserPaymentInfo');
 
 // Define associations
 User.hasMany(Space, { 
@@ -196,46 +196,6 @@ SavedJob.belongsTo(Job, {
 
 // Membership System Associations
 
-// Organization relationships
-User.hasMany(Organization, { 
-  foreignKey: 'ownerId', 
-  as: 'ownedOrganizations',
-  onDelete: 'CASCADE'
-});
-Organization.belongsTo(User, { 
-  foreignKey: 'ownerId', 
-  as: 'owner'
-});
-
-User.belongsTo(Organization, { 
-  foreignKey: 'organizationId', 
-  as: 'userOrganization'
-});
-Organization.hasMany(User, { 
-  foreignKey: 'organizationId', 
-  as: 'members',
-  onDelete: 'SET NULL'
-});
-
-Organization.hasMany(Plan, {
-  foreignKey: 'organizationId',
-  as: 'plans',
-  onDelete: 'CASCADE'
-});
-Plan.belongsTo(Organization, {
-  foreignKey: 'organizationId',
-  as: 'planOrganization'
-});
-
-Organization.hasOne(ApplicationForm, {
-  foreignKey: 'organizationId',
-  as: 'applicationForm',
-  onDelete: 'CASCADE'
-});
-ApplicationForm.belongsTo(Organization, {
-  foreignKey: 'organizationId',
-  as: 'formOrganization'
-});
 
 // User relationships
 User.hasMany(Subscription, { 
@@ -280,6 +240,29 @@ User.hasMany(DigitalCard, {
 });
 
 // Plan relationships
+Plan.belongsTo(User, {
+  foreignKey: 'createdBy',
+  as: 'creator'
+});
+User.hasMany(Plan, {
+  foreignKey: 'createdBy',
+  as: 'createdPlans'
+});
+
+// Coupon relationships
+Coupon.belongsTo(User, {
+  foreignKey: 'createdBy',
+  as: 'creator'
+});
+User.hasMany(Coupon, {
+  foreignKey: 'createdBy',
+  as: 'createdCoupons'
+});
+Coupon.hasMany(Application, {
+  foreignKey: 'couponId',
+  as: 'applications'
+});
+
 Plan.hasMany(Subscription, { 
   foreignKey: 'planId', 
   as: 'subscriptions',
@@ -435,6 +418,10 @@ Application.belongsTo(User, {
   foreignKey: 'userId', 
   as: 'user'
 });
+Application.belongsTo(Coupon, { 
+  foreignKey: 'couponId', 
+  as: 'coupon'
+});
 
 // Plan-specific relationships
 Plan.belongsTo(ApplicationForm, { 
@@ -454,10 +441,6 @@ DigitalCard.belongsTo(User, {
 DigitalCard.belongsTo(Subscription, { 
   foreignKey: 'subscriptionId', 
   as: 'subscription'
-});
-DigitalCard.belongsTo(Organization, { 
-  foreignKey: 'organizationId', 
-  as: 'cardOrganization'
 });
 
 // User Profile relationships
@@ -493,11 +476,17 @@ CompanyProfile.belongsTo(User, {
   as: 'user'
 });
 
-// Organization relationships for UserProfile
-UserProfile.belongsTo(Organization, { 
-  foreignKey: 'organizationId', 
-  as: 'profileOrganization'
+// User Payment Info relationships
+User.hasOne(UserPaymentInfo, { 
+  foreignKey: 'userId', 
+  as: 'paymentInfo',
+  onDelete: 'CASCADE'
 });
+UserPaymentInfo.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
 
 module.exports = {
   sequelize,
@@ -515,7 +504,6 @@ module.exports = {
   JobApplication,
   SavedJob,
   // Membership System
-  Organization,
   Plan,
   Subscription,
   Payment,
@@ -528,4 +516,5 @@ module.exports = {
   MembershipSettings,
   ApplicationForm,
   DigitalCard,
+  UserPaymentInfo,
 };

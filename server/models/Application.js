@@ -49,9 +49,9 @@ const Application = sequelize.define('Application', {
   status: {
     type: DataTypes.STRING(20),
     allowNull: false,
-    defaultValue: 'pending',
+    defaultValue: 'incomplete',
     validate: {
-      isIn: [['pending', 'approved', 'rejected']]
+      isIn: [['incomplete', 'pending', 'approved', 'rejected']]
     }
   },
   formData: {
@@ -75,6 +75,35 @@ const Application = sequelize.define('Application', {
       key: 'id',
     },
     comment: 'Set when application is approved and user is created',
+  },
+  couponId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'coupons',
+      key: 'id',
+    },
+    comment: 'Coupon used for this application',
+  },
+  couponCode: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    comment: 'Coupon code used for this application',
+  },
+  originalAmount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Original plan fee before discount',
+  },
+  discountAmount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Discount amount applied',
+  },
+  finalAmount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    comment: 'Final amount after discount',
   },
 }, {
   tableName: 'applications',
