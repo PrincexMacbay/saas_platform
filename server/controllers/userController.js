@@ -1,5 +1,5 @@
 const { body } = require('express-validator');
-const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Membership, Organization } = require('../models');
+const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Membership } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
@@ -66,7 +66,6 @@ const getUser = async (req, res) => {
         {
           model: UserProfile,
           as: 'profile',
-          include: [{ model: Organization, as: 'profileOrganization' }]
         },
         {
           model: IndividualProfile,
@@ -416,111 +415,7 @@ const getFollowing = async (req, res) => {
   }
 };
 
-// Join an organization
-const joinOrganization = async (req, res) => {
-  try {
-    const { organizationId } = req.body;
-    
-    if (!organizationId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Organization ID is required'
-      });
-    }
 
-    // Check if organization exists
-    const organization = await Organization.findByPk(organizationId);
-    if (!organization || !organization.isActive) {
-      return res.status(404).json({
-        success: false,
-        message: 'Organization not found or inactive'
-      });
-    }
-
-    // Check if user is already in an organization
-    if (req.user.organizationId) {
-      return res.status(400).json({
-        success: false,
-        message: 'You are already a member of an organization. Please leave your current organization first.'
-      });
-    }
-
-    // Join the organization as a member
-    await req.user.update({
-      organizationId,
-      organizationRole: 'member'
-    });
-
-    res.json({
-      success: true,
-      message: 'Successfully joined organization',
-      data: {
-        organizationId,
-        organizationName: organization.name,
-        role: 'member'
-      }
-    });
-  } catch (error) {
-    console.error('Join organization error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to join organization',
-      error: error.message
-    });
-  }
-};
-
-// Leave organization
-const leaveOrganization = async (req, res) => {
-  try {
-    if (!req.user.organizationId) {
-      return res.status(400).json({
-        success: false,
-        message: 'You are not a member of any organization'
-      });
-    }
-
-    // Update user to remove organization
-    await req.user.update({
-      organizationId: null,
-      organizationRole: null
-    });
-
-    res.json({
-      success: true,
-      message: 'Successfully left organization'
-    });
-  } catch (error) {
-    console.error('Leave organization error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to leave organization',
-      error: error.message
-    });
-  }
-};
-
-// Get available organizations
-const getAvailableOrganizations = async (req, res) => {
-  try {
-    const organizations = await Organization.findAll({
-      where: { isActive: true },
-      attributes: ['id', 'name', 'description', 'logo', 'website']
-    });
-
-    res.json({
-      success: true,
-      data: organizations
-    });
-  } catch (error) {
-    console.error('Get organizations error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch organizations',
-      error: error.message
-    });
-  }
-};
 
 module.exports = {
   getUser,
@@ -529,7 +424,4 @@ module.exports = {
   toggleFollow,
   getFollowers,
   getFollowing,
-  joinOrganization,
-  leaveOrganization,
-  getAvailableOrganizations,
 };
