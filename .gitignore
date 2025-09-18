@@ -1,9 +1,41 @@
 # ================= BACKEND ========================
 /server/.env*
 /server/node_modules
-
-
+/server/uploads/*
+!/server/uploads/.gitkeep
 
 # ================= FRONTEND ========================
 /client/.env*
 /client/node_modules
+/client/dist
+
+# ================= DOCKER ========================
+.docker/
+docker-compose.override.yml
+
+# ================= LOGS ========================
+*.log
+logs/
+error_log/
+
+# ================= TEMPORARY FILES ========================
+temp_empty/
+.vite/
+.cache/
+
+# ================= OS ========================
+.DS_Store
+Thumbs.db
+
+# ================= IDE ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ================= ENVIRONMENT ========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

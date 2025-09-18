@@ -15,6 +15,7 @@ const DigitalCard = sequelize.define('DigitalCard', {
   organizationName: {
     type: DataTypes.STRING(255),
     allowNull: true,
+    comment: 'Organization name (can be overridden from user organizationName)',
   },
   cardTitle: {
     type: DataTypes.STRING(255),

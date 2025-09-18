@@ -18,7 +18,7 @@ const getDebts = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          attributes: ['id', 'name', 'fee', 'createdBy'],
           where: {
             [Op.or]: [
               { createdBy: req.user.id }, // Plans created by current user

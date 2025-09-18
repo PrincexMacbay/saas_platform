@@ -1,4 +1,4 @@
-const { ApplicationForm, Organization } = require('../models');
+const { ApplicationForm } = require('../models');
 
 // Get all application forms - USER-ONLY ACCESS
 const getApplicationForms = async (req, res) => {
@@ -6,14 +6,6 @@ const getApplicationForms = async (req, res) => {
     // USER-ONLY ACCESS: Only show application forms created by the current user
     const forms = await ApplicationForm.findAll({
       where: { createdBy: req.user.id },
-      include: [
-        {
-          model: Organization,
-          as: 'formOrganization',
-          attributes: ['id', 'name', 'logo', 'description'],
-          required: false
-        }
-      ],
       order: [['createdAt', 'DESC']]
     });
 

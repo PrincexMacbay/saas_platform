@@ -48,6 +48,16 @@ CREATE TABLE IF NOT EXISTS users (
     website VARCHAR(255),
     location VARCHAR(255),
     
+    -- Organization fields (moved from Organization table)
+    "organizationName" VARCHAR(255),
+    "organizationDescription" TEXT,
+    "organizationLogo" VARCHAR(500),
+    "organizationWebsite" VARCHAR(255),
+    "organizationPhone" VARCHAR(20),
+    "organizationAddress" TEXT,
+    "isOrganization" BOOLEAN DEFAULT FALSE,
+    "organizationSettings" TEXT,
+    
     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

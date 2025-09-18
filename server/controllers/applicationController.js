@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Application, Plan, User, Subscription, Organization } = require('../models');
+const { Application, Plan, User, Subscription } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 const bcrypt = require('bcryptjs');
 
@@ -40,7 +40,7 @@ const getApplications = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          attributes: ['id', 'name', 'fee', 'createdBy'],
           where: {
             createdBy: req.user.id // Only plans created by current user
           },

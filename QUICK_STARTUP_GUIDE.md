@@ -2,12 +2,26 @@
 
 ## Current Status ✅
 - **Backend Server**: Running on `http://localhost:5000`
-- **Frontend Client**: Running on `http://localhost:3000` (or similar port)
+- **Frontend Client**: Running on `http://localhost:3000`
 - **Database**: Connected and operational
+- **Docker Development**: Fully configured with live code updates
 
 ## How to Start the Application
 
-### Option 1: Manual Startup (Recommended for Development)
+### Option 1: Docker Development (Recommended)
+
+#### Quick Start:
+```bash
+.\start-dev.ps1
+```
+
+This single command will:
+- Start PostgreSQL database
+- Start backend with nodemon (auto-restart on changes)
+- Start frontend with Vite (hot module replacement)
+- Mount source code for live updates
+
+### Option 2: Manual Startup (Without Docker)
 
 #### 1. Start Backend Server
 ```bash
@@ -23,18 +37,9 @@ npm run dev
 ```
 This starts the React development server.
 
-### Option 2: Using PowerShell Scripts
-
-#### For Backend:
-```powershell
-cd server
-.\start-dev.ps1
-```
-
-#### For Frontend:
-```powershell
-cd client
-npm run dev
+### Option 3: Production Mode (Docker)
+```bash
+.\start-prod.ps1
 ```
 
 ## Verification Steps
@@ -104,19 +109,31 @@ EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_email_password
 ```
 
-## Recent Fixes Applied ✅
+## Recent Updates Applied ✅
 
-### 1. Career Center Role Selection
+### 1. Docker Development Environment
+- Added development Dockerfiles for both frontend and backend
+- Configured volume mounts for live code updates
+- Updated to Node 20 for Vite 7 compatibility
+- Created startup scripts for easy development
+
+### 2. Organization Table Removal
+- Removed Organization model and all references
+- Cleaned up database schema and model associations
+- Updated User, Plan, ApplicationForm, and DigitalCard models
+- Fixed database initialization issues
+
+### 3. Career Center Role Selection
 - Fixed issue where new users were automatically assigned as job seekers
 - Now users can choose between "Job Seeker" and "Employer" roles
 - Backend no longer creates default user profiles during registration
 
-### 2. Application Submission
+### 4. Application Submission
 - Fixed 500 error when submitting membership applications
 - Backend now properly handles formData JSON parsing
 - Extracts required fields (email, firstName, lastName) from formData
 
-### 3. Database Schema
+### 5. Database Schema
 - Normalized user tables for better data organization
 - Added plan-specific linking for application forms and digital cards
 - Implemented free plans support

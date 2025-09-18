@@ -1,16 +1,39 @@
-# 🚀 **MEMBERSHIP MODULE - FINAL SETUP INSTRUCTIONS**
+# 🚀 **SAAS PLATFORM - SETUP INSTRUCTIONS**
 
-## ⚡ **QUICK START GUIDE**
+## ⚡ **QUICK START GUIDE (Docker - Recommended)**
 
-The membership module is **100% implemented** and ready to run. Here's how to complete the setup:
+The platform is **100% implemented** and ready to run. Here's how to complete the setup:
 
-### **Step 1: Database Setup**
+### **Option 1: Docker Development (Recommended)**
+
+```bash
+# Navigate to project directory
+cd "C:\saas_platform"
+
+# Start development environment
+.\start-dev.ps1
+```
+
+This single command will:
+- Start PostgreSQL database
+- Start backend with nodemon (auto-restart on changes)
+- Start frontend with Vite (hot module replacement)
+- Mount source code for live updates
+
+**Access Points:**
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **Database**: localhost:5432
+
+### **Option 2: Manual Setup (Without Docker)**
+
+#### **Step 1: Database Setup**
 
 Open a **new PowerShell terminal** in the server directory and run these commands **one by one**:
 
 ```powershell
 # Navigate to server directory
-cd "C:\Program Files\saas_platform\server"
+cd "C:\saas_platform\server"
 
 # Sync database (create all tables)
 node scripts/sync-database.js
@@ -22,16 +45,16 @@ node scripts/seed-membership.js
 If you get PowerShell errors, use **Command Prompt (cmd)** instead:
 
 ```cmd
-cd "C:\Program Files\saas_platform\server"
+cd "C:\saas_platform\server"
 node scripts/sync-database.js
 node scripts/seed-membership.js
 ```
 
-### **Step 2: Start Backend Server**
+#### **Step 2: Start Backend Server**
 
 ```powershell
 # In server directory
-npm start
+npm run dev
 ```
 
 **Expected output:**
@@ -41,12 +64,12 @@ npm start
 ✅ Database connected successfully
 ```
 
-### **Step 3: Start Frontend**
+#### **Step 3: Start Frontend**
 
 Open a **new terminal** in client directory:
 
 ```powershell
-cd "C:\Program Files\saas_platform\client"
+cd "C:\saas_platform\client"
 npm run dev
 ```
 

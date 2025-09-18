@@ -21,8 +21,11 @@ const JobApplication = sequelize.define('JobApplication', {
     allowNull: true,
   },
   status: {
-    type: DataTypes.ENUM('applied', 'reviewing', 'shortlisted', 'interviewed', 'rejected', 'hired'),
+    type: DataTypes.STRING(20),
     defaultValue: 'applied',
+    validate: {
+      isIn: [['applied', 'reviewing', 'shortlisted', 'interviewed', 'rejected', 'hired']]
+    },
   },
   notes: {
     type: DataTypes.TEXT,

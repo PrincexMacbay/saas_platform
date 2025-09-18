@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { Plan, Organization, Application, Coupon } = require('../models');
+const { Plan, User, Application, Coupon } = require('../models');
 const applicationFormController = require('../controllers/applicationFormController');
 const { Op } = require('sequelize');
 
 // Get public membership plans
 router.get('/plans', async (req, res) => {
   try {
-    const { organizationId, search } = req.query;
+    const { createdBy, search } = req.query;
     
     const whereClause = {
       isActive: true
     };
     
-    if (organizationId) {
-      whereClause.organizationId = organizationId;
+    if (createdBy) {
+      whereClause.createdBy = createdBy;
     }
     
     if (search) {
@@ -28,9 +28,13 @@ router.get('/plans', async (req, res) => {
       where: whereClause,
       include: [
         {
-          model: Organization,
-          as: 'planOrganization',
-          attributes: ['id', 'name', 'description', 'logo', 'website']
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'organizationName', 'organizationDescription', 'organizationLogo', 'organizationWebsite'],
+          where: {
+            isOrganization: true
+          },
+          required: false
         }
       ],
       order: [['fee', 'ASC']]
@@ -528,23 +532,16 @@ router.get('/application-form', async (req, res) => {
   }
 });
 
-// Get organizations with public plans
+// Get organizations with public plans (now returns users who are organizations)
 router.get('/organizations', async (req, res) => {
   try {
-    const organizations = await Organization.findAll({
-      where: { isActive: true },
-      include: [
-        {
-          model: Plan,
-          as: 'plans',
-          where: { 
-            isActive: true 
-          },
-          attributes: ['id', 'name', 'fee', 'renewalInterval'],
-          required: true
-        }
-      ],
-      attributes: ['id', 'name', 'description', 'logo', 'website']
+    const organizations = await User.findAll({
+      where: { 
+        isOrganization: true,
+        status: 1 // Active users
+      },
+      attributes: ['id', 'organizationName', 'organizationLogo', 'organizationDescription', 'organizationWebsite'],
+      order: [['organizationName', 'ASC']]
     });
 
     res.json({

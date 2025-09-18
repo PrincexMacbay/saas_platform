@@ -23,21 +23,6 @@ const UserProfile = sequelize.define('UserProfile', {
       notEmpty: true,
     },
   },
-  organizationId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'organizations',
-      key: 'id',
-    },
-  },
-  organizationRole: {
-    type: DataTypes.STRING(10),
-    allowNull: true,
-    validate: {
-      isIn: [['admin', 'member']]
-    }
-  },
 }, {
   tableName: 'user_profiles',
   timestamps: true,

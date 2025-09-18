@@ -71,7 +71,7 @@ const Plan = sequelize.define('Plan', {
   useDefaultForm: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
-    comment: 'Use organization default form if true, plan-specific form if false'
+    comment: 'Use user organization default form if true, plan-specific form if false'
   },
   digitalCardTemplateId: {
     type: DataTypes.INTEGER,
@@ -85,7 +85,7 @@ const Plan = sequelize.define('Plan', {
   useDefaultCardTemplate: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
-    comment: 'Use organization default card template if true, plan-specific template if false'
+    comment: 'Use user organization default card template if true, plan-specific template if false'
   }
 }, {
   tableName: 'plans',

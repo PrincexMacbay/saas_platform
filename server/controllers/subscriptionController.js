@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Subscription, User, Plan, Payment, Debt, DigitalCard, Organization } = require('../models');
+const { Subscription, User, Plan, Payment, Debt, DigitalCard } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 
 // Get user's own subscriptions
@@ -14,14 +14,7 @@ const getUserSubscriptions = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'renewalInterval', 'description', 'benefits'],
-          include: [
-            {
-              model: Organization,
-              as: 'planOrganization',
-              attributes: ['id', 'name', 'logo']
-            }
-          ]
+          attributes: ['id', 'name', 'fee', 'renewalInterval', 'description', 'benefits']
         }
       ]
     });

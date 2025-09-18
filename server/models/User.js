@@ -74,6 +74,48 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  
+  // Organization fields (moved from Organization table)
+  organizationName: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: 'Organization name if user represents an organization',
+  },
+  organizationDescription: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Organization description',
+  },
+  organizationLogo: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'Organization logo URL',
+  },
+  organizationWebsite: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: 'Organization website',
+  },
+  organizationPhone: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    comment: 'Organization phone number',
+  },
+  organizationAddress: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Organization address',
+  },
+  isOrganization: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: 'True if this user represents an organization',
+  },
+  organizationSettings: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'JSON string for organization-specific settings',
+  },
 
 }, {
   tableName: 'users',

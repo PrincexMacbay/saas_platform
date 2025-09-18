@@ -61,8 +61,11 @@ const Job = sequelize.define('Job', {
     defaultValue: false,
   },
   status: {
-    type: DataTypes.ENUM('active', 'paused', 'closed'),
+    type: DataTypes.STRING(20),
     defaultValue: 'active',
+    validate: {
+      isIn: [['active', 'paused', 'closed']]
+    },
   },
   applicationDeadline: {
     type: DataTypes.DATE,

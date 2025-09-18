@@ -3,7 +3,7 @@ const { Payment, User, Plan, Subscription, Invoice } = require('../models');
 const cryptoPaymentService = require('../services/cryptoPaymentService');
 
 // Helper function to check if user has access to a payment
-const checkPaymentAccess = async (paymentId, userId, userOrganizationId) => {
+const checkPaymentAccess = async (paymentId, userId) => {
   // SECURITY FIX: Only allow access to payments for plans created by the current user
   // Organization members should NOT see payment data - only plan creators/admins should
   const planFilter = {
@@ -80,7 +80,7 @@ const getPayments = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'createdBy', 'organizationId'],
+          attributes: ['id', 'name', 'fee', 'createdBy'],
           where: planFilter,
           required: true
         },
@@ -237,7 +237,7 @@ const updatePayment = async (req, res) => {
     } = req.body;
 
     // SECURITY FIX: Check if user has access to this payment
-    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
+    const payment = await checkPaymentAccess(id, req.user.id);
     if (!payment) {
       return res.status(404).json({
         success: false,
@@ -290,7 +290,7 @@ const updatePaymentStatus = async (req, res) => {
     const { status } = req.body;
 
     // SECURITY FIX: Check if user has access to this payment
-    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
+    const payment = await checkPaymentAccess(id, req.user.id);
     if (!payment) {
       return res.status(404).json({
         success: false,
@@ -334,7 +334,7 @@ const deletePayment = async (req, res) => {
     const { id } = req.params;
 
     // SECURITY FIX: Check if user has access to this payment
-    const payment = await checkPaymentAccess(id, req.user.id, req.user.organizationId);
+    const payment = await checkPaymentAccess(id, req.user.id);
     if (!payment) {
       return res.status(404).json({
         success: false,
@@ -474,7 +474,7 @@ const getCryptoPaymentStatus = async (req, res) => {
     const { paymentId } = req.params;
 
     // SECURITY FIX: Check if user has access to this payment
-    const payment = await checkPaymentAccess(paymentId, req.user.id, req.user.organizationId);
+    const payment = await checkPaymentAccess(paymentId, req.user.id);
     if (!payment) {
       return res.status(404).json({
         success: false,
