@@ -38,8 +38,8 @@ const getApplicationFormByPlan = async (req, res) => {
       },
       include: [
         {
-          
-          
+          model: Organization,
+          as: 'formOrganization',
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -81,8 +81,8 @@ const getApplicationFormById = async (req, res) => {
       },
       include: [
         {
-          
-          
+          model: Organization,
+          as: 'formOrganization',
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -131,8 +131,8 @@ const getApplicationForm = async (req, res) => {
       where: whereCondition,
       include: [
         {
-          
-          
+          model: Organization,
+          as: 'formOrganization',
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -207,7 +207,7 @@ const createApplicationForm = async (req, res) => {
         name: 'phone',
         label: 'Phone Number',
         type: 'tel',
-        
+        required: false,
         order: 4
       }
     ];
@@ -291,7 +291,7 @@ const getUserForm = async (req, res) => {
             name: 'phone',
             label: 'Phone Number',
             type: 'tel',
-            
+            required: false,
             order: 4
           }
         ]),
@@ -442,7 +442,7 @@ const updateApplicationForm = async (req, res) => {
           name: 'phone',
           label: 'Phone Number',
           type: 'tel',
-          
+          required: false,
           order: 4
         }
       ];
