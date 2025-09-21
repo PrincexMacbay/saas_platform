@@ -29,6 +29,13 @@ if (process.env.DB_DIALECT === 'sqlite') {
       acquire: 30000,
       idle: 10000,
     },
+    // SSL configuration for production
+    dialectOptions: {
+      ssl: process.env.NODE_ENV === 'production' ? {
+        require: true,
+        rejectUnauthorized: false
+      } : false
+    },
   };
 
   // Use DATABASE_URL if available, otherwise use individual environment variables
@@ -37,6 +44,7 @@ if (process.env.DB_DIALECT === 'sqlite') {
         dialect: 'postgres',
         logging: config.logging,
         pool: config.pool,
+        dialectOptions: config.dialectOptions,
       })
     : new Sequelize(config);
 }
