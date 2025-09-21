@@ -6,6 +6,24 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
 
+// Validate required environment variables
+const requiredEnvVars = ['JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars);
+  console.error('Please set these environment variables in your Render service settings');
+  console.error('The server will continue to start but registration/login will fail');
+  // Don't exit in production - let the server start and fail gracefully
+  if (process.env.NODE_ENV === 'development') {
+    process.exit(1);
+  }
+} else {
+  console.log('✅ All required environment variables are set');
+}
+
+console.log('Environment:', process.env.NODE_ENV || 'development');
+
 const routes = require("./routes");
 const { sequelize } = require("./models");
 
@@ -41,6 +59,13 @@ app.use(
         process.env.CLIENT_URL,
         process.env.FRONTEND_URL, // Optional: add this env variable
       ].filter(Boolean); // Remove any undefined values
+
+      // Log CORS debugging info only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('CORS check - Origin:', origin);
+        console.log('CORS check - Allowed origins:', allowedOrigins);
+        console.log('CORS check - Environment:', process.env.NODE_ENV);
+      }
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
