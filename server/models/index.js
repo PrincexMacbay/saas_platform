@@ -27,6 +27,7 @@ const MembershipSettings = require('./MembershipSettings');
 const ApplicationForm = require('./ApplicationForm');
 const DigitalCard = require('./DigitalCard');
 const UserPaymentInfo = require('./UserPaymentInfo');
+const Organization = require('./Organization');
 
 // Define associations
 User.hasMany(Space, { 
@@ -517,4 +518,5 @@ module.exports = {
   ApplicationForm,
   DigitalCard,
   UserPaymentInfo,
+  Organization,
 };

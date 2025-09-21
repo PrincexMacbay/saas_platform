@@ -23,6 +23,7 @@ const getApplicationForms = async (req, res) => {
       message: 'Failed to fetch application forms',
       error: error.message
     });
+  }
 };
 
 // Get application form by plan ID (public endpoint)
@@ -30,27 +31,29 @@ const getApplicationFormByPlan = async (req, res) => {
   try {
     const { formId } = req.params;
     
+    console.log('Fetching application form with ID:', formId);
+    
     const form = await ApplicationForm.findOne({
       where: { 
         id: formId,
         isPublished: true 
-      },
-          
-          
-      ]
+      }
     });
 
     if (!form) {
+      console.log('Application form not found for ID:', formId);
       return res.status(404).json({
         success: false,
         message: 'Application form not found'
       });
+    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Get application form by plan error:', error);
@@ -59,6 +62,7 @@ const getApplicationFormByPlan = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
+  }
 };
 
 // Get application form by ID (authenticated user)
@@ -70,10 +74,7 @@ const getApplicationFormById = async (req, res) => {
       where: { 
         id: id,
         createdBy: req.user.id // Only forms created by current user
-      },
-          
-          
-      ]
+      }
     });
 
     if (!form) {
@@ -81,12 +82,14 @@ const getApplicationFormById = async (req, res) => {
         success: false,
         message: 'Form not found or you do not have access to this form.'
       });
+    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Get application form by ID error:', error);
@@ -95,46 +98,31 @@ const getApplicationFormById = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
+  }
 };
 
 // Get application form (public endpoint)
 const getApplicationForm = async (req, res) => {
   try {
-    
-    
     let whereCondition = { isPublished: true };
     
-    } else {
-    
     const form = await ApplicationForm.findOne({
-      where: whereCondition,
-          
-          
-      ]
+      where: whereCondition
     });
 
     if (!form) {
-      // Return a default form structure if no form is found
-      return res.json({
-        success: true,
-        data: {
-          id: null,
-          title: 'Membership Application',
-          description: 'Please fill out this form to apply for membership.',
-          footer: '',
-          terms: '',
-          agreement: '',
-          fields: [],
-          isPublished: true,
-          
-          organization: null
+      return res.status(404).json({
+        success: false,
+        message: 'No published application form found'
       });
+    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Get application form error:', error);
@@ -143,39 +131,44 @@ const getApplicationForm = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
+  }
 };
 
-// Create application form (admin)
+// Create application form
 const createApplicationForm = async (req, res) => {
   try {
-    
     const { title, description, footer, terms, agreement, fields } = req.body;
 
     // Default required fields that should always be present
     const defaultFields = [
+      {
         name: 'firstName',
         label: 'First Name',
         type: 'text',
         required: true,
         order: 1
       },
+      {
         name: 'lastName',
         label: 'Last Name',
         type: 'text',
         required: true,
         order: 2
       },
+      {
         name: 'email',
         label: 'Email Address',
         type: 'email',
         required: true,
         order: 3
       },
+      {
         name: 'phone',
         label: 'Phone Number',
         type: 'tel',
-        
+        required: false,
         order: 4
+      }
     ];
 
     // Combine default fields with custom fields, avoiding duplicates
@@ -184,27 +177,25 @@ const createApplicationForm = async (req, res) => {
     const uniqueDefaultFields = defaultFields.filter(defaultField => 
       !customFieldNames.includes(defaultField.name)
     );
-    
     const allFields = [...uniqueDefaultFields, ...customFields];
 
     const form = await ApplicationForm.create({
-      title: title || 'Membership Application',
-      description: description || 'Please fill out this form to apply for membership.',
+      title,
+      description,
       footer,
       terms,
       agreement,
       fields: JSON.stringify(allFields),
       createdBy: req.user.id,
-       // USER-ONLY ACCESS: No organization needed
       isPublished: false
     });
 
     res.status(201).json({
       success: true,
-      message: 'Application form created successfully',
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Create application form error:', error);
@@ -213,89 +204,71 @@ const createApplicationForm = async (req, res) => {
       message: 'Failed to create application form',
       error: error.message
     });
+  }
 };
 
-// Get organization's application form (admin)
-const getUserForm = async (req, res) => {
-  try {
-    let form = await ApplicationForm.findOne({
-      where: { createdBy: req.user.id }
-    });
-
-    // Create default form if none exists
-    if (!form) {
-      form = await ApplicationForm.create({
-        title: 'Membership Application',
-        description: 'Please fill out this form to apply for membership.',
-        createdBy: req.user.id,
-         // USER-ONLY ACCESS: No organization needed
-        fields: JSON.stringify([
-            name: 'firstName',
-            label: 'First Name',
-            type: 'text',
-            required: true,
-            order: 1
-          },
-            name: 'lastName',
-            label: 'Last Name',
-            type: 'text',
-            required: true,
-            order: 2
-          },
-            name: 'email',
-            label: 'Email Address',
-            type: 'email',
-            required: true,
-            order: 3
-          },
-            name: 'phone',
-            label: 'Phone Number',
-            type: 'tel',
-            
-            order: 4
-        ]),
-        isPublished: false
-      });
-
-    res.json({
-      success: true,
-      data: {
-        ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
-    });
-  } catch (error) {
-    console.error('Get organization form error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch application form',
-      error: error.message
-    });
-};
-
-// Save application form (admin)
+// Save application form (create or update)
 const saveApplicationForm = async (req, res) => {
   try {
-    
     const { title, description, footer, terms, agreement, fields } = req.body;
 
+    // Default required fields that should always be present
+    const defaultFields = [
+      {
+        name: 'firstName',
+        label: 'First Name',
+        type: 'text',
+        required: true,
+        order: 1
+      },
+      {
+        name: 'lastName',
+        label: 'Last Name',
+        type: 'text',
+        required: true,
+        order: 2
+      },
+      {
+        name: 'email',
+        label: 'Email Address',
+        type: 'email',
+        required: true,
+        order: 3
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number',
+        type: 'tel',
+        required: false,
+        order: 4
+      }
+    ];
+
+    // Combine default fields with custom fields, avoiding duplicates
+    const customFields = fields || [];
+    const customFieldNames = customFields.map(f => f.name);
+    const uniqueDefaultFields = defaultFields.filter(defaultField => 
+      !customFieldNames.includes(defaultField.name)
+    );
+    const allFields = [...uniqueDefaultFields, ...customFields];
+
     const [form] = await ApplicationForm.upsert({
-      createdBy: req.user.id,
-       // USER-ONLY ACCESS: No organization needed
       title,
       description,
       footer,
       terms,
       agreement,
-      fields: JSON.stringify(fields),
-      isPublished: false // Keep current published status when saving
+      fields: JSON.stringify(allFields),
+      createdBy: req.user.id,
+      isPublished: false
     });
 
     res.json({
       success: true,
-      message: 'Application form saved successfully',
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Save application form error:', error);
@@ -304,28 +277,114 @@ const saveApplicationForm = async (req, res) => {
       message: 'Failed to save application form',
       error: error.message
     });
+  }
 };
 
+// Update application form
+const updateApplicationForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, footer, terms, agreement, fields } = req.body;
 
+    // Check if form exists and belongs to user
+    const existingForm = await ApplicationForm.findOne({
+      where: { 
+        id: id,
+        createdBy: req.user.id 
+      }
+    });
+
+    if (!existingForm) {
+      return res.status(404).json({
+        success: false,
+        message: 'Form not found or you do not have access to this form.'
+      });
+    }
+
+    // Default required fields that should always be present
+    const defaultFields = [
+      {
+        name: 'firstName',
+        label: 'First Name',
+        type: 'text',
+        required: true,
+        order: 1
+      },
+      {
+        name: 'lastName',
+        label: 'Last Name',
+        type: 'text',
+        required: true,
+        order: 2
+      },
+      {
+        name: 'email',
+        label: 'Email Address',
+        type: 'email',
+        required: true,
+        order: 3
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number',
+        type: 'tel',
+        required: false,
+        order: 4
+      }
+    ];
+
+    // Combine default fields with custom fields, avoiding duplicates
+    const customFields = fields || [];
+    const customFieldNames = customFields.map(f => f.name);
+    const uniqueDefaultFields = defaultFields.filter(defaultField => 
+      !customFieldNames.includes(defaultField.name)
+    );
+    const allFields = [...uniqueDefaultFields, ...customFields];
+
+    await existingForm.update({
+      title,
+      description,
+      footer,
+      terms,
+      agreement,
+      fields: JSON.stringify(allFields)
+    });
+
+    res.json({
+      success: true,
+      data: {
+        ...existingForm.toJSON(),
+        fields: existingForm.fields ? JSON.parse(existingForm.fields) : []
+      }
+    });
+  } catch (error) {
+    console.error('Update application form error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update application form',
+      error: error.message
+    });
+  }
+};
 
 // Delete application form
 const deleteApplicationForm = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const form = await ApplicationForm.findByPk(id);
+
+    const form = await ApplicationForm.findOne({
+      where: { 
+        id: id,
+        createdBy: req.user.id 
+      }
+    });
+
     if (!form) {
       return res.status(404).json({
         success: false,
-        message: 'Application form not found'
+        message: 'Form not found or you do not have access to this form.'
       });
-
-    // Check if user has permission to delete this form
-    if (form.createdBy !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to delete this application form'
-      });
+    }
 
     await form.destroy();
 
@@ -340,114 +399,37 @@ const deleteApplicationForm = async (req, res) => {
       message: 'Failed to delete application form',
       error: error.message
     });
+  }
 };
 
-// Update application form
-const updateApplicationForm = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-    
-    const form = await ApplicationForm.findByPk(id);
-    if (!form) {
-      return res.status(404).json({
-        success: false,
-        message: 'Application form not found'
-      });
-
-    // Check if user has permission to update this form
-    if (form.createdBy !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to update this application form'
-      });
-
-    // Handle fields separately to ensure default fields are preserved
-    if (updateData.fields) {
-      // Default required fields that should always be present
-      const defaultFields = [
-          name: 'firstName',
-          label: 'First Name',
-          type: 'text',
-          required: true,
-          order: 1
-        },
-          name: 'lastName',
-          label: 'Last Name',
-          type: 'text',
-          required: true,
-          order: 2
-        },
-          name: 'email',
-          label: 'Email Address',
-          type: 'email',
-          required: true,
-          order: 3
-        },
-          name: 'phone',
-          label: 'Phone Number',
-          type: 'tel',
-          
-          order: 4
-      ];
-
-      // Combine default fields with custom fields, avoiding duplicates
-      const customFields = updateData.fields;
-      const customFieldNames = customFields.map(f => f.name);
-      const uniqueDefaultFields = defaultFields.filter(defaultField => 
-        !customFieldNames.includes(defaultField.name)
-      );
-      
-      const allFields = [...uniqueDefaultFields, ...customFields];
-      
-      // Update with processed fields
-      await form.update({
-        ...updateData,
-        fields: JSON.stringify(allFields)
-      });
-    } else {
-      // No fields to update, just update other data
-      await form.update(updateData);
-
-    res.json({
-      success: true,
-      message: 'Application form updated successfully',
-      data: form
-    });
-  } catch (error) {
-    console.error('Update application form error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update application form',
-      error: error.message
-    });
-};
-
-// Publish application form (admin)
+// Publish application form
 const publishApplicationForm = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const form = await ApplicationForm.findByPk(id);
+
+    const form = await ApplicationForm.findOne({
+      where: { 
+        id: id,
+        createdBy: req.user.id 
+      }
+    });
+
     if (!form) {
       return res.status(404).json({
         success: false,
-        message: 'Application form not found'
+        message: 'Form not found or you do not have access to this form.'
       });
-
-    // Check if user has permission to publish this form
-    if (form.createdBy !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to publish this application form'
-      });
+    }
 
     await form.update({ isPublished: true });
 
     res.json({
       success: true,
       message: 'Application form published successfully',
-      data: form
+      data: {
+        ...form.toJSON(),
+        fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Publish application form error:', error);
@@ -456,33 +438,37 @@ const publishApplicationForm = async (req, res) => {
       message: 'Failed to publish application form',
       error: error.message
     });
+  }
 };
 
-// Unpublish application form (admin)
+// Unpublish application form
 const unpublishApplicationForm = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const form = await ApplicationForm.findByPk(id);
+
+    const form = await ApplicationForm.findOne({
+      where: { 
+        id: id,
+        createdBy: req.user.id 
+      }
+    });
+
     if (!form) {
       return res.status(404).json({
         success: false,
-        message: 'Application form not found'
+        message: 'Form not found or you do not have access to this form.'
       });
-
-    // Check if user has permission to unpublish this form
-    if (form.createdBy !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to unpublish this application form'
-      });
+    }
 
     await form.update({ isPublished: false });
 
     res.json({
       success: true,
       message: 'Application form unpublished successfully',
-      data: form
+      data: {
+        ...form.toJSON(),
+        fields: form.fields ? JSON.parse(form.fields) : []
+      }
     });
   } catch (error) {
     console.error('Unpublish application form error:', error);
@@ -491,18 +477,18 @@ const unpublishApplicationForm = async (req, res) => {
       message: 'Failed to unpublish application form',
       error: error.message
     });
+  }
 };
 
 module.exports = {
   getApplicationForms,
+  getApplicationFormByPlan,
   getApplicationFormById,
   getApplicationForm,
-  getUserForm,
   createApplicationForm,
   saveApplicationForm,
   updateApplicationForm,
   deleteApplicationForm,
   publishApplicationForm,
-  unpublishApplicationForm,
-  getApplicationFormByPlan
+  unpublishApplicationForm
 };
