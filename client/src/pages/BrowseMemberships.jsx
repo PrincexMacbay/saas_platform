@@ -22,7 +22,7 @@ const BrowseMemberships = () => {
       if (selectedOrganization) params.append('organizationId', selectedOrganization);
       if (searchTerm) params.append('search', searchTerm);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/public/plans?${params}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://social-network-backend-w91a.onrender.com/api'}/public/plans?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch plans');
@@ -41,7 +41,7 @@ const BrowseMemberships = () => {
 
   const fetchOrganizations = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/public/organizations`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://social-network-backend-w91a.onrender.com/api'}/public/organizations`);
       if (response.ok) {
         const data = await response.json();
         console.log('Organizations data:', data);

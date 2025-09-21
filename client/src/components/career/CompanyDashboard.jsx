@@ -647,7 +647,7 @@ const CompanyDashboard = () => {
                       {application.resume && (
                         <div className="mb-3">
                           <a 
-                            href={`http://localhost:5000${application.resume}`} 
+                            href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://social-network-backend-w91a.onrender.com'}${application.resume}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="btn btn-outline-primary btn-sm"
