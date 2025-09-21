@@ -23,7 +23,6 @@ const getApplicationForms = async (req, res) => {
       message: 'Failed to fetch application forms',
       error: error.message
     });
-  }
 };
 
 // Get application form by plan ID (public endpoint)
@@ -36,12 +35,8 @@ const getApplicationFormByPlan = async (req, res) => {
         id: formId,
         isPublished: true 
       },
-      include: [
-        {
           
           
-          attributes: ['id', 'name', 'logo', 'description']
-        }
       ]
     });
 
@@ -50,14 +45,12 @@ const getApplicationFormByPlan = async (req, res) => {
         success: false,
         message: 'Application form not found'
       });
-    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Get application form by plan error:', error);
@@ -66,7 +59,6 @@ const getApplicationFormByPlan = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
-  }
 };
 
 // Get application form by ID (authenticated user)
@@ -79,12 +71,8 @@ const getApplicationFormById = async (req, res) => {
         id: id,
         createdBy: req.user.id // Only forms created by current user
       },
-      include: [
-        {
           
           
-          attributes: ['id', 'name', 'logo', 'description']
-        }
       ]
     });
 
@@ -93,14 +81,12 @@ const getApplicationFormById = async (req, res) => {
         success: false,
         message: 'Form not found or you do not have access to this form.'
       });
-    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Get application form by ID error:', error);
@@ -109,32 +95,21 @@ const getApplicationFormById = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
-  }
 };
 
 // Get application form (public endpoint)
 const getApplicationForm = async (req, res) => {
   try {
-    const { organizationId } = req.params;
     
-    // Handle the case where organizationId is "null" string
+    
     let whereCondition = { isPublished: true };
     
-    if (organizationId && organizationId !== 'null') {
-      whereCondition.organizationId = organizationId;
     } else {
-      // If organizationId is null or "null", find forms without organization
-      whereCondition.organizationId = null;
-    }
     
     const form = await ApplicationForm.findOne({
       where: whereCondition,
-      include: [
-        {
           
           
-          attributes: ['id', 'name', 'logo', 'description']
-        }
       ]
     });
 
@@ -151,18 +126,15 @@ const getApplicationForm = async (req, res) => {
           agreement: '',
           fields: [],
           isPublished: true,
-          organizationId: null,
+          
           organization: null
-        }
       });
-    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Get application form error:', error);
@@ -171,7 +143,6 @@ const getApplicationForm = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
-  }
 };
 
 // Create application form (admin)
@@ -182,34 +153,29 @@ const createApplicationForm = async (req, res) => {
 
     // Default required fields that should always be present
     const defaultFields = [
-      {
         name: 'firstName',
         label: 'First Name',
         type: 'text',
         required: true,
         order: 1
       },
-      {
         name: 'lastName',
         label: 'Last Name',
         type: 'text',
         required: true,
         order: 2
       },
-      {
         name: 'email',
         label: 'Email Address',
         type: 'email',
         required: true,
         order: 3
       },
-      {
         name: 'phone',
         label: 'Phone Number',
         type: 'tel',
         
         order: 4
-      }
     ];
 
     // Combine default fields with custom fields, avoiding duplicates
@@ -229,7 +195,7 @@ const createApplicationForm = async (req, res) => {
       agreement,
       fields: JSON.stringify(allFields),
       createdBy: req.user.id,
-      organizationId: null, // USER-ONLY ACCESS: No organization needed
+       // USER-ONLY ACCESS: No organization needed
       isPublished: false
     });
 
@@ -239,7 +205,6 @@ const createApplicationForm = async (req, res) => {
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Create application form error:', error);
@@ -248,7 +213,6 @@ const createApplicationForm = async (req, res) => {
       message: 'Failed to create application form',
       error: error.message
     });
-  }
 };
 
 // Get organization's application form (admin)
@@ -264,47 +228,40 @@ const getUserForm = async (req, res) => {
         title: 'Membership Application',
         description: 'Please fill out this form to apply for membership.',
         createdBy: req.user.id,
-        organizationId: null, // USER-ONLY ACCESS: No organization needed
+         // USER-ONLY ACCESS: No organization needed
         fields: JSON.stringify([
-          {
             name: 'firstName',
             label: 'First Name',
             type: 'text',
             required: true,
             order: 1
           },
-          {
             name: 'lastName',
             label: 'Last Name',
             type: 'text',
             required: true,
             order: 2
           },
-          {
             name: 'email',
             label: 'Email Address',
             type: 'email',
             required: true,
             order: 3
           },
-          {
             name: 'phone',
             label: 'Phone Number',
             type: 'tel',
             
             order: 4
-          }
         ]),
         isPublished: false
       });
-    }
 
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Get organization form error:', error);
@@ -313,7 +270,6 @@ const getUserForm = async (req, res) => {
       message: 'Failed to fetch application form',
       error: error.message
     });
-  }
 };
 
 // Save application form (admin)
@@ -324,7 +280,7 @@ const saveApplicationForm = async (req, res) => {
 
     const [form] = await ApplicationForm.upsert({
       createdBy: req.user.id,
-      organizationId: null, // USER-ONLY ACCESS: No organization needed
+       // USER-ONLY ACCESS: No organization needed
       title,
       description,
       footer,
@@ -340,7 +296,6 @@ const saveApplicationForm = async (req, res) => {
       data: {
         ...form.toJSON(),
         fields: form.fields ? JSON.parse(form.fields) : []
-      }
     });
   } catch (error) {
     console.error('Save application form error:', error);
@@ -349,7 +304,6 @@ const saveApplicationForm = async (req, res) => {
       message: 'Failed to save application form',
       error: error.message
     });
-  }
 };
 
 
@@ -365,7 +319,6 @@ const deleteApplicationForm = async (req, res) => {
         success: false,
         message: 'Application form not found'
       });
-    }
 
     // Check if user has permission to delete this form
     if (form.createdBy !== req.user.id) {
@@ -373,7 +326,6 @@ const deleteApplicationForm = async (req, res) => {
         success: false,
         message: 'Not authorized to delete this application form'
       });
-    }
 
     await form.destroy();
 
@@ -388,7 +340,6 @@ const deleteApplicationForm = async (req, res) => {
       message: 'Failed to delete application form',
       error: error.message
     });
-  }
 };
 
 // Update application form
@@ -403,7 +354,6 @@ const updateApplicationForm = async (req, res) => {
         success: false,
         message: 'Application form not found'
       });
-    }
 
     // Check if user has permission to update this form
     if (form.createdBy !== req.user.id) {
@@ -411,40 +361,34 @@ const updateApplicationForm = async (req, res) => {
         success: false,
         message: 'Not authorized to update this application form'
       });
-    }
 
     // Handle fields separately to ensure default fields are preserved
     if (updateData.fields) {
       // Default required fields that should always be present
       const defaultFields = [
-        {
           name: 'firstName',
           label: 'First Name',
           type: 'text',
           required: true,
           order: 1
         },
-        {
           name: 'lastName',
           label: 'Last Name',
           type: 'text',
           required: true,
           order: 2
         },
-        {
           name: 'email',
           label: 'Email Address',
           type: 'email',
           required: true,
           order: 3
         },
-        {
           name: 'phone',
           label: 'Phone Number',
           type: 'tel',
           
           order: 4
-        }
       ];
 
       // Combine default fields with custom fields, avoiding duplicates
@@ -464,7 +408,6 @@ const updateApplicationForm = async (req, res) => {
     } else {
       // No fields to update, just update other data
       await form.update(updateData);
-    }
 
     res.json({
       success: true,
@@ -478,7 +421,6 @@ const updateApplicationForm = async (req, res) => {
       message: 'Failed to update application form',
       error: error.message
     });
-  }
 };
 
 // Publish application form (admin)
@@ -492,7 +434,6 @@ const publishApplicationForm = async (req, res) => {
         success: false,
         message: 'Application form not found'
       });
-    }
 
     // Check if user has permission to publish this form
     if (form.createdBy !== req.user.id) {
@@ -500,7 +441,6 @@ const publishApplicationForm = async (req, res) => {
         success: false,
         message: 'Not authorized to publish this application form'
       });
-    }
 
     await form.update({ isPublished: true });
 
@@ -516,7 +456,6 @@ const publishApplicationForm = async (req, res) => {
       message: 'Failed to publish application form',
       error: error.message
     });
-  }
 };
 
 // Unpublish application form (admin)
@@ -530,7 +469,6 @@ const unpublishApplicationForm = async (req, res) => {
         success: false,
         message: 'Application form not found'
       });
-    }
 
     // Check if user has permission to unpublish this form
     if (form.createdBy !== req.user.id) {
@@ -538,7 +476,6 @@ const unpublishApplicationForm = async (req, res) => {
         success: false,
         message: 'Not authorized to unpublish this application form'
       });
-    }
 
     await form.update({ isPublished: false });
 
@@ -554,7 +491,6 @@ const unpublishApplicationForm = async (req, res) => {
       message: 'Failed to unpublish application form',
       error: error.message
     });
-  }
 };
 
 module.exports = {

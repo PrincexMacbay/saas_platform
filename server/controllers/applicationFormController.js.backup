@@ -38,8 +38,8 @@ const getApplicationFormByPlan = async (req, res) => {
       },
       include: [
         {
-          model: Organization,
-          as: 'formOrganization',
+          
+          
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -81,8 +81,8 @@ const getApplicationFormById = async (req, res) => {
       },
       include: [
         {
-          model: Organization,
-          as: 'formOrganization',
+          
+          
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -115,7 +115,7 @@ const getApplicationFormById = async (req, res) => {
 // Get application form (public endpoint)
 const getApplicationForm = async (req, res) => {
   try {
-    const { organizationId } = req.params;
+    
     
     // Handle the case where organizationId is "null" string
     let whereCondition = { isPublished: true };
@@ -131,8 +131,8 @@ const getApplicationForm = async (req, res) => {
       where: whereCondition,
       include: [
         {
-          model: Organization,
-          as: 'formOrganization',
+          
+          
           attributes: ['id', 'name', 'logo', 'description']
         }
       ]
@@ -151,7 +151,7 @@ const getApplicationForm = async (req, res) => {
           agreement: '',
           fields: [],
           isPublished: true,
-          organizationId: null,
+          
           organization: null
         }
       });
@@ -207,7 +207,7 @@ const createApplicationForm = async (req, res) => {
         name: 'phone',
         label: 'Phone Number',
         type: 'tel',
-        required: false,
+        
         order: 4
       }
     ];
@@ -229,7 +229,7 @@ const createApplicationForm = async (req, res) => {
       agreement,
       fields: JSON.stringify(allFields),
       createdBy: req.user.id,
-      organizationId: null, // USER-ONLY ACCESS: No organization needed
+       // USER-ONLY ACCESS: No organization needed
       isPublished: false
     });
 
@@ -264,7 +264,7 @@ const getUserForm = async (req, res) => {
         title: 'Membership Application',
         description: 'Please fill out this form to apply for membership.',
         createdBy: req.user.id,
-        organizationId: null, // USER-ONLY ACCESS: No organization needed
+         // USER-ONLY ACCESS: No organization needed
         fields: JSON.stringify([
           {
             name: 'firstName',
@@ -291,7 +291,7 @@ const getUserForm = async (req, res) => {
             name: 'phone',
             label: 'Phone Number',
             type: 'tel',
-            required: false,
+            
             order: 4
           }
         ]),
@@ -324,7 +324,7 @@ const saveApplicationForm = async (req, res) => {
 
     const [form] = await ApplicationForm.upsert({
       createdBy: req.user.id,
-      organizationId: null, // USER-ONLY ACCESS: No organization needed
+       // USER-ONLY ACCESS: No organization needed
       title,
       description,
       footer,
@@ -442,7 +442,7 @@ const updateApplicationForm = async (req, res) => {
           name: 'phone',
           label: 'Phone Number',
           type: 'tel',
-          required: false,
+          
           order: 4
         }
       ];
