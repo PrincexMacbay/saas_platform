@@ -1,6 +1,15 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+// Debug environment variables
+console.log('Environment check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('DATABASE_URL value:', process.env.DATABASE_URL ? 'SET' : 'NULL/EMPTY');
+console.log('DATABASE_POSTGRES_URL exists:', !!process.env.DATABASE_POSTGRES_URL);
+console.log('DATABASE_POSTGRES_URL value:', process.env.DATABASE_POSTGRES_URL ? 'SET' : 'NULL/EMPTY');
+console.log('DB_DIALECT:', process.env.DB_DIALECT);
+
 let sequelize;
 
 // Check if using SQLite for development
@@ -39,14 +48,32 @@ if (process.env.DB_DIALECT === 'sqlite') {
   };
 
   // Use DATABASE_URL if available, otherwise use individual environment variables
-  sequelize = process.env.DATABASE_URL 
-    ? new Sequelize(process.env.DATABASE_URL, {
-        dialect: 'postgres',
-        logging: config.logging,
-        pool: config.pool,
-        dialectOptions: config.dialectOptions,
-      })
-    : new Sequelize(config);
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (databaseUrl && databaseUrl.trim() !== '') {
+    console.log('Using Supabase DATABASE_URL for connection');
+    sequelize = new Sequelize(databaseUrl, {
+      dialect: 'postgres',
+      logging: config.logging,
+      pool: config.pool,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
+    });
+  } else {
+    console.log('DATABASE_URL not found, using individual environment variables');
+    console.log('Individual config:', {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      username: config.username,
+      password: config.password ? 'SET' : 'NOT SET'
+    });
+    sequelize = new Sequelize(config);
+  }
 }
 
 module.exports = sequelize;

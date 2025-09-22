@@ -10,7 +10,8 @@
     "db:create": "node scripts/createDatabase.js",
     "db:seed": "node scripts/seed-database.js",
     "db:setup-render": "node scripts/setup-render-database.js",
-    "db:test-render": "node scripts/test-render-connection.js"
+    "db:test-render": "node scripts/test-render-connection.js",
+    "db:setup-supabase": "node scripts/setup-supabase-database.js"
   },
   "keywords": [],
   "author": "",
