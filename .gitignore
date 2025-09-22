@@ -1,11 +1,11 @@
 # ================= BACKEND ========================
-/server/.env*
+# /server/.env*
 /server/node_modules
-/server/uploads/*
-!/server/uploads/.gitkeep
+# /server/uploads/*
+# !/server/uploads/.gitkeep
 
 # ================= FRONTEND ========================
-/client/.env*
+# /client/.env*
 /client/node_modules
 /client/dist
 
@@ -34,8 +34,8 @@ Thumbs.db
 *.swo
 
 # ================= ENVIRONMENT ========================
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
