@@ -6,9 +6,8 @@ console.log('🔍 Database Environment Check:');
 console.log('- NODE_ENV:', process.env.NODE_ENV);
 console.log('- VERCEL:', process.env.VERCEL);
 console.log('- DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('- DATABASE_URL length:', process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0);
-console.log('- DATABASE_URL starts with:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + '...' : 'NULL/EMPTY');
-console.log('- DATABASE_POSTGRES_URL exists:', !!process.env.DATABASE_POSTGRES_URL);
+console.log('- SUPABASE_POSTGRES_URL exists:', !!process.env.SUPABASE_POSTGRES_URL);
+console.log('- SUPABASE_POSTGRES_URL_NON_POOLING exists:', !!process.env.SUPABASE_POSTGRES_URL_NON_POOLING);
 console.log('- DB_DIALECT:', process.env.DB_DIALECT);
 
 let sequelize;
@@ -48,8 +47,10 @@ if (process.env.DB_DIALECT === 'sqlite') {
     },
   };
 
-  // Use DATABASE_URL if available, otherwise use individual environment variables
-  const databaseUrl = process.env.DATABASE_URL;
+  // Use Supabase environment variables in order of preference
+  const databaseUrl = process.env.SUPABASE_POSTGRES_URL || 
+                     process.env.SUPABASE_POSTGRES_URL_NON_POOLING || 
+                     process.env.DATABASE_URL;
   
   console.log('DATABASE_URL check:', {
     exists: !!databaseUrl,
@@ -59,7 +60,10 @@ if (process.env.DB_DIALECT === 'sqlite') {
   });
   
   if (databaseUrl && databaseUrl.trim() !== '' && databaseUrl.length > 10) {
-    console.log('✅ Using DATABASE_URL for PostgreSQL connection');
+    console.log('✅ Using Supabase PostgreSQL connection');
+    console.log('Using URL type:', process.env.SUPABASE_POSTGRES_URL ? 'SUPABASE_POSTGRES_URL' : 
+                                  process.env.SUPABASE_POSTGRES_URL_NON_POOLING ? 'SUPABASE_POSTGRES_URL_NON_POOLING' : 
+                                  'DATABASE_URL');
     try {
       // Check if we're in Vercel environment
       const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';

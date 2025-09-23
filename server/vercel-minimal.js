@@ -1,38 +1,13 @@
-// Vercel serverless function entry point
+// Minimal Vercel serverless function entry point for testing
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const morgan = require("morgan");
-
-// Import routes
-const routes = require("./routes");
-
-// Import database with error handling
-let sequelize;
-let models;
-try {
-  sequelize = require("./config/database");
-  console.log('✅ Database module loaded successfully');
-  
-  // Test database connection
-  sequelize.authenticate()
-    .then(() => {
-      console.log('✅ Database connection established successfully');
-    })
-    .catch((error) => {
-      console.error('❌ Database connection failed:', error.message);
-    });
-} catch (error) {
-  console.error('❌ Failed to load database module:', error.message);
-  console.error('❌ Stack trace:', error.stack);
-  // Don't exit - let the server start and handle errors gracefully
-}
 
 const app = express();
 
-// Security middleware with modified CSP for images
+// Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {
@@ -47,18 +22,16 @@ app.use(helmet({
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin
       if (!origin) return callback(null, true);
 
-      // Define allowed origins
       const allowedOrigins = [
         'http://localhost:3000',
         'http://localhost:3001',
         'http://localhost:3002',
+        'https://client-seven-sage.vercel.app',
         process.env.CLIENT_URL,
         process.env.FRONTEND_URL,
-        // Your actual Vercel frontend URL
-        'https://client-seven-sage.vercel.app'
       ].filter(Boolean);
 
       if (allowedOrigins.includes(origin)) {
@@ -76,29 +49,52 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logging middleware
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    vercel: process.env.VERCEL === '1'
+    vercel: process.env.VERCEL === '1',
+    database_url_set: !!(process.env.SUPABASE_POSTGRES_URL || process.env.DATABASE_URL),
+    supabase_postgres_url_set: !!process.env.SUPABASE_POSTGRES_URL,
+    client_url: process.env.CLIENT_URL
   });
 });
 
-// API routes
-app.use('/api', routes);
+// Test endpoint
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Backend is working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// API routes (with error handling)
+app.use('/api', (req, res, next) => {
+  // For now, return a simple response to test if routes are working
+  if (req.path === '/test') {
+    return res.json({ message: 'API test endpoint working!' });
+  }
+  
+  // Try to load routes, but don't crash if they fail
+  try {
+    const routes = require("./routes");
+    return routes(req, res, next);
+  } catch (error) {
+    console.error('❌ Routes loading error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Routes not available',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
 
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('❌ Server Error:', error);
   
-  // Don't leak error details in production
   const message = process.env.NODE_ENV === 'production' 
     ? 'Internal Server Error' 
     : error.message;
