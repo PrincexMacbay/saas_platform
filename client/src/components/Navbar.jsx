@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { buildImageUrl } from '../utils/imageUtils';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -125,7 +126,7 @@ const Navbar = () => {
             <div className="user-avatar-sm" style={{ marginRight: '8px' }}>
               {user?.profileImage ? (
                 <img 
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`}
+                  src={buildImageUrl(user.profileImage)}
                   alt={user.username}
                   style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
                 />
@@ -172,7 +173,7 @@ const Navbar = () => {
                   <div className="user-avatar-sm" style={{ marginRight: '12px' }}>
                     {user?.profileImage ? (
                       <img 
-                        src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`}
+                        src={buildImageUrl(user.profileImage)}
                         alt={user.username}
                         style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
                       />

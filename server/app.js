@@ -55,7 +55,7 @@ app.use(
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
         "http://127.0.0.1:5173",
-        "https://social-network-frontend-k0ml.onrender.com", // Add your frontend URL here
+        "https://client-seven-sage.vercel.app", // Your actual Vercel frontend URL
         process.env.CLIENT_URL,
         process.env.FRONTEND_URL, // Optional: add this env variable
       ].filter(Boolean); // Remove any undefined values

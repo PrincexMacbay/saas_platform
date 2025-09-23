@@ -2,14 +2,14 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
 // Debug environment variables
-console.log('Environment check:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('DATABASE_URL length:', process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0);
-console.log('DATABASE_URL starts with:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + '...' : 'NULL/EMPTY');
-console.log('DATABASE_POSTGRES_URL exists:', !!process.env.DATABASE_POSTGRES_URL);
-console.log('DATABASE_POSTGRES_URL length:', process.env.DATABASE_POSTGRES_URL ? process.env.DATABASE_POSTGRES_URL.length : 0);
-console.log('DB_DIALECT:', process.env.DB_DIALECT);
+console.log('🔍 Database Environment Check:');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- VERCEL:', process.env.VERCEL);
+console.log('- DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('- DATABASE_URL length:', process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0);
+console.log('- DATABASE_URL starts with:', process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + '...' : 'NULL/EMPTY');
+console.log('- DATABASE_POSTGRES_URL exists:', !!process.env.DATABASE_POSTGRES_URL);
+console.log('- DB_DIALECT:', process.env.DB_DIALECT);
 
 let sequelize;
 
@@ -59,25 +59,56 @@ if (process.env.DB_DIALECT === 'sqlite') {
   });
   
   if (databaseUrl && databaseUrl.trim() !== '' && databaseUrl.length > 10) {
-    console.log('Using Supabase DATABASE_URL for connection');
+    console.log('✅ Using DATABASE_URL for PostgreSQL connection');
     try {
+      // Check if we're in Vercel environment
+      const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+      
       sequelize = new Sequelize(databaseUrl, {
         dialect: 'postgres',
         logging: config.logging,
-        pool: config.pool,
+        pool: {
+          max: isVercel ? 5 : config.pool.max, // Reduce pool size for serverless
+          min: config.pool.min,
+          acquire: config.pool.acquire,
+          idle: config.pool.idle,
+        },
         dialectOptions: {
           ssl: {
             require: true,
             rejectUnauthorized: false
-          }
+          },
+          // Vercel-specific optimizations
+          ...(isVercel && {
+            connectionTimeoutMillis: 10000,
+            idleTimeoutMillis: 30000,
+          })
         },
+        // Vercel-specific settings
+        ...(isVercel && {
+          retry: {
+            max: 3,
+            timeout: 10000,
+          },
+          benchmark: false,
+        })
       });
+
+      // Test connection
+      sequelize.authenticate()
+        .then(() => {
+          console.log('✅ Database connection established successfully');
+        })
+        .catch((error) => {
+          console.error('❌ Unable to connect to the database:', error.message);
+          throw error;
+        });
     } catch (error) {
-      console.error('Error creating Sequelize with DATABASE_URL:', error.message);
+      console.error('❌ Error creating Sequelize with DATABASE_URL:', error.message);
       throw error;
     }
   } else {
-    console.log('DATABASE_URL not valid, using individual environment variables');
+    console.log('⚠️ DATABASE_URL not valid, using individual environment variables');
     console.log('Individual config:', {
       host: config.host,
       port: config.port,
@@ -85,7 +116,12 @@ if (process.env.DB_DIALECT === 'sqlite') {
       username: config.username,
       password: config.password ? 'SET' : 'NOT SET'
     });
-    sequelize = new Sequelize(config);
+    try {
+      sequelize = new Sequelize(config);
+    } catch (error) {
+      console.error('❌ Error creating Sequelize with individual config:', error.message);
+      throw error;
+    }
   }
 }
 

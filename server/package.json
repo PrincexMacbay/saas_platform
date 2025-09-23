@@ -12,7 +12,9 @@
     "db:seed": "node scripts/seed-database.js",
     "db:setup-render": "node scripts/setup-render-database.js",
     "db:test-render": "node scripts/test-render-connection.js",
-    "db:setup-supabase": "node scripts/setup-supabase-database.js"
+    "db:setup-supabase": "node scripts/setup-supabase-database.js",
+    "vercel-build": "npm ci",
+    "vercel-dev": "npm run dev"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +33,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "sharp": "^0.34.3",
     "sqlite3": "^5.1.7"

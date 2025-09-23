@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { toggleLike, createComment, updatePost, deletePost } from '../services/postService';
 import { useAuth } from '../contexts/AuthContext';
 import ConfirmDialog from './ConfirmDialog';
+import { buildImageUrl } from '../utils/imageUtils';
 
 const PostCard = ({ post, onUpdate }) => {
   const [showComments, setShowComments] = useState(false);
@@ -123,7 +124,7 @@ const PostCard = ({ post, onUpdate }) => {
         <div className="post-avatar">
           {post.author.profileImage ? (
             <img 
-              src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${post.author.profileImage}`}
+              src={buildImageUrl(post.author.profileImage)}
               alt={post.author.username}
               style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
             />
@@ -288,7 +289,7 @@ const PostCard = ({ post, onUpdate }) => {
               <div className="post-attachment" style={{ marginTop: '15px' }}>
                 {console.log('Post attachment URL:', post.attachmentUrl)}
                 <img 
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${post.attachmentUrl}`}
+                  src={buildImageUrl(post.attachmentUrl)}
                   alt="Post attachment"
                   style={{
                     maxWidth: '100%',
@@ -342,7 +343,7 @@ const PostCard = ({ post, onUpdate }) => {
                                       <div className="comment-avatar">
                     {comment.author.profileImage ? (
                       <img 
-                        src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${comment.author.profileImage}`}
+                        src={buildImageUrl(comment.author.profileImage)}
                         alt={comment.author.username}
                         style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                       />

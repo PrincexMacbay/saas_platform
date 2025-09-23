@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJob, applyForJob, toggleSavedJob } from '../../services/careerService';
 import { useAuth } from '../../contexts/AuthContext';
+import { buildImageUrl } from '../../utils/imageUtils';
 
 const JobDetail = () => {
   const { jobId } = useParams();
@@ -144,7 +145,7 @@ const JobDetail = () => {
             <div className="company-logo">
               {job.employer.companyProfile?.companyLogo ? (
                 <img
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                  src={buildImageUrl(job.employer.companyProfile.companyLogo)}
                   alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                 />
               ) : (
@@ -261,7 +262,7 @@ const JobDetail = () => {
               {job.employer.companyProfile?.companyLogo && (
                 <div className="company-logo-large">
                   <img
-                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                    src={buildImageUrl(job.employer.companyProfile.companyLogo)}
                     alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                   />
                 </div>

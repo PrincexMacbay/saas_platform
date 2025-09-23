@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { buildImageUrl } from '../../utils/imageUtils';
 
 const JobCard = ({ job, onSaveToggle }) => {
   const formatSalary = (min, max, currency = 'USD') => {
@@ -49,7 +50,7 @@ const JobCard = ({ job, onSaveToggle }) => {
             <div className="d-flex align-items-center mb-2">
               {job.employer.companyProfile?.companyLogo && (
                 <img
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${job.employer.companyProfile.companyLogo}`}
+                  src={buildImageUrl(job.employer.companyProfile.companyLogo)}
                   alt={job.employer.companyProfile?.companyName || job.employer.firstName}
                   className="me-3"
                   style={{ width: '50px', height: '50px', borderRadius: '8px', objectFit: 'cover' }}

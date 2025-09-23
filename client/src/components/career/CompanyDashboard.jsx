@@ -3,6 +3,7 @@ import { getCompanyJobs, updateJobStatus, getCompanyApplications, updateApplicat
 import CreateJobForm from './CreateJobForm';
 import CompanyAnalytics from './CompanyAnalytics';
 import EnhancedApplicationDropdown from './EnhancedApplicationDropdown';
+import { buildImageUrl } from '../../utils/imageUtils';
 import './CareerSelectStyles.css';
 
 // Custom Dropdown Component
@@ -647,7 +648,7 @@ const CompanyDashboard = () => {
                       {application.resume && (
                         <div className="mb-3">
                           <a 
-                            href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://social-network-backend-w91a.onrender.com'}${application.resume}`} 
+                            href={buildImageUrl(application.resume)} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="btn btn-outline-primary btn-sm"

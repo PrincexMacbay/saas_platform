@@ -3,6 +3,7 @@ import { uploadPostAttachment } from '../services/uploadService';
 import { createPost } from '../services/postService';
 import FileUpload from './FileUpload';
 import { useAuth } from '../contexts/AuthContext';
+import { buildImageUrl } from '../utils/imageUtils';
 
 const PostWithAttachment = ({ onPostCreated, spaceId = null }) => {
   const [message, setMessage] = useState('');
@@ -79,7 +80,7 @@ const PostWithAttachment = ({ onPostCreated, spaceId = null }) => {
           <div className="post-avatar" style={{ marginRight: '12px' }}>
             {user.profileImage ? (
               <img 
-                src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`}
+                src={buildImageUrl(user.profileImage)}
                 alt={user.username}
                 style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
               />
@@ -108,7 +109,7 @@ const PostWithAttachment = ({ onPostCreated, spaceId = null }) => {
         {attachmentUrl && (
           <div style={{ marginTop: '15px', position: 'relative' }}>
             <img 
-              src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${attachmentUrl}`}
+              src={buildImageUrl(attachmentUrl)}
               alt="Attachment preview"
               style={{
                 maxWidth: '200px',

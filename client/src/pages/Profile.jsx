@@ -8,6 +8,7 @@ import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import MembershipCard from '../components/membership/MembershipCard';
 import { useAuth } from '../contexts/AuthContext';
+import { buildImageUrl } from '../utils/imageUtils';
 
 const Profile = () => {
   const { identifier } = useParams();
@@ -175,7 +176,7 @@ const Profile = () => {
             <div className="user-avatar-lg" style={{ marginRight: '20px', position: 'relative' }}>
               {profileUser.profileImage ? (
                 <img 
-                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${profileUser.profileImage}`}
+                  src={buildImageUrl(profileUser.profileImage)}
                   alt={profileUser.username}
                   style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                 />
@@ -520,7 +521,7 @@ const Profile = () => {
                             <div className="user-avatar-sm me-3">
                               {follower.profileImage ? (
                                 <img 
-                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${follower.profileImage}`}
+                                  src={buildImageUrl(follower.profileImage)}
                                   alt={follower.username}
                                   style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                                 />
@@ -579,7 +580,7 @@ const Profile = () => {
                             <div className="user-avatar-sm me-3">
                               {followed.profileImage ? (
                                 <img 
-                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${followed.profileImage}`}
+                                  src={buildImageUrl(followed.profileImage)}
                                   alt={followed.username}
                                   style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                                 />

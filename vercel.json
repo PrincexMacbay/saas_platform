@@ -9,21 +9,28 @@
       }
     },
     {
-      "src": "server/app.js",
+      "src": "server/vercel.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/app.js"
+      "dest": "/server/vercel.js"
     },
     {
       "src": "/(.*)",
       "dest": "/client/$1"
     }
   ],
+  "functions": {
+    "server/app.js": {
+      "maxDuration": 30
+    }
+  },
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "installCommand": "cd client && npm ci && cd ../server && npm ci",
+  "buildCommand": "cd client && npm run build"
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { uploadProfileImage } from '../services/uploadService';
 import { useAuth } from '../contexts/AuthContext';
+import { buildImageUrl } from '../utils/imageUtils';
 import FileUpload from './FileUpload';
 
 const ProfileImageUpload = ({ onUploadComplete }) => {
@@ -64,7 +65,7 @@ const ProfileImageUpload = ({ onUploadComplete }) => {
         >
           {user.profileImage ? (
             <img 
-              src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${user.profileImage}`}
+              src={buildImageUrl(user.profileImage)}
               alt={user.username}
               style={{ 
                 width: '100%', 

@@ -19,7 +19,7 @@ const MembershipDashboard = () => {
         throw new Error('No authentication token found');
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://social-network-backend-w91a.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_URL;
       console.log('Fetching from:', `${apiUrl}/membership/dashboard`);
       
       const response = await fetch(`${apiUrl}/membership/dashboard`, {
