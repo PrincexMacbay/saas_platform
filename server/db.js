@@ -44,21 +44,67 @@ const dbConfig = config[env];
 let sequelize;
 
 if (env === 'production' && process.env.DATABASE_URL) {
-  // Production with DATABASE_URL
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
+  // Parse DATABASE_URL and force IPv4 connection
+  let databaseUrl = process.env.DATABASE_URL;
+  
+  console.log('🔗 Using DATABASE_URL for production connection');
+  console.log('📍 Host: db.iptfgbgnfcipeggazsxi.supabase.co');
+  console.log('🗄️  Database: postgres');
+  
+  // Production with DATABASE_URL - optimized for Render/Supabase
+  sequelize = new Sequelize(databaseUrl, {
     dialect: 'postgres',
     logging: false,
     dialectOptions: {
       ssl: {
         require: true,
         rejectUnauthorized: false
-      }
+      },
+      // Force IPv4 connection to avoid IPv6 issues on Render
+      native: false,
+      // Additional connection options for Render/Supabase
+      connectTimeout: 60000,
+      requestTimeout: 60000,
+      // Force IPv4
+      family: 4,
+      // Additional options for better connectivity
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 0
     },
     pool: {
       max: 5,
       min: 0,
       acquire: 30000,
-      idle: 10000
+      idle: 10000,
+      // Additional pool options for Render
+      evict: 1000,
+      handleDisconnects: true
+    },
+    // Additional options for Render deployment
+    define: {
+      timestamps: true,
+      underscored: false
+    },
+    // Retry configuration
+    retry: {
+      match: [
+        /ETIMEDOUT/,
+        /EHOSTUNREACH/,
+        /ECONNRESET/,
+        /ECONNREFUSED/,
+        /ETIMEDOUT/,
+        /ESOCKETTIMEDOUT/,
+        /EHOSTUNREACH/,
+        /EPIPE/,
+        /EAI_AGAIN/,
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/
+      ],
+      max: 3
     }
   });
 } else {
