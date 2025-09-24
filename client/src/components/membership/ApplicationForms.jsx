@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 
 const ApplicationForms = () => {
+  const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,8 +71,8 @@ const ApplicationForms = () => {
   };
 
   const handleEditForm = (form) => {
-    // Navigate to application form builder with the form ID (secure approach)
-    window.location.href = `/membership/application-form?formId=${form.id}`;
+    // Navigate to application form builder with the form ID using React Router
+    navigate(`/membership/application-form?formId=${form.id}`);
   };
 
   const handleDeleteForm = async (formId) => {
@@ -949,151 +951,217 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
 
           /* View Modal Styles */
           .view-modal {
-            max-width: 800px !important;
+            max-width: 900px !important;
+            width: 95%;
           }
 
           .modal-body {
-            padding: 30px;
-            max-height: 60vh;
+            padding: 40px;
+            max-height: 70vh;
             overflow-y: auto;
+            line-height: 1.6;
           }
 
           .form-description-section,
           .form-status-section,
           .form-fields-section,
           .form-meta-section {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
           }
 
           .form-description-section h4,
           .form-status-section h4,
           .form-fields-section h4,
           .form-meta-section h4 {
-            margin: 0 0 15px 0;
+            margin: 0 0 20px 0;
             color: #2c3e50;
-            font-size: 1.1rem;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .form-description-section h4::before,
+          .form-status-section h4::before,
+          .form-fields-section h4::before,
+          .form-meta-section h4::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 2px;
           }
 
           .form-description-section p {
-            color: #7f8c8d;
-            line-height: 1.6;
+            color: #5a6c7d;
+            line-height: 1.7;
             margin: 0;
+            font-size: 1rem;
+            padding: 15px 0;
           }
 
           .fields-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
           }
 
           .field-item {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          }
+
+          .field-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
           }
 
           .field-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
           }
 
           .field-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #2c3e50;
             flex: 1;
+            font-size: 1.1rem;
+            min-width: 200px;
           }
 
           .field-type {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
           }
 
           .required-badge {
-            background: #e74c3c;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
           }
 
           .field-placeholder,
           .field-options {
-            margin-top: 5px;
+            margin-top: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
           }
 
           .field-placeholder small,
           .field-options small {
-            color: #7f8c8d;
+            color: #5a6c7d;
             font-style: italic;
+            font-size: 0.9rem;
+            line-height: 1.5;
           }
 
           .no-fields {
             color: #7f8c8d;
             font-style: italic;
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+            font-size: 1rem;
           }
 
           .meta-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
           }
 
           .meta-item {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+          }
+
+          .meta-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
           }
 
           .meta-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #2c3e50;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
           }
 
           .meta-value {
-            color: #7f8c8d;
-            font-size: 0.9rem;
+            color: #5a6c7d;
+            font-size: 1rem;
+            font-weight: 500;
           }
 
           .edit-form-button {
-            background: #f39c12;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
           }
 
           .edit-form-button:hover {
-            background: #e67e22;
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
           }
 
           .close-modal-button {
-            background: #6c757d;
+            background: linear-gradient(135deg, #6c757d, #5a6268);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s ease;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
           }
 
           .close-modal-button:hover {
-            background: #5a6268;
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
           }
 
           @media (max-width: 768px) {
