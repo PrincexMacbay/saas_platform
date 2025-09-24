@@ -26,6 +26,7 @@ console.log('Environment:', process.env.NODE_ENV || 'development');
 
 const routes = require("./routes");
 const { sequelize } = require("./models");
+const { testConnection } = require("./config/db");
 
 const app = express();
 
@@ -55,9 +56,12 @@ app.use(
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
         "http://127.0.0.1:5173",
-        "https://client-seven-sage.vercel.app", // Your actual Vercel frontend URL
+        // Render deployment URLs
+        "https://social-network-frontend-k0ml.onrender.com",
+        "https://social-network-backend-w91a.onrender.com",
         process.env.CLIENT_URL,
-        process.env.FRONTEND_URL, // Optional: add this env variable
+        process.env.FRONTEND_URL,
+        process.env.RENDER_FRONTEND_URL,
       ].filter(Boolean); // Remove any undefined values
 
       // Log CORS debugging info only in development
@@ -67,10 +71,15 @@ app.use(
         console.log('CORS check - Environment:', process.env.NODE_ENV);
       }
 
-      if (allowedOrigins.includes(origin)) {
+      // Check if origin matches any allowed origin
+      const isAllowed = allowedOrigins.includes(origin);
+      
+      // For Render deployment, be more permissive in production
+      if (isAllowed || (process.env.NODE_ENV === 'production' && process.env.RENDER === 'true')) {
         return callback(null, true);
       } else {
         console.warn("CORS blocked origin: " + origin);
+        console.warn("Allowed origins:", allowedOrigins);
         return callback(new Error("Not allowed by CORS"));
       }
     },
@@ -79,6 +88,9 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 // Logging middleware
 if (process.env.NODE_ENV === "development") {
@@ -185,27 +197,33 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Database connection and server startupp
+// Database connection and server startup
 const startServer = async () => {
   try {
     // Test database connection
-    await sequelize.authenticate();
-    console.log("Database connection established successfully.");
+    const dbConnected = await testConnection();
+    if (!dbConnected) {
+      throw new Error("Database connection failed");
+    }
 
     // Sync database (create tables)
     if (process.env.NODE_ENV === "development") {
-      await sequelize.sync({ alter: true });
-      console.log("Database synchronized successfully.");
+      await syncDatabase(false); // Don't force, just alter existing tables
+    } else {
+      // In production, only sync if tables don't exist
+      await sequelize.sync({ alter: false });
     }
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log("Server running on port " + PORT);
-      console.log("Environment: " + (process.env.NODE_ENV || "development"));
-      console.log("Static files served from: " + path.join(__dirname, "uploads"));
+      console.log("🚀 Server running on port " + PORT);
+      console.log("🌍 Environment: " + (process.env.NODE_ENV || "development"));
+      console.log("📁 Static files served from: " + path.join(__dirname, "uploads"));
+      console.log("🔗 Frontend URL: https://social-network-frontend-k0ml.onrender.com");
+      console.log("🔗 Backend URL: https://social-network-backend-w91a.onrender.com");
     });
   } catch (error) {
-    console.error("Unable to start server:", error);
+    console.error("❌ Unable to start server:", error);
     process.exit(1);
   }
 };
