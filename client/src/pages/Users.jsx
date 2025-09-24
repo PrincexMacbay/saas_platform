@@ -3,35 +3,63 @@ import { Link } from 'react-router-dom';
 import { getUsers, toggleFollowUser } from '../services/userService';
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [actionLoading, setActionLoading] = useState({});
 
-  // Debounce search input
+  // Debounce search input for local filtering
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500); // Wait 500ms after user stops typing
+    }, 300); // Wait 300ms after user stops typing
 
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Load users when debounced search changes
+  // Load all users once when component mounts
   useEffect(() => {
-    loadUsers();
-  }, [debouncedSearch]);
+    loadAllUsers();
+  }, []);
 
-  const loadUsers = async () => {
+  // Filter users locally when debounced search changes
+  useEffect(() => {
+    filterUsers();
+  }, [debouncedSearch, allUsers]);
+
+  const loadAllUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await getUsers({ search: debouncedSearch, limit: 50 });
-      setUsers(response.data.users);
+      const response = await getUsers({ limit: 1000 }); // Load more users, no search parameter
+      setAllUsers(response.data.users);
     } catch (error) {
       console.error('Error loading users:', error);
     }
     setIsLoading(false);
+  };
+
+  const filterUsers = () => {
+    if (!debouncedSearch.trim()) {
+      setFilteredUsers(allUsers);
+      return;
+    }
+
+    const searchTerm = debouncedSearch.toLowerCase();
+    const filtered = allUsers.filter(user => {
+      const firstName = (user.firstName || '').toLowerCase();
+      const lastName = (user.lastName || '').toLowerCase();
+      const username = (user.username || '').toLowerCase();
+      const about = (user.about || '').toLowerCase();
+
+      return firstName.includes(searchTerm) ||
+             lastName.includes(searchTerm) ||
+             username.includes(searchTerm) ||
+             about.includes(searchTerm);
+    });
+
+    setFilteredUsers(filtered);
   };
 
   const handleFollowUser = async (userId) => {
@@ -40,14 +68,14 @@ const Users = () => {
     setActionLoading({ ...actionLoading, [userId]: true });
     try {
       const response = await toggleFollowUser(userId);
-      // Update the local state instead of reloading all data
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? { ...user, isFollowing: response.data.isFollowing }
-            : user
-        )
-      );
+      // Update both allUsers and filteredUsers to keep them in sync
+      const updateUser = (user) => 
+        user.id === userId 
+          ? { ...user, isFollowing: response.data.isFollowing }
+          : user;
+
+      setAllUsers(prevUsers => prevUsers.map(updateUser));
+      setFilteredUsers(prevUsers => prevUsers.map(updateUser));
     } catch (error) {
       console.error('Error following user:', error);
     }
@@ -98,14 +126,14 @@ const Users = () => {
       </div>
 
       <div className="row">
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <div className="col">
             <div className="card text-center">
               <p>No users found. {search ? 'Try a different search term.' : 'No users to display.'}</p>
             </div>
           </div>
         ) : (
-          users.map((user) => (
+          filteredUsers.map((user) => (
             <div key={user.id} className="col-4">
               <div className="user-card">
                 <div className="user-avatar-lg">
@@ -189,9 +217,12 @@ const Users = () => {
         )}
       </div>
 
-      {users.length > 0 && (
+      {filteredUsers.length > 0 && (
         <div className="text-center mt-4">
-          <p className="text-muted">Showing {users.length} users</p>
+          <p className="text-muted">
+            Showing {filteredUsers.length} of {allUsers.length} users
+            {search && ` matching "${search}"`}
+          </p>
         </div>
       )}
     </div>
