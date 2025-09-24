@@ -327,7 +327,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                       className="create-form-button"
                       onClick={() => {
                         // Navigate to application forms management
-                        window.location.href = '/membership/application-form-builder';
+                        window.location.href = '/membership/application-form';
                       }}
                     >
                       Create Application Form
