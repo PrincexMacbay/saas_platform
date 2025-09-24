@@ -38,13 +38,20 @@ const config = {
 
 // Parse DATABASE_URL if provided (Render/Supabase style)
 if (process.env.DATABASE_URL) {
-  const url = new URL(process.env.DATABASE_URL);
+  // Fix common issue where DATABASE_URL includes the variable name
+  let databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl.startsWith('DATABASE_URL=')) {
+    databaseUrl = databaseUrl.substring('DATABASE_URL='.length);
+    console.log('🔧 Fixed DATABASE_URL format (removed variable name prefix)');
+  }
+  
+  const url = new URL(databaseUrl);
   const env = process.env.NODE_ENV || 'development';
   
   config[env] = {
     ...config[env],
     username: url.username,
-    password: url.password,
+    password: decodeURIComponent(url.password), // Decode URL-encoded password
     database: url.pathname.substring(1), // Remove leading slash
     host: url.hostname,
     port: url.port,
