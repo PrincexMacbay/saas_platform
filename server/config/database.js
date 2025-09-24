@@ -48,9 +48,15 @@ if (process.env.DB_DIALECT === 'sqlite') {
   };
 
   // Use Supabase environment variables in order of preference
-  const databaseUrl = process.env.SUPABASE_POSTGRES_URL || 
-                     process.env.SUPABASE_POSTGRES_URL_NON_POOLING || 
-                     process.env.DATABASE_URL;
+  let databaseUrl = process.env.SUPABASE_POSTGRES_URL || 
+                   process.env.SUPABASE_POSTGRES_URL_NON_POOLING || 
+                   process.env.DATABASE_URL;
+  
+  // Fix common issue where DATABASE_URL includes the variable name
+  if (databaseUrl && databaseUrl.startsWith('DATABASE_URL=')) {
+    databaseUrl = databaseUrl.substring('DATABASE_URL='.length);
+    console.log('🔧 Fixed DATABASE_URL format (removed variable name prefix)');
+  }
   
   console.log('DATABASE_URL check:', {
     exists: !!databaseUrl,
@@ -64,15 +70,26 @@ if (process.env.DB_DIALECT === 'sqlite') {
     console.log('Using URL type:', process.env.SUPABASE_POSTGRES_URL ? 'SUPABASE_POSTGRES_URL' : 
                                   process.env.SUPABASE_POSTGRES_URL_NON_POOLING ? 'SUPABASE_POSTGRES_URL_NON_POOLING' : 
                                   'DATABASE_URL');
+    
+    // Validate and clean the database URL
+    let cleanDatabaseUrl = databaseUrl.trim();
+    
+    // Check if URL starts with postgresql://
+    if (!cleanDatabaseUrl.startsWith('postgresql://') && !cleanDatabaseUrl.startsWith('postgres://')) {
+      console.error('❌ Invalid DATABASE_URL format. Must start with postgresql:// or postgres://');
+      console.error('Current URL:', cleanDatabaseUrl);
+      throw new Error('Invalid DATABASE_URL format');
+    }
+    
     try {
-      // Check if we're in Vercel environment
-      const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+      // Check if we're in production environment
+      const isProduction = process.env.NODE_ENV === 'production';
       
-      sequelize = new Sequelize(databaseUrl, {
+      sequelize = new Sequelize(cleanDatabaseUrl, {
         dialect: 'postgres',
         logging: config.logging,
         pool: {
-          max: isVercel ? 5 : config.pool.max, // Reduce pool size for serverless
+          max: isProduction ? 5 : config.pool.max, // Reduce pool size for production
           min: config.pool.min,
           acquire: config.pool.acquire,
           idle: config.pool.idle,
@@ -82,20 +99,38 @@ if (process.env.DB_DIALECT === 'sqlite') {
             require: true,
             rejectUnauthorized: false
           },
-          // Vercel-specific optimizations
-          ...(isVercel && {
-            connectionTimeoutMillis: 10000,
-            idleTimeoutMillis: 30000,
-          })
+          // Force IPv4 connection to avoid IPv6 issues on Render
+          native: false,
+          // Additional connection options for Render/Supabase
+          connectTimeout: 60000,
+          requestTimeout: 60000,
+          // Force IPv4
+          family: 4,
+          // Additional options for better connectivity
+          keepAlive: true,
+          keepAliveInitialDelayMillis: 0
         },
-        // Vercel-specific settings
-        ...(isVercel && {
-          retry: {
-            max: 3,
-            timeout: 10000,
-          },
-          benchmark: false,
-        })
+        // Retry configuration for network issues
+        retry: {
+          match: [
+            /ETIMEDOUT/,
+            /EHOSTUNREACH/,
+            /ECONNRESET/,
+            /ECONNREFUSED/,
+            /ETIMEDOUT/,
+            /ESOCKETTIMEDOUT/,
+            /EHOSTUNREACH/,
+            /EPIPE/,
+            /EAI_AGAIN/,
+            /SequelizeConnectionError/,
+            /SequelizeConnectionRefusedError/,
+            /SequelizeHostNotFoundError/,
+            /SequelizeHostNotReachableError/,
+            /SequelizeInvalidConnectionError/,
+            /SequelizeConnectionTimedOutError/
+          ],
+          max: 3
+        }
       });
 
       // Test connection
