@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getUsers, toggleFollowUser } from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Users = () => {
+  const { user: currentUser } = useAuth();
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,8 +23,10 @@ const Users = () => {
 
   // Load all users once when component mounts
   useEffect(() => {
-    loadAllUsers();
-  }, []);
+    if (currentUser) {
+      loadAllUsers();
+    }
+  }, [currentUser]);
 
   // Filter users locally when debounced search changes
   useEffect(() => {
@@ -33,7 +37,9 @@ const Users = () => {
     setIsLoading(true);
     try {
       const response = await getUsers({ limit: 1000 }); // Load more users, no search parameter
-      setAllUsers(response.data.users);
+      // Filter out the current user from the list
+      const otherUsers = response.data.users.filter(user => user.id !== currentUser?.id);
+      setAllUsers(otherUsers);
     } catch (error) {
       console.error('Error loading users:', error);
     }
