@@ -85,7 +85,7 @@ function App() {
               />
             </Routes>
           </main>
-          <SimpleErrorLogger />
+          {/* <SimpleErrorLogger /> */}
         </div>
       </Router>
     </AuthProvider>
