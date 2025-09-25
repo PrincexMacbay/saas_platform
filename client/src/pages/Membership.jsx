@@ -130,9 +130,11 @@ const Membership = () => {
                 className="mobile-dropdown-button"
                 aria-label="Select navigation page"
               >
-                <i className={activeTabData?.icon}></i>
-                <span>{activeTabData?.label || 'Select Page'}</span>
-                <i className={`fas fa-chevron-${isMobileDropdownOpen ? 'up' : 'down'}`}></i>
+                <span className="dropdown-button-content">
+                  <i className={activeTabData?.icon}></i>
+                  <span>{activeTabData?.label || 'Select Page'}</span>
+                </span>
+                <i className={`fas fa-chevron-${isMobileDropdownOpen ? 'up' : 'down'} dropdown-arrow`}></i>
               </button>
               
               {isMobileDropdownOpen && (
@@ -232,92 +234,68 @@ const Membership = () => {
           width: 100%;
           background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
           border: 2px solid #e9ecef;
-          border-radius: 16px;
-          padding: 18px 24px;
+          border-radius: 12px;
+          padding: 16px 20px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          font-size: 1.05rem;
+          font-size: 1rem;
           font-weight: 600;
           color: #2c3e50;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          backdrop-filter: blur(10px);
         }
 
         .mobile-dropdown-button:hover {
           border-color: #3498db;
-          box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
-          transform: translateY(-2px);
-          background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+          transform: translateY(-1px);
         }
 
-        .mobile-dropdown-button:active {
-          transform: translateY(0);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .mobile-dropdown-button:focus {
+          outline: none;
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
-        .mobile-dropdown-button i:first-child {
-          margin-right: 14px;
+        .dropdown-button-content {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .dropdown-button-content i {
           color: #3498db;
-          font-size: 1.2rem;
-          width: 24px;
-          text-align: center;
+          font-size: 1.1rem;
         }
 
-        .mobile-dropdown-button i:last-child {
+        .dropdown-arrow {
           color: #7f8c8d;
-          font-size: 1rem;
-          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          margin-left: 10px;
+          font-size: 0.9rem;
+          transition: transform 0.3s ease;
         }
 
         .mobile-dropdown-menu {
           position: absolute;
-          top: calc(100% + 8px);
+          top: calc(100% + 4px);
           left: 0;
           right: 0;
-          background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+          background: white;
           border: 2px solid #e9ecef;
-          border-radius: 16px;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-          z-index: 9999;
-          max-height: min(70vh, 500px);
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          z-index: 1000;
+          max-height: 300px;
           overflow-y: auto;
-          animation: dropdownSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          padding: 12px 0;
-          backdrop-filter: blur(20px);
-        }
-
-        /* Custom scrollbar for dropdown */
-        .mobile-dropdown-menu::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        .mobile-dropdown-menu::-webkit-scrollbar-track {
-          background: rgba(241, 241, 241, 0.3);
-          border-radius: 4px;
-          margin: 8px 0;
-        }
-
-        .mobile-dropdown-menu::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, #c1c1c1 0%, #a8a8a8 100%);
-          border-radius: 4px;
-          border: 2px solid transparent;
-          background-clip: content-box;
-        }
-
-        .mobile-dropdown-menu::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(180deg, #a8a8a8 0%, #909090 100%);
-          background-clip: content-box;
+          animation: dropdownSlideDown 0.3s ease-out;
+          padding: 8px 0;
         }
 
         @keyframes dropdownSlideDown {
           from {
             opacity: 0;
-            transform: translateY(-16px) scale(0.95);
+            transform: translateY(-10px) scale(0.95);
           }
           to {
             opacity: 1;
@@ -325,97 +303,84 @@ const Membership = () => {
           }
         }
 
+        /* Custom scrollbar for dropdown */
+        .mobile-dropdown-menu::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .mobile-dropdown-menu::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+
+        .mobile-dropdown-menu::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+
+        .mobile-dropdown-menu::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+
         .mobile-dropdown-item {
+          width: 100%;
+          background: none;
+          border: none;
           display: flex;
           align-items: center;
-          padding: 16px 24px;
-          margin: 4px 12px;
-          color: #34495e;
+          padding: 14px 20px;
+          margin: 2px 8px;
+          color: #2c3e50;
           text-decoration: none;
-          border-radius: 12px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 8px;
+          transition: all 0.3s ease;
           font-weight: 500;
-          font-size: 1rem;
-          position: relative;
-          background: linear-gradient(135deg, transparent 0%, rgba(248, 249, 250, 0.3) 100%);
-          border: 1px solid transparent;
-          backdrop-filter: blur(10px);
+          font-size: 0.95rem;
+          cursor: pointer;
+          gap: 12px;
         }
 
         .mobile-dropdown-item:hover {
           background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
           color: #2980b9;
-          text-decoration: none;
-          transform: translateX(6px) scale(1.02);
-          box-shadow: 0 6px 16px rgba(52, 152, 219, 0.15);
-          border-color: rgba(52, 152, 219, 0.2);
+          transform: translateX(4px);
+        }
+
+        .mobile-dropdown-item:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
         }
 
         .mobile-dropdown-item.active {
           background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
           color: #1565c0;
           font-weight: 600;
-          box-shadow: 0 6px 20px rgba(25, 118, 210, 0.2);
-          border-color: rgba(25, 118, 210, 0.3);
-          transform: scale(1.02);
+          box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
         }
 
         .mobile-dropdown-item.active:hover {
           background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
-          transform: translateX(6px) scale(1.02);
-          box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);
         }
 
         .mobile-dropdown-item i {
-          margin-right: 16px;
           color: #3498db;
-          font-size: 1.15rem;
-          width: 24px;
+          font-size: 1rem;
+          width: 20px;
           text-align: center;
-          flex-shrink: 0;
-          transition: all 0.3s ease;
         }
 
         .mobile-dropdown-item.active i {
           color: #1565c0;
         }
 
-        .mobile-dropdown-item:hover i {
-          color: #2980b9;
-          transform: scale(1.1);
-        }
-
-        .mobile-dropdown-item.active:hover i {
-          color: #1565c0;
-          transform: scale(1.1);
-        }
-
         .mobile-dropdown-item span {
           flex: 1;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          line-height: 1.4;
         }
 
         .dropdown-check {
-          margin-left: 12px;
-          margin-right: 0 !important;
           color: #1565c0 !important;
-          font-size: 1rem !important;
+          font-size: 0.9rem;
           opacity: 0.8;
-          animation: checkFadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes checkFadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.5);
-          }
-          to {
-            opacity: 0.8;
-            transform: scale(1);
-          }
         }
 
         .dropdown-item-container {
@@ -425,9 +390,9 @@ const Membership = () => {
 
         .dropdown-separator {
           height: 1px;
-          background: linear-gradient(90deg, transparent 0%, rgba(233, 236, 239, 0.6) 20%, rgba(233, 236, 239, 0.8) 50%, rgba(233, 236, 239, 0.6) 80%, transparent 100%);
-          margin: 12px 24px;
-          opacity: 0.7;
+          background: #e9ecef;
+          margin: 8px 16px;
+          opacity: 0.5;
         }
 
         /* Sidebar */
@@ -541,19 +506,19 @@ const Membership = () => {
           }
 
           .mobile-dropdown-button {
-            padding: 16px 20px;
-            font-size: 1rem;
-          }
-
-          .mobile-dropdown-item {
-            padding: 14px 20px;
-            margin: 3px 8px;
+            padding: 14px 18px;
             font-size: 0.95rem;
           }
 
+          .mobile-dropdown-item {
+            padding: 12px 16px;
+            margin: 2px 6px;
+            font-size: 0.9rem;
+          }
+
           .mobile-dropdown-item i {
-            font-size: 1.1rem;
-            margin-right: 14px;
+            font-size: 0.95rem;
+            width: 18px;
           }
         }
 

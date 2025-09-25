@@ -210,6 +210,7 @@ const JobFilters = ({ filters, onFilterChange }) => {
         </div>
       </div>
     </div>
+    
   );
 };
 
