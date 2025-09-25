@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { buildImageUrl } from '../utils/imageUtils';
+import logoImage from '../Logo/Faculty_of_AI_and_Informatics.jpg';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -30,7 +31,15 @@ const Navbar = () => {
       <nav className="navbar">
         <div className="navbar-container">
           <Link to="/" className="navbar-brand">
-            Social Network
+            <img 
+              src={logoImage} 
+              alt="Near East University - Faculty of AI and Informatics" 
+              style={{
+                height: '40px',
+                width: 'auto',
+                objectFit: 'contain'
+              }}
+            />
           </Link>
           
           <ul className="navbar-nav">
@@ -68,7 +77,15 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/dashboard" className="navbar-brand">
-          Social Network
+          <img 
+            src={logoImage} 
+            alt="Near East University - Faculty of AI and Informatics" 
+            style={{
+              height: '40px',
+              width: 'auto',
+              objectFit: 'contain'
+            }}
+          />
         </Link>
         
         <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
