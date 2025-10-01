@@ -28,6 +28,7 @@ const ApplicationForm = require('./ApplicationForm');
 const DigitalCard = require('./DigitalCard');
 const UserPaymentInfo = require('./UserPaymentInfo');
 const Organization = require('./Organization');
+const PasswordResetToken = require('./PasswordResetToken');
 
 // Define associations
 User.hasMany(Space, { 
@@ -488,6 +489,16 @@ UserPaymentInfo.belongsTo(User, {
   as: 'user'
 });
 
+// Password Reset Token relationships
+User.hasMany(PasswordResetToken, { 
+  foreignKey: 'userId', 
+  as: 'passwordResetTokens',
+  onDelete: 'CASCADE'
+});
+PasswordResetToken.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
 
 module.exports = {
   sequelize,
@@ -519,4 +530,5 @@ module.exports = {
   DigitalCard,
   UserPaymentInfo,
   Organization,
+  PasswordResetToken,
 };

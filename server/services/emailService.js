@@ -194,7 +194,7 @@ class EmailService {
   async sendWelcomeEmail(user) {
     const subject = `Welcome to HumHub Clone!`;
     const html = `
-      <h2>Welcome to HumHub Clone!</h2>
+      <h2>Welcome to Social Network</h2>
       <p>Hi ${user.firstName || user.username},</p>
       <p>Welcome to our social networking platform! We're excited to have you join our community.</p>
       <h3>Getting Started:</h3>
@@ -246,6 +246,365 @@ class EmailService {
     `;
 
     return await this.sendEmail(spaceOwner.email, subject, html);
+  }
+
+  /**
+   * Send Password Reset Email
+   * 
+   * This method sends a secure password reset email with:
+   * - Branded HTML template
+   * - Secure reset link with token
+   * - Security warnings and instructions
+   * - Expiration time information
+   * 
+   * @param {Object} user - User object with email, firstName, username
+   * @param {string} resetToken - The plain reset token (not hashed)
+   * @returns {Promise<Object>} Email sending result
+   */
+  async sendPasswordResetEmail(user, resetToken) {
+    // Build the secure reset URL
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${encodeURIComponent(resetToken)}`;
+    
+    const subject = 'Reset Your Password - Social Network';
+    
+    // Create a professional HTML email template
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset Request</title>
+        <style>
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f8f9fa;
+          }
+          .container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding-bottom: 20px; 
+            border-bottom: 2px solid #3498db;
+          }
+          .logo { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #3498db; 
+            margin-bottom: 10px;
+          }
+          .reset-button { 
+            display: inline-block; 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+            color: white; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+          }
+          .reset-button:hover { 
+            background: linear-gradient(135deg, #2980b9, #1f618d);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+          }
+          .security-warning { 
+            background: #fff3cd; 
+            border: 1px solid #ffeaa7; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin: 20px 0; 
+            color: #856404;
+          }
+          .expiry-info { 
+            background: #e8f4fd; 
+            border: 1px solid #bee5eb; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin: 20px 0; 
+            color: #0c5460;
+          }
+          .footer { 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #e9ecef; 
+            color: #6c757d; 
+            font-size: 14px; 
+            text-align: center;
+          }
+          .token-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #495057;
+            word-break: break-all;
+            margin: 10px 0;
+          }
+          @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .reset-button { display: block; text-align: center; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">🌐 Social Network</div>
+            <h1 style="margin: 0; color: #2c3e50;">Password Reset Request</h1>
+          </div>
+
+          <p>Hi ${user.firstName || user.username},</p>
+          
+          <p>We received a request to reset your password for your Social Network account. If you didn't make this request, you can safely ignore this email.</p>
+
+          <div class="security-warning">
+            <strong>⚠️ Security Notice:</strong> This password reset link will expire in <strong>15 minutes</strong> for your security. If you need to reset your password after this time, please request a new reset link.
+          </div>
+
+          <p>To reset your password, click the button below:</p>
+          
+          <div style="text-align: center;">
+            <a href="${resetUrl}" class="reset-button">Reset My Password</a>
+          </div>
+
+          <div class="expiry-info">
+            <strong>⏰ Link Expires:</strong> 15 minutes from now<br>
+            <strong>🔒 Security:</strong> This link can only be used once
+          </div>
+
+          <p><strong>If the button doesn't work, copy and paste this link into your browser:</strong></p>
+          <div class="token-display">${resetUrl}</div>
+
+          <div class="security-warning">
+            <strong>🛡️ Security Tips:</strong>
+            <ul>
+              <li>Never share this reset link with anyone</li>
+              <li>Always log out of shared or public computers</li>
+              <li>Use a strong, unique password</li>
+              <li>If you didn't request this reset, your account may be compromised</li>
+            </ul>
+          </div>
+
+          <p>If you have any questions or concerns, please contact our support team.</p>
+
+          <div class="footer">
+            <p><strong>Social Network Team</strong></p>
+            <p>This email was sent to ${user.email}</p>
+            <p>If you didn't request a password reset, please ignore this email or contact support if you're concerned about your account security.</p>
+            <p style="font-size: 12px; color: #adb5bd;">
+              © ${new Date().getFullYear()} Social Network. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Create plain text version for email clients that don't support HTML
+    const textContent = `
+Password Reset Request - Social Network
+
+Hi ${user.firstName || user.username},
+
+We received a request to reset your password for your Social Network account.
+
+To reset your password, click this link:
+${resetUrl}
+
+This link will expire in 15 minutes for your security.
+
+If you didn't request a password reset, you can safely ignore this email.
+
+Security Tips:
+- Never share this reset link with anyone
+- Always log out of shared or public computers  
+- Use a strong, unique password
+- If you didn't request this reset, your account may be compromised
+
+If you have any questions, please contact our support team.
+
+Social Network Team
+This email was sent to ${user.email}
+    `;
+
+    return await this.sendEmail(user.email, subject, html, textContent);
+  }
+
+  /**
+   * Send Password Reset Confirmation Email
+   * 
+   * This method sends a confirmation email after a successful password reset:
+   * - Confirms the password was changed
+   * - Provides security information
+   * - Includes support contact information
+   * 
+   * @param {Object} user - User object with email, firstName, username
+   * @returns {Promise<Object>} Email sending result
+   */
+  async sendPasswordResetConfirmationEmail(user) {
+    const subject = 'Password Successfully Reset - Social Network';
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset Confirmation</title>
+        <style>
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f8f9fa;
+          }
+          .container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding-bottom: 20px; 
+            border-bottom: 2px solid #27ae60;
+          }
+          .logo { 
+            font-size: 24px; 
+            font-weight: bold; 
+            color: #27ae60; 
+            margin-bottom: 10px;
+          }
+          .success-icon {
+            font-size: 48px;
+            color: #27ae60;
+            margin-bottom: 20px;
+          }
+          .login-button { 
+            display: inline-block; 
+            background: linear-gradient(135deg, #27ae60, #229954); 
+            color: white; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+          }
+          .security-info { 
+            background: #e8f5e8; 
+            border: 1px solid #c3e6c3; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin: 20px 0; 
+            color: #155724;
+          }
+          .footer { 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #e9ecef; 
+            color: #6c757d; 
+            font-size: 14px; 
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">🌐 Social Network</div>
+            <div class="success-icon">✅</div>
+            <h1 style="margin: 0; color: #2c3e50;">Password Successfully Reset</h1>
+          </div>
+
+          <p>Hi ${user.firstName || user.username},</p>
+          
+          <p><strong>Your password has been successfully reset!</strong></p>
+
+          <p>You can now log in to your account using your new password. For security reasons, we recommend logging out of all other devices and logging back in.</p>
+
+          <div style="text-align: center;">
+            <a href="${process.env.CLIENT_URL}/login" class="login-button">Log In to Your Account</a>
+          </div>
+
+          <div class="security-info">
+            <strong>🔒 Security Information:</strong>
+            <ul>
+              <li>Your password was changed on ${new Date().toLocaleString()}</li>
+              <li>All existing login sessions have been maintained</li>
+              <li>If you didn't make this change, please contact support immediately</li>
+              <li>Consider enabling two-factor authentication for added security</li>
+            </ul>
+          </div>
+
+          <p><strong>What to do next:</strong></p>
+          <ul>
+            <li>Log in with your new password</li>
+            <li>Update your password on any devices or apps that remember it</li>
+            <li>Consider reviewing your account security settings</li>
+            <li>Contact support if you have any concerns</li>
+          </ul>
+
+          <div class="footer">
+            <p><strong>Social Network Team</strong></p>
+            <p>This email was sent to ${user.email}</p>
+            <p>If you didn't reset your password, please contact our support team immediately.</p>
+            <p style="font-size: 12px; color: #adb5bd;">
+              © ${new Date().getFullYear()} Social Network. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+Password Successfully Reset - Social Network
+
+Hi ${user.firstName || user.username},
+
+Your password has been successfully reset!
+
+You can now log in to your account using your new password at:
+${process.env.CLIENT_URL}/login
+
+Security Information:
+- Your password was changed on ${new Date().toLocaleString()}
+- All existing login sessions have been maintained
+- If you didn't make this change, please contact support immediately
+
+What to do next:
+- Log in with your new password
+- Update your password on any devices or apps that remember it
+- Consider reviewing your account security settings
+- Contact support if you have any concerns
+
+Social Network Team
+This email was sent to ${user.email}
+    `;
+
+    return await this.sendEmail(user.email, subject, html, textContent);
   }
 }
 
