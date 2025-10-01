@@ -8,6 +8,8 @@ const CompanyAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log('CompanyAnalytics component rendered with companyId:', companyId);
+
   useEffect(() => {
     fetchAnalytics();
   }, [companyId]);
@@ -15,16 +17,32 @@ const CompanyAnalytics = () => {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const token = localStorage.getItem('token');
+      const apiUrl = import.meta.env.VITE_API_URL;
+      
+      console.log('Fetching analytics for company:', companyId);
+      console.log('API URL:', apiUrl);
+      
+      if (!companyId) {
+        throw new Error('Company ID is required');
+      }
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+      
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/companies/${companyId}/analytics`,
+        `${apiUrl}/companies/${companyId}/analytics`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      console.log('Analytics response:', response.data);
       setAnalytics(response.data);
-      setError(null);
     } catch (err) {
-      setError('Failed to load analytics data');
       console.error('Error fetching analytics:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to load analytics data');
     } finally {
       setLoading(false);
     }
@@ -241,8 +259,6 @@ const styles = {
     minHeight: '100vh',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
   },
-
-  // Header Styles
   header: {
     display: 'flex',
     justifyContent: 'space-between',
