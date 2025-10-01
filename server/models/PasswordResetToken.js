@@ -90,167 +90,159 @@ const PasswordResetToken = sequelize.define('PasswordResetToken', {
 });
 
 /**
- * Class methods for PasswordResetToken
+ * Static method: Generate a cryptographically secure reset token
+ * @returns {string} A secure random token
  */
-class PasswordResetTokenClass {
-  /**
-   * Generate a cryptographically secure reset token
-   * @returns {string} A secure random token
-   */
-  static generateSecureToken() {
-    return crypto.randomBytes(32).toString('hex');
-  }
+PasswordResetToken.generateSecureToken = function() {
+  return crypto.randomBytes(32).toString('hex');
+};
 
-  /**
-   * Create a new password reset token for a user
-   * @param {number} userId - The user ID
-   * @param {Object} options - Additional options
-   * @param {string} options.ipAddress - IP address of the request
-   * @param {string} options.userAgent - User agent string
-   * @param {number} options.expiryMinutes - Token expiry in minutes (default: 15)
-   * @returns {Promise<Object>} Object containing the plain token and database record
-   */
-  static async createResetToken(userId, options = {}) {
-    const { ipAddress, userAgent, expiryMinutes = 15 } = options;
-    
-    // Generate secure token
-    const plainToken = this.generateSecureToken();
-    
-    // Calculate expiration time
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);
-    
-    // Create database record (token will be hashed by the beforeSave hook)
-    const resetToken = await this.create({
-      userId,
-      token: plainToken, // This will be hashed by the hook
-      expiresAt,
-      ipAddress,
-      userAgent
-    });
-    
-    return {
-      plainToken,
-      resetToken
-    };
-  }
+/**
+ * Static method: Create a new password reset token for a user
+ * @param {number} userId - The user ID
+ * @param {Object} options - Additional options
+ * @param {string} options.ipAddress - IP address of the request
+ * @param {string} options.userAgent - User agent string
+ * @param {number} options.expiryMinutes - Token expiry in minutes (default: 15)
+ * @returns {Promise<Object>} Object containing the plain token and database record
+ */
+PasswordResetToken.createResetToken = async function(userId, options = {}) {
+  const { ipAddress, userAgent, expiryMinutes = 15 } = options;
+  
+  // Generate secure token
+  const plainToken = this.generateSecureToken();
+  
+  // Calculate expiration time
+  const expiresAt = new Date();
+  expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);
+  
+  // Create database record (token will be hashed by the beforeSave hook)
+  const resetToken = await this.create({
+    userId,
+    token: plainToken, // This will be hashed by the hook
+    expiresAt,
+    ipAddress,
+    userAgent
+  });
+  
+  return {
+    plainToken,
+    resetToken
+  };
+};
 
-  /**
-   * Validate a reset token
-   * @param {string} plainToken - The plain token to validate
-   * @param {number} userId - The user ID (optional, for additional security)
-   * @returns {Promise<Object|null>} The valid token record or null
-   */
-  static async validateToken(plainToken, userId = null) {
-    if (!plainToken) {
-      return null;
-    }
-
-    // Find all tokens for this user (if userId provided) or search all tokens
-    const whereClause = {};
-    if (userId) {
-      whereClause.userId = userId;
-    }
-
-    const tokens = await this.findAll({
-      where: whereClause,
-      order: [['createdAt', 'DESC']] // Get most recent tokens first
-    });
-
-    // Check each token to see if it matches
-    for (const token of tokens) {
-      // Skip expired tokens
-      if (token.expiresAt < new Date()) {
-        continue;
-      }
-
-      // Skip used tokens
-      if (token.used) {
-        continue;
-      }
-
-      // Check if the plain token matches the hashed token
-      const isValid = await bcrypt.compare(plainToken, token.token);
-      if (isValid) {
-        return token;
-      }
-    }
-
+/**
+ * Static method: Validate a reset token
+ * @param {string} plainToken - The plain token to validate
+ * @param {number} userId - The user ID (optional, for additional security)
+ * @returns {Promise<Object|null>} The valid token record or null
+ */
+PasswordResetToken.validateToken = async function(plainToken, userId = null) {
+  if (!plainToken) {
     return null;
   }
 
-  /**
-   * Mark a token as used
-   * @param {string} plainToken - The plain token to mark as used
-   * @returns {Promise<boolean>} True if token was found and marked as used
-   */
-  static async markTokenAsUsed(plainToken) {
-    if (!plainToken) {
-      return false;
+  // Find all tokens for this user (if userId provided) or search all tokens
+  const whereClause = {};
+  if (userId) {
+    whereClause.userId = userId;
+  }
+
+  const tokens = await this.findAll({
+    where: whereClause,
+    order: [['createdAt', 'DESC']] // Get most recent tokens first
+  });
+
+  // Check each token to see if it matches
+  for (const token of tokens) {
+    // Skip expired tokens
+    if (token.expiresAt < new Date()) {
+      continue;
     }
 
-    const tokens = await this.findAll({
-      where: {
-        used: false,
-        expiresAt: {
-          [require('sequelize').Op.gt]: new Date() // Not expired
-        }
-      },
-      order: [['createdAt', 'DESC']]
-    });
-
-    for (const token of tokens) {
-      const isValid = await bcrypt.compare(plainToken, token.token);
-      if (isValid) {
-        await token.update({
-          used: true,
-          usedAt: new Date()
-        });
-        return true;
-      }
+    // Skip used tokens
+    if (token.used) {
+      continue;
     }
 
+    // Check if the plain token matches the hashed token
+    const isValid = await bcrypt.compare(plainToken, token.token);
+    if (isValid) {
+      return token;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Static method: Mark a token as used
+ * @param {string} plainToken - The plain token to mark as used
+ * @returns {Promise<boolean>} True if token was found and marked as used
+ */
+PasswordResetToken.markTokenAsUsed = async function(plainToken) {
+  if (!plainToken) {
     return false;
   }
 
-  /**
-   * Clean up expired tokens
-   * @returns {Promise<number>} Number of tokens deleted
-   */
-  static async cleanupExpiredTokens() {
-    const result = await this.destroy({
-      where: {
-        expiresAt: {
-          [require('sequelize').Op.lt]: new Date()
-        }
+  const tokens = await this.findAll({
+    where: {
+      used: false,
+      expiresAt: {
+        [require('sequelize').Op.gt]: new Date() // Not expired
       }
-    });
-    
-    console.log(`🧹 Cleaned up ${result} expired password reset tokens`);
-    return result;
+    },
+    order: [['createdAt', 'DESC']]
+  });
+
+  for (const token of tokens) {
+    const isValid = await bcrypt.compare(plainToken, token.token);
+    if (isValid) {
+      await token.update({
+        used: true,
+        usedAt: new Date()
+      });
+      return true;
+    }
   }
 
-  /**
-   * Get active tokens for a user (for security monitoring)
-   * @param {number} userId - The user ID
-   * @returns {Promise<Array>} Array of active tokens
-   */
-  static async getActiveTokensForUser(userId) {
-    return await this.findAll({
-      where: {
-        userId,
-        used: false,
-        expiresAt: {
-          [require('sequelize').Op.gt]: new Date()
-        }
-      },
-      order: [['createdAt', 'DESC']]
-    });
-  }
-}
+  return false;
+};
 
-// Add class methods to the model
-Object.assign(PasswordResetToken, PasswordResetTokenClass);
+/**
+ * Static method: Clean up expired tokens
+ * @returns {Promise<number>} Number of tokens deleted
+ */
+PasswordResetToken.cleanupExpiredTokens = async function() {
+  const result = await this.destroy({
+    where: {
+      expiresAt: {
+        [require('sequelize').Op.lt]: new Date()
+      }
+    }
+  });
+  
+  console.log(`🧹 Cleaned up ${result} expired password reset tokens`);
+  return result;
+};
+
+/**
+ * Static method: Get active tokens for a user (for security monitoring)
+ * @param {number} userId - The user ID
+ * @returns {Promise<Array>} Array of active tokens
+ */
+PasswordResetToken.getActiveTokensForUser = async function(userId) {
+  return await this.findAll({
+    where: {
+      userId,
+      used: false,
+      expiresAt: {
+        [require('sequelize').Op.gt]: new Date()
+      }
+    },
+    order: [['createdAt', 'DESC']]
+  });
+};
 
 /**
  * Instance method to check if token is expired
