@@ -26,6 +26,7 @@ router.get('/saved-jobs', authenticateToken, careerController.getSavedJobs);
 // Company management (company only)
 router.get('/company/jobs', authenticateToken, careerController.getCompanyJobs);
 router.get('/company/applications', authenticateToken, careerController.getCompanyApplications);
+router.get('/company/analytics', authenticateToken, careerController.getCompanyAnalytics);
 router.put('/jobs/:jobId/status', authenticateToken, careerController.updateJobStatus);
 router.put('/applications/:applicationId/status', authenticateToken, careerController.updateApplicationStatus);
 

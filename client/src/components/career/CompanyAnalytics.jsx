@@ -1,30 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const CompanyAnalytics = () => {
-  const { companyId } = useParams();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchAnalytics();
-  }, [companyId]);
+  }, []);
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const token = localStorage.getItem('token');
+      const apiUrl = import.meta.env.VITE_API_URL;
+      
+      console.log('Fetching analytics for current user\'s company');
+      console.log('API URL:', apiUrl);
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+      
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/companies/${companyId}/analytics`,
+        `${apiUrl}/career/company/analytics`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setAnalytics(response.data);
-      setError(null);
+      
+      console.log('Analytics response:', response.data);
+      setAnalytics(response.data.data);
     } catch (err) {
-      setError('Failed to load analytics data');
       console.error('Error fetching analytics:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to load analytics data');
     } finally {
       setLoading(false);
     }

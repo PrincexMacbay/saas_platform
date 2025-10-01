@@ -964,6 +964,94 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
+// Get company analytics
+const getCompanyAnalytics = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get company profile
+    const companyProfile = await CompanyProfile.findOne({
+      where: { userId }
+    });
+
+    if (!companyProfile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company profile not found'
+      });
+    }
+
+    // Get basic stats
+    const totalJobs = await Job.count({
+      where: { userId }
+    });
+
+    const totalApplications = await JobApplication.count({
+      include: [{
+        model: Job,
+        as: 'job',
+        where: { userId }
+      }]
+    });
+
+    const activeJobs = await Job.count({
+      where: { 
+        userId,
+        status: 'active'
+      }
+    });
+
+    const pendingApplications = await JobApplication.count({
+      where: { status: 'pending' },
+      include: [{
+        model: Job,
+        as: 'job',
+        where: { userId }
+      }]
+    });
+
+    // Get recent activity (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const recentApplications = await JobApplication.count({
+      where: {
+        createdAt: {
+          [require('sequelize').Op.gte]: thirtyDaysAgo
+        }
+      },
+      include: [{
+        model: Job,
+        as: 'job',
+        where: { userId }
+      }]
+    });
+
+    const analytics = {
+      totalUsers: totalApplications, // Total unique applicants
+      activeProjects: activeJobs, // Active job postings
+      totalRevenue: 0, // Placeholder - could be calculated from paid features
+      pendingTasks: pendingApplications, // Pending applications to review
+      totalJobs,
+      totalApplications,
+      recentApplications,
+      companyName: companyProfile.companyName
+    };
+
+    res.json({
+      success: true,
+      data: analytics
+    });
+  } catch (error) {
+    console.error('Get company analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get analytics data',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   updateUserType: [updateUserTypeValidation, handleValidationErrors, updateUserType],
   createJob: [createJobValidation, handleValidationErrors, createJob],
@@ -978,4 +1066,5 @@ module.exports = {
   updateJobStatus,
   getCompanyApplications,
   updateApplicationStatus,
+  getCompanyAnalytics,
 };
