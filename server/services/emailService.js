@@ -10,13 +10,30 @@ class EmailService {
     // Create transporter based on environment
     if (process.env.NODE_ENV === 'production') {
       // Production: Use real SMTP service (Gmail, SendGrid, etc.)
-      this.transporter = nodemailer.createTransport({
-        service: process.env.EMAIL_SERVICE || 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
-        }
-      });
+      if (process.env.EMAIL_SERVICE === 'sendgrid') {
+        // SendGrid specific configuration
+        this.transporter = nodemailer.createTransport({
+          host: 'smtp.sendgrid.net',
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: {
+            user: 'apikey', // SendGrid requires 'apikey' as username
+            pass: process.env.EMAIL_PASSWORD // Your SendGrid API key
+          },
+          tls: {
+            rejectUnauthorized: false // Allow self-signed certificates
+          }
+        });
+      } else {
+        // Generic SMTP configuration (Gmail, etc.)
+        this.transporter = nodemailer.createTransport({
+          service: process.env.EMAIL_SERVICE || 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+          }
+        });
+      }
     } else {
       // Development: Use Ethereal for testing
       this.createTestAccount();
