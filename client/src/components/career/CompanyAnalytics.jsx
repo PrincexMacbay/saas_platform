@@ -1,421 +1,626 @@
 import React, { useState, useEffect } from 'react';
-import { getCompanyJobs, getCompanyApplications } from '../../services/careerService';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const CompanyAnalytics = () => {
-  const [jobs, setJobs] = useState([]);
-  const [applications, setApplications] = useState([]);
+  const { companyId } = useParams();
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [timeRange, setTimeRange] = useState('30'); // days
-  const [selectedJob, setSelectedJob] = useState('all');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadData();
-  }, [timeRange]);
+    fetchAnalytics();
+  }, [companyId]);
 
-  const loadData = async () => {
-    setLoading(true);
+  const fetchAnalytics = async () => {
     try {
-      const [jobsResponse, applicationsResponse] = await Promise.all([
-        getCompanyJobs(1, 1000), // Get all jobs with high limit
-        getCompanyApplications(1, null, null, 1000) // Get all applications with high limit
-      ]);
-      
-      setJobs(jobsResponse.data.jobs || []);
-      setApplications(applicationsResponse.data.applications || []);
-    } catch (error) {
-      console.error('Error loading analytics data:', error);
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/companies/${companyId}/analytics`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAnalytics(response.data);
+      setError(null);
+    } catch (err) {
       setError('Failed to load analytics data');
+      console.error('Error fetching analytics:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Calculate analytics data
-  const calculateAnalytics = () => {
-    const now = new Date();
-    const daysAgo = new Date(now.getTime() - (parseInt(timeRange) * 24 * 60 * 60 * 1000));
-    
-    const filteredJobs = jobs.filter(job => new Date(job.createdAt) >= daysAgo);
-    const filteredApplications = applications.filter(app => new Date(app.createdAt) >= daysAgo);
-    
-    const jobStats = filteredJobs.map(job => {
-      const jobApplications = filteredApplications.filter(app => app.job?.id === job.id);
-      return {
-        ...job,
-        applicationCount: jobApplications.length,
-        acceptedCount: jobApplications.filter(app => app.status === 'accepted').length,
-        rejectedCount: jobApplications.filter(app => app.status === 'rejected').length,
-        pendingCount: jobApplications.filter(app => app.status === 'pending').length,
-        reviewingCount: jobApplications.filter(app => app.status === 'reviewing').length,
-        interviewCount: jobApplications.filter(app => app.status === 'interview').length,
-      };
-    });
-
-    const totalJobs = filteredJobs.length;
-    const activeJobs = filteredJobs.filter(job => job.status === 'active').length;
-    const totalApplications = filteredApplications.length;
-    const pendingApplications = filteredApplications.filter(app => app.status === 'pending').length;
-    const acceptedApplications = filteredApplications.filter(app => app.status === 'accepted').length;
-    const rejectedApplications = filteredApplications.filter(app => app.status === 'rejected').length;
-    
-    // Calculate conversion rates
-    const applicationRate = totalJobs > 0 ? (totalApplications / totalJobs).toFixed(1) : 0;
-    const acceptanceRate = totalApplications > 0 ? ((acceptedApplications / totalApplications) * 100).toFixed(1) : 0;
-    const rejectionRate = totalApplications > 0 ? ((rejectedApplications / totalApplications) * 100).toFixed(1) : 0;
-
-    // Monthly trends
-    const monthlyData = [];
-    for (let i = 5; i >= 0; i--) {
-      const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-      
-      const monthJobs = jobs.filter(job => {
-        const jobDate = new Date(job.createdAt);
-        return jobDate >= month && jobDate <= monthEnd;
-      });
-      
-      const monthApplications = applications.filter(app => {
-        const appDate = new Date(app.createdAt);
-        return appDate >= month && appDate <= monthEnd;
-      });
-
-      monthlyData.push({
-        month: month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        jobs: monthJobs.length,
-        applications: monthApplications.length,
-        accepted: monthApplications.filter(app => app.status === 'accepted').length
-      });
-    }
-
-    return {
-      totalJobs,
-      activeJobs,
-      totalApplications,
-      pendingApplications,
-      acceptedApplications,
-      rejectedApplications,
-      applicationRate,
-      acceptanceRate,
-      rejectionRate,
-      jobStats,
-      monthlyData
-    };
-  };
-
-  const analytics = calculateAnalytics();
-
-  const renderMetricCard = (title, value, icon, color, subtitle = '') => (
-    <div className="col-lg-3 col-md-6 mb-4">
-      <div className="card border-0 shadow-sm h-100">
-        <div className="card-body text-center">
-          <div className={`d-inline-flex align-items-center justify-content-center rounded-circle mb-3`} 
-               style={{ width: '60px', height: '60px', backgroundColor: `${color}15` }}>
-            <i className={`${icon} fa-2x`} style={{ color }}></i>
-          </div>
-          <h3 className="fw-bold mb-1">{value}</h3>
-          <h6 className="text-muted mb-1">{title}</h6>
-          {subtitle && <small className="text-muted">{subtitle}</small>}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderProgressBar = (percentage, color, label) => (
-    <div className="mb-3">
-      <div className="d-flex justify-content-between align-items-center mb-1">
-        <span className="small fw-medium">{label}</span>
-        <span className="small fw-bold">{percentage}%</span>
-      </div>
-      <div className="progress" style={{ height: '8px' }}>
-        <div 
-          className="progress-bar" 
-          style={{ width: `${percentage}%`, backgroundColor: color }}
-        ></div>
-      </div>
-    </div>
-  );
-
-  const renderMonthlyChart = () => (
-    <div className="card border-0 shadow-sm">
-      <div className="card-header bg-transparent border-0">
-        <h5 className="mb-0">
-          <i className="fas fa-chart-line me-2 text-primary"></i>
-          Monthly Trends
-        </h5>
-      </div>
-      <div className="card-body">
-        <div className="row">
-          {analytics.monthlyData.map((data, index) => (
-            <div key={index} className="col-md-2 col-4 mb-3">
-              <div className="text-center">
-                <div className="small text-muted mb-1">{data.month}</div>
-                <div className="d-flex flex-column">
-                  <div className="mb-2">
-                    <div className="fw-bold text-primary">{data.jobs}</div>
-                    <small className="text-muted">Jobs</small>
-                  </div>
-                  <div className="mb-2">
-                    <div className="fw-bold text-success">{data.applications}</div>
-                    <small className="text-muted">Applications</small>
-                  </div>
-                  <div>
-                    <div className="fw-bold text-info">{data.accepted}</div>
-                    <small className="text-muted">Accepted</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderJobPerformanceTable = () => (
-    <div className="card border-0 shadow-sm">
-      <div className="card-header bg-transparent border-0">
-        <div className="d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">
-            <i className="fas fa-table me-2 text-primary"></i>
-            Job Performance
-          </h5>
-          <select 
-            className="form-select form-select-sm" 
-            style={{ width: 'auto' }}
-            value={selectedJob}
-            onChange={(e) => setSelectedJob(e.target.value)}
-          >
-            <option value="all">All Jobs</option>
-            {analytics.jobStats.map(job => (
-              <option key={job.id} value={job.id}>{job.title}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="card-body">
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead className="table-light">
-              <tr>
-                <th>Job Title</th>
-                <th>Status</th>
-                <th>Applications</th>
-                <th>Status Distribution</th>
-                <th>Success Rate</th>
-                <th>Posted</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.jobStats
-                .filter(job => selectedJob === 'all' || job.id === parseInt(selectedJob))
-                .map(job => {
-                  const successRate = job.applicationCount > 0 
-                    ? ((job.acceptedCount / job.applicationCount) * 100).toFixed(1)
-                    : '0';
-                  
-                  return (
-                    <tr key={job.id}>
-                      <td>
-                        <div>
-                          <strong>{job.title}</strong>
-                          <br />
-                          <small className="text-muted">{job.location}</small>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`badge ${
-                          job.status === 'active' ? 'bg-success' :
-                          job.status === 'paused' ? 'bg-warning' : 'bg-secondary'
-                        }`}>
-                          {job.status}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge bg-primary fs-6">{job.applicationCount}</span>
-                      </td>
-                      <td>
-                        <div className="d-flex gap-1">
-                          {job.pendingCount > 0 && (
-                            <span className="badge bg-warning" title={`${job.pendingCount} pending`}>
-                              {job.pendingCount}
-                            </span>
-                          )}
-                          {job.reviewingCount > 0 && (
-                            <span className="badge bg-info" title={`${job.reviewingCount} reviewing`}>
-                              {job.reviewingCount}
-                            </span>
-                          )}
-                          {job.interviewCount > 0 && (
-                            <span className="badge bg-primary" title={`${job.interviewCount} interview`}>
-                              {job.interviewCount}
-                            </span>
-                          )}
-                          {job.acceptedCount > 0 && (
-                            <span className="badge bg-success" title={`${job.acceptedCount} accepted`}>
-                              {job.acceptedCount}
-                            </span>
-                          )}
-                          {job.rejectedCount > 0 && (
-                            <span className="badge bg-danger" title={`${job.rejectedCount} rejected`}>
-                              {job.rejectedCount}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <div className="progress me-2" style={{ width: '60px', height: '8px' }}>
-                            <div 
-                              className="progress-bar bg-success" 
-                              style={{ width: `${successRate}%` }}
-                            ></div>
-                          </div>
-                          <small className="fw-bold">{successRate}%</small>
-                        </div>
-                      </td>
-                      <td>
-                        <small>{new Date(job.createdAt).toLocaleDateString()}</small>
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderApplicationInsights = () => (
-    <div className="row">
-      <div className="col-lg-6 mb-4">
-        <div className="card border-0 shadow-sm h-100">
-          <div className="card-header bg-transparent border-0">
-            <h6 className="mb-0">
-              <i className="fas fa-chart-pie me-2 text-primary"></i>
-              Application Status Distribution
-            </h6>
-          </div>
-          <div className="card-body">
-            <div className="row text-center">
-              <div className="col-6 mb-3">
-                <div className="badge bg-warning fs-5 p-2">{analytics.pendingApplications}</div>
-                <div className="mt-1"><small className="text-muted">Pending</small></div>
-              </div>
-              <div className="col-6 mb-3">
-                <div className="badge bg-info fs-5 p-2">
-                  {analytics.totalApplications - analytics.pendingApplications - analytics.acceptedApplications - analytics.rejectedApplications}
-                </div>
-                <div className="mt-1"><small className="text-muted">In Progress</small></div>
-              </div>
-              <div className="col-6 mb-3">
-                <div className="badge bg-success fs-5 p-2">{analytics.acceptedApplications}</div>
-                <div className="mt-1"><small className="text-muted">Accepted</small></div>
-              </div>
-              <div className="col-6 mb-3">
-                <div className="badge bg-danger fs-5 p-2">{analytics.rejectedApplications}</div>
-                <div className="mt-1"><small className="text-muted">Rejected</small></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-lg-6 mb-4">
-        <div className="card border-0 shadow-sm h-100">
-          <div className="card-header bg-transparent border-0">
-            <h6 className="mb-0">
-              <i className="fas fa-percentage me-2 text-primary"></i>
-              Key Metrics
-            </h6>
-          </div>
-          <div className="card-body">
-            {renderProgressBar(parseFloat(analytics.acceptanceRate), '#28a745', 'Acceptance Rate')}
-            {renderProgressBar(parseFloat(analytics.rejectionRate), '#dc3545', 'Rejection Rate')}
-            <div className="mt-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="small fw-medium">Applications per Job</span>
-                <span className="small fw-bold">{analytics.applicationRate}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3">Loading analytics...</p>
+      <div style={styles.loadingContainer}>
+        <div style={styles.spinner}></div>
+        <p style={styles.loadingText}>Loading analytics...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="alert alert-danger" role="alert">
-        <i className="fas fa-exclamation-triangle me-2"></i>
-        {error}
+      <div style={styles.errorContainer}>
+        <i className="fas fa-exclamation-circle" style={styles.errorIcon}></i>
+        <h3 style={styles.errorTitle}>Oops! Something went wrong</h3>
+        <p style={styles.errorText}>{error}</p>
+        <button style={styles.retryButton} onClick={fetchAnalytics}>
+          <i className="fas fa-redo" style={{ marginRight: '8px' }}></i>
+          Try Again
+        </button>
       </div>
     );
   }
 
+  if (!analytics) {
+    return (
+      <div style={styles.emptyContainer}>
+        <i className="fas fa-chart-line" style={styles.emptyIcon}></i>
+        <h3 style={styles.emptyTitle}>No Analytics Data</h3>
+        <p style={styles.emptyText}>There's no analytics data available for this company yet.</p>
+      </div>
+    );
+  }
+
+  const statCards = [
+    {
+      title: 'Total Users',
+      value: analytics.totalUsers || 0,
+      icon: 'fas fa-users',
+      color: '#3498db',
+      bgColor: '#e3f2fd',
+      change: '+12%',
+      changeType: 'positive'
+    },
+    {
+      title: 'Active Projects',
+      value: analytics.activeProjects || 0,
+      icon: 'fas fa-project-diagram',
+      color: '#2ecc71',
+      bgColor: '#e8f5e9',
+      change: '+5%',
+      changeType: 'positive'
+    },
+    {
+      title: 'Total Revenue',
+      value: `$${(analytics.totalRevenue || 0).toLocaleString()}`,
+      icon: 'fas fa-dollar-sign',
+      color: '#f39c12',
+      bgColor: '#fff3e0',
+      change: '+18%',
+      changeType: 'positive'
+    },
+    {
+      title: 'Pending Tasks',
+      value: analytics.pendingTasks || 0,
+      icon: 'fas fa-tasks',
+      color: '#e74c3c',
+      bgColor: '#ffebee',
+      change: '-3%',
+      changeType: 'negative'
+    }
+  ];
+
   return (
-    <div className="company-analytics">
+    <div style={styles.container}>
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div style={styles.header}>
         <div>
-          <h4 className="mb-1">Career Center Analytics</h4>
-          <p className="text-muted mb-0">Comprehensive insights into your job postings and applications</p>
+          <h1 style={styles.pageTitle}>
+            <i className="fas fa-chart-bar" style={styles.pageTitleIcon}></i>
+            Company Analytics
+          </h1>
+          <p style={styles.pageSubtitle}>Real-time insights and performance metrics</p>
         </div>
-        <div className="d-flex align-items-center gap-3">
-          <label className="form-label mb-0">Time Range:</label>
-          <select 
-            className="form-select form-select-sm" 
-            style={{ width: 'auto' }}
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </select>
+        <button style={styles.refreshButton} onClick={fetchAnalytics}>
+          <i className="fas fa-sync-alt" style={{ marginRight: '8px' }}></i>
+          Refresh Data
+        </button>
+      </div>
+
+      {/* Stats Grid */}
+      <div style={styles.statsGrid}>
+        {statCards.map((stat, index) => (
+          <div key={index} style={styles.statCard}>
+            <div style={styles.statCardHeader}>
+              <div style={{ ...styles.statIconContainer, backgroundColor: stat.bgColor }}>
+                <i className={stat.icon} style={{ ...styles.statIcon, color: stat.color }}></i>
+              </div>
+              <span style={{
+                ...styles.statChange,
+                color: stat.changeType === 'positive' ? '#2ecc71' : '#e74c3c'
+              }}>
+                {stat.change}
+              </span>
+            </div>
+            <h3 style={styles.statValue}>{stat.value}</h3>
+            <p style={styles.statTitle}>{stat.title}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts Section */}
+      <div style={styles.chartsGrid}>
+        {/* User Activity Chart */}
+        <div style={styles.chartCard}>
+          <div style={styles.chartCardHeader}>
+            <div>
+              <h3 style={styles.chartTitle}>User Activity</h3>
+              <p style={styles.chartSubtitle}>Last 30 days</p>
+            </div>
+            <select style={styles.chartSelect}>
+              <option>Last 7 days</option>
+              <option>Last 30 days</option>
+              <option>Last 90 days</option>
+            </select>
+          </div>
+          <div style={styles.chartPlaceholder}>
+            <i className="fas fa-chart-area" style={styles.chartPlaceholderIcon}></i>
+            <p style={styles.chartPlaceholderText}>Chart visualization coming soon</p>
+          </div>
+        </div>
+
+        {/* Revenue Chart */}
+        <div style={styles.chartCard}>
+          <div style={styles.chartCardHeader}>
+            <div>
+              <h3 style={styles.chartTitle}>Revenue Trends</h3>
+              <p style={styles.chartSubtitle}>Monthly breakdown</p>
+            </div>
+            <select style={styles.chartSelect}>
+              <option>This Year</option>
+              <option>Last Year</option>
+            </select>
+          </div>
+          <div style={styles.chartPlaceholder}>
+            <i className="fas fa-chart-line" style={styles.chartPlaceholderIcon}></i>
+            <p style={styles.chartPlaceholderText}>Chart visualization coming soon</p>
+          </div>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="row mb-4">
-        {renderMetricCard('Total Jobs', analytics.totalJobs, 'fas fa-briefcase', '#007bff')}
-        {renderMetricCard('Active Jobs', analytics.activeJobs, 'fas fa-play', '#28a745')}
-        {renderMetricCard('Total Applications', analytics.totalApplications, 'fas fa-file-alt', '#ffc107')}
-        {renderMetricCard('Pending Review', analytics.pendingApplications, 'fas fa-clock', '#17a2b8')}
-      </div>
-
-      {/* Monthly Trends */}
-      {renderMonthlyChart()}
-
-      {/* Application Insights */}
-      {renderApplicationInsights()}
-
-      {/* Job Performance Table */}
-      {renderJobPerformanceTable()}
-
-      {/* Empty State */}
-      {analytics.totalJobs === 0 && (
-        <div className="text-center py-5">
-          <i className="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-          <h5>No analytics data available</h5>
-          <p className="text-muted">Post your first job to start seeing analytics insights.</p>
+      {/* Additional Info Grid */}
+      <div style={styles.infoGrid}>
+        {/* Recent Activities */}
+        <div style={styles.infoCard}>
+          <div style={styles.infoCardHeader}>
+            <h3 style={styles.infoCardTitle}>
+              <i className="fas fa-history" style={styles.infoCardIcon}></i>
+              Recent Activities
+            </h3>
+          </div>
+          <div style={styles.activityList}>
+            {[1, 2, 3, 4].map((_, index) => (
+              <div key={index} style={styles.activityItem}>
+                <div style={styles.activityDot}></div>
+                <div style={styles.activityContent}>
+                  <p style={styles.activityText}>New user registration</p>
+                  <span style={styles.activityTime}>2 hours ago</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+
+        {/* Top Performers */}
+        <div style={styles.infoCard}>
+          <div style={styles.infoCardHeader}>
+            <h3 style={styles.infoCardTitle}>
+              <i className="fas fa-trophy" style={styles.infoCardIcon}></i>
+              Top Performers
+            </h3>
+          </div>
+          <div style={styles.performerList}>
+            {[1, 2, 3, 4].map((rank, index) => (
+              <div key={index} style={styles.performerItem}>
+                <div style={styles.performerRank}>{rank}</div>
+                <div style={styles.performerInfo}>
+                  <p style={styles.performerName}>Team Member {rank}</p>
+                  <div style={styles.performerProgress}>
+                    <div style={{
+                      ...styles.performerProgressBar,
+                      width: `${100 - (rank * 15)}%`
+                    }}></div>
+                  </div>
+                </div>
+                <span style={styles.performerScore}>{100 - (rank * 10)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
+const styles = {
+  container: {
+    padding: '30px',
+    background: '#f8f9fa',
+    minHeight: '100vh',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+  },
+
+  // Header Styles
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px',
+    flexWrap: 'wrap',
+    gap: '20px'
+  },
+  pageTitle: {
+    fontSize: '2rem',
+    fontWeight: '700',
+    color: '#2c3e50',
+    margin: '0 0 8px 0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  pageTitleIcon: {
+    color: '#3498db',
+    fontSize: '1.8rem'
+  },
+  pageSubtitle: {
+    color: '#7f8c8d',
+    fontSize: '1rem',
+    margin: 0
+  },
+  refreshButton: {
+    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    padding: '12px 24px',
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    boxShadow: '0 4px 12px rgba(52, 152, 219, 0.3)',
+    transition: 'all 0.3s ease',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(52, 152, 219, 0.4)'
+    }
+  },
+
+  // Stats Grid
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '24px',
+    marginBottom: '30px'
+  },
+  statCard: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    transition: 'all 0.3s ease',
+    border: '1px solid #ecf0f1',
+    cursor: 'pointer',
+    ':hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
+    }
+  },
+  statCardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px'
+  },
+  statIconContainer: {
+    width: '56px',
+    height: '56px',
+    borderRadius: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  statIcon: {
+    fontSize: '1.5rem'
+  },
+  statChange: {
+    fontSize: '0.9rem',
+    fontWeight: '600'
+  },
+  statValue: {
+    fontSize: '2rem',
+    fontWeight: '700',
+    color: '#2c3e50',
+    margin: '8px 0'
+  },
+  statTitle: {
+    fontSize: '0.95rem',
+    color: '#7f8c8d',
+    margin: 0,
+    fontWeight: '500'
+  },
+
+  // Charts Grid
+  chartsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    gap: '24px',
+    marginBottom: '30px'
+  },
+  chartCard: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    border: '1px solid #ecf0f1'
+  },
+  chartCardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '20px'
+  },
+  chartTitle: {
+    fontSize: '1.2rem',
+    fontWeight: '600',
+    color: '#2c3e50',
+    margin: '0 0 4px 0'
+  },
+  chartSubtitle: {
+    fontSize: '0.85rem',
+    color: '#7f8c8d',
+    margin: 0
+  },
+  chartSelect: {
+    padding: '8px 12px',
+    borderRadius: '8px',
+    border: '1px solid #e0e0e0',
+    background: 'white',
+    fontSize: '0.9rem',
+    color: '#2c3e50',
+    cursor: 'pointer',
+    outline: 'none'
+  },
+  chartPlaceholder: {
+    height: '250px',
+    background: 'linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%)',
+    borderRadius: '12px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px'
+  },
+  chartPlaceholderIcon: {
+    fontSize: '3rem',
+    color: '#bdc3c7'
+  },
+  chartPlaceholderText: {
+    color: '#95a5a6',
+    fontSize: '0.95rem',
+    margin: 0
+  },
+
+  // Info Grid
+  infoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    gap: '24px'
+  },
+  infoCard: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    border: '1px solid #ecf0f1'
+  },
+  infoCardHeader: {
+    marginBottom: '20px',
+    paddingBottom: '16px',
+    borderBottom: '2px solid #ecf0f1'
+  },
+  infoCardTitle: {
+    fontSize: '1.15rem',
+    fontWeight: '600',
+    color: '#2c3e50',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  infoCardIcon: {
+    color: '#3498db'
+  },
+
+  // Activity List
+  activityList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  },
+  activityItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px'
+  },
+  activityDot: {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    background: '#3498db',
+    marginTop: '6px',
+    flexShrink: 0
+  },
+  activityContent: {
+    flex: 1
+  },
+  activityText: {
+    color: '#2c3e50',
+    fontSize: '0.95rem',
+    margin: '0 0 4px 0',
+    fontWeight: '500'
+  },
+  activityTime: {
+    color: '#95a5a6',
+    fontSize: '0.85rem'
+  },
+
+  // Performer List
+  performerList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  },
+  performerItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px'
+  },
+  performerRank: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: '700',
+    fontSize: '0.95rem',
+    flexShrink: 0
+  },
+  performerInfo: {
+    flex: 1
+  },
+  performerName: {
+    color: '#2c3e50',
+    fontSize: '0.95rem',
+    margin: '0 0 6px 0',
+    fontWeight: '500'
+  },
+  performerProgress: {
+    height: '6px',
+    background: '#ecf0f1',
+    borderRadius: '3px',
+    overflow: 'hidden'
+  },
+  performerProgressBar: {
+    height: '100%',
+    background: 'linear-gradient(90deg, #3498db 0%, #2ecc71 100%)',
+    borderRadius: '3px',
+    transition: 'width 0.3s ease'
+  },
+  performerScore: {
+    color: '#2c3e50',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    minWidth: '50px',
+    textAlign: 'right'
+  },
+
+  // Loading State
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '60vh',
+    gap: '20px'
+  },
+  spinner: {
+    width: '60px',
+    height: '60px',
+    border: '4px solid #ecf0f1',
+    borderTop: '4px solid #3498db',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  },
+  loadingText: {
+    color: '#7f8c8d',
+    fontSize: '1.1rem',
+    fontWeight: '500'
+  },
+
+  // Error State
+  errorContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '60vh',
+    gap: '16px',
+    textAlign: 'center',
+    padding: '20px'
+  },
+  errorIcon: {
+    fontSize: '4rem',
+    color: '#e74c3c'
+  },
+  errorTitle: {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#2c3e50',
+    margin: 0
+  },
+  errorText: {
+    fontSize: '1rem',
+    color: '#7f8c8d',
+    margin: 0
+  },
+  retryButton: {
+    background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    padding: '12px 28px',
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    boxShadow: '0 4px 12px rgba(231, 76, 60, 0.3)',
+    transition: 'all 0.3s ease',
+    marginTop: '8px'
+  },
+
+  // Empty State
+  emptyContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '60vh',
+    gap: '16px',
+    textAlign: 'center',
+    padding: '20px'
+  },
+  emptyIcon: {
+    fontSize: '4rem',
+    color: '#bdc3c7'
+  },
+  emptyTitle: {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#2c3e50',
+    margin: 0
+  },
+  emptyText: {
+    fontSize: '1rem',
+    color: '#7f8c8d',
+    margin: 0
+  }
+};
+
+// Add CSS animation for spinner
+const styleSheet = document.styleSheets[0];
+const keyframes = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
 
 export default CompanyAnalytics;
