@@ -1,8 +1,10 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
 class EmailService {
   constructor() {
     this.transporter = null;
+    this.useSendGridAPI = false;
     this.initialize();
   }
 
@@ -11,19 +13,14 @@ class EmailService {
     if (process.env.NODE_ENV === 'production') {
       // Production: Use real SMTP service (Gmail, SendGrid, etc.)
       if (process.env.EMAIL_SERVICE === 'sendgrid') {
-        // SendGrid specific configuration
-        this.transporter = nodemailer.createTransport({
-          host: 'smtp.sendgrid.net',
-          port: 587,
-          secure: false, // true for 465, false for other ports
-          auth: {
-            user: 'apikey', // SendGrid requires 'apikey' as username
-            pass: process.env.EMAIL_PASSWORD // Your SendGrid API key
-          },
-          tls: {
-            rejectUnauthorized: false // Allow self-signed certificates
-          }
-        });
+        // SendGrid HTTP API (no SMTP, bypasses Render firewall)
+        if (process.env.EMAIL_PASSWORD) {
+          sgMail.setApiKey(process.env.EMAIL_PASSWORD);
+          this.useSendGridAPI = true;
+          console.log('📧 Email service initialized with SendGrid HTTP API');
+        } else {
+          console.error('❌ SendGrid API key not found in EMAIL_PASSWORD');
+        }
       } else {
         // Generic SMTP configuration (Gmail, etc.)
         this.transporter = nodemailer.createTransport({
@@ -31,8 +28,13 @@ class EmailService {
           auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD
-          }
+          },
+          // Add timeout settings for better reliability
+          connectionTimeout: 10000,
+          greetingTimeout: 5000,
+          socketTimeout: 10000
         });
+        console.log(`📧 Email service initialized with ${process.env.EMAIL_SERVICE || 'gmail'} SMTP`);
       }
     } else {
       // Development: Use Ethereal for testing
@@ -87,6 +89,40 @@ class EmailService {
   }
 
   async sendEmail(to, subject, htmlContent, textContent = null) {
+    // Use SendGrid HTTP API if configured (bypasses SMTP firewall issues)
+    if (this.useSendGridAPI) {
+      try {
+        const msg = {
+          to: to,
+          from: process.env.EMAIL_FROM || '"Social Network" <noreply@social-network.com>',
+          subject: subject,
+          html: htmlContent,
+          text: textContent || htmlContent.replace(/<[^>]*>/g, '')
+        };
+
+        const result = await sgMail.send(msg);
+        
+        console.log('📧 Email sent via SendGrid HTTP API successfully');
+        
+        return { 
+          success: true, 
+          messageId: result[0].headers['x-message-id'],
+          provider: 'sendgrid-api'
+        };
+      } catch (error) {
+        console.error('📧 SendGrid API error:', error.message);
+        if (error.response) {
+          console.error('SendGrid error details:', error.response.body);
+        }
+        return { 
+          success: false, 
+          message: error.message,
+          error: error.code || 'SENDGRID_API_ERROR'
+        };
+      }
+    }
+
+    // Use Nodemailer SMTP (Gmail, etc.)
     if (!this.transporter) {
       if (process.env.NODE_ENV === 'development') {
         console.log('📧 Email service not initialized, skipping email');
