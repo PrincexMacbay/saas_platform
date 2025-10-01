@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const BrowseMemberships = () => {
+  const { isAuthenticated } = useAuth();
   const [plans, setPlans] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -192,12 +194,21 @@ const BrowseMemberships = () => {
             </div>
 
             <div className="plan-actions">
-              <Link 
-                to={`/apply/${plan.id}`}
-                className="apply-button"
-              >
-                Apply Now
-              </Link>
+              {isAuthenticated ? (
+                <Link 
+                  to={`/apply/${plan.id}`}
+                  className="apply-button"
+                >
+                  Apply Now
+                </Link>
+              ) : (
+                <Link 
+                  to="/login"
+                  className="apply-button"
+                >
+                  Login to Apply
+                </Link>
+              )}
               <Link 
                 to={`/plan/${plan.id}`}
                 className="details-button"

@@ -194,6 +194,23 @@ const createApplication = async (req, res) => {
       });
     }
 
+    // Get the plan to check if user is the creator
+    const plan = await Plan.findByPk(planId);
+    if (!plan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Plan not found'
+      });
+    }
+
+    // Prevent plan creators from applying for their own plans
+    if (req.user && plan.createdBy === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot apply for a plan that you created. Plan creators are automatically considered members.'
+      });
+    }
+
     const application = await Application.create({
       email: extractedEmail,
       firstName: extractedFirstName,
