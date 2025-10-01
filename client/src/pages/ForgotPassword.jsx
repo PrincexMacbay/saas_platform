@@ -316,11 +316,35 @@ const ForgotPassword = () => {
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid #3498db;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
           }
 
           .auth-link:hover {
-            color: #2980b9;
+            color: white;
+            background: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+          }
+
+          .auth-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+          }
+
+          .auth-link:hover::before {
+            left: 100%;
           }
 
           @media (max-width: 480px) {
@@ -528,9 +552,9 @@ const ForgotPassword = () => {
 
         .btn {
           width: 100%;
-          padding: 12px 20px;
+          padding: 14px 20px;
           border: none;
-          border-radius: 8px;
+          border-radius: 12px;
           font-size: 1rem;
           font-weight: 600;
           cursor: pointer;
@@ -538,24 +562,60 @@ const ForgotPassword = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 10px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
         }
 
         .btn-primary {
-          background: linear-gradient(135deg, #3498db, #2980b9);
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
           color: white;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2980b9, #1f618d);
+          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-primary:active:not(:disabled) {
+          transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+          background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+          color: #2c3e50;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          border: 1px solid #bdc3c7;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+          background: linear-gradient(135deg, #d5dbdb 0%, #bdc3c7 100%);
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
 
         .btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
           transform: none;
+          box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .btn:hover:not(:disabled)::before {
+          left: 100%;
         }
 
         .auth-links {
@@ -566,20 +626,6 @@ const ForgotPassword = () => {
           border-top: 1px solid #ecf0f1;
         }
 
-        .auth-link {
-          color: #3498db;
-          text-decoration: none;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          transition: color 0.3s ease;
-          font-size: 0.9rem;
-        }
-
-        .auth-link:hover {
-          color: #2980b9;
-        }
 
         @media (max-width: 480px) {
           .auth-card {

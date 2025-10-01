@@ -199,6 +199,7 @@ const BrowseMemberships = () => {
                   to={`/apply/${plan.id}`}
                   className="apply-button"
                 >
+                  <i className="fas fa-rocket"></i>
                   Apply Now
                 </Link>
               ) : (
@@ -206,6 +207,7 @@ const BrowseMemberships = () => {
                   to="/login"
                   className="apply-button"
                 >
+                  <i className="fas fa-sign-in-alt"></i>
                   Login to Apply
                 </Link>
               )}
@@ -213,6 +215,7 @@ const BrowseMemberships = () => {
                 to={`/plan/${plan.id}`}
                 className="details-button"
               >
+                <i className="fas fa-info-circle"></i>
                 View Details
               </Link>
             </div>
@@ -453,31 +456,71 @@ const BrowseMemberships = () => {
         .apply-button,
         .details-button {
           flex: 1;
-          padding: 15px;
-          border-radius: 8px;
+          padding: 16px 20px;
+          border-radius: 12px;
           text-decoration: none;
           text-align: center;
           font-weight: 600;
+          font-size: 0.95rem;
           transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
         }
 
         .apply-button {
-          background: #3498db;
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
           color: white;
+          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
 
         .apply-button:hover {
-          background: #2980b9;
-          transform: translateY(-2px);
+          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .apply-button:active {
+          transform: translateY(-1px);
         }
 
         .details-button {
-          background: #ecf0f1;
+          background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
           color: #2c3e50;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          border: 1px solid #bdc3c7;
         }
 
         .details-button:hover {
-          background: #d5dbdb;
+          background: linear-gradient(135deg, #d5dbdb 0%, #bdc3c7 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .details-button:active {
+          transform: translateY(0);
+        }
+
+        .apply-button::before,
+        .details-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+
+        .apply-button:hover::before,
+        .details-button:hover::before {
+          left: 100%;
         }
 
         .no-plans {
