@@ -7,6 +7,7 @@ const CompanyAnalytics = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('🚀 CompanyAnalytics component mounted');
     fetchAnalytics();
   }, []);
 
@@ -18,8 +19,9 @@ const CompanyAnalytics = () => {
       const token = localStorage.getItem('token');
       const apiUrl = import.meta.env.VITE_API_URL;
       
-      console.log('Fetching analytics for current user\'s company');
-      console.log('API URL:', apiUrl);
+      console.log('🚀 CompanyAnalytics: Starting fetchAnalytics');
+      console.log('🚀 API URL:', apiUrl);
+      console.log('🚀 Full endpoint:', `${apiUrl}/career/company/analytics`);
       
       if (!token) {
         throw new Error('Authentication token not found');
@@ -30,10 +32,11 @@ const CompanyAnalytics = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      console.log('Analytics response:', response.data);
+      console.log('🚀 Analytics response:', response.data);
       setAnalytics(response.data.data);
     } catch (err) {
-      console.error('Error fetching analytics:', err);
+      console.error('🚨 Error fetching analytics:', err);
+      console.error('🚨 Error response:', err.response?.data);
       setError(err.response?.data?.message || err.message || 'Failed to load analytics data');
     } finally {
       setLoading(false);

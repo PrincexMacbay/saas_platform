@@ -967,7 +967,9 @@ const updateApplicationStatus = async (req, res) => {
 // Get company analytics
 const getCompanyAnalytics = async (req, res) => {
   try {
+    console.log('🚀 getCompanyAnalytics called');
     const userId = req.user.id;
+    console.log('🚀 User ID:', userId);
 
     // Get company profile
     const companyProfile = await CompanyProfile.findOne({
