@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const MembershipNavbar = ({ children }) => {
   const navigate = useNavigate();
@@ -7,6 +8,8 @@ const MembershipNavbar = ({ children }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  
+  const { preloadAllData, isLoadingAll } = useMembershipData();
 
   useEffect(() => {
     const path = location.pathname.split('/').pop();
@@ -16,6 +19,12 @@ const MembershipNavbar = ({ children }) => {
       setActiveTab(path);
     }
   }, [location]);
+
+  // Trigger data preloading when component mounts
+  useEffect(() => {
+    console.log('🚀 MembershipNavbar mounted - starting data preload');
+    preloadAllData();
+  }, [preloadAllData]);
 
   // Click outside detection
   useEffect(() => {
@@ -451,6 +460,11 @@ const MembershipNavbar = ({ children }) => {
           <h1>
             <i className="fas fa-users" style={{ marginRight: '12px', color: '#3498db' }}></i>
             Membership Management
+            {isLoadingAll && (
+              <span style={{ marginLeft: '15px', fontSize: '0.8rem', color: '#3498db' }}>
+                <i className="fas fa-spinner fa-spin"></i> Loading data...
+              </span>
+            )}
           </h1>
           <p>Manage subscriptions, payments, and member data</p>
         </div>

@@ -1,62 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const MembershipDashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data, loading, errors, refreshData } = useMembershipData();
+  const dashboardData = data.dashboard;
+  const isLoading = loading.dashboard;
+  const error = errors.dashboard;
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const apiUrl = import.meta.env.VITE_API_URL;
-      console.log('Fetching from:', `${apiUrl}/membership/dashboard`);
-      
-      const response = await fetch(`${apiUrl}/membership/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Server responded with ${response.status}: ${errorText}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned non-JSON response');
-      }
-
-      const data = await response.json();
-      console.log('Dashboard data received:', data);
-      setDashboardData(data.data);
-    } catch (error) {
-      console.error('Dashboard fetch error:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    // If data is not preloaded, fetch it
+    if (!dashboardData && !isLoading) {
+      refreshData('dashboard');
     }
-  };
+  }, [dashboardData, isLoading, refreshData]);
 
-  if (loading) {
+  // Data fetching is now handled by the context
+
+  if (isLoading) {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>

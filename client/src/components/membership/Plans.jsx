@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 // Plan Modal Component
 const PlanModal = ({ plan, onClose, onSave }) => {
@@ -739,8 +740,9 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 };
 
 const Plans = () => {
+  const { data, loading, errors, refreshData, updateData } = useMembershipData();
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
@@ -751,7 +753,21 @@ const Plans = () => {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
 
   useEffect(() => {
-    fetchPlans();
+    // Use preloaded data if available, otherwise fetch
+    if (data.plans && data.plans.length > 0) {
+      setPlans(data.plans);
+      setLoadingState(false);
+      setError(null);
+    } else if (!loading.plans) {
+      fetchPlans();
+    }
+  }, [data.plans, loading.plans]);
+
+  useEffect(() => {
+    // Only fetch if not using preloaded data
+    if (!data.plans || data.plans.length === 0) {
+      fetchPlans();
+    }
   }, [currentPage, searchTerm, activeFilter]);
 
   const fetchPlans = async () => {
