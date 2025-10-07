@@ -131,7 +131,7 @@ const ScheduledPayments = () => {
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
-            <p className="mt-3">Loading scheduled payments...</p>
+            <p className="mt-3" style={{ color: '#666' }}>Loading scheduled payments...</p>
           </div>
         ) : scheduledPayments.length === 0 ? (
           <div className="no-data">

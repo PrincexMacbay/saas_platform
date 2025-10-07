@@ -874,10 +874,10 @@ const Plans = () => {
     }
   };
 
-  if (loading && plans.length === 0) {
+  // Use preloaded data if available, show minimal loading only if no data at all
+  if (!plans.length && isLoading && !data.plans) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading plans...</p>
       </div>
     );

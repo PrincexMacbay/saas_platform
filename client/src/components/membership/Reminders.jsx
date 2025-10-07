@@ -150,7 +150,7 @@ const Reminders = () => {
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
-            <p className="mt-3">Loading reminders...</p>
+            <p className="mt-3" style={{ color: '#666' }}>Loading reminders...</p>
           </div>
         ) : reminders.length === 0 ? (
           <div className="no-data">

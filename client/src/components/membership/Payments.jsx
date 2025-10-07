@@ -169,10 +169,10 @@ const Payments = () => {
     }
   };
 
-  if (loading && payments.length === 0) {
+  // Use preloaded data if available, show minimal loading only if no data at all
+  if (!payments.length && contextLoading.payments && !data.payments) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading payments...</p>
       </div>
     );

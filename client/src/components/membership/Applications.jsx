@@ -147,10 +147,10 @@ const Applications = () => {
     });
   };
 
+  // Only show loading if no data is available at all
   if (loading && applications.length === 0) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading applications...</p>
       </div>
     );

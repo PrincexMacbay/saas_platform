@@ -164,7 +164,7 @@ const Debts = () => {
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
-            <p className="mt-3">Loading debts...</p>
+            <p className="mt-3" style={{ color: '#666' }}>Loading debts...</p>
           </div>
         ) : debts.length === 0 ? (
           <div className="no-data">

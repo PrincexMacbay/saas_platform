@@ -17,10 +17,10 @@ const MembershipDashboard = () => {
 
   // Data fetching is now handled by the context
 
-  if (isLoading) {
+  // Only show loading if no data is available at all
+  if (!dashboardData && isLoading) {
     return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading dashboard...</p>
       </div>
     );
@@ -38,11 +38,10 @@ const MembershipDashboard = () => {
     );
   }
 
-  // Additional safety check - don't render if no data
+  // Additional safety check - show simple loading if no data
   if (!dashboardData || !dashboardData.stats) {
     return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading dashboard data...</p>
       </div>
     );
