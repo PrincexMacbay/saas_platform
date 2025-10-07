@@ -31,14 +31,29 @@ const MembershipDashboard = () => {
       <div className="dashboard-error">
         <i className="fas fa-exclamation-triangle"></i>
         <p>Error loading dashboard: {error}</p>
-        <button onClick={fetchDashboardData} className="retry-button">
+        <button onClick={() => refreshData('dashboard')} className="retry-button">
           <i className="fas fa-redo"></i> Retry
         </button>
       </div>
     );
   }
 
-  const { stats, recentPayments, chartData } = dashboardData;
+  // Additional safety check - don't render if no data
+  if (!dashboardData || !dashboardData.stats) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  // Safely destructure with fallbacks to prevent null destructuring errors
+  const { 
+    stats = {}, 
+    recentPayments = [], 
+    chartData = [] 
+  } = dashboardData;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -56,10 +71,10 @@ const MembershipDashboard = () => {
             <i className="fas fa-users"></i>
           </div>
           <div className="kpi-content">
-            <h3>{stats.totalSubscriptions}</h3>
+            <h3>{stats.totalSubscriptions || 0}</h3>
             <p>Total Subscriptions</p>
             <span className="kpi-change positive">
-              +{stats.newSubscriptions} this month
+              +{stats.newSubscriptions || 0} this month
             </span>
           </div>
         </div>
@@ -69,11 +84,11 @@ const MembershipDashboard = () => {
             <i className="fas fa-check-circle"></i>
           </div>
           <div className="kpi-content">
-            <h3>{stats.activeSubscriptions}</h3>
+            <h3>{stats.activeSubscriptions || 0}</h3>
             <p>Active Subscriptions</p>
             <span className="kpi-percentage">
-              {stats.totalSubscriptions > 0 
-                ? Math.round((stats.activeSubscriptions / stats.totalSubscriptions) * 100)
+              {(stats.totalSubscriptions || 0) > 0 
+                ? Math.round(((stats.activeSubscriptions || 0) / (stats.totalSubscriptions || 1)) * 100)
                 : 0}% of total
             </span>
           </div>
@@ -84,11 +99,11 @@ const MembershipDashboard = () => {
             <i className="fas fa-exclamation-triangle"></i>
           </div>
           <div className="kpi-content">
-            <h3>{stats.pastDueSubscriptions}</h3>
+            <h3>{stats.pastDueSubscriptions || 0}</h3>
             <p>Past Due</p>
             <span className="kpi-percentage">
-              {stats.totalSubscriptions > 0 
-                ? Math.round((stats.pastDueSubscriptions / stats.totalSubscriptions) * 100)
+              {(stats.totalSubscriptions || 0) > 0 
+                ? Math.round(((stats.pastDueSubscriptions || 0) / (stats.totalSubscriptions || 1)) * 100)
                 : 0}% of total
             </span>
           </div>
@@ -99,10 +114,10 @@ const MembershipDashboard = () => {
             <i className="fas fa-dollar-sign"></i>
           </div>
           <div className="kpi-content">
-            <h3>{formatCurrency(stats.totalRevenue)}</h3>
+            <h3>{formatCurrency(stats.totalRevenue || 0)}</h3>
             <p>Total Revenue</p>
             <span className="kpi-change positive">
-              {formatCurrency(stats.monthlyRevenue)} this month
+              {formatCurrency(stats.monthlyRevenue || 0)} this month
             </span>
           </div>
         </div>
