@@ -202,7 +202,6 @@ const createPlan = async (req, res) => {
       maxMembers,
       isActive: true,
       createdBy: req.user.id,
-      organizationId: userProfile ? userProfile.organizationId : null,
       applicationFormId: useDefaultForm ? null : applicationFormId,
       useDefaultForm: useDefaultForm || false
     });

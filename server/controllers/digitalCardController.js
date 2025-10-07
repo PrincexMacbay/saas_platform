@@ -1,4 +1,4 @@
-const { DigitalCard, Subscription, User, Organization, Plan } = require('../models');
+const { DigitalCard, Subscription, User, Organization, Plan, UserProfile } = require('../models');
 
 // Get digital card template for a specific plan
 const getDigitalCardTemplateByPlan = async (req, res) => {
@@ -25,14 +25,20 @@ const getDigitalCardTemplateByPlan = async (req, res) => {
           isTemplate: true 
         }
       });
-    } else if (plan.organizationId) {
-      // Use organization's default template
-      digitalCardTemplate = await DigitalCard.findOne({
-        where: { 
-          organizationId: plan.organizationId,
-          isTemplate: true 
-        }
+    } else {
+      // Use organization's default template (via user profile)
+      const userProfile = await UserProfile.findOne({
+        where: { userId: req.user.id }
       });
+      
+      if (userProfile && userProfile.organizationId) {
+        digitalCardTemplate = await DigitalCard.findOne({
+          where: { 
+            organizationId: userProfile.organizationId,
+            isTemplate: true 
+          }
+        });
+      }
     }
 
     if (!digitalCardTemplate) {

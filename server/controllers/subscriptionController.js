@@ -74,7 +74,7 @@ const getSubscriptions = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee', 'renewalInterval', 'createdBy', 'organizationId'],
+          attributes: ['id', 'name', 'fee', 'renewalInterval', 'createdBy'],
           where: {
             createdBy: req.user.id // Only plans created by current user
           },
