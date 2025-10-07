@@ -1,8 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import MembershipDashboard from './MembershipDashboard';
+import Payments from './Payments';
+import ScheduledPayments from './ScheduledPayments';
+import Debts from './Debts';
+import Plans from './Plans';
+import Reminders from './Reminders';
+import Applications from './Applications';
+import MembershipSettings from './MembershipSettings';
+import Coupons from './Coupons';
+import ApplicationFormBuilder from './ApplicationFormBuilder';
+import ApplicationForms from './ApplicationForms';
+import DigitalCard from './DigitalCard';
+import PaymentInfo from './PaymentInfo';
 
-const MembershipNavbar = ({ children }) => {
+const MembershipNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -84,9 +97,44 @@ const MembershipNavbar = ({ children }) => {
 
   const activeTabData = tabs.find(tab => tab.id === activeTab);
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleNavigation = (tabId) => {
+    console.log('🚀 Switching to tab:', tabId);
+    setActiveTab(tabId);
     setIsMobileDropdownOpen(false);
+  };
+
+  // Render active content directly instead of using React Router for instant switching
+  const renderActiveContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <MembershipDashboard />;
+      case 'payments':
+        return <Payments />;
+      case 'scheduled-payments':
+        return <ScheduledPayments />;
+      case 'debts':
+        return <Debts />;
+      case 'plans':
+        return <Plans />;
+      case 'reminders':
+        return <Reminders />;
+      case 'applications':
+        return <Applications />;
+      case 'settings':
+        return <MembershipSettings />;
+      case 'coupons':
+        return <Coupons />;
+      case 'application-forms':
+        return <ApplicationForms />;
+      case 'application-form':
+        return <ApplicationFormBuilder />;
+      case 'digital-card':
+        return <DigitalCard />;
+      case 'payment-info':
+        return <PaymentInfo />;
+      default:
+        return <MembershipDashboard />;
+    }
   };
 
   return (
@@ -479,7 +527,7 @@ const MembershipNavbar = ({ children }) => {
             {tabs.map(tab => (
               <div key={tab.id} className="sidebar-nav-item">
                 <button
-                  onClick={() => handleNavigation(tab.path)}
+                  onClick={() => handleNavigation(tab.id)}
                   className={`sidebar-nav-button ${activeTab === tab.id ? 'active' : ''}`}
                 >
                   <i className={tab.icon}></i>
@@ -520,7 +568,7 @@ const MembershipNavbar = ({ children }) => {
                           <div className="dropdown-separator"></div>
                         )}
                         <button
-                          onClick={() => handleNavigation(tab.path)}
+                          onClick={() => handleNavigation(tab.id)}
                           className={`mobile-dropdown-item ${activeTab === tab.id ? 'active' : ''}`}
                           role="option"
                           aria-selected={activeTab === tab.id}
@@ -538,8 +586,8 @@ const MembershipNavbar = ({ children }) => {
               </div>
             </div>
             
-            {/* Children content (Routes) */}
-            {children}
+            {/* Active content - rendered directly for instant switching */}
+            {renderActiveContent()}
           </div>
         </div>
       </div>

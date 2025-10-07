@@ -133,14 +133,16 @@ export const MembershipDataProvider = ({ children }) => {
       fetchData(endpoint, key).catch(error => {
         console.warn(`Failed to preload ${key}:`, error);
         // Don't throw - we want other data to still load
+        return null; // Return null for failed requests
       })
     );
 
-    await Promise.allSettled(fetchPromises);
+    const results = await Promise.allSettled(fetchPromises);
+    const successCount = results.filter(result => result.status === 'fulfilled' && result.value !== null).length;
     
     setIsInitialized(true);
     setIsLoadingAll(false);
-    console.log('✅ Membership data preload completed');
+    console.log(`✅ Membership data preload completed - ${successCount}/${endpoints.length} endpoints loaded successfully`);
   };
 
   const refreshData = async (dataKey) => {
