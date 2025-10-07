@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import CryptoPayment from './CryptoPayment';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Payments = () => {
+  const { data, loading: contextLoading, isInitialized, isLoadingAll } = useMembershipData();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,10 +27,28 @@ const Payments = () => {
   const [paymentDescription, setPaymentDescription] = useState('');
 
   useEffect(() => {
-    fetchPayments();
-    fetchPlans();
-    fetchUsers();
-  }, [currentPage, searchTerm, statusFilter]);
+    // Use preloaded data if available
+    if (data.payments && Array.isArray(data.payments)) {
+      console.log('🚀 Payments: Using preloaded data', data.payments.length, 'payments');
+      setPayments(data.payments);
+      setLoading(false);
+    } else if (!contextLoading.payments && !isLoadingAll) {
+      // Only fetch if not currently loading and not in global preload
+      console.log('🚀 Payments: Fetching data (not preloaded)');
+      fetchPayments();
+      fetchPlans();
+      fetchUsers();
+    }
+  }, [data.payments, contextLoading.payments, isLoadingAll]);
+
+  useEffect(() => {
+    // Only fetch when filters change, not on initial load
+    if (isInitialized) {
+      fetchPayments();
+      fetchPlans();
+      fetchUsers();
+    }
+  }, [currentPage, searchTerm, statusFilter, isInitialized]);
 
   const fetchPayments = async () => {
     try {

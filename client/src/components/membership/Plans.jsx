@@ -740,9 +740,10 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 };
 
 const Plans = () => {
-  const { data, loading, errors, refreshData, updateData } = useMembershipData();
+  const { data, loading, errors, refreshData, updateData, isInitialized, isLoadingAll } = useMembershipData();
   const [plans, setPlans] = useState([]);
-  const [loadingState, setLoadingState] = useState(true);
+  // Use context loading state instead of local state
+  const isLoading = loading.plans;
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
@@ -753,22 +754,26 @@ const Plans = () => {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
 
   useEffect(() => {
-    // Use preloaded data if available, otherwise fetch
-    if (data.plans && data.plans.length > 0) {
+    // Use preloaded data if available
+    if (data.plans && Array.isArray(data.plans)) {
+      console.log('🚀 Plans: Using preloaded data', data.plans.length, 'plans');
       setPlans(data.plans);
-      setLoadingState(false);
+      // Loading state is managed by context
       setError(null);
-    } else if (!loading.plans) {
+    } else if (!loading.plans && !isLoadingAll) {
+      // Only fetch if not currently loading and not in global preload
+      console.log('🚀 Plans: Fetching data (not preloaded)');
       fetchPlans();
     }
-  }, [data.plans, loading.plans]);
+  }, [data.plans, loading.plans, isLoadingAll]);
 
   useEffect(() => {
-    // Only fetch if not using preloaded data
-    if (!data.plans || data.plans.length === 0) {
+    // Only fetch when filters change, not on initial load
+    if (isInitialized && (!data.plans || data.plans.length === 0)) {
+      console.log('🚀 Plans: Fetching due to filter changes');
       fetchPlans();
     }
-  }, [currentPage, searchTerm, activeFilter]);
+  }, [currentPage, searchTerm, activeFilter, isInitialized]);
 
   const fetchPlans = async () => {
     try {
