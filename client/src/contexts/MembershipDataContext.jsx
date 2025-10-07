@@ -11,6 +11,7 @@ export const useMembershipData = () => {
 };
 
 export const MembershipDataProvider = ({ children }) => {
+  const [isProviderReady, setIsProviderReady] = useState(false);
   const [data, setData] = useState({
     dashboard: null,
     payments: null,
@@ -61,6 +62,12 @@ export const MembershipDataProvider = ({ children }) => {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // Initialize provider
+  useEffect(() => {
+    console.log('🚀 MembershipDataProvider initializing');
+    setIsProviderReady(true);
+  }, []);
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return {
@@ -74,19 +81,26 @@ export const MembershipDataProvider = ({ children }) => {
       setLoading(prev => ({ ...prev, [dataKey]: true }));
       setErrors(prev => ({ ...prev, [dataKey]: null }));
 
+      console.log(`🚀 Fetching ${dataKey} from:`, `${apiUrl}${endpoint}`);
+      
       const response = await fetch(`${apiUrl}${endpoint}`, {
         headers: getAuthHeaders()
       });
 
+      console.log(`${dataKey} response status:`, response.status);
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch ${dataKey}: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`${dataKey} error response:`, errorText);
+        throw new Error(`Failed to fetch ${dataKey}: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
+      console.log(`${dataKey} data received:`, result);
       setData(prev => ({ ...prev, [dataKey]: result.data || result }));
       
     } catch (error) {
-      console.error(`Error fetching ${dataKey}:`, error);
+      console.error(`🚨 Error fetching ${dataKey}:`, error);
       setErrors(prev => ({ ...prev, [dataKey]: error.message }));
     } finally {
       setLoading(prev => ({ ...prev, [dataKey]: false }));
@@ -178,11 +192,22 @@ export const MembershipDataProvider = ({ children }) => {
     errors,
     isInitialized,
     isLoadingAll,
+    isProviderReady,
     preloadAllData,
     refreshData,
     updateData,
     clearData
   };
+
+  // Show loading state while provider initializes
+  if (!isProviderReady) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ fontSize: '1.2rem', marginBottom: '10px' }}>Initializing...</div>
+        <div style={{ color: '#666' }}>Setting up membership data...</div>
+      </div>
+    );
+  }
 
   return (
     <MembershipDataContext.Provider value={value}>

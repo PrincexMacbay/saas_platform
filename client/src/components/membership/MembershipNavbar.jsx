@@ -23,7 +23,11 @@ const MembershipNavbar = ({ children }) => {
   // Trigger data preloading when component mounts
   useEffect(() => {
     console.log('🚀 MembershipNavbar mounted - starting data preload');
-    preloadAllData();
+    try {
+      preloadAllData();
+    } catch (error) {
+      console.error('🚨 Error in MembershipNavbar preload:', error);
+    }
   }, [preloadAllData]);
 
   // Click outside detection
