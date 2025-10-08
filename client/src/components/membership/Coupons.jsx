@@ -32,7 +32,10 @@ const Coupons = () => {
   }, [data.coupons, contextLoading.coupons]);
 
   const loadCoupons = async () => {
-    setLoading(true);
+    // Only set loading if we don't have preloaded data
+    if (!data.coupons) {
+      setLoading(true);
+    }
     try {
       const response = await getCoupons();
       setCoupons(response.data.coupons || []);
@@ -171,7 +174,7 @@ const Coupons = () => {
       )}
 
       <div className="coupons-content">
-        {!coupons.length && (loading || contextLoading.coupons) ? (
+        {!coupons.length && loading && !data.coupons ? (
           <div className="text-center py-5">
             <p style={{ color: '#666' }}>Loading coupons...</p>
           </div>

@@ -29,7 +29,10 @@ const Reminders = () => {
   }, [data.reminders, contextLoading.reminders]);
 
   const loadReminders = async () => {
-    setLoading(true);
+    // Only set loading if we don't have preloaded data
+    if (!data.reminders) {
+      setLoading(true);
+    }
     try {
       const response = await getReminders();
       setReminders(response.data.reminders || []);
@@ -154,7 +157,7 @@ const Reminders = () => {
       )}
 
       <div className="reminders-content">
-        {!reminders.length && (loading || contextLoading.reminders) ? (
+        {!reminders.length && loading && !data.reminders ? (
           <div className="text-center py-5">
             <p style={{ color: '#666' }}>Loading reminders...</p>
           </div>

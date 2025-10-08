@@ -166,7 +166,7 @@ const Applications = () => {
   };
 
   // Only show loading if no data is available at all
-  if (!applications.length && (loading || contextLoading.applications)) {
+  if (!applications.length && loading && !data.applications) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading applications...</p>

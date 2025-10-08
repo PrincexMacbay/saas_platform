@@ -143,7 +143,7 @@ const ApplicationForms = () => {
   };
 
   // Only show loading if no data is available at all
-  if (!forms.length && (loading || contextLoading.applicationForms)) {
+  if (!forms.length && loading && !data.applicationForms) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading application forms...</p>

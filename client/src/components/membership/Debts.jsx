@@ -30,7 +30,10 @@ const Debts = () => {
   }, [data.debts, contextLoading.debts]);
 
   const loadDebts = async () => {
-    setLoading(true);
+    // Only set loading if we don't have preloaded data
+    if (!data.debts) {
+      setLoading(true);
+    }
     try {
       const response = await getDebts();
       setDebts(response.data.debts || []);
@@ -168,7 +171,7 @@ const Debts = () => {
       )}
 
       <div className="debts-content">
-        {!debts.length && (loading || contextLoading.debts) ? (
+        {!debts.length && loading && !data.debts ? (
           <div className="text-center py-5">
             <p style={{ color: '#666' }}>Loading debts...</p>
           </div>

@@ -30,7 +30,10 @@ const ScheduledPayments = () => {
   }, [data.scheduledPayments, contextLoading.scheduledPayments]);
 
   const loadScheduledPayments = async () => {
-    setLoading(true);
+    // Only set loading if we don't have preloaded data
+    if (!data.scheduledPayments) {
+      setLoading(true);
+    }
     try {
       const response = await getScheduledPayments();
       setScheduledPayments(response.data.scheduledPayments || []);
@@ -135,7 +138,7 @@ const ScheduledPayments = () => {
       )}
 
       <div className="scheduled-payments-content">
-        {!scheduledPayments.length && (loading || contextLoading.scheduledPayments) ? (
+        {!scheduledPayments.length && loading && !data.scheduledPayments ? (
           <div className="text-center py-5">
             <p style={{ color: '#666' }}>Loading scheduled payments...</p>
           </div>

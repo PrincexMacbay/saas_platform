@@ -197,7 +197,7 @@ const PaymentInfo = () => {
   };
 
   // Only show loading if no data is available at all
-  if (!paymentInfo && (loading || contextLoading.paymentInfo)) {
+  if (!paymentInfo && loading && !data.paymentInfo) {
     return (
       <div className="payment-info-loading">
         <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
