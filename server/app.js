@@ -27,6 +27,7 @@ console.log('Environment:', process.env.NODE_ENV || 'development');
 const routes = require("./routes");
 const { sequelize } = require("./models");
 const { testConnection } = require("./config/db");
+const initializeAdmin = require("./scripts/init-admin");
 
 const app = express();
 
@@ -213,6 +214,10 @@ const startServer = async () => {
       // In production, only sync if tables don't exist
       await sequelize.sync({ alter: false });
     }
+
+    // Initialize admin account (runs after database sync)
+    console.log('🔧 Initializing admin account...');
+    await initializeAdmin();
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
