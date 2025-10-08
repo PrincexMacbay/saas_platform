@@ -125,7 +125,7 @@ export const MembershipDataProvider = ({ children }) => {
       { endpoint: '/membership/coupons', key: 'coupons' },
       { endpoint: '/membership/application-forms', key: 'applicationForms' },
       { endpoint: '/membership/digital-card', key: 'digitalCard' },
-      { endpoint: '/membership/payment-info', key: 'paymentInfo' }
+      { endpoint: '/user-payment-info/my-payment-info', key: 'paymentInfo' }
     ];
 
     // Fetch all data in parallel for better performance
@@ -158,7 +158,7 @@ export const MembershipDataProvider = ({ children }) => {
       coupons: '/membership/coupons',
       applicationForms: '/membership/application-forms',
       digitalCard: '/membership/digital-card',
-      paymentInfo: '/membership/payment-info'
+      paymentInfo: '/user-payment-info/my-payment-info'
     };
 
     if (endpointMap[dataKey]) {

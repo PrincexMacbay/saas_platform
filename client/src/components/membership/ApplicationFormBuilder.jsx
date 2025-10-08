@@ -3,15 +3,15 @@ import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const ApplicationFormBuilder = () => {
-  const { data, loading: contextLoading, refreshData } = useMembershipData();
+  const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
   const [formConfig, setFormConfig] = useState({
     title: 'Membership Application',
     description: '',
     footer: '',
     terms: '',
     agreement: '',
-    fields: [],
-    isPublished: false
+    fields: data.applicationForms?.[0]?.fields || [],
+    isPublished: data.applicationForms?.[0]?.isPublished || false
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -265,8 +265,8 @@ const ApplicationFormBuilder = () => {
     }));
   };
 
-  // Only show loading if no data is available at all
-  if (loading && !data.applicationForms) {
+  // Only show loading if no data is available at all and not in global preload
+  if (loading && !data.applicationForms && !isLoadingAll) {
     return (
       <div className="form-builder-container">
         <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>

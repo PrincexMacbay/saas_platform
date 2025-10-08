@@ -5,7 +5,7 @@ import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const PaymentInfo = () => {
   const { user } = useAuth();
-  const { data, loading: contextLoading, refreshData } = useMembershipData();
+  const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,12 +66,12 @@ const PaymentInfo = () => {
           gatewaySandboxMode: data.paymentInfo.gatewaySandboxMode || false
         });
       }
-    } else if (!contextLoading.paymentInfo) {
+    } else if (!contextLoading.paymentInfo && !isLoadingAll) {
       console.log('🚀 PaymentInfo: Fetching data (not preloaded)');
       loadPaymentInfo();
     }
     loadCryptocurrencies();
-  }, [data.paymentInfo, contextLoading.paymentInfo]);
+  }, [data.paymentInfo, contextLoading.paymentInfo, isLoadingAll]);
 
   const loadPaymentInfo = async () => {
     try {
@@ -199,8 +199,8 @@ const PaymentInfo = () => {
     return fieldMap[crypto] || 'btcAddress';
   };
 
-  // Only show loading if no data is available at all
-  if (!paymentInfo && loading && !data.paymentInfo) {
+  // Only show loading if no data is available at all and not in global preload
+  if (!paymentInfo && loading && !data.paymentInfo && !isLoadingAll) {
     return (
       <div className="payment-info-loading">
         <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>

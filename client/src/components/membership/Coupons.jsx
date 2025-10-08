@@ -4,8 +4,9 @@ import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Coupons = () => {
-  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
-  const [coupons, setCoupons] = useState([]);
+  const { data, loading: contextLoading, refreshData, isInitialized, isLoadingAll } = useMembershipData();
+  // Initialize with preloaded data if available
+  const [coupons, setCoupons] = useState(data.coupons || []);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,11 +26,11 @@ const Coupons = () => {
     if (data.coupons && Array.isArray(data.coupons)) {
       console.log('🚀 Coupons: Using preloaded data', data.coupons.length, 'coupons');
       setCoupons(data.coupons);
-    } else if (!contextLoading.coupons) {
+    } else if (!contextLoading.coupons && !isLoadingAll) {
       console.log('🚀 Coupons: Fetching data (not preloaded)');
       loadCoupons();
     }
-  }, [data.coupons, contextLoading.coupons]);
+  }, [data.coupons, contextLoading.coupons, isLoadingAll]);
 
   const loadCoupons = async () => {
     // Only set loading if we don't have preloaded data
