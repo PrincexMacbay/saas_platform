@@ -78,7 +78,7 @@ const BrowseMemberships = () => {
     return (
       <div className="browse-loading">
         <div className="loading-spinner"></div>
-        <p>Loading membership plans...</p>
+        {/* <p>Loading membership plans...</p> */}
       </div>
     );
   }
