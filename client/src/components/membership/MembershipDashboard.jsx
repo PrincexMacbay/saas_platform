@@ -3,7 +3,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const MembershipDashboard = () => {
-  const { data, loading, errors, refreshData } = useMembershipData();
+  const { data, loading, errors, refreshData, isLoadingAll } = useMembershipData();
   const dashboardData = data.dashboard;
   const isLoading = loading.dashboard;
   const error = errors.dashboard;
@@ -17,8 +17,8 @@ const MembershipDashboard = () => {
 
   // Data fetching is now handled by the context
 
-  // Only show loading if no data is available at all
-  if (!dashboardData && isLoading) {
+  // Only show loading if no data is available at all and we're not in the middle of preloading
+  if (!dashboardData && isLoading && !data.dashboard && !isLoadingAll) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading dashboard...</p>

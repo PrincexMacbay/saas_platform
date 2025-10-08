@@ -75,7 +75,10 @@ const PaymentInfo = () => {
 
   const loadPaymentInfo = async () => {
     try {
-      setLoading(true);
+      // Only set loading if we don't have preloaded data
+      if (!data.paymentInfo) {
+        setLoading(true);
+      }
       const response = await api.get('/user-payment-info/my-payment-info');
       if (response.data.success) {
         setPaymentInfo(response.data.data);
