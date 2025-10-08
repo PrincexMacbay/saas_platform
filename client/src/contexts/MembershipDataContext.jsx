@@ -97,7 +97,28 @@ export const MembershipDataProvider = ({ children }) => {
 
       const result = await response.json();
       console.log(`${dataKey} data received:`, result);
-      setData(prev => ({ ...prev, [dataKey]: result.data || result }));
+      
+      // Handle different response structures
+      let dataToStore;
+      if (result.data) {
+        dataToStore = result.data;
+      } else if (result.coupons) {
+        // Handle coupons response: { success: true, coupons: [...] }
+        dataToStore = result.coupons;
+      } else if (result.reminders) {
+        // Handle reminders response: { success: true, reminders: [...] }
+        dataToStore = result.reminders;
+      } else if (result.debts) {
+        // Handle debts response: { success: true, debts: [...] }
+        dataToStore = result.debts;
+      } else if (result.scheduledPayments) {
+        // Handle scheduled payments response: { success: true, scheduledPayments: [...] }
+        dataToStore = result.scheduledPayments;
+      } else {
+        dataToStore = result;
+      }
+      
+      setData(prev => ({ ...prev, [dataKey]: dataToStore }));
       
     } catch (error) {
       console.error(`🚨 Error fetching ${dataKey}:`, error);

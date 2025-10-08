@@ -5,8 +5,8 @@ import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Coupons = () => {
   const { data, loading: contextLoading, refreshData, isInitialized, isLoadingAll } = useMembershipData();
-  // Initialize with preloaded data if available
-  const [coupons, setCoupons] = useState(data.coupons || []);
+  // Initialize with preloaded data if available and ensure it's an array
+  const [coupons, setCoupons] = useState(Array.isArray(data.coupons) ? data.coupons : []);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
