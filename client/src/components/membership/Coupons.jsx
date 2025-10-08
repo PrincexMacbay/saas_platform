@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createCoupon, getCoupons, deleteCoupon, updateCoupon } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Coupons = () => {
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [coupons, setCoupons] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,8 +21,15 @@ const Coupons = () => {
   });
 
   useEffect(() => {
-    loadCoupons();
-  }, []);
+    // Use preloaded data if available
+    if (data.coupons && Array.isArray(data.coupons)) {
+      console.log('🚀 Coupons: Using preloaded data', data.coupons.length, 'coupons');
+      setCoupons(data.coupons);
+    } else if (!contextLoading.coupons) {
+      console.log('🚀 Coupons: Fetching data (not preloaded)');
+      loadCoupons();
+    }
+  }, [data.coupons, contextLoading.coupons]);
 
   const loadCoupons = async () => {
     setLoading(true);
@@ -162,12 +171,9 @@ const Coupons = () => {
       )}
 
       <div className="coupons-content">
-        {loading && coupons.length === 0 ? (
+        {!coupons.length && (loading || contextLoading.coupons) ? (
           <div className="text-center py-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3" style={{ color: '#666' }}>Loading coupons...</p>
+            <p style={{ color: '#666' }}>Loading coupons...</p>
           </div>
         ) : coupons.length === 0 ? (
           <div className="no-data">

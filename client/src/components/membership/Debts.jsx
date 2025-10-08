@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createDebt, getDebts, deleteDebt, updateDebtStatus } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Debts = () => {
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [debts, setDebts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,8 +19,15 @@ const Debts = () => {
   });
 
   useEffect(() => {
-    loadDebts();
-  }, []);
+    // Use preloaded data if available
+    if (data.debts && Array.isArray(data.debts)) {
+      console.log('🚀 Debts: Using preloaded data', data.debts.length, 'debts');
+      setDebts(data.debts);
+    } else if (!contextLoading.debts) {
+      console.log('🚀 Debts: Fetching data (not preloaded)');
+      loadDebts();
+    }
+  }, [data.debts, contextLoading.debts]);
 
   const loadDebts = async () => {
     setLoading(true);
@@ -159,12 +168,9 @@ const Debts = () => {
       )}
 
       <div className="debts-content">
-        {loading && debts.length === 0 ? (
+        {!debts.length && (loading || contextLoading.debts) ? (
           <div className="text-center py-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3" style={{ color: '#666' }}>Loading debts...</p>
+            <p style={{ color: '#666' }}>Loading debts...</p>
           </div>
         ) : debts.length === 0 ? (
           <div className="no-data">

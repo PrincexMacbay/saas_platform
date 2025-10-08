@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const PaymentInfo = () => {
   const { user } = useAuth();
+  const { data, loading: contextLoading, refreshData } = useMembershipData();
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -38,9 +40,38 @@ const PaymentInfo = () => {
   });
 
   useEffect(() => {
-    loadPaymentInfo();
+    // Use preloaded data if available
+    if (data.paymentInfo) {
+      console.log('🚀 PaymentInfo: Using preloaded data');
+      setPaymentInfo(data.paymentInfo);
+      setLoading(false);
+      // Populate form with existing data
+      if (data.paymentInfo) {
+        setFormData({
+          bankName: data.paymentInfo.bankName || '',
+          accountNumber: data.paymentInfo.accountNumber || '',
+          routingNumber: data.paymentInfo.routingNumber || '',
+          accountHolderName: data.paymentInfo.accountHolderName || '',
+          accountType: data.paymentInfo.accountType || 'checking',
+          preferredCrypto: data.paymentInfo.preferredCrypto || 'BTC',
+          btcAddress: data.paymentInfo.btcAddress || '',
+          ethAddress: data.paymentInfo.ethAddress || '',
+          ltcAddress: data.paymentInfo.ltcAddress || '',
+          bchAddress: data.paymentInfo.bchAddress || '',
+          xmrAddress: data.paymentInfo.xmrAddress || '',
+          paymentGateway: data.paymentInfo.paymentGateway || 'nowpayments',
+          gatewayApiKey: data.paymentInfo.gatewayApiKey || '',
+          gatewaySecretKey: data.paymentInfo.gatewaySecretKey || '',
+          gatewayWebhookSecret: data.paymentInfo.gatewayWebhookSecret || '',
+          gatewaySandboxMode: data.paymentInfo.gatewaySandboxMode || false
+        });
+      }
+    } else if (!contextLoading.paymentInfo) {
+      console.log('🚀 PaymentInfo: Fetching data (not preloaded)');
+      loadPaymentInfo();
+    }
     loadCryptocurrencies();
-  }, []);
+  }, [data.paymentInfo, contextLoading.paymentInfo]);
 
   const loadPaymentInfo = async () => {
     try {
@@ -165,11 +196,13 @@ const PaymentInfo = () => {
     return fieldMap[crypto] || 'btcAddress';
   };
 
-  if (loading) {
+  // Only show loading if no data is available at all
+  if (!paymentInfo && (loading || contextLoading.paymentInfo)) {
     return (
       <div className="payment-info-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading payment information...</p>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          <p>Loading payment information...</p>
+        </div>
       </div>
     );
   }

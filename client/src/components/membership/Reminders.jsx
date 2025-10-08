@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createReminder, getReminders, deleteReminder, sendReminder } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Reminders = () => {
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [reminders, setReminders] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,8 +18,15 @@ const Reminders = () => {
   });
 
   useEffect(() => {
-    loadReminders();
-  }, []);
+    // Use preloaded data if available
+    if (data.reminders && Array.isArray(data.reminders)) {
+      console.log('🚀 Reminders: Using preloaded data', data.reminders.length, 'reminders');
+      setReminders(data.reminders);
+    } else if (!contextLoading.reminders) {
+      console.log('🚀 Reminders: Fetching data (not preloaded)');
+      loadReminders();
+    }
+  }, [data.reminders, contextLoading.reminders]);
 
   const loadReminders = async () => {
     setLoading(true);
@@ -145,12 +154,9 @@ const Reminders = () => {
       )}
 
       <div className="reminders-content">
-        {loading && reminders.length === 0 ? (
+        {!reminders.length && (loading || contextLoading.reminders) ? (
           <div className="text-center py-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3" style={{ color: '#666' }}>Loading reminders...</p>
+            <p style={{ color: '#666' }}>Loading reminders...</p>
           </div>
         ) : reminders.length === 0 ? (
           <div className="no-data">
