@@ -101,7 +101,16 @@ export const MembershipDataProvider = ({ children }) => {
       // Handle different response structures
       let dataToStore;
       if (result.data) {
-        dataToStore = result.data;
+        // Check if data has nested array (e.g., plans, payments)
+        if (result.data.plans && Array.isArray(result.data.plans)) {
+          dataToStore = result.data.plans;
+        } else if (result.data.payments && Array.isArray(result.data.payments)) {
+          dataToStore = result.data.payments;
+        } else if (result.data.applications && Array.isArray(result.data.applications)) {
+          dataToStore = result.data.applications;
+        } else {
+          dataToStore = result.data;
+        }
       } else if (result.coupons) {
         // Handle coupons response: { success: true, coupons: [...] }
         dataToStore = result.coupons;

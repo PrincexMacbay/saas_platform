@@ -139,15 +139,7 @@ const updateCoupon = async (req, res) => {
 
     await coupon.update(updateData);
 
-    const updatedCoupon = await Coupon.findByPk(id, {
-      include: [
-        {
-          model: Plan,
-          as: 'plan',
-          attributes: ['id', 'name', 'fee']
-        }
-      ]
-    });
+    const updatedCoupon = await Coupon.findByPk(id);
 
     res.json({
       success: true,
