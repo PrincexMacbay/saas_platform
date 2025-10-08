@@ -85,6 +85,68 @@ const BrowseMemberships = () => {
 
   return (
     <ErrorBoundary>
+      <style>{`
+        .apply-button,
+        .details-button {
+          flex: 1;
+          padding: 16px 20px;
+          border-radius: 12px;
+          text-decoration: none;
+          text-align: center;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        
+        .apply-button {
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .apply-button:hover {
+          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+        
+        .details-button {
+          background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+        
+        .details-button:hover {
+          background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
+        }
+        
+        .apply-button::before, 
+        .details-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+        
+        .apply-button:hover::before, 
+        .details-button:hover::before {
+          left: 100%;
+        }
+      `}</style>
     <div className="browse-memberships">
       <div className="browse-header">
         <h1>Browse Memberships</h1>

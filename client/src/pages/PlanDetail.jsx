@@ -131,7 +131,105 @@ const PlanDetail = () => {
   }
 
   return (
-    <div className="plan-detail">
+    <>
+      <style>{`
+        .plan-creator-badge {
+          background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+          border: 2px solid #95a5a6;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+          margin: 20px 0;
+        }
+        
+        .plan-creator-badge i {
+          font-size: 2.5rem;
+          color: #7f8c8d;
+          margin-bottom: 10px;
+          display: block;
+        }
+        
+        .plan-creator-badge span {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #2c3e50;
+          display: block;
+          margin-bottom: 8px;
+        }
+        
+        .plan-creator-badge .creator-note {
+          font-size: 0.9rem;
+          color: #7f8c8d;
+          margin: 8px 0 0 0;
+        }
+        
+        .apply-now-button {
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+          color: white !important;
+          padding: 16px 32px !important;
+          border-radius: 12px !important;
+          font-size: 1.1rem !important;
+          font-weight: 600 !important;
+          border: none !important;
+          cursor: pointer !important;
+          transition: all 0.3s ease !important;
+          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 10px !important;
+          width: 100% !important;
+          max-width: 300px !important;
+          margin: 0 auto !important;
+        }
+        
+        .apply-now-button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%) !important;
+          transform: translateY(-3px) !important;
+          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4) !important;
+        }
+        
+        .apply-now-button:disabled {
+          background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+          cursor: not-allowed !important;
+          opacity: 0.6 !important;
+        }
+        
+        .apply-actions {
+          margin: 30px 0;
+        }
+        
+        .login-prompt {
+          text-align: center;
+          padding: 20px;
+          background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+          border-radius: 12px;
+        }
+        
+        .login-prompt p {
+          margin-bottom: 15px;
+          color: #2c3e50;
+          font-weight: 500;
+        }
+        
+        .login-prompt .btn {
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+          color: white !important;
+          padding: 12px 24px !important;
+          border-radius: 8px !important;
+          text-decoration: none !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          transition: all 0.3s ease !important;
+        }
+        
+        .login-prompt .btn:hover {
+          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%) !important;
+          transform: translateY(-2px) !important;
+        }
+      `}</style>
+      <div className="plan-detail">
       <div className="plan-detail-header">
         <div className="breadcrumb">
           <Link to="/browse-memberships">
@@ -222,18 +320,27 @@ const PlanDetail = () => {
 
             <div className="apply-actions">
               {user ? (
-                <button 
-                  onClick={handleApplyNow}
-                  className="btn btn-primary btn-large"
-                  disabled={!plan.isActive}
-                >
-                  <i className="fas fa-arrow-right"></i>
-                  Apply Now
-                </button>
+                // Check if the current user is the creator of the plan
+                user && plan.createdBy === user.id ? (
+                  <div className="plan-creator-badge">
+                    <i className="fas fa-user-check"></i>
+                    <span>You are the creator of this plan</span>
+                    <p className="creator-note">Plan creators are automatically considered members and cannot apply.</p>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={handleApplyNow}
+                    className="btn btn-primary btn-large apply-now-button"
+                    disabled={!plan.isActive}
+                  >
+                    <i className="fas fa-rocket"></i>
+                    Apply Now
+                  </button>
+                )
               ) : (
                 <div className="login-prompt">
                   <p>Please log in to apply for this membership</p>
-                  <Link to="/login" className="btn btn-primary">
+                  <Link to="/login" className="btn btn-primary btn-large">
                     <i className="fas fa-sign-in-alt"></i>
                     Login to Apply
                   </Link>
@@ -271,6 +378,7 @@ const PlanDetail = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
