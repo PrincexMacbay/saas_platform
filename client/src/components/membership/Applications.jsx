@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const Applications = () => {
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,8 +16,24 @@ const Applications = () => {
   const [joiningOrganization, setJoiningOrganization] = useState(false);
 
   useEffect(() => {
-    fetchApplications();
-  }, [currentPage, searchTerm, statusFilter]);
+    // Use preloaded data if available
+    if (data.applications && Array.isArray(data.applications)) {
+      console.log('🚀 Applications: Using preloaded data', data.applications.length, 'applications');
+      setApplications(data.applications);
+      setLoading(false);
+    } else if (!contextLoading.applications) {
+      console.log('🚀 Applications: Fetching data (not preloaded)');
+      fetchApplications();
+    }
+  }, [data.applications, contextLoading.applications]);
+
+  useEffect(() => {
+    // Only fetch when filters change, not on initial load
+    if (isInitialized && (!data.applications || data.applications.length === 0)) {
+      console.log('🚀 Applications: Fetching due to filter changes');
+      fetchApplications();
+    }
+  }, [currentPage, searchTerm, statusFilter, isInitialized]);
 
   const fetchApplications = async () => {
     try {
@@ -148,7 +166,7 @@ const Applications = () => {
   };
 
   // Only show loading if no data is available at all
-  if (loading && applications.length === 0) {
+  if (!applications.length && (loading || contextLoading.applications)) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading applications...</p>

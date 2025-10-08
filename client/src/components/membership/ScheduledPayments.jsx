@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createScheduledPayment, getScheduledPayments, deleteScheduledPayment } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const ScheduledPayments = () => {
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [scheduledPayments, setScheduledPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,8 +19,15 @@ const ScheduledPayments = () => {
   });
 
   useEffect(() => {
-    loadScheduledPayments();
-  }, []);
+    // Use preloaded data if available
+    if (data.scheduledPayments && Array.isArray(data.scheduledPayments)) {
+      console.log('🚀 ScheduledPayments: Using preloaded data', data.scheduledPayments.length, 'scheduled payments');
+      setScheduledPayments(data.scheduledPayments);
+    } else if (!contextLoading.scheduledPayments) {
+      console.log('🚀 ScheduledPayments: Fetching data (not preloaded)');
+      loadScheduledPayments();
+    }
+  }, [data.scheduledPayments, contextLoading.scheduledPayments]);
 
   const loadScheduledPayments = async () => {
     setLoading(true);
@@ -126,12 +135,9 @@ const ScheduledPayments = () => {
       )}
 
       <div className="scheduled-payments-content">
-        {loading && scheduledPayments.length === 0 ? (
+        {!scheduledPayments.length && (loading || contextLoading.scheduledPayments) ? (
           <div className="text-center py-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3" style={{ color: '#666' }}>Loading scheduled payments...</p>
+            <p style={{ color: '#666' }}>Loading scheduled payments...</p>
           </div>
         ) : scheduledPayments.length === 0 ? (
           <div className="no-data">

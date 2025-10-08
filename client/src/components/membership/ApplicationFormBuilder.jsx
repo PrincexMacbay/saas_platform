@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 
 const ApplicationFormBuilder = () => {
+  const { data, loading: contextLoading, refreshData } = useMembershipData();
   const [formConfig, setFormConfig] = useState({
     title: 'Membership Application',
     description: '',
@@ -263,12 +265,12 @@ const ApplicationFormBuilder = () => {
     }));
   };
 
-  if (loading) {
+  // Only show loading if no data is available at all
+  if (loading && !data.applicationForms) {
     return (
       <div className="form-builder-container">
-        <div className="loading-container">
-          <i className="fas fa-spinner fa-spin"></i>
-          <p>Loading...</p>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          <p>Loading form builder...</p>
         </div>
       </div>
     );

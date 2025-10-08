@@ -514,7 +514,7 @@ const MembershipNavbar = () => {
             Membership Management
             {isLoadingAll && (
               <span style={{ marginLeft: '15px', fontSize: '0.8rem', color: '#3498db' }}>
-                <i className="fas fa-spinner fa-spin"></i> Loading data...
+                {/* <i className="fas fa-spinner fa-spin"></i> Loading data... */}
               </span>
             )}
           </h1>

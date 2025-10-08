@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { useMembershipData } from '../../contexts/MembershipDataContext';
 import ConfirmDialog from '../ConfirmDialog';
 
 const ApplicationForms = () => {
   const navigate = useNavigate();
+  const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,8 +19,16 @@ const ApplicationForms = () => {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
 
   useEffect(() => {
-    fetchForms();
-  }, []);
+    // Use preloaded data if available
+    if (data.applicationForms && Array.isArray(data.applicationForms)) {
+      console.log('🚀 ApplicationForms: Using preloaded data', data.applicationForms.length, 'forms');
+      setForms(data.applicationForms);
+      setLoading(false);
+    } else if (!contextLoading.applicationForms) {
+      console.log('🚀 ApplicationForms: Fetching data (not preloaded)');
+      fetchForms();
+    }
+  }, [data.applicationForms, contextLoading.applicationForms]);
 
   const fetchForms = async () => {
     try {
@@ -133,7 +143,7 @@ const ApplicationForms = () => {
   };
 
   // Only show loading if no data is available at all
-  if (loading && forms.length === 0) {
+  if (!forms.length && (loading || contextLoading.applicationForms)) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         <p>Loading application forms...</p>
