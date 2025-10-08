@@ -12,9 +12,14 @@ const initializeAdmin = async () => {
     const ADMIN_FIRST_NAME = process.env.ADMIN_FIRST_NAME || 'Super';
     const ADMIN_LAST_NAME = process.env.ADMIN_LAST_NAME || 'Admin';
 
-    // Check if admin exists by email
+    // Check if admin exists by email or username
     const adminExists = await User.findOne({ 
-      where: { email: ADMIN_EMAIL } 
+      where: { 
+        [require('sequelize').Op.or]: [
+          { email: ADMIN_EMAIL },
+          { username: ADMIN_USERNAME }
+        ]
+      } 
     });
 
     if (!adminExists) {
@@ -53,7 +58,10 @@ const initializeAdmin = async () => {
       console.log('⚠️  IMPORTANT: Please change the password after first login!');
       console.log('✅ ============================================');
     } else {
-      console.log('✅ Admin account already exists:', ADMIN_EMAIL);
+      console.log('✅ Admin account already exists');
+      console.log('📧 Email:', adminExists.email);
+      console.log('👤 Username:', adminExists.username);
+      console.log('🆔 User ID:', adminExists.id);
       
       // Optional: Update admin password if RESET_ADMIN_PASSWORD is set
       if (process.env.RESET_ADMIN_PASSWORD === 'true') {
