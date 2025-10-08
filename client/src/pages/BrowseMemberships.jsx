@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const BrowseMemberships = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [plans, setPlans] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -195,13 +195,29 @@ const BrowseMemberships = () => {
 
             <div className="plan-actions">
               {isAuthenticated ? (
-                <Link 
-                  to={`/apply/${plan.id}`}
-                  className="apply-button"
-                >
-                  <i className="fas fa-rocket"></i>
-                  Apply Now
-                </Link>
+                // Check if the current user is the creator of the plan
+                user && plan.createdBy === user.id ? (
+                  <div 
+                    className="apply-button" 
+                    style={{ 
+                      background: 'linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%)', 
+                      cursor: 'not-allowed',
+                      opacity: 0.7
+                    }}
+                    title="You cannot apply for your own plan"
+                  >
+                    <i className="fas fa-user-check"></i>
+                    Plan Creator
+                  </div>
+                ) : (
+                  <Link 
+                    to={`/apply/${plan.id}`}
+                    className="apply-button"
+                  >
+                    <i className="fas fa-rocket"></i>
+                    Apply Now
+                  </Link>
+                )
               ) : (
                 <Link 
                   to="/login"

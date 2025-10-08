@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 
 const ApplyMembership = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form, setForm] = useState(null);
   const [plan, setPlan] = useState(null);
   const [formData, setFormData] = useState({});
@@ -39,6 +41,16 @@ const ApplyMembership = () => {
       }
       
       setPlan(selectedPlan);
+      
+      // Check if the current user is the plan creator
+      if (user && selectedPlan.createdBy === user.id) {
+        setError('You cannot apply for a plan that you created. Plan creators are automatically considered members.');
+        setLoading(false);
+        setTimeout(() => {
+          navigate('/browse-memberships');
+        }, 3000);
+        return;
+      }
       
       // Get the application form based on plan configuration
       let formResponse;
