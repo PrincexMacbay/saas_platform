@@ -1,15 +1,15 @@
 /* Admin Sidebar Styles */
 .admin-sidebar {
   position: fixed;
-  top: 0;
+  top: 60px; /* Start below the navbar */
   left: 0;
   width: 250px;
-  height: 100vh;
+  height: calc(100vh - 60px); /* Account for navbar height */
   background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
   color: white;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 999;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 

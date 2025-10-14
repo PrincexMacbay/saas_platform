@@ -88,50 +88,62 @@ const Navbar = () => {
           />
         </Link>
         
-        <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
-          <li className="nav-item">
-            <Link 
-              to="/dashboard" 
-              className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
-            >
-              <i className="fas fa-home"></i> Dashboard
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link 
-              to="/membership" 
-              className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
-            >
-              <i className="fas fa-users"></i> Membership
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link 
-              to="/users" 
-              className={`nav-link ${isActive('/users') ? 'active' : ''}`}
-            >
-              <i className="fas fa-user-friends"></i> People
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link 
-              to="/career" 
-              className={`nav-link ${isActive('/career') ? 'active' : ''}`}
-            >
-              <i className="fas fa-briefcase"></i> Career Center
-            </Link>
-          </li>
-          {user?.role === 'admin' && (
+        {/* Hide regular navigation when on admin dashboard */}
+        {!location.pathname.startsWith('/admin') && (
+          <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
             <li className="nav-item">
               <Link 
-                to="/admin" 
-                className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+                to="/dashboard" 
+                className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
               >
-                <i className="fas fa-cog"></i> Admin
+                <i className="fas fa-home"></i> Dashboard
               </Link>
             </li>
-          )}
-        </ul>
+            <li className="nav-item">
+              <Link 
+                to="/membership" 
+                className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
+              >
+                <i className="fas fa-users"></i> Membership
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
+                to="/users" 
+                className={`nav-link ${isActive('/users') ? 'active' : ''}`}
+              >
+                <i className="fas fa-user-friends"></i> People
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link 
+                to="/career" 
+                className={`nav-link ${isActive('/career') ? 'active' : ''}`}
+              >
+                <i className="fas fa-briefcase"></i> Career Center
+              </Link>
+            </li>
+            {user?.role === 'admin' && (
+              <li className="nav-item">
+                <Link 
+                  to="/admin" 
+                  className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-cog"></i> Admin
+                </Link>
+              </li>
+            )}
+          </ul>
+        )}
+
+        {/* Admin navigation - only show when on admin dashboard */}
+        {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
+          <div className="admin-nav-info">
+            <span className="admin-nav-text">
+              <i className="fas fa-cog"></i> Admin Panel
+            </span>
+          </div>
+        )}
 
         {/* Profile Dropdown */}
         <div className="profile-dropdown">
@@ -268,6 +280,26 @@ const Navbar = () => {
 
               {/* Menu Items */}
               <div style={{ padding: '8px 0' }}>
+                {/* Show "Back to Dashboard" when on admin panel */}
+                {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
+                  <Link 
+                    to="/dashboard"
+                    className="dropdown-item"
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                    style={{
+                      display: 'block',
+                      padding: '12px 16px',
+                      color: '#3498db',
+                      textDecoration: 'none',
+                      transition: 'background-color 0.2s',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <i className="fas fa-arrow-left" style={{ marginRight: '12px', width: '16px' }}></i>
+                    Back to Dashboard
+                  </Link>
+                )}
+                
                 <Link 
                   to={`/profile/${user?.username}`}
                   className="dropdown-item"

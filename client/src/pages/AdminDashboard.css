@@ -3,6 +3,7 @@
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
+  margin-top: 60px; /* Account for fixed navbar */
 }
 
 .admin-dashboard-loading {
@@ -32,6 +33,7 @@
 .admin-main-content {
   flex: 1;
   margin-left: 250px;
+  margin-top: -60px; /* Offset the dashboard margin-top */
   padding: 0;
 }
 

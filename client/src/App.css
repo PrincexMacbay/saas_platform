@@ -57,6 +57,34 @@
   background-color: #3498db;
 }
 
+/* Admin navigation styling */
+.admin-nav-info {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: rgba(52, 152, 219, 0.1);
+  border-radius: 5px;
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.admin-nav-text {
+  color: #3498db;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-nav-text i {
+  font-size: 1rem;
+}
+
+/* Dropdown item hover effects */
+.dropdown-item:hover {
+  background-color: #f8f9fa !important;
+}
+
 /* Post styles */
 .post {
   background: white;
