@@ -186,31 +186,30 @@ const login = async (req, res) => {
   try {
     const { login, password } = req.body;
 
-    // Find user by username or email with profile data
+    console.log('=== LOGIN DEBUG ===');
+    console.log('Login attempt for:', login);
+    console.log('Password length:', password ? password.length : 'undefined');
+
+    // Find user by username or email (simplified query first)
     const user = await User.findOne({
       where: {
         [Op.or]: [
           { email: login },
           { username: login }
         ]
-      },
-      include: [
-        {
-          model: UserProfile,
-          as: 'profile'
-        },
-        {
-          model: IndividualProfile,
-          as: 'individualProfile'
-        },
-        {
-          model: CompanyProfile,
-          as: 'companyProfile'
-        }
-      ]
+      }
     });
 
+    console.log('User found:', user ? 'YES' : 'NO');
+    if (user) {
+      console.log('User ID:', user.id);
+      console.log('User email:', user.email);
+      console.log('User username:', user.username);
+      console.log('User status:', user.status);
+    }
+
     if (!user) {
+      console.log('❌ User not found');
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -218,8 +217,11 @@ const login = async (req, res) => {
     }
 
     // Check password
+    console.log('Checking password...');
     const isValidPassword = await user.validatePassword(password);
+    console.log('Password valid:', isValidPassword);
     if (!isValidPassword) {
+      console.log('❌ Invalid password');
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -227,7 +229,9 @@ const login = async (req, res) => {
     }
 
     // Check if user is enabled
+    console.log('Checking user status:', user.status);
     if (user.status !== 1) {
+      console.log('❌ User account not active');
       return res.status(401).json({
         success: false,
         message: 'Account is not active'
@@ -237,15 +241,27 @@ const login = async (req, res) => {
     // Update last login
     await user.update({ lastLogin: new Date() });
 
+    // Get user with profile data for response
+    const userWithProfile = await User.findOne({
+      where: { id: user.id },
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        }
+      ]
+    });
+
     // Generate token
     const token = generateToken(user.id);
+    console.log('✅ Login successful for user:', user.email);
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
         token,
-        user: user.toJSON(),
+        user: userWithProfile ? userWithProfile.toJSON() : user.toJSON(),
       }
     });
   } catch (error) {
