@@ -47,12 +47,24 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
       label: 'System Config',
       icon: '⚙️',
       description: 'Platform settings and features'
+    },
+    {
+      id: 'view-as-user',
+      label: 'View as User',
+      icon: '👁️',
+      description: 'Preview platform from user perspective',
+      isSpecial: true
     }
   ];
 
   const handleLogout = () => {
     logout();
     window.location.href = '/login';
+  };
+
+  const handleViewAsUser = () => {
+    // Open user dashboard in new tab
+    window.open('/dashboard', '_blank');
   };
 
   return (
@@ -68,8 +80,14 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            className={`admin-nav-item ${activeSection === item.id ? 'active' : ''}`}
-            onClick={() => onSectionChange(item.id)}
+            className={`admin-nav-item ${activeSection === item.id ? 'active' : ''} ${item.isSpecial ? 'special' : ''}`}
+            onClick={() => {
+              if (item.id === 'view-as-user') {
+                handleViewAsUser();
+              } else {
+                onSectionChange(item.id);
+              }
+            }}
             title={item.description}
           >
             <span className="nav-icon">{item.icon}</span>
@@ -83,6 +101,9 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
           <span className="logout-icon">🚪</span>
           <span>Logout</span>
         </button>
+        <div className="admin-footer-info">
+          <small>Admin Panel v1.0</small>
+        </div>
       </div>
     </div>
   );

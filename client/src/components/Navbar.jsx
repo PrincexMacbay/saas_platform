@@ -138,9 +138,9 @@ const Navbar = () => {
 
         {/* Admin navigation - only show when on admin dashboard */}
         {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
-          <div className="admin-nav-info">
+          <div className="">
             <span className="admin-nav-text">
-              <i className="fas fa-cog"></i> Admin Panel
+              {/* <i className="fas fa-cog"></i> Admin Panel */}
             </span>
           </div>
         )}
@@ -280,26 +280,6 @@ const Navbar = () => {
 
               {/* Menu Items */}
               <div style={{ padding: '8px 0' }}>
-                {/* Show "Back to Dashboard" when on admin panel */}
-                {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
-                  <Link 
-                    to="/dashboard"
-                    className="dropdown-item"
-                    onClick={() => setIsProfileDropdownOpen(false)}
-                    style={{
-                      display: 'block',
-                      padding: '12px 16px',
-                      color: '#3498db',
-                      textDecoration: 'none',
-                      transition: 'background-color 0.2s',
-                      fontWeight: '600'
-                    }}
-                  >
-                    <i className="fas fa-arrow-left" style={{ marginRight: '12px', width: '16px' }}></i>
-                    Back to Dashboard
-                  </Link>
-                )}
-                
                 <Link 
                   to={`/profile/${user?.username}`}
                   className="dropdown-item"

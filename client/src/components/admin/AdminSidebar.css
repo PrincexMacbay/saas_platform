@@ -72,6 +72,23 @@
   transform: scale(1.1);
 }
 
+.admin-nav-item.special {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  margin-top: 1rem;
+}
+
+.admin-nav-item.special:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, transparent 100%);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #059669;
+}
+
+.admin-nav-item.special .nav-icon {
+  color: #10b981;
+}
+
 .nav-icon {
   font-size: 1.125rem;
   transition: transform 0.2s;
@@ -84,6 +101,9 @@
 .admin-sidebar-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .admin-logout-btn {
@@ -111,6 +131,17 @@
 
 .logout-icon {
   font-size: 1rem;
+}
+
+.admin-footer-info {
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-footer-info small {
+  color: #94a3b8;
+  font-size: 0.75rem;
 }
 
 /* Responsive Design */
