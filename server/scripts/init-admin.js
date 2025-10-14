@@ -63,14 +63,29 @@ const initializeAdmin = async () => {
       // Optional: Update admin password if RESET_ADMIN_PASSWORD is set
       if (process.env.RESET_ADMIN_PASSWORD === 'true') {
         console.log('🔧 Resetting admin password...');
-        const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 12);
-        await adminExists.update({ password: hashedPassword });
+        console.log('🔑 Resetting to password:', ADMIN_PASSWORD);
         
-        // Verify the password works
+        // Use the model's update method which will trigger the beforeSave hook
+        // This will properly hash the password using the model's logic
+        await adminExists.update({ password: ADMIN_PASSWORD });
+        
+        // Reload the user from database to get fresh data
+        await adminExists.reload();
+        
+        // Test password validation
+        console.log('🔍 Testing password validation...');
         const isValid = await adminExists.validatePassword(ADMIN_PASSWORD);
         console.log('✅ Admin password reset successfully!');
         console.log('🔑 New password:', ADMIN_PASSWORD);
         console.log('✅ Password verification test:', isValid ? 'PASSED' : 'FAILED');
+        
+        if (!isValid) {
+          console.log('⚠️  Password validation failed - checking password hash...');
+          console.log('🔍 Stored password hash length:', adminExists.password ? adminExists.password.length : 'null');
+          // Try direct bcrypt comparison as backup
+          const directComparison = await bcrypt.compare(ADMIN_PASSWORD, adminExists.password);
+          console.log('🔍 Direct bcrypt comparison:', directComparison ? 'PASSED' : 'FAILED');
+        }
       }
     }
   } catch (error) {
