@@ -65,7 +65,12 @@ const initializeAdmin = async () => {
         console.log('🔧 Resetting admin password...');
         const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 12);
         await adminExists.update({ password: hashedPassword });
+        
+        // Verify the password works
+        const isValid = await adminExists.validatePassword(ADMIN_PASSWORD);
         console.log('✅ Admin password reset successfully!');
+        console.log('🔑 New password:', ADMIN_PASSWORD);
+        console.log('✅ Password verification test:', isValid ? 'PASSED' : 'FAILED');
       }
     }
   } catch (error) {
