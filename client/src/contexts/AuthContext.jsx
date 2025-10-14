@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         payload: { user, token },
       });
       
-      return { success: true };
+      return { success: true, user };
     } catch (error) {
       return {
         success: false,
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
         payload: { user, token },
       });
       
-      return { success: true };
+      return { success: true, user };
     } catch (error) {
       return {
         success: false,

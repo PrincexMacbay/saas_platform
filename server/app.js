@@ -28,6 +28,7 @@ const routes = require("./routes");
 const { sequelize } = require("./models");
 const { testConnection } = require("./config/db");
 const initializeAdmin = require("./scripts/init-admin");
+const migrateUserRoles = require("./scripts/migrate-user-roles");
 const seederService = require("./services/seederService");
 
 const app = express();
@@ -220,7 +221,11 @@ const startServer = async () => {
       await sequelize.sync({ alter: false });
     }
 
-    // Initialize admin account (runs after database sync)
+    // Run user roles migration (runs after database sync)
+    console.log('🔄 Running user roles migration...');
+    await migrateUserRoles();
+
+    // Initialize admin account (runs after migration)
     console.log('🔧 Initializing admin account...');
     await initializeAdmin();
 

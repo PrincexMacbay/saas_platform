@@ -19,6 +19,7 @@ import JobDetail from './components/career/JobDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
+import SmartRedirect from './components/SmartRedirect';
 import SimpleErrorLogger from './components/SimpleErrorLogger';
 import './App.css';
 
@@ -39,7 +40,11 @@ function App() {
               <Route path="/plan/:id" element={<PlanDetail />} />
                               <Route path="/apply/:planId" element={<ApplyMembership />} />
                 <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <SmartRedirect />
+                  </ProtectedRoute>
+                } />
               <Route
                 path="/dashboard"
                 element={

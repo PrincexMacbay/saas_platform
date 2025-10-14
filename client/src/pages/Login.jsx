@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getDashboardPath } from '../hooks/useAdminRedirect';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,14 +11,14 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate(getDashboardPath(user));
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -35,7 +36,9 @@ const Login = () => {
     const result = await login(formData);
     
     if (result.success) {
-      navigate('/dashboard');
+      // Redirect to appropriate dashboard based on user role
+      const { user } = result;
+      navigate(getDashboardPath(user));
     } else {
       setError(result.message);
     }
