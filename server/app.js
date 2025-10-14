@@ -211,14 +211,15 @@ const startServer = async () => {
 
     // Sync database (create tables)
     if (process.env.NODE_ENV === "development") {
-      await syncDatabase(false); // Don't force, just alter existing tables
+      // In development, sync without altering to avoid ENUM issues
+      await sequelize.sync({ alter: false, force: false });
       
       // Seed database with demo data (only in development)
       console.log('🌱 Seeding database with demo data...');
       await seederService.seedDatabase();
     } else {
       // In production, only sync if tables don't exist
-      await sequelize.sync({ alter: false });
+      await sequelize.sync({ alter: false, force: false });
     }
 
     // Run user roles migration (runs after database sync)

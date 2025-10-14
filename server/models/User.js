@@ -117,8 +117,12 @@ const User = sequelize.define('User', {
     comment: 'JSON string for organization-specific settings',
   },
   role: {
-    type: DataTypes.ENUM('user', 'admin', 'moderator'),
+    type: DataTypes.STRING(20),
     defaultValue: 'user',
+    allowNull: false,
+    validate: {
+      isIn: [['user', 'admin', 'moderator']]
+    },
     comment: 'User role for system-wide permissions',
   },
 

@@ -8,10 +8,31 @@ async function migrateUserRoles() {
   try {
     console.log('🔄 Starting user roles migration...');
     
-    // Get all users without a role field (or with null role)
+    // Check if role column exists in the database
+    const sequelize = require('../models').sequelize;
+    const [results] = await sequelize.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND column_name = 'role'
+    `);
+    
+    if (results.length === 0) {
+      console.log('📝 Role column does not exist, adding it...');
+      await sequelize.query(`
+        ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user' NOT NULL
+      `);
+      console.log('✅ Role column added successfully');
+    } else {
+      console.log('✅ Role column already exists');
+    }
+    
+    // Get all users without a role field (or with null/empty role)
     const usersWithoutRole = await User.findAll({
       where: {
-        role: null
+        [require('sequelize').Op.or]: [
+          { role: null },
+          { role: '' }
+        ]
       }
     });
 
@@ -21,7 +42,14 @@ async function migrateUserRoles() {
       // Update all users without role to have 'user' role
       await User.update(
         { role: 'user' },
-        { where: { role: null } }
+        { 
+          where: {
+            [require('sequelize').Op.or]: [
+              { role: null },
+              { role: '' }
+            ]
+          }
+        }
       );
 
       console.log('✅ Successfully updated users with default role');
