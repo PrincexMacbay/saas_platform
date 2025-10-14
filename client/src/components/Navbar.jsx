@@ -121,6 +121,16 @@ const Navbar = () => {
               <i className="fas fa-briefcase"></i> Career Center
             </Link>
           </li>
+          {user?.role === 'admin' && (
+            <li className="nav-item">
+              <Link 
+                to="/admin" 
+                className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+              >
+                <i className="fas fa-cog"></i> Admin
+              </Link>
+            </li>
+          )}
         </ul>
 
         {/* Profile Dropdown */}

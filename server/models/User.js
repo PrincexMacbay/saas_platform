@@ -116,6 +116,11 @@ const User = sequelize.define('User', {
     allowNull: true,
     comment: 'JSON string for organization-specific settings',
   },
+  role: {
+    type: DataTypes.ENUM('user', 'admin', 'moderator'),
+    defaultValue: 'user',
+    comment: 'User role for system-wide permissions',
+  },
 
 }, {
   tableName: 'users',

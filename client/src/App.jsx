@@ -16,6 +16,7 @@ import ApplicationPayment from './pages/ApplicationPayment';
 import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
 import JobDetail from './components/career/JobDetail';
+import AdminDashboard from './pages/AdminDashboard';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import SimpleErrorLogger from './components/SimpleErrorLogger';
@@ -84,6 +85,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <JobDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />

@@ -1,0 +1,83 @@
+import api from './api';
+
+const adminService = {
+  // Dashboard Statistics
+  getDashboardStats: async () => {
+    const response = await api.get('/admin/dashboard/stats');
+    return response.data;
+  },
+
+  // User Management
+  getUsers: async (params = {}) => {
+    const response = await api.get('/admin/users', { params });
+    return response.data;
+  },
+
+  getUserDetails: async (userId) => {
+    const response = await api.get(`/admin/users/${userId}`);
+    return response.data;
+  },
+
+  updateUserStatus: async (userId, data) => {
+    const response = await api.put(`/admin/users/${userId}/status`, data);
+    return response.data;
+  },
+
+  // Financial Management
+  getFinancialData: async (period = 'month') => {
+    const response = await api.get('/admin/financial', { 
+      params: { period } 
+    });
+    return response.data;
+  },
+
+  // Job Management
+  getJobManagementData: async (params = {}) => {
+    const response = await api.get('/admin/jobs', { params });
+    return response.data;
+  },
+
+  // Coupon Management
+  getCouponData: async () => {
+    const response = await api.get('/admin/coupons');
+    return response.data;
+  },
+
+  // Bulk Actions
+  exportUsers: async (format = 'csv') => {
+    const response = await api.get('/admin/users/export', {
+      params: { format },
+      responseType: 'blob'
+    });
+    return response;
+  },
+
+  sendMassEmail: async (emailData) => {
+    const response = await api.post('/admin/users/mass-email', emailData);
+    return response.data;
+  },
+
+  // System Configuration
+  updateSystemSettings: async (settings) => {
+    const response = await api.put('/admin/system/settings', settings);
+    return response.data;
+  },
+
+  getSystemSettings: async () => {
+    const response = await api.get('/admin/system/settings');
+    return response.data;
+  },
+
+  // Feature Flags
+  updateFeatureFlags: async (flags) => {
+    const response = await api.put('/admin/system/features', flags);
+    return response.data;
+  },
+
+  getFeatureFlags: async () => {
+    const response = await api.get('/admin/system/features');
+    return response.data;
+  }
+};
+
+export default adminService;

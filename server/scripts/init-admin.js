@@ -36,6 +36,7 @@ const initializeAdmin = async () => {
         username: ADMIN_USERNAME,
         password: hashedPassword,
         status: 1,
+        role: 'admin',
         isOrganization: false
       });
 
