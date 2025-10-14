@@ -58,7 +58,7 @@ class SeederService {
       this.isSeeded = true;
       console.log('🎉 Database seeding completed successfully!');
       console.log('\n📋 Demo accounts:');
-      console.log('- admin@example.com / password123 (Admin)');
+      console.log('- admin@example.com / admin123 (Admin)');
       console.log('- john@example.com / password123 (John Doe)');
       console.log('- jane@example.com / password123 (Jane Smith)');
       console.log('- mike@example.com / password123 (Mike Johnson)');
@@ -75,12 +75,12 @@ class SeederService {
       {
         username: 'admin',
         email: 'admin@example.com',
-        password: 'password123',
+        password: 'admin123',
         firstName: 'Admin',
         lastName: 'User',
         about: 'System administrator and platform manager',
         status: 1,
-        userType: 'individual',
+        isOrganization: false,
       },
       {
         username: 'johndoe',
@@ -90,7 +90,7 @@ class SeederService {
         lastName: 'Doe',
         about: 'Software developer and tech enthusiast. Passionate about building great products.',
         status: 1,
-        userType: 'individual',
+        isOrganization: false,
         workExperience: '5+ years in software development',
         jobPreferences: 'Full-stack development, React, Node.js',
       },
@@ -102,7 +102,7 @@ class SeederService {
         lastName: 'Smith',
         about: 'Marketing professional and content creator. Love connecting with people.',
         status: 1,
-        userType: 'individual',
+        isOrganization: false,
         workExperience: '3+ years in digital marketing',
         jobPreferences: 'Marketing, Content creation, Social media',
       },
@@ -114,7 +114,7 @@ class SeederService {
         lastName: 'Johnson',
         about: 'Project manager and team lead. Focused on delivering results.',
         status: 1,
-        userType: 'individual',
+        isOrganization: false,
         workExperience: '7+ years in project management',
         jobPreferences: 'Project management, Team leadership',
       },
@@ -126,7 +126,7 @@ class SeederService {
         lastName: 'Wilson',
         about: 'UX/UI designer and creative professional.',
         status: 1,
-        userType: 'individual',
+        isOrganization: false,
         workExperience: '4+ years in UX/UI design',
         jobPreferences: 'UX/UI design, Creative direction',
       },
@@ -138,7 +138,7 @@ class SeederService {
         lastName: 'Corp',
         about: 'Leading technology company focused on innovation',
         status: 1,
-        userType: 'company',
+        isOrganization: true,
         companyName: 'TechCorp Solutions',
         industry: 'Technology',
         companySize: '100-500 employees',

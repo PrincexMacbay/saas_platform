@@ -35,17 +35,14 @@ const initializeAdmin = async () => {
         email: ADMIN_EMAIL,
         username: ADMIN_USERNAME,
         password: hashedPassword,
-        role: 'admin',
         status: 1,
-        isEmailVerified: true
+        isOrganization: false
       });
 
       // Create admin profile
       await UserProfile.create({
         userId: admin.id,
-        bio: 'System Administrator with full access to all platform features',
-        userType: 'individual',
-        organizationId: null
+        userType: 'individual'
       });
 
       console.log('✅ ============================================');

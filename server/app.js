@@ -28,6 +28,7 @@ const routes = require("./routes");
 const { sequelize } = require("./models");
 const { testConnection } = require("./config/db");
 const initializeAdmin = require("./scripts/init-admin");
+const seederService = require("./services/seederService");
 
 const app = express();
 
@@ -210,6 +211,10 @@ const startServer = async () => {
     // Sync database (create tables)
     if (process.env.NODE_ENV === "development") {
       await syncDatabase(false); // Don't force, just alter existing tables
+      
+      // Seed database with demo data (only in development)
+      console.log('🌱 Seeding database with demo data...');
+      await seederService.seedDatabase();
     } else {
       // In production, only sync if tables don't exist
       await sequelize.sync({ alter: false });
