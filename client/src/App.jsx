@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,11 +26,12 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Navbar />
-          <main className="main-content">
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Navbar />
+            <main className="main-content">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -103,10 +105,11 @@ function App() {
               />
             </Routes>
           </main>
-          {/* <SimpleErrorLogger /> */}
-        </div>
-      </Router>
-    </AuthProvider>
+            {/* <SimpleErrorLogger /> */}
+          </div>
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

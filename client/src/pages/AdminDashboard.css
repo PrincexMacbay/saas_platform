@@ -54,6 +54,12 @@
   font-weight: 700;
 }
 
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .admin-user-info {
   display: flex;
   align-items: center;

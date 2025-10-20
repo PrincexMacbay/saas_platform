@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import AdminOverview from '../components/admin/AdminOverview';
 import UserManagement from '../components/admin/UserManagement';
@@ -8,10 +9,12 @@ import FinancialManagement from '../components/admin/FinancialManagement';
 import JobManagement from '../components/admin/JobManagement';
 import CouponManagement from '../components/admin/CouponManagement';
 import SystemConfiguration from '../components/admin/SystemConfiguration';
+import LanguageSelector from '../components/LanguageSelector';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +32,7 @@ const AdminDashboard = () => {
     return (
       <div className="admin-dashboard-loading">
         <div className="loading-spinner"></div>
-        <p>Loading admin dashboard...</p>
+        <p>{t('admin.dashboard.loading')}</p>
       </div>
     );
   }
@@ -63,10 +66,13 @@ const AdminDashboard = () => {
       />
       <div className="admin-main-content">
         <div className="admin-header">
-          <h1>Admin Dashboard</h1>
-          <div className="admin-user-info">
-            <span>Welcome, {user?.firstName} {user?.lastName}</span>
-            <span className="admin-badge">Admin</span>
+          <h1>{t('admin.dashboard.title')}</h1>
+          <div className="admin-header-right">
+            <LanguageSelector />
+            <div className="admin-user-info">
+              <span>{t('admin.dashboard.welcome', { name: `${user?.firstName} ${user?.lastName}` })}</span>
+              <span className="admin-badge">{t('admin.badge')}</span>
+            </div>
           </div>
         </div>
         <div className="admin-content">
