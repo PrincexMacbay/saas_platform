@@ -276,7 +276,7 @@ const Navbar = () => {
             )}
             
             {/* Profile Section */}
-            <div style={{ borderTop: '2px solid #eee', margin: '8px 0' }}></div>
+            {/* <div style={{ borderTop: '2px solid #eee', margin: '8px 0' }}></div> */}
             
             {/* View Profile - moved to top */}
             <Link 
