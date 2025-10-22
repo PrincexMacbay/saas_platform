@@ -9,7 +9,6 @@ import FinancialManagement from '../components/admin/FinancialManagement';
 import JobManagement from '../components/admin/JobManagement';
 import CouponManagement from '../components/admin/CouponManagement';
 import SystemConfiguration from '../components/admin/SystemConfiguration';
-import LanguageSelector from '../components/LanguageSelector';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -67,12 +66,9 @@ const AdminDashboard = () => {
       <div className="admin-main-content">
         <div className="admin-header">
           <h1>{t('admin.dashboard.title')}</h1>
-          <div className="admin-header-right">
-            <LanguageSelector />
-            <div className="admin-user-info">
-              <span>{t('admin.dashboard.welcome', { name: `${user?.firstName} ${user?.lastName}` })}</span>
-              <span className="admin-badge">{t('admin.badge')}</span>
-            </div>
+          <div className="admin-user-info">
+            <span>{t('admin.dashboard.welcome', { name: `${user?.firstName} ${user?.lastName}` })}</span>
+            <span className="admin-badge">{t('admin.badge')}</span>
           </div>
         </div>
         <div className="admin-content">

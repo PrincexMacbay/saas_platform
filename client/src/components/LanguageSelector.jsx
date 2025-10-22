@@ -6,8 +6,6 @@ const LanguageSelector = () => {
   const { language, changeLanguage, availableLanguages, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
-  const currentLanguage = availableLanguages.find(lang => lang.code === language);
-
   const handleLanguageChange = (langCode) => {
     changeLanguage(langCode);
     setIsOpen(false);
@@ -23,8 +21,8 @@ const LanguageSelector = () => {
         <span className="language-flag">
           {language === 'en' ? '🇺🇸' : '🇹🇷'}
         </span>
-        <span className="language-name">
-          {currentLanguage?.nativeName || 'EN'}
+        <span className="language-code">
+          {language === 'en' ? 'EN' : 'TR'}
         </span>
         <span className={`language-arrow ${isOpen ? 'open' : ''}`}>
           ▼
@@ -42,7 +40,7 @@ const LanguageSelector = () => {
               <span className="language-flag">
                 {lang.code === 'en' ? '🇺🇸' : '🇹🇷'}
               </span>
-              <span className="language-name">{lang.nativeName}</span>
+              <span className="language-code">{lang.code.toUpperCase()}</span>
               {language === lang.code && (
                 <span className="language-check">✓</span>
               )}

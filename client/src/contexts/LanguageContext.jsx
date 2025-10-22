@@ -24,6 +24,22 @@ const translations = {
     'language.english': 'English',
     'language.turkish': 'Türkçe',
     
+    // Navbar
+    'nav.browse.memberships': 'Browse Memberships',
+    'nav.login': 'Login',
+    'nav.register': 'Register',
+    'nav.dashboard': 'Dashboard',
+    'nav.membership': 'Membership',
+    'nav.people': 'People',
+    'nav.career.center': 'Career Center',
+    'nav.admin': 'Admin',
+    'nav.view.profile': 'View Profile',
+    'nav.edit.profile': 'Edit Profile',
+    'nav.logout': 'Logout',
+    'nav.followers': 'Followers',
+    'nav.following': 'Following',
+    'nav.memberships': 'Memberships',
+    
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -50,6 +66,22 @@ const translations = {
     'language.selector': 'Dil',
     'language.english': 'English',
     'language.turkish': 'Türkçe',
+    
+    // Navbar
+    'nav.browse.memberships': 'Üyelikleri Gözat',
+    'nav.login': 'Giriş Yap',
+    'nav.register': 'Kayıt Ol',
+    'nav.dashboard': 'Panel',
+    'nav.membership': 'Üyelik',
+    'nav.people': 'Kişiler',
+    'nav.career.center': 'Kariyer Merkezi',
+    'nav.admin': 'Yönetici',
+    'nav.view.profile': 'Profili Görüntüle',
+    'nav.edit.profile': 'Profili Düzenle',
+    'nav.logout': 'Çıkış Yap',
+    'nav.followers': 'Takipçiler',
+    'nav.following': 'Takip Edilenler',
+    'nav.memberships': 'Üyelikler',
     
     // Common
     'common.loading': 'Yükleniyor...',

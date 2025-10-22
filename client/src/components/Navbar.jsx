@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { buildImageUrl } from '../utils/imageUtils';
+import LanguageSelector from './LanguageSelector';
 import logoImage from '../Logo/Faculty_of_AI_and_Informatics.jpg';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,32 +45,35 @@ const Navbar = () => {
             />
           </Link>
           
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <Link 
-                to="/browse-memberships" 
-                className={`nav-link ${isActive('/browse-memberships') ? 'active' : ''}`}
-              >
-                <i className="fas fa-search"></i> Browse Memberships
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/login" 
-                className={`nav-link ${isActive('/login') ? 'active' : ''}`}
-              >
-                <i className="fas fa-sign-in-alt"></i> Login
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/register" 
-                className={`nav-link ${isActive('/register') ? 'active' : ''}`}
-              >
-                <i className="fas fa-user-plus"></i> Register
-              </Link>
-            </li>
-          </ul>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link 
+                  to="/browse-memberships" 
+                  className={`nav-link ${isActive('/browse-memberships') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-search"></i> {t('nav.browse.memberships')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/login" 
+                  className={`nav-link ${isActive('/login') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-sign-in-alt"></i> {t('nav.login')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/register" 
+                  className={`nav-link ${isActive('/register') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-user-plus"></i> {t('nav.register')}
+                </Link>
+              </li>
+            </ul>
+            <LanguageSelector />
+          </div>
         </div>
       </nav>
     );
@@ -90,58 +96,62 @@ const Navbar = () => {
         
         {/* Hide regular navigation when on admin dashboard */}
         {!location.pathname.startsWith('/admin') && (
-          <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
-            <li className="nav-item">
-              <Link 
-                to="/dashboard" 
-                className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
-              >
-                <i className="fas fa-home"></i> Dashboard
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/membership" 
-                className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
-              >
-                <i className="fas fa-users"></i> Membership
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/users" 
-                className={`nav-link ${isActive('/users') ? 'active' : ''}`}
-              >
-                <i className="fas fa-user-friends"></i> People
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link 
-                to="/career" 
-                className={`nav-link ${isActive('/career') ? 'active' : ''}`}
-              >
-                <i className="fas fa-briefcase"></i> Career Center
-              </Link>
-            </li>
-            {user?.role === 'admin' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
               <li className="nav-item">
                 <Link 
-                  to="/admin" 
-                  className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+                  to="/dashboard" 
+                  className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
                 >
-                  <i className="fas fa-cog"></i> Admin
+                  <i className="fas fa-home"></i> {t('nav.dashboard')}
                 </Link>
               </li>
-            )}
-          </ul>
+              <li className="nav-item">
+                <Link 
+                  to="/membership" 
+                  className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-users"></i> {t('nav.membership')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/users" 
+                  className={`nav-link ${isActive('/users') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-user-friends"></i> {t('nav.people')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/career" 
+                  className={`nav-link ${isActive('/career') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-briefcase"></i> {t('nav.career.center')}
+                </Link>
+              </li>
+              {user?.role === 'admin' && (
+                <li className="nav-item">
+                  <Link 
+                    to="/admin" 
+                    className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+                  >
+                    <i className="fas fa-cog"></i> {t('nav.admin')}
+                  </Link>
+                </li>
+              )}
+            </ul>
+            <LanguageSelector />
+          </div>
         )}
 
         {/* Admin navigation - only show when on admin dashboard */}
         {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
-          <div className="">
+          <div className="" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <span className="admin-nav-text">
               {/* <i className="fas fa-cog"></i> Admin Panel */}
             </span>
+            <LanguageSelector />
           </div>
         )}
 
@@ -262,19 +272,19 @@ const Navbar = () => {
                   <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     {user?.followersCount || 0}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Followers</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{t('nav.followers')}</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     {user?.followingCount || 0}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Following</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{t('nav.following')}</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                     {user?.subscriptions?.length || 0}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Memberships</div>
+                  <div style={{ fontSize: '12px', color: '#666' }}>{t('nav.memberships')}</div>
                 </div>
               </div>
 
@@ -293,7 +303,7 @@ const Navbar = () => {
                   }}
                 >
                   <i className="fas fa-user" style={{ marginRight: '12px', width: '16px' }}></i>
-                  View Profile
+                  {t('nav.view.profile')}
                 </Link>
                 <Link 
                   to={`/profile/${user.username}?edit=true`}
@@ -308,7 +318,7 @@ const Navbar = () => {
                   }}
                 >
                   <i className="fas fa-edit" style={{ marginRight: '12px', width: '16px' }}></i>
-                  Edit Profile
+                  {t('nav.edit.profile')}
                 </Link>
 
                 <Link 
@@ -324,7 +334,7 @@ const Navbar = () => {
                   }}
                 >
                   <i className="fas fa-briefcase" style={{ marginRight: '12px', width: '16px' }}></i>
-                  Career Center
+                  {t('nav.career.center')}
                 </Link>
                 <div style={{ borderTop: '1px solid #eee', margin: '8px 0' }}></div>
                 <button 
@@ -344,7 +354,7 @@ const Navbar = () => {
                   }}
                 >
                   <i className="fas fa-sign-out-alt" style={{ marginRight: '12px', width: '16px' }}></i>
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </div>
             </div>
