@@ -201,7 +201,7 @@ const getUsers = async (req, res) => {
         {
           model: UserProfile,
           as: 'profile',
-          attributes: ['userType', 'organizationId']
+          attributes: ['userType']
         }
       ]
     });
