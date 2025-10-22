@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { register, isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,7 +65,7 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
+        <h2 className="auth-title">{t('auth.register.title')}</h2>
         
         {errors.general && (
           <div className="error-message" style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -76,7 +78,7 @@ const Register = () => {
             <div className="col-2">
               <div className="form-group">
                 <label htmlFor="firstName" className="form-label">
-                  First Name
+                  {t('auth.first.name')}
                 </label>
                 <input
                   type="text"
@@ -95,7 +97,7 @@ const Register = () => {
             <div className="col-2">
               <div className="form-group">
                 <label htmlFor="lastName" className="form-label">
-                  Last Name
+                  {t('auth.last.name')}
                 </label>
                 <input
                   type="text"
@@ -115,7 +117,7 @@ const Register = () => {
 
           <div className="form-group">
             <label htmlFor="username" className="form-label">
-              Username
+              {t('auth.username')}
             </label>
             <input
               type="text"
@@ -134,7 +136,7 @@ const Register = () => {
 
           <div className="form-group">
             <label htmlFor="email" className="form-label">
-              Email
+              {t('auth.email')}
             </label>
             <input
               type="email"
@@ -153,7 +155,7 @@ const Register = () => {
 
           <div className="form-group">
             <label htmlFor="password" className="form-label">
-              Password
+              {t('auth.password')}
             </label>
             <input
               type="password"
@@ -177,12 +179,12 @@ const Register = () => {
             style={{ width: '100%' }}
             disabled={isLoading}
           >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? t('common.loading') : t('auth.register.button')}
           </button>
         </form>
 
         <div className="auth-link">
-          <p>Already have an account? <Link to="/login">Sign in here</Link></p>
+          <p>{t('auth.have.account')} <Link to="/login">{t('auth.login.title')}</Link></p>
         </div>
       </div>
     </div>

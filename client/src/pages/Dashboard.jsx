@@ -4,6 +4,7 @@ import { getUserMemberships } from '../services/membershipService';
 import PostCard from '../components/PostCard';
 import PostWithAttachment from '../components/PostWithAttachment';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -11,6 +12,7 @@ const Dashboard = () => {
   const [memberships, setMemberships] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadData();
@@ -50,7 +52,7 @@ const Dashboard = () => {
     return (
       <div className="container text-center" style={{ paddingTop: '100px' }}>
         <div className="spinner"></div>
-        <p>Loading dashboard...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -81,7 +83,7 @@ const Dashboard = () => {
         </div>
 
         <div className="sidebar">
-          <div className="sidebar-title">My Memberships</div>
+          <div className="sidebar-title">{t('membership.current')}</div>
           {(!memberships || memberships.length === 0) ? (
             <p className="text-muted">You don't have any active memberships yet.</p>
           ) : (

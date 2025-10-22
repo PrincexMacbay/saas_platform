@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { updateUserType } from '../services/careerService';
 import JobBoard from '../components/career/JobBoard';
 import CompanyDashboard from '../components/career/CompanyDashboard';
@@ -8,6 +9,7 @@ import RoleSelection from '../components/career/RoleSelection';
 
 const CareerCenter = () => {
   const { user, updateUser } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hasCompletedRoleSelection, setHasCompletedRoleSelection] = useState(false);

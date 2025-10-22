@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import api from '../services/api';
 
 const ApplyMembership = () => {
   const { planId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [form, setForm] = useState(null);
   const [plan, setPlan] = useState(null);
   const [formData, setFormData] = useState({});
@@ -345,7 +347,7 @@ const ApplyMembership = () => {
     return (
       <div className="apply-loading">
         <div className="loading-spinner"></div>
-        <p>Loading application form...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -356,7 +358,7 @@ const ApplyMembership = () => {
         <h2>Error</h2>
         <p>{error}</p>
         <button onClick={() => navigate('/browse-memberships')} className="btn btn-primary">
-          Back to Memberships
+          {t('common.back')} {t('nav.browse.memberships')}
         </button>
       </div>
     );
@@ -368,7 +370,7 @@ const ApplyMembership = () => {
         <h2>Form Not Available</h2>
         <p>The application form for this membership is not currently available.</p>
         <button onClick={() => navigate('/browse-memberships')} className="btn btn-primary">
-          Back to Memberships
+          {t('common.back')} {t('nav.browse.memberships')}
         </button>
       </div>
     );
@@ -411,7 +413,7 @@ const ApplyMembership = () => {
         {/* Coupon Code Section */}
         {plan.fee > 0 && (
           <div className="coupon-section">
-            <h3>Discount Coupon (Optional)</h3>
+            <h3>{t('membership.coupons')} ({t('common.optional')})</h3>
             <div className="coupon-input-group">
               <input
                 type="text"

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import api from '../services/api';
 
 const PlanDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [plan, setPlan] = useState(null);
   const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,7 @@ const PlanDetail = () => {
     return (
       <div className="plan-detail-loading">
         <div className="loading-spinner"></div>
-        <p>Loading plan details...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -108,7 +110,7 @@ const PlanDetail = () => {
           <h2>Plan Not Found</h2>
           <p>{error}</p>
           <Link to="/browse-memberships" className="btn btn-primary">
-            <i className="fas fa-arrow-left"></i> Back to Memberships
+            <i className="fas fa-arrow-left"></i> {t('common.back')} {t('nav.browse.memberships')}
           </Link>
         </div>
       </div>
@@ -123,7 +125,7 @@ const PlanDetail = () => {
           <h2>Plan Not Found</h2>
           <p>The plan you're looking for doesn't exist.</p>
           <Link to="/browse-memberships" className="btn btn-primary">
-            <i className="fas fa-arrow-left"></i> Back to Memberships
+            <i className="fas fa-arrow-left"></i> {t('common.back')} {t('nav.browse.memberships')}
           </Link>
         </div>
       </div>
@@ -233,7 +235,7 @@ const PlanDetail = () => {
       <div className="plan-detail-header">
         <div className="breadcrumb">
           <Link to="/browse-memberships">
-            <i className="fas fa-arrow-left"></i> Back to Memberships
+            <i className="fas fa-arrow-left"></i> {t('common.back')} {t('nav.browse.memberships')}
           </Link>
         </div>
         
@@ -261,13 +263,13 @@ const PlanDetail = () => {
       <div className="plan-detail-content">
         <div className="plan-main">
           <div className="plan-section">
-            <h3>Description</h3>
+            <h3>{t('career.description')}</h3>
             <p>{plan.description || 'No description available.'}</p>
           </div>
 
           {plan.benefits && Array.isArray(plan.benefits) && plan.benefits.length > 0 && (
             <div className="plan-section">
-              <h3>Benefits</h3>
+              <h3>{t('membership.benefits')}</h3>
               <ul className="benefits-list">
                 {plan.benefits.map((benefit, index) => (
                   <li key={index}>
@@ -280,7 +282,7 @@ const PlanDetail = () => {
           )}
 
           <div className="plan-section">
-            <h3>Plan Details</h3>
+            <h3>{t('membership.title')} {t('common.view')}</h3>
             <div className="plan-details-grid">
               <div className="detail-item">
                 <span className="label">Renewal Interval:</span>
@@ -334,7 +336,7 @@ const PlanDetail = () => {
                     disabled={!plan.isActive}
                   >
                     <i className="fas fa-rocket"></i>
-                    Apply Now
+                    {t('membership.plans')}
                   </button>
                 )
               ) : (
@@ -342,7 +344,7 @@ const PlanDetail = () => {
                   <p>Please log in to apply for this membership</p>
                   <Link to="/login" className="btn btn-primary btn-large">
                     <i className="fas fa-sign-in-alt"></i>
-                    Login to Apply
+                    {t('nav.login')} {t('common.to')} {t('membership.plans')}
                   </Link>
                 </div>
               )}

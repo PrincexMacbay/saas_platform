@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import MembershipDashboard from './MembershipDashboard';
 import Payments from './Payments';
 import ScheduledPayments from './ScheduledPayments';
@@ -23,6 +24,7 @@ const MembershipNavbar = () => {
   const dropdownRef = useRef(null);
   
   const { preloadAllData, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const path = location.pathname.split('/').pop();
@@ -80,19 +82,19 @@ const MembershipNavbar = () => {
   }, [isMobileDropdownOpen]);
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-pie', path: '/membership' },
-    { id: 'payments', label: 'Payments', icon: 'fas fa-credit-card', path: '/membership/payments' },
-    { id: 'scheduled-payments', label: 'Scheduled Payments', icon: 'fas fa-calendar-alt', path: '/membership/scheduled-payments' },
-    { id: 'debts', label: 'Debts', icon: 'fas fa-exclamation-triangle', path: '/membership/debts' },
-    { id: 'plans', label: 'Plans', icon: 'fas fa-layer-group', path: '/membership/plans' },
-    { id: 'reminders', label: 'Reminders', icon: 'fas fa-bell', path: '/membership/reminders' },
-    { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt', path: '/membership/applications' },
-    { id: 'settings', label: 'Settings', icon: 'fas fa-cog', path: '/membership/settings' },
-    { id: 'coupons', label: 'Coupons', icon: 'fas fa-ticket-alt', path: '/membership/coupons' },
-    { id: 'application-forms', label: 'Application Forms', icon: 'fas fa-list', path: '/membership/application-forms' },
-    { id: 'application-form', label: 'Application Form Builder', icon: 'fas fa-edit', path: '/membership/application-form' },
-    { id: 'digital-card', label: 'Digital Card', icon: 'fas fa-id-card', path: '/membership/digital-card' },
-    { id: 'payment-info', label: 'Payment Info', icon: 'fas fa-credit-card', path: '/membership/payment-info' }
+    { id: 'dashboard', label: t('membership.dashboard'), icon: 'fas fa-chart-pie', path: '/membership' },
+    { id: 'payments', label: t('membership.payments'), icon: 'fas fa-credit-card', path: '/membership/payments' },
+    { id: 'scheduled-payments', label: t('membership.scheduled.payments'), icon: 'fas fa-calendar-alt', path: '/membership/scheduled-payments' },
+    { id: 'debts', label: t('membership.debts'), icon: 'fas fa-exclamation-triangle', path: '/membership/debts' },
+    { id: 'plans', label: t('membership.plans'), icon: 'fas fa-layer-group', path: '/membership/plans' },
+    { id: 'reminders', label: t('membership.reminders'), icon: 'fas fa-bell', path: '/membership/reminders' },
+    { id: 'applications', label: t('membership.applications'), icon: 'fas fa-file-alt', path: '/membership/applications' },
+    { id: 'settings', label: t('membership.settings'), icon: 'fas fa-cog', path: '/membership/settings' },
+    { id: 'coupons', label: t('membership.coupons'), icon: 'fas fa-ticket-alt', path: '/membership/coupons' },
+    { id: 'application-forms', label: t('membership.application.forms'), icon: 'fas fa-list', path: '/membership/application-forms' },
+    { id: 'application-form', label: t('membership.application.form.builder'), icon: 'fas fa-edit', path: '/membership/application-form' },
+    { id: 'digital-card', label: t('membership.digital.card'), icon: 'fas fa-id-card', path: '/membership/digital-card' },
+    { id: 'payment-info', label: t('membership.payment.info'), icon: 'fas fa-credit-card', path: '/membership/payment-info' }
   ];
 
   const activeTabData = tabs.find(tab => tab.id === activeTab);

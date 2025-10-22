@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getUsers, toggleFollowUser } from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Users = () => {
   const { user: currentUser } = useAuth();
+  const { t } = useLanguage();
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,7 +110,7 @@ const Users = () => {
     return (
       <div className="container text-center" style={{ paddingTop: '100px' }}>
         <div className="spinner"></div>
-        <p>Loading users...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -116,7 +118,7 @@ const Users = () => {
   return (
     <div className="container" style={{ paddingTop: '80px' }}>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>People</h2>
+        <h2>{t('users.title')}</h2>
       </div>
 
       <div className="row mb-4">
@@ -124,7 +126,7 @@ const Users = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Search people..."
+            placeholder={t('users.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const BrowseMemberships = () => {
   const { isAuthenticated, user } = useAuth();
+  const { t } = useLanguage();
   const [plans, setPlans] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -149,7 +151,7 @@ const BrowseMemberships = () => {
       `}</style>
     <div className="browse-memberships">
       <div className="browse-header">
-        <h1>Browse Memberships</h1>
+        <h1>{t('nav.browse.memberships')}</h1>
         <p>Find and join organizations that match your interests</p>
       </div>
 

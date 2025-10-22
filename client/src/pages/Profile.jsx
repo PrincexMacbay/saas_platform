@@ -8,6 +8,7 @@ import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import MembershipCard from '../components/membership/MembershipCard';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { buildImageUrl } from '../utils/imageUtils';
 
 const Profile = () => {
@@ -25,6 +26,7 @@ const Profile = () => {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
   const { user, updateUser } = useAuth();
+  const { t } = useLanguage();
 
   const isOwnProfile = user && profileUser && user.id === profileUser.id;
 
@@ -231,7 +233,7 @@ const Profile = () => {
                     onClick={() => setIsEditing(!isEditing)}
                     style={{ marginRight: '10px' }}
                   >
-                    <i className="fas fa-edit"></i> {isEditing ? 'Cancel' : 'Edit Profile'}
+                    <i className="fas fa-edit"></i> {isEditing ? t('common.cancel') : t('profile.edit')}
                   </button>
                   <button
                     className="btn btn-secondary"
@@ -246,8 +248,8 @@ const Profile = () => {
                   onClick={handleFollow}
                   disabled={actionLoading}
                 >
-                  {actionLoading ? 'Loading...' : 
-                   profileUser.isFollowing ? 'Unfollow' : 'Follow'}
+                  {actionLoading ? t('common.loading') : 
+                   profileUser.isFollowing ? t('users.unfollow') : t('users.follow')}
                 </button>
               )}
             </div>
@@ -260,7 +262,7 @@ const Profile = () => {
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
                   {followers.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Followers</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.followers')}</div>
               </div>
             </div>
             <div className="col-2">
@@ -268,7 +270,7 @@ const Profile = () => {
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
                   {following.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Following</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.following')}</div>
               </div>
             </div>
             <div className="col-2">
@@ -276,7 +278,7 @@ const Profile = () => {
                 <div style={{ fontSize: '14px', color: '#2c3e50' }}>
                   {userMemberships.length}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Memberships</div>
+                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.memberships')}</div>
               </div>
             </div>
             <div className="col-2">

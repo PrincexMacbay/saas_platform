@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { getDashboardPath } from '../hooks/useAdminRedirect';
 
 const Login = () => {
@@ -12,6 +13,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { login, isAuthenticated, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,7 +51,7 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
+        <h2 className="auth-title">{t('auth.login.title')}</h2>
         
         {error && (
           <div className="error-message" style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -60,7 +62,7 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="login" className="form-label">
-              Username or Email
+              {t('auth.username')} / {t('auth.email')}
             </label>
             <input
               type="text"
@@ -76,7 +78,7 @@ const Login = () => {
 
           <div className="form-group">
             <label htmlFor="password" className="form-label">
-              Password
+              {t('auth.password')}
             </label>
             <input
               type="password"
@@ -96,18 +98,18 @@ const Login = () => {
             style={{ width: '100%' }}
             disabled={isLoading}
           >
-            {isLoading ? 'Signing In...' : 'Sign In'}
+            {isLoading ? t('common.loading') : t('auth.login.button')}
           </button>
         </form>
 
         <div className="auth-links">
           <div className="auth-link">
             <Link to="/forgot-password" className="forgot-password-link">
-              <i className="fas fa-key"></i> Forgot your password?
+              <i className="fas fa-key"></i> {t('auth.forgot.password.link')}
             </Link>
           </div>
           <div className="auth-link">
-            <p>Don't have an account? <Link to="/register">Sign up here</Link></p>
+            <p>{t('auth.dont.have.account')} <Link to="/register">{t('auth.register.button')}</Link></p>
           </div>
         </div>
       </div>

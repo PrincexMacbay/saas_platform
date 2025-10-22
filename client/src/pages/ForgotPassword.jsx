@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 /**
  * ForgotPasswordPage Component
@@ -28,6 +29,7 @@ const ForgotPassword = () => {
   const [validationErrors, setValidationErrors] = useState({});
   
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // Redirect if already authenticated
@@ -158,7 +160,7 @@ const ForgotPassword = () => {
             <i className="fas fa-envelope-open-text"></i>
           </div>
           
-          <h2 className="auth-title">Check Your Email</h2>
+          <h2 className="auth-title">{t('auth.reset.password')}</h2>
           <p className="auth-subtitle">
             We've sent a password reset link to <strong>{formData.email}</strong>
           </p>
@@ -374,7 +376,7 @@ const ForgotPassword = () => {
           <div className="auth-icon">
             <i className="fas fa-key"></i>
           </div>
-          <h2 className="auth-title">Forgot Password?</h2>
+          <h2 className="auth-title">{t('auth.forgot.password')}</h2>
           <p className="auth-subtitle">
             No worries! Enter your email address and we'll send you a link to reset your password.
           </p>
@@ -391,7 +393,7 @@ const ForgotPassword = () => {
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               <i className="fas fa-envelope"></i>
-              Email Address
+              {t('auth.email')}
             </label>
             <input
               type="email"
@@ -426,7 +428,7 @@ const ForgotPassword = () => {
             ) : (
               <>
                 <i className="fas fa-paper-plane"></i>
-                Send Reset Link
+                {t('auth.send.reset')}
               </>
             )}
           </button>
