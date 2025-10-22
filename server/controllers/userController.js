@@ -180,6 +180,7 @@ const getUsers = async (req, res) => {
     const whereClause = {
       status: 1,
       visibility: { [Op.in]: [1, 2] }, // Exclude hidden users
+      role: { [Op.ne]: 'admin' }, // Exclude admin users
     };
 
     if (search) {
@@ -196,14 +197,41 @@ const getUsers = async (req, res) => {
       offset,
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile',
+          attributes: ['userType', 'organizationId']
+        }
+      ]
     });
+
+    // Get follow status for each user if authenticated
+    const usersWithFollowStatus = await Promise.all(users.map(async (user) => {
+      const userData = user.toJSON();
+      
+      if (req.user) {
+        const followRecord = await Follow.findOne({
+          where: {
+            userId: req.user.id,
+            objectModel: 'User',
+            objectId: user.id,
+          },
+        });
+        userData.isFollowing = !!followRecord;
+      } else {
+        userData.isFollowing = false;
+      }
+      
+      return userData;
+    }));
 
     const totalPages = Math.ceil(count / limit);
 
     res.json({
       success: true,
       data: {
-        users,
+        users: usersWithFollowStatus,
         pagination: {
           currentPage: page,
           totalPages,

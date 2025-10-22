@@ -41,6 +41,7 @@ const Users = () => {
       const response = await getUsers({ limit: 1000 }); // Load more users, no search parameter
       // Filter out the current user from the list
       const otherUsers = response.data.users.filter(user => user.id !== currentUser?.id);
+      console.log('Loaded users with follow status:', otherUsers.map(u => ({ id: u.id, username: u.username, isFollowing: u.isFollowing })));
       setAllUsers(otherUsers);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -75,14 +76,21 @@ const Users = () => {
     
     setActionLoading({ ...actionLoading, [userId]: true });
     try {
+      console.log(`Following/unfollowing user ${userId}`);
       const response = await toggleFollowUser(userId);
+      console.log('Follow response:', response.data);
+      
       // Update both allUsers and filteredUsers to keep them in sync
       const updateUser = (user) => 
         user.id === userId 
           ? { ...user, isFollowing: response.data.isFollowing }
           : user;
 
-      setAllUsers(prevUsers => prevUsers.map(updateUser));
+      setAllUsers(prevUsers => {
+        const updated = prevUsers.map(updateUser);
+        console.log('Updated allUsers:', updated.map(u => ({ id: u.id, username: u.username, isFollowing: u.isFollowing })));
+        return updated;
+      });
       setFilteredUsers(prevUsers => prevUsers.map(updateUser));
     } catch (error) {
       console.error('Error following user:', error);

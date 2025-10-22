@@ -122,32 +122,27 @@
   .mobile-nav-link:hover {
     background-color: #f8f9fa;
   }
-  
-  .profile-dropdown {
-    position: relative;
-  }
-  
-  .profile-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    min-width: 250px;
-    z-index: 1000;
-    margin-top: 8px;
-  }
 }
 
 @media (min-width: 769px) {
+  .navbar-nav {
+    display: flex;
+  }
+  
+  .navbar-toggle {
+    display: none !important;
+  }
+  
   .mobile-language-selector {
     display: none;
   }
   
   .desktop-language-selector {
     display: block;
+  }
+  
+  .mobile-menu {
+    display: none;
   }
 }
 
