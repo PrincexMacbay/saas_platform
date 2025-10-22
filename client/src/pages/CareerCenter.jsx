@@ -55,8 +55,8 @@ const CareerCenter = () => {
           <div className="row justify-content-center">
             <div className="col-md-8">
               <div className="text-center mb-4">
-                <h1>Career Center</h1>
-                <p className="text-muted">Choose your role to get started</p>
+                <h1>{t('nav.career.center')}</h1>
+                <p className="text-muted">{t('career.choose.role')}</p>
               </div>
               
               {error && (
@@ -83,10 +83,10 @@ const CareerCenter = () => {
         <div className="row">
           <div className="col-12">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h1>Career Center</h1>
+              <h1>{t('nav.career.center')}</h1>
               <div className="user-type-badge">
                 <span className={`badge ${user.profile?.userType === 'individual' ? 'bg-primary' : 'bg-success'}`}>
-                  {user.profile?.userType === 'individual' ? 'Job Seeker' : 'Employer'}
+                  {user.profile?.userType === 'individual' ? t('career.job.seeker') : t('career.employer')}
                 </span>
               </div>
             </div>

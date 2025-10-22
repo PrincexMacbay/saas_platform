@@ -28,7 +28,7 @@ const PlanDetail = () => {
       const selectedPlan = plans.find(p => p.id === parseInt(id));
       
       if (!selectedPlan) {
-        setError('Plan not found');
+        setError(t('common.error'));
         return;
       }
       
@@ -63,7 +63,7 @@ const PlanDetail = () => {
       
     } catch (error) {
       console.error('Error fetching plan details:', error);
-      setError('Failed to load plan details');
+      setError(t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ const PlanDetail = () => {
 
   const formatCurrency = (amount) => {
     if (amount === 0 || amount === '0' || amount === null || amount === undefined) {
-      return 'Free';
+      return t('plan.details.free');
     }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -81,10 +81,10 @@ const PlanDetail = () => {
 
   const getRenewalText = (interval) => {
     const intervals = {
-      monthly: 'per month',
-      quarterly: 'per quarter',
-      yearly: 'per year',
-      'one-time': 'one-time'
+      monthly: t('plan.details.per.month'),
+      quarterly: t('plan.details.per.quarter'),
+      yearly: t('plan.details.per.year'),
+      'one-time': t('plan.details.one.time')
     };
     return intervals[interval] || interval;
   };
@@ -264,7 +264,7 @@ const PlanDetail = () => {
         <div className="plan-main">
           <div className="plan-section">
             <h3>{t('career.description')}</h3>
-            <p>{plan.description || 'No description available.'}</p>
+            <p>{plan.description || t('plan.details.no.description')}</p>
           </div>
 
           {plan.benefits && Array.isArray(plan.benefits) && plan.benefits.length > 0 && (
@@ -285,18 +285,18 @@ const PlanDetail = () => {
             <h3>{t('membership.title')} {t('common.view')}</h3>
             <div className="plan-details-grid">
               <div className="detail-item">
-                <span className="label">Renewal Interval:</span>
+                <span className="label">{t('plan.details.renewal.interval')}:</span>
                 <span className="value">{plan.renewalInterval}</span>
               </div>
               <div className="detail-item">
-                <span className="label">Status:</span>
+                <span className="label">{t('plan.details.status')}:</span>
                 <span className={`value status-${plan.isActive ? 'active' : 'inactive'}`}>
-                  {plan.isActive ? 'Active' : 'Inactive'}
+                  {plan.isActive ? t('plan.details.active') : t('plan.details.inactive')}
                 </span>
               </div>
               {plan.maxMembers && (
                 <div className="detail-item">
-                  <span className="label">Max Members:</span>
+                  <span className="label">{t('plan.details.max.members')}:</span>
                   <span className="value">{plan.maxMembers}</span>
                 </div>
               )}

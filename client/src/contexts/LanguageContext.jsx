@@ -117,6 +117,9 @@ const translations = {
     'career.type': 'Job Type',
     'career.description': 'Description',
     'career.requirements': 'Requirements',
+    'career.choose.role': 'Choose your role to get started',
+    'career.job.seeker': 'Job Seeker',
+    'career.employer': 'Employer',
     
     // Users
     'users.title': 'People',
@@ -152,6 +155,36 @@ const translations = {
     'common.confirm': 'Confirm',
     'common.required': 'Required',
     'common.optional': 'Optional',
+    
+    // Membership Application
+    'membership.apply.title': 'Apply for Membership',
+    'membership.apply.organization': 'Organization',
+    'membership.apply.fee': 'Fee',
+    'membership.apply.application.fee': 'Application Fee',
+    'membership.apply.form.not.available': 'Form Not Available',
+    'membership.apply.form.not.available.desc': 'The application form for this membership is not currently available.',
+    'membership.apply.plan.creator.error': 'You cannot apply for a plan that you created. Plan creators are automatically considered members.',
+    'membership.apply.select.field': 'Select {field}',
+    'membership.apply.enter.field': 'Enter {field}',
+    
+    // Plan Details
+    'plan.details.title': 'Plan Details',
+    'plan.details.description': 'Description',
+    'plan.details.benefits': 'Benefits',
+    'plan.details.renewal.interval': 'Renewal Interval',
+    'plan.details.status': 'Status',
+    'plan.details.max.members': 'Max Members',
+    'plan.details.active': 'Active',
+    'plan.details.inactive': 'Inactive',
+    'plan.details.free': 'Free',
+    'plan.details.per.month': 'per month',
+    'plan.details.per.quarter': 'per quarter',
+    'plan.details.per.year': 'per year',
+    'plan.details.one.time': 'one-time',
+    'plan.details.no.description': 'No description available.',
+    
+    // Navigation
+    'nav.language': 'Language',
   },
   tr: {
     // Admin Dashboard
@@ -258,6 +291,9 @@ const translations = {
     'career.type': 'İş Türü',
     'career.description': 'Açıklama',
     'career.requirements': 'Gereksinimler',
+    'career.choose.role': 'Başlamak için rolünüzü seçin',
+    'career.job.seeker': 'İş Arayan',
+    'career.employer': 'İşveren',
     
     // Users
     'users.title': 'Kişiler',
@@ -293,6 +329,36 @@ const translations = {
     'common.confirm': 'Onayla',
     'common.required': 'Gerekli',
     'common.optional': 'Opsiyonel',
+    
+    // Membership Application
+    'membership.apply.title': 'Üyelik Başvurusu',
+    'membership.apply.organization': 'Organizasyon',
+    'membership.apply.fee': 'Ücret',
+    'membership.apply.application.fee': 'Başvuru Ücreti',
+    'membership.apply.form.not.available': 'Form Mevcut Değil',
+    'membership.apply.form.not.available.desc': 'Bu üyelik için başvuru formu şu anda mevcut değil.',
+    'membership.apply.plan.creator.error': 'Oluşturduğunuz bir plana başvuru yapamazsınız. Plan oluşturucuları otomatik olarak üye sayılır.',
+    'membership.apply.select.field': '{field} Seçin',
+    'membership.apply.enter.field': '{field} Girin',
+    
+    // Plan Details
+    'plan.details.title': 'Plan Detayları',
+    'plan.details.description': 'Açıklama',
+    'plan.details.benefits': 'Avantajlar',
+    'plan.details.renewal.interval': 'Yenileme Aralığı',
+    'plan.details.status': 'Durum',
+    'plan.details.max.members': 'Maksimum Üye',
+    'plan.details.active': 'Aktif',
+    'plan.details.inactive': 'Pasif',
+    'plan.details.free': 'Ücretsiz',
+    'plan.details.per.month': 'aylık',
+    'plan.details.per.quarter': 'çeyrek yıllık',
+    'plan.details.per.year': 'yıllık',
+    'plan.details.one.time': 'tek seferlik',
+    'plan.details.no.description': 'Açıklama mevcut değil.',
+    
+    // Navigation
+    'nav.language': 'Dil',
   }
 };
 

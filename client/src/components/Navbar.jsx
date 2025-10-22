@@ -141,7 +141,10 @@ const Navbar = () => {
                 </li>
               )}
             </ul>
-            <LanguageSelector />
+            {/* Language selector only visible on desktop */}
+            <div className="desktop-language-selector">
+              <LanguageSelector />
+            </div>
           </div>
         )}
 
@@ -151,7 +154,10 @@ const Navbar = () => {
             <span className="admin-nav-text">
               {/* <i className="fas fa-cog"></i> Admin Panel */}
             </span>
-            <LanguageSelector />
+            {/* Language selector only visible on desktop */}
+            <div className="desktop-language-selector">
+              <LanguageSelector />
+            </div>
           </div>
         )}
 
@@ -336,6 +342,22 @@ const Navbar = () => {
                   <i className="fas fa-briefcase" style={{ marginRight: '12px', width: '16px' }}></i>
                   {t('nav.career.center')}
                 </Link>
+                
+                {/* Language Selector - Mobile Only */}
+                <div className="mobile-language-selector" style={{ 
+                  padding: '12px 16px', 
+                  borderTop: '1px solid #eee',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <i className="fas fa-globe" style={{ marginRight: '12px', width: '16px', color: '#666' }}></i>
+                    <span style={{ color: '#333', fontSize: '14px' }}>{t('nav.language')}</span>
+                  </div>
+                  <LanguageSelector />
+                </div>
+                
                 <div style={{ borderTop: '1px solid #eee', margin: '8px 0' }}></div>
                 <button 
                   onClick={handleLogout}
@@ -370,12 +392,113 @@ const Navbar = () => {
             border: 'none',
             color: 'white',
             fontSize: '1.2rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            padding: '8px'
           }}
         >
           <i className="fas fa-bars"></i>
         </button>
       </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="mobile-menu" style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          border: '1px solid #ddd',
+          borderTop: 'none',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 1000
+        }}>
+          <div style={{ padding: '16px' }}>
+            <Link 
+              to="/dashboard" 
+              className="mobile-nav-link"
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                display: 'block',
+                padding: '12px 16px',
+                color: '#333',
+                textDecoration: 'none',
+                borderBottom: '1px solid #eee',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <i className="fas fa-home" style={{ marginRight: '12px', width: '16px' }}></i>
+              {t('nav.dashboard')}
+            </Link>
+            <Link 
+              to="/membership" 
+              className="mobile-nav-link"
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                display: 'block',
+                padding: '12px 16px',
+                color: '#333',
+                textDecoration: 'none',
+                borderBottom: '1px solid #eee',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <i className="fas fa-users" style={{ marginRight: '12px', width: '16px' }}></i>
+              {t('nav.membership')}
+            </Link>
+            <Link 
+              to="/users" 
+              className="mobile-nav-link"
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                display: 'block',
+                padding: '12px 16px',
+                color: '#333',
+                textDecoration: 'none',
+                borderBottom: '1px solid #eee',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <i className="fas fa-user-friends" style={{ marginRight: '12px', width: '16px' }}></i>
+              {t('nav.people')}
+            </Link>
+            <Link 
+              to="/career" 
+              className="mobile-nav-link"
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                display: 'block',
+                padding: '12px 16px',
+                color: '#333',
+                textDecoration: 'none',
+                borderBottom: '1px solid #eee',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <i className="fas fa-briefcase" style={{ marginRight: '12px', width: '16px' }}></i>
+              {t('nav.career.center')}
+            </Link>
+            {user?.role === 'admin' && (
+              <Link 
+                to="/admin" 
+                className="mobile-nav-link"
+                onClick={() => setIsMenuOpen(false)}
+                style={{
+                  display: 'block',
+                  padding: '12px 16px',
+                  color: '#333',
+                  textDecoration: 'none',
+                  borderBottom: '1px solid #eee',
+                  transition: 'background-color 0.2s'
+                }}
+              >
+                <i className="fas fa-cog" style={{ marginRight: '12px', width: '16px' }}></i>
+                {t('nav.admin')}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Overlay to close dropdown when clicking outside */}
       {isProfileDropdownOpen && (

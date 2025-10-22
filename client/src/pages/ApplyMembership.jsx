@@ -46,7 +46,7 @@ const ApplyMembership = () => {
       
       // Check if the current user is the plan creator
       if (user && selectedPlan.createdBy === user.id) {
-        setError('You cannot apply for a plan that you created. Plan creators are automatically considered members.');
+        setError(t('membership.apply.plan.creator.error'));
         setLoading(false);
         setTimeout(() => {
           navigate('/browse-memberships');
@@ -292,7 +292,7 @@ const ApplyMembership = () => {
             required={required}
             className="form-control"
           >
-            <option value="">Select {label}</option>
+            <option value="">{t('membership.apply.select.field', { field: label })}</option>
             {options?.map((option, index) => (
               <option key={index} value={option.value || option}>
                 {option.label || option}
@@ -307,7 +307,7 @@ const ApplyMembership = () => {
             name={name}
             value={formData[name] || ''}
             onChange={handleInputChange}
-            placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+            placeholder={placeholder || t('membership.apply.enter.field', { field: label.toLowerCase() })}
             required={required}
             className="form-control"
             rows={4}
@@ -335,7 +335,7 @@ const ApplyMembership = () => {
             name={name}
             value={formData[name] || ''}
             onChange={handleInputChange}
-            placeholder={placeholder || `Enter ${label.toLowerCase()}`}
+            placeholder={placeholder || t('membership.apply.enter.field', { field: label.toLowerCase() })}
             required={required}
             className="form-control"
           />
@@ -355,7 +355,7 @@ const ApplyMembership = () => {
   if (error) {
     return (
       <div className="apply-error">
-        <h2>Error</h2>
+        <h2>{t('common.error')}</h2>
         <p>{error}</p>
         <button onClick={() => navigate('/browse-memberships')} className="btn btn-primary">
           {t('common.back')} {t('nav.browse.memberships')}
@@ -367,8 +367,8 @@ const ApplyMembership = () => {
   if (!form || !plan) {
     return (
       <div className="apply-error">
-        <h2>Form Not Available</h2>
-        <p>The application form for this membership is not currently available.</p>
+        <h2>{t('membership.apply.form.not.available')}</h2>
+        <p>{t('membership.apply.form.not.available.desc')}</p>
         <button onClick={() => navigate('/browse-memberships')} className="btn btn-primary">
           {t('common.back')} {t('nav.browse.memberships')}
         </button>
@@ -384,10 +384,10 @@ const ApplyMembership = () => {
         <h1>{form.title}</h1>
         <div className="plan-info">
           <h2>{plan.name}</h2>
-          <p><strong>Organization:</strong> {plan.organization?.name}</p>
-          <p><strong>Fee:</strong> ${plan.fee} {plan.renewalInterval}</p>
+          <p><strong>{t('membership.apply.organization')}:</strong> {plan.organization?.name}</p>
+          <p><strong>{t('membership.apply.fee')}:</strong> ${plan.fee} {plan.renewalInterval}</p>
           {plan.applicationFee > 0 && (
-            <p><strong>Application Fee:</strong> ${plan.applicationFee}</p>
+            <p><strong>{t('membership.apply.application.fee')}:</strong> ${plan.applicationFee}</p>
           )}
         </div>
         {form.description && (
