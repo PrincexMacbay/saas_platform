@@ -199,6 +199,11 @@
     background-color: #f8f9fa;
   }
   
+  /* Hide profile dropdown on mobile */
+  .profile-dropdown-container {
+    display: none !important;
+  }
+  
   /* Dashboard mobile responsive */
   .dashboard-container {
     padding: 10px;
@@ -246,6 +251,11 @@
   
   .mobile-menu {
     display: none;
+  }
+  
+  /* Show profile dropdown on desktop */
+  .profile-dropdown-container {
+    display: block !important;
   }
 }
 
