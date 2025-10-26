@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -12,11 +12,27 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
@@ -144,6 +160,100 @@ const Navbar = () => {
             <div className="desktop-language-selector">
               <LanguageSelector />
             </div>
+            
+            {/* Profile Dropdown */}
+            <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>
+              <button
+                className="profile-icon-button"
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <div className="profile-avatar" style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#3498db',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}>
+                  {getInitials(user)}
+                </div>
+              </button>
+              
+              {isProfileDropdownOpen && (
+                <div className="profile-dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  minWidth: '200px',
+                  marginTop: '8px'
+                }}>
+                  <div className="dropdown-header" style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #eee',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                    </div>
+                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                      @{user.username}
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="dropdown-logout-button"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#e74c3c',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('nav.logout')}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -156,6 +266,100 @@ const Navbar = () => {
             {/* Language selector only visible on desktop */}
             <div className="desktop-language-selector">
               <LanguageSelector />
+            </div>
+            
+            {/* Profile Dropdown for Admin */}
+            <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>
+              <button
+                className="profile-icon-button"
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <div className="profile-avatar" style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  backgroundColor: '#3498db',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}>
+                  {getInitials(user)}
+                </div>
+              </button>
+              
+              {isProfileDropdownOpen && (
+                <div className="profile-dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  minWidth: '200px',
+                  marginTop: '8px'
+                }}>
+                  <div className="dropdown-header" style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #eee',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                    </div>
+                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                      @{user.username}
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="dropdown-logout-button"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#e74c3c',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('nav.logout')}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
