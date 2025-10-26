@@ -205,20 +205,8 @@
     margin-top: 0; /* Remove any extra margin */
   }
   
-  .dashboard-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
   .sidebar {
-    order: -1; /* Move sidebar to top on mobile */
-    margin-bottom: 10px;
     padding: 15px;
-  }
-  
-  .main-feed {
-    width: 100%;
   }
   
   /* Ensure posts look good on mobile */
@@ -511,7 +499,7 @@
   text-decoration: underline;
 }
 
-/* Dashboard layout */
+/* Dashboard base styles */
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -519,13 +507,14 @@
 }
 
 .dashboard-content {
-  display: grid;
-  grid-template-columns: 1fr 300px;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
 .main-feed {
   min-width: 0;
+  width: 100%;
 }
 
 .sidebar {
@@ -534,6 +523,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   height: fit-content;
+  order: -1; /* Sidebar first on mobile */
 }
 
 .sidebar-title {
@@ -541,6 +531,19 @@
   font-weight: 600;
   margin-bottom: 15px;
   color: #2c3e50;
+}
+
+/* Dashboard layout - Desktop only */
+@media (min-width: 769px) {
+  .dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+  }
+
+  .sidebar {
+    order: 0; /* Reset order for desktop */
+  }
 }
 
 .create-post {
