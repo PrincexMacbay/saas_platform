@@ -198,6 +198,45 @@
   .mobile-nav-link:hover {
     background-color: #f8f9fa;
   }
+  
+  /* Dashboard mobile responsive */
+  .dashboard-container {
+    padding: 10px;
+    margin-top: 0; /* Remove any extra margin */
+  }
+  
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .sidebar {
+    order: -1; /* Move sidebar to top on mobile */
+    margin-bottom: 10px;
+    padding: 15px;
+  }
+  
+  .main-feed {
+    width: 100%;
+  }
+  
+  /* Ensure posts look good on mobile */
+  .post {
+    margin-bottom: 15px;
+  }
+  
+  .post-header {
+    padding: 12px 15px;
+  }
+  
+  .post-content {
+    padding: 15px;
+  }
+  
+  .post-actions {
+    padding: 12px 15px;
+  }
 }
 
 @media (min-width: 769px) {

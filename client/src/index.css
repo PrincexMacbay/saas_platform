@@ -20,8 +20,8 @@ body {
 }
 
 .main-content {
-  padding-top: 70px; /* Account for fixed navbar */
-  min-height: calc(100vh - 70px);
+  padding-top: 60px; /* Account for fixed navbar */
+  min-height: calc(100vh - 60px);
 }
 
 /* Container styles */
