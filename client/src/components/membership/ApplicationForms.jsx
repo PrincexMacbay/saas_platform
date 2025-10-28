@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import ConfirmDialog from '../ConfirmDialog';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ApplicationForms = () => {
   const navigate = useNavigate();
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
+  const { t } = useLanguage();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,7 +67,7 @@ const ApplicationForms = () => {
       await fetchForms();
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert('Failed to join organization: ' + (error.response?.data?.message || error.message));
+      alert(t('forms.failed.to.join', { error: error.response?.data?.message || error.message }));
     } finally {
       setJoiningOrganization(false);
     }
@@ -88,7 +90,7 @@ const ApplicationForms = () => {
   const handleDeleteForm = async (formId) => {
     setConfirmDialog({
       isOpen: true,
-      message: 'Are you sure you want to delete this form? This cannot be undone.',
+      message: t('forms.confirm.delete'),
       onConfirm: () => deleteForm(formId)
     });
   };
@@ -100,7 +102,7 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert('Error deleting form: ' + (error.response?.data?.message || error.message));
+      alert(t('forms.error.deleting', { error: error.response?.data?.message || error.message }));
     }
   };
 
@@ -111,7 +113,7 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert('Error publishing form: ' + (error.response?.data?.message || error.message));
+      alert(t('forms.error.publishing', { error: error.response?.data?.message || error.message }));
     }
   };
 
@@ -122,15 +124,15 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert('Error unpublishing form: ' + (error.response?.data?.message || error.message));
+      alert(t('forms.error.unpublishing', { error: error.response?.data?.message || error.message }));
     }
   };
 
   const getStatusBadge = (isPublished) => {
     if (isPublished) {
-      return <span className="status-badge published">Published</span>;
+      return <span className="status-badge published">{t('forms.published')}</span>;
     } else {
-      return <span className="status-badge draft">Draft</span>;
+      return <span className="status-badge draft">{t('forms.draft')}</span>;
     }
   };
 
@@ -146,7 +148,7 @@ const ApplicationForms = () => {
   if (!forms.length && loading && !data.applicationForms) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading application forms...</p>
+        <p>{t('forms.loading')}</p>
       </div>
     );
   }
@@ -155,8 +157,8 @@ const ApplicationForms = () => {
     return (
       <div className="organization-selector">
         <div className="selector-content">
-          <h2>Join an Organization</h2>
-          <p>You need to join an organization to create and manage application forms.</p>
+          <h2>{t('forms.join.organization')}</h2>
+          <p>{t('forms.join.description')}</p>
           
           {organizations.length > 0 ? (
             <div className="organizations-list">
@@ -171,14 +173,14 @@ const ApplicationForms = () => {
                     disabled={joiningOrganization}
                     className="join-button"
                   >
-                    {joiningOrganization ? 'Joining...' : 'Join Organization'}
+                    {joiningOrganization ? t('forms.joining') : t('forms.join.organization.button')}
                   </button>
                 </div>
               ))}
             </div>
           ) : (
             <div className="no-organizations">
-              <p>No organizations available to join.</p>
+              <p>{t('forms.no.organizations')}</p>
             </div>
           )}
         </div>
@@ -272,9 +274,9 @@ const ApplicationForms = () => {
   return (
     <div className="forms-container">
       <div className="forms-header">
-        <h2>Application Forms</h2>
+        <h2>{t('forms.title')}</h2>
         <button onClick={handleAddForm} className="add-button">
-          <i className="fas fa-plus"></i> Create Form
+          <i className="fas fa-plus"></i> {t('forms.create.form')}
         </button>
       </div>
 
@@ -297,14 +299,14 @@ const ApplicationForms = () => {
                 <button
                   onClick={() => handleViewForm(form)}
                   className="view-button"
-                  title="View Form"
+                  title={t('forms.view.form')}
                 >
                   <i className="fas fa-eye"></i>
                 </button>
                 <button
                   onClick={() => handleEditForm(form)}
                   className="edit-button"
-                  title="Edit Form"
+                  title={t('forms.edit.form')}
                 >
                   <i className="fas fa-edit"></i>
                 </button>
@@ -312,7 +314,7 @@ const ApplicationForms = () => {
                   <button
                     onClick={() => handleUnpublishForm(form.id)}
                     className="unpublish-button"
-                    title="Unpublish Form"
+                    title={t('forms.unpublish.form')}
                   >
                     <i className="fas fa-eye-slash"></i>
                   </button>
@@ -320,7 +322,7 @@ const ApplicationForms = () => {
                   <button
                     onClick={() => handlePublishForm(form.id)}
                     className="publish-button"
-                    title="Publish Form"
+                    title={t('forms.publish.form')}
                   >
                     <i className="fas fa-globe"></i>
                   </button>
@@ -328,7 +330,7 @@ const ApplicationForms = () => {
                 <button
                   onClick={() => handleDeleteForm(form.id)}
                   className="delete-button"
-                  title="Delete Form"
+                  title={t('forms.delete.form')}
                 >
                   <i className="fas fa-trash"></i>
                 </button>
@@ -343,23 +345,23 @@ const ApplicationForms = () => {
               <div className="form-stats">
                 <div className="stat">
                   <i className="fas fa-list"></i>
-                  <span>{form.fields ? form.fields.length : 0} Fields</span>
+                  <span>{form.fields ? form.fields.length : 0} {t('forms.fields')}</span>
                 </div>
                 <div className="stat">
                   <i className="fas fa-calendar"></i>
-                  <span>Created {formatDate(form.createdAt)}</span>
+                  <span>{t('forms.created')} {formatDate(form.createdAt)}</span>
                 </div>
                 {form.updatedAt !== form.createdAt && (
                   <div className="stat">
                     <i className="fas fa-edit"></i>
-                    <span>Updated {formatDate(form.updatedAt)}</span>
+                    <span>{t('forms.updated')} {formatDate(form.updatedAt)}</span>
                   </div>
                 )}
               </div>
 
               {form.fields && form.fields.length > 0 && (
                 <div className="form-fields-preview">
-                  <h4>Form Fields:</h4>
+                  <h4>{t('forms.form.fields')}:</h4>
                   <div className="fields-list">
                     {form.fields.slice(0, 3).map((field, index) => (
                       <span key={index} className="field-tag">
@@ -368,7 +370,7 @@ const ApplicationForms = () => {
                     ))}
                     {form.fields.length > 3 && (
                       <span className="field-tag more">
-                        +{form.fields.length - 3} more
+                        +{form.fields.length - 3} {t('forms.more')}
                       </span>
                     )}
                   </div>
@@ -382,9 +384,9 @@ const ApplicationForms = () => {
       {forms.length === 0 && !loading && (
         <div className="no-data">
           <i className="fas fa-file-alt"></i>
-          <p>No application forms found</p>
+          <p>{t('forms.no.forms')}</p>
           <button onClick={handleAddForm} className="add-first-button">
-            Create your first form
+            {t('forms.create.first')}
           </button>
         </div>
       )}
@@ -407,7 +409,7 @@ const ApplicationForms = () => {
         <div className="modal-overlay" onClick={() => setViewingForm(null)}>
           <div className="modal-content view-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>View Application Form: {viewingForm.title}</h3>
+              <h3>{t('forms.view.modal.title', { title: viewingForm.title })}</h3>
               <button onClick={() => setViewingForm(null)} className="close-button">
                 <i className="fas fa-times"></i>
               </button>
@@ -416,18 +418,18 @@ const ApplicationForms = () => {
             <div className="modal-body">
               {viewingForm.description && (
                 <div className="form-description-section">
-                  <h4>Description</h4>
+                  <h4>{t('forms.description.section')}</h4>
                   <p>{viewingForm.description}</p>
                 </div>
               )}
 
               <div className="form-status-section">
-                <h4>Status</h4>
+                <h4>{t('forms.status.section')}</h4>
                 {getStatusBadge(viewingForm.isPublished)}
               </div>
 
               <div className="form-fields-section">
-                <h4>Form Fields ({viewingForm.fields ? viewingForm.fields.length : 0})</h4>
+                <h4>{t('forms.fields.section', { count: viewingForm.fields ? viewingForm.fields.length : 0 })}</h4>
                 {viewingForm.fields && viewingForm.fields.length > 0 ? (
                   <div className="fields-list">
                     {viewingForm.fields.map((field, index) => (
@@ -435,41 +437,41 @@ const ApplicationForms = () => {
                         <div className="field-header">
                           <span className="field-label">{field.label || field.name}</span>
                           <span className={`field-type ${field.type}`}>{field.type}</span>
-                          {field.required && <span className="required-badge">Required</span>}
+                          {field.required && <span className="required-badge">{t('forms.required')}</span>}
                         </div>
                         {field.placeholder && (
                           <div className="field-placeholder">
-                            <small>Placeholder: {field.placeholder}</small>
+                            <small>{t('forms.placeholder', { placeholder: field.placeholder })}</small>
                           </div>
                         )}
                         {field.options && field.options.length > 0 && (
                           <div className="field-options">
-                            <small>Options: {field.options.join(', ')}</small>
+                            <small>{t('forms.options', { options: field.options.join(', ') })}</small>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="no-fields">No fields defined for this form.</p>
+                  <p className="no-fields">{t('forms.no.fields')}</p>
                 )}
               </div>
 
               <div className="form-meta-section">
-                <h4>Form Information</h4>
+                <h4>{t('forms.form.information')}</h4>
                 <div className="meta-grid">
                   <div className="meta-item">
-                    <span className="meta-label">Created:</span>
+                    <span className="meta-label">{t('forms.created.label')}:</span>
                     <span className="meta-value">{formatDate(viewingForm.createdAt)}</span>
                   </div>
                   {viewingForm.updatedAt !== viewingForm.createdAt && (
                     <div className="meta-item">
-                      <span className="meta-label">Last Updated:</span>
+                      <span className="meta-label">{t('forms.last.updated')}:</span>
                       <span className="meta-value">{formatDate(viewingForm.updatedAt)}</span>
                     </div>
                   )}
                   <div className="meta-item">
-                    <span className="meta-label">Organization:</span>
+                    <span className="meta-label">{t('forms.organization')}:</span>
                     <span className="meta-value">{viewingForm.formOrganization?.name || 'N/A'}</span>
                   </div>
                 </div>
@@ -481,10 +483,10 @@ const ApplicationForms = () => {
                 onClick={() => handleEditForm(viewingForm)} 
                 className="edit-form-button"
               >
-                <i className="fas fa-edit"></i> Edit Form
+                <i className="fas fa-edit"></i> {t('forms.edit.form.button')}
               </button>
               <button onClick={() => setViewingForm(null)} className="close-modal-button">
-                Close
+                {t('forms.close')}
               </button>
             </div>
           </div>
@@ -784,6 +786,7 @@ const ApplicationForms = () => {
 
 // Application Form Modal Component
 const ApplicationFormModal = ({ form, onClose, onSave }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     title: form?.title || '',
     description: form?.description || '',
@@ -809,7 +812,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
       
       onSave();
     } catch (error) {
-      alert('Error saving form: ' + (error.response?.data?.message || error.message));
+      alert(t('forms.error.saving', { error: error.response?.data?.message || error.message }));
     } finally {
       setLoading(false);
     }
@@ -819,7 +822,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{form ? 'Edit Form' : 'Create Form'}</h3>
+          <h3>{form ? t('forms.edit.modal') : t('forms.create.modal')}</h3>
           <button onClick={onClose} className="close-button">
             <i className="fas fa-times"></i>
           </button>
@@ -827,34 +830,34 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label>Form Title *</label>
+            <label>{t('forms.form.title')} *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="e.g., Gym Membership Application"
+              placeholder={t('forms.form.title.placeholder')}
             />
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>{t('forms.description')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows="3"
-              placeholder="Form description..."
+              placeholder={t('forms.description.placeholder')}
             />
           </div>
 
           <div className="modal-footer">
             <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
+              {t('forms.cancel')}
             </button>
             <button type="submit" disabled={loading} className="save-button">
-              {loading ? 'Saving...' : 'Save Form'}
+              {loading ? t('forms.saving') : t('forms.save.form')}
             </button>
           </div>
         </form>

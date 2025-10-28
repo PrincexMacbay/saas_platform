@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { createCoupon, getCoupons, deleteCoupon, updateCoupon } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Coupons = () => {
   const { data, loading: contextLoading, refreshData, isInitialized, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   // Initialize with preloaded data if available and ensure it's an array
   const [coupons, setCoupons] = useState(Array.isArray(data.coupons) ? data.coupons : []);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -162,9 +164,9 @@ const Coupons = () => {
   return (
     <div className="coupons-container">
       <div className="coupons-header">
-        <h2>Coupons & Discounts</h2>
+        <h2>{t('coupons.title')}</h2>
         <button onClick={() => setShowAddModal(true)} className="add-button">
-          <i className="fas fa-plus"></i> Add Coupon
+          <i className="fas fa-plus"></i> {t('coupons.add.coupon')}
         </button>
       </div>
 
@@ -177,14 +179,14 @@ const Coupons = () => {
       <div className="coupons-content">
         {!coupons.length && loading && !data.coupons ? (
           <div className="text-center py-5">
-            <p style={{ color: '#666' }}>Loading coupons...</p>
+            <p style={{ color: '#666' }}>{t('coupons.loading')}</p>
           </div>
         ) : coupons.length === 0 ? (
           <div className="no-data">
             <i className="fas fa-tag"></i>
-            <p>No coupons configured</p>
+            <p>{t('coupons.no.coupons')}</p>
             <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-              Create Your First Coupon
+              {t('coupons.create.first')}
             </button>
           </div>
         ) : (
@@ -204,20 +206,20 @@ const Coupons = () => {
                   
                   <div className="coupon-details">
                     <div className="detail-item">
-                      <span className="label">Discount:</span>
+                      <span className="label">{t('coupons.discount')}:</span>
                       <span className="value discount-value">
                         {formatDiscount(coupon.discount, coupon.discountType)}
                       </span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Redemptions:</span>
+                      <span className="label">{t('coupons.redemptions')}:</span>
                       <span className="value">
                         {coupon.currentRedemptions || 0}
                         {coupon.maxRedemptions && ` / ${coupon.maxRedemptions}`}
                       </span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Expires:</span>
+                      <span className="label">{t('coupons.expires')}:</span>
                       <span className={`value ${isExpired(coupon.expiryDate) ? 'expired' : ''}`}>
                         {formatDate(coupon.expiryDate)}
                       </span>
@@ -229,15 +231,15 @@ const Coupons = () => {
                   <button
                     onClick={() => handleToggleActive(coupon.id, coupon.isActive)}
                     className={`btn btn-sm ${coupon.isActive ? 'btn-warning' : 'btn-success'}`}
-                    title={coupon.isActive ? 'Deactivate' : 'Activate'}
+                    title={coupon.isActive ? t('coupons.deactivate') : t('coupons.activate')}
                   >
                     <i className={`fas fa-${coupon.isActive ? 'pause' : 'play'}`}></i>
-                    {coupon.isActive ? 'Deactivate' : 'Activate'}
+                    {coupon.isActive ? t('coupons.deactivate') : t('coupons.activate')}
                   </button>
                   <button
                     onClick={() => handleDelete(coupon.id)}
                     className="btn btn-outline-danger btn-sm"
-                    title="Delete coupon"
+                    title={t('coupons.delete.coupon')}
                   >
                     <i className="fas fa-trash"></i>
                   </button>
@@ -253,7 +255,7 @@ const Coupons = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Add New Coupon</h3>
+              <h3>{t('coupons.add.modal')}</h3>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="modal-close"
@@ -265,13 +267,13 @@ const Coupons = () => {
 
             <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-group">
-                <label htmlFor="name" className="form-label">Coupon Name *</label>
+                <label htmlFor="name" className="form-label">{t('coupons.coupon.name')} *</label>
                 <input
                   type="text"
                   id="name"
                   name="name"
                   className="form-control"
-                  placeholder="Enter coupon name..."
+                  placeholder={t('coupons.coupon.name.placeholder')}
                   value={formData.name}
                   onChange={handleInputChange}
                   required
@@ -279,14 +281,14 @@ const Coupons = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="couponId" className="form-label">Coupon Code *</label>
+                <label htmlFor="couponId" className="form-label">{t('coupons.coupon.code')} *</label>
                 <div className="input-group">
                   <input
                     type="text"
                     id="couponId"
                     name="couponId"
                     className="form-control"
-                    placeholder="Enter coupon code..."
+                    placeholder={t('coupons.coupon.code.placeholder')}
                     value={formData.couponId}
                     onChange={handleInputChange}
                     required
@@ -296,14 +298,14 @@ const Coupons = () => {
                     className="btn btn-outline-secondary"
                     onClick={generateCouponId}
                   >
-                    Generate
+                    {t('coupons.generate')}
                   </button>
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group col-md-6">
-                  <label htmlFor="discount" className="form-label">Discount Amount *</label>
+                  <label htmlFor="discount" className="form-label">{t('coupons.discount.amount')} *</label>
                   <input
                     type="number"
                     id="discount"
@@ -318,7 +320,7 @@ const Coupons = () => {
                   />
                 </div>
                 <div className="form-group col-md-6">
-                  <label htmlFor="discountType" className="form-label">Discount Type *</label>
+                  <label htmlFor="discountType" className="form-label">{t('coupons.discount.type')} *</label>
                   <select
                     id="discountType"
                     name="discountType"
@@ -327,31 +329,31 @@ const Coupons = () => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed Amount ($)</option>
+                    <option value="percentage">{t('coupons.percentage')}</option>
+                    <option value="fixed">{t('coupons.fixed.amount')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="maxRedemptions" className="form-label">Max Redemptions</label>
+                <label htmlFor="maxRedemptions" className="form-label">{t('coupons.max.redemptions')}</label>
                 <input
                   type="number"
                   id="maxRedemptions"
                   name="maxRedemptions"
                   className="form-control"
-                  placeholder="Leave empty for unlimited"
+                  placeholder={t('coupons.max.redemptions.placeholder')}
                   min="1"
                   value={formData.maxRedemptions}
                   onChange={handleInputChange}
                 />
                 <small className="form-text text-muted">
-                  Leave empty for unlimited redemptions
+                  {t('coupons.max.redemptions.help')}
                 </small>
               </div>
 
               <div className="form-group">
-                <label htmlFor="expiryDate" className="form-label">Expiry Date</label>
+                <label htmlFor="expiryDate" className="form-label">{t('coupons.expiry.date')}</label>
                 <input
                   type="datetime-local"
                   id="expiryDate"
@@ -372,7 +374,7 @@ const Coupons = () => {
                   className="btn btn-secondary"
                   disabled={loading}
                 >
-                  Cancel
+                  {t('coupons.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -382,10 +384,10 @@ const Coupons = () => {
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2"></span>
-                      Creating...
+                      {t('coupons.creating')}
                     </>
                   ) : (
-                    'Create Coupon'
+                    t('coupons.create.coupon')
                   )}
                 </button>
               </div>
@@ -798,8 +800,8 @@ const Coupons = () => {
           setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
         }}
         onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('applications.delete')}
+        cancelText={t('coupons.cancel')}
       />
     </div>
   );

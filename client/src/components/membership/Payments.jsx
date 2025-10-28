@@ -3,9 +3,11 @@ import api from '../../services/api';
 import CryptoPayment from './CryptoPayment';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Payments = () => {
   const { data, loading: contextLoading, isInitialized, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -173,7 +175,7 @@ const Payments = () => {
   if (!payments.length && contextLoading.payments && !data.payments) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading payments...</p>
+        <p>{t('payments.loading')}</p>
       </div>
     );
   }
@@ -181,9 +183,9 @@ const Payments = () => {
   return (
     <div className="payments-container">
       <div className="payments-header">
-        <h2>Payments</h2>
+        <h2>{t('payments.title')}</h2>
         <button onClick={handleAddPayment} className="add-button">
-          <i className="fas fa-plus"></i> Add Payment
+          <i className="fas fa-plus"></i> {t('payments.add.payment')}
         </button>
       </div>
 
@@ -192,7 +194,7 @@ const Payments = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Search by name, reference number..."
+            placeholder={t('payments.search.placeholder')}
             value={searchTerm}
             onChange={handleSearch}
           />
@@ -202,11 +204,11 @@ const Payments = () => {
           onChange={handleStatusFilter}
           className="status-filter"
         >
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-          <option value="failed">Failed</option>
-          <option value="refunded">Refunded</option>
+          <option value="">{t('payments.all.statuses')}</option>
+          <option value="pending">{t('applications.pending')}</option>
+          <option value="completed">{t('payments.completed')}</option>
+          <option value="failed">{t('payments.failed')}</option>
+          <option value="refunded">{t('payments.refunded')}</option>
         </select>
       </div>
 
@@ -221,15 +223,15 @@ const Payments = () => {
         <table className="payments-table">
           <thead>
             <tr>
-              <th>Payment Date</th>
-              <th>Full Name</th>
-              <th>Plan</th>
-              <th>Amount</th>
-              <th>Payment Method</th>
-              <th>Identifier</th>
-              <th>Reference Number</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('payments.payment.date')}</th>
+              <th>{t('payments.full.name')}</th>
+              <th>{t('applications.plan')}</th>
+              <th>{t('applications.amount')}</th>
+              <th>{t('payments.payment.method')}</th>
+              <th>{t('payments.identifier')}</th>
+              <th>{t('payments.reference.number')}</th>
+              <th>{t('applications.status')}</th>
+              <th>{t('applications.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -255,14 +257,14 @@ const Payments = () => {
                     <button
                       onClick={() => handleEditPayment(payment)}
                       className="edit-button"
-                      title="Edit Payment"
+                      title={t('payments.edit.payment')}
                     >
                       <i className="fas fa-edit"></i>
                     </button>
                     <button
                       onClick={() => handleDeletePayment(payment.id)}
                       className="delete-button"
-                      title="Delete Payment"
+                      title={t('payments.delete.payment')}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
@@ -276,7 +278,7 @@ const Payments = () => {
         {payments.length === 0 && !loading && (
           <div className="no-data">
             <i className="fas fa-credit-card"></i>
-            <p>No payments found</p>
+            <p>{t('payments.no.payments')}</p>
           </div>
         )}
       </div>
@@ -628,7 +630,7 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{payment ? 'Edit Payment' : 'Add Payment'}</h3>
+          <h3>{payment ? t('payments.edit.payment.modal') : t('payments.add.payment.modal')}</h3>
           <button onClick={onClose} className="close-button">
             <i className="fas fa-times"></i>
           </button>
@@ -637,14 +639,14 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-row">
             <div className="form-group">
-              <label>User *</label>
+              <label>{t('payments.user')} *</label>
               <select
                 name="userId"
                 value={formData.userId}
                 onChange={handleChange}
                 required
               >
-                <option value="">Select User</option>
+                <option value="">{t('payments.select.user')}</option>
                 {users.map(user => (
                   <option key={user.id} value={user.id}>
                     {`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username} ({user.email})
@@ -654,13 +656,13 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             </div>
 
             <div className="form-group">
-              <label>Plan</label>
+              <label>{t('applications.plan')}</label>
               <select
                 name="planId"
                 value={formData.planId}
                 onChange={handleChange}
               >
-                <option value="">Select Plan</option>
+                <option value="">{t('payments.select.plan')}</option>
                 {plans.map(plan => (
                   <option key={plan.id} value={plan.id}>
                     {plan.name} - ${plan.fee}
@@ -685,26 +687,26 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             </div>
 
             <div className="form-group">
-              <label>Payment Method *</label>
+              <label>{t('payments.payment.method')} *</label>
               <select
                 name="paymentMethod"
                 value={formData.paymentMethod}
                 onChange={handleChange}
                 required
               >
-                <option value="cash">Cash</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-                <option value="mobile_payment">Mobile Payment</option>
-                <option value="other">Other</option>
+                <option value="cash">{t('payments.cash')}</option>
+                <option value="bank_transfer">{t('payments.bank.transfer')}</option>
+                <option value="credit_card">{t('payments.credit.card')}</option>
+                <option value="debit_card">{t('payments.debit.card')}</option>
+                <option value="mobile_payment">{t('payments.mobile.payment')}</option>
+                <option value="other">{t('payments.other')}</option>
               </select>
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Payment Date *</label>
+              <label>{t('payments.payment.date.label')} *</label>
               <input
                 type="date"
                 name="paymentDate"
@@ -731,45 +733,45 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Identifier</label>
+              <label>{t('payments.identifier')}</label>
               <input
                 type="text"
                 name="identifier"
                 value={formData.identifier}
                 onChange={handleChange}
-                placeholder="Transaction ID"
+                placeholder={t('payments.identifier.placeholder')}
               />
             </div>
 
             <div className="form-group">
-              <label>Reference Number</label>
+              <label>{t('payments.reference.number')}</label>
               <input
                 type="text"
                 name="referenceNumber"
                 value={formData.referenceNumber}
                 onChange={handleChange}
-                placeholder="Reference number"
+                placeholder={t('payments.reference.number.placeholder')}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label>Notes</label>
+            <label>{t('payments.notes')}</label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
               rows="3"
-              placeholder="Additional notes..."
+              placeholder={t('payments.additional.notes')}
             />
           </div>
 
           <div className="modal-footer">
             <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
+              {t('applications.cancel')}
             </button>
             <button type="submit" disabled={loading} className="save-button">
-              {loading ? 'Saving...' : 'Save Payment'}
+              {loading ? t('payments.saving') : t('payments.save.payment')}
             </button>
           </div>
         </form>
@@ -911,8 +913,8 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
           }}
           onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-          confirmText="Delete"
-          cancelText="Cancel"
+          confirmText={t('applications.delete')}
+          cancelText={t('applications.cancel')}
         />
       </div>
     </div>

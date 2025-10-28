@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { createDebt, getDebts, deleteDebt, updateDebtStatus } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Debts = () => {
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
+  const { t } = useLanguage();
   const [debts, setDebts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -153,14 +155,14 @@ const Debts = () => {
     <div className="debts-container">
       <div className="debts-header">
         <div className="header-info">
-          <h2>Debts & Outstanding Balances</h2>
+          <h2>{t('debts.title')}</h2>
           <div className="total-outstanding">
-            <span className="label">Total Outstanding:</span>
+            <span className="label">{t('debts.total.outstanding')}:</span>
             <span className="amount">{formatCurrency(getTotalOutstanding())}</span>
           </div>
         </div>
         <button onClick={() => setShowAddModal(true)} className="add-button">
-          <i className="fas fa-plus"></i> Add Debt
+          <i className="fas fa-plus"></i> {t('debts.add.debt')}
         </button>
       </div>
 
@@ -173,14 +175,14 @@ const Debts = () => {
       <div className="debts-content">
         {!debts.length && loading && !data.debts ? (
           <div className="text-center py-5">
-            <p style={{ color: '#666' }}>Loading debts...</p>
+            <p style={{ color: '#666' }}>{t('debts.loading')}</p>
           </div>
         ) : debts.length === 0 ? (
           <div className="no-data">
             <i className="fas fa-exclamation-triangle"></i>
-            <p>No debts recorded</p>
+            <p>{t('debts.no.debts')}</p>
             <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-              Add Your First Debt
+              {t('debts.add.first.debt')}
             </button>
           </div>
         ) : (
@@ -194,21 +196,21 @@ const Debts = () => {
                   </div>
                   <div className="debt-details">
                     <div className="detail-item">
-                      <span className="label">Issued On:</span>
+                      <span className="label">{t('debts.issued.on')}:</span>
                       <span className="value">{formatDate(debt.issuedOn)}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Type:</span>
+                      <span className="label">{t('debts.type')}:</span>
                       <span className="value">{getDataTypeBadge(debt.dataType)}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Status:</span>
+                      <span className="label">{t('applications.status')}:</span>
                       <span className="value">{getStatusBadge(debt.status)}</span>
                     </div>
                     {debt.isManualEntry && (
                       <div className="detail-item">
-                        <span className="label">Entry Type:</span>
-                        <span className="value badge badge-info">Manual</span>
+                        <span className="label">{t('debts.entry.type')}:</span>
+                        <span className="value badge badge-info">{t('debts.manual.entry')}</span>
                       </div>
                     )}
                   </div>
@@ -219,23 +221,23 @@ const Debts = () => {
                       <button
                         onClick={() => handleStatusUpdate(debt.id, 'paid')}
                         className="btn btn-success btn-sm"
-                        title="Mark as paid"
+                        title={t('debts.mark.as.paid')}
                       >
-                        <i className="fas fa-check"></i> Paid
+                        <i className="fas fa-check"></i> {t('debts.paid')}
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(debt.id, 'written_off')}
                         className="btn btn-warning btn-sm"
-                        title="Write off"
+                        title={t('debts.write.off')}
                       >
-                        <i className="fas fa-times"></i> Write Off
+                        <i className="fas fa-times"></i> {t('debts.write.off')}
                       </button>
                     </div>
                   )}
                   <button
                     onClick={() => handleDelete(debt.id)}
                     className="btn btn-outline-danger btn-sm"
-                    title="Delete debt"
+                    title={t('debts.delete.debt')}
                   >
                     <i className="fas fa-trash"></i>
                   </button>
@@ -251,7 +253,7 @@ const Debts = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Add New Debt</h3>
+              <h3>{t('debts.add.modal')}</h3>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="modal-close"
@@ -263,7 +265,7 @@ const Debts = () => {
 
             <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-group">
-                <label htmlFor="amount" className="form-label">Amount *</label>
+                <label htmlFor="amount" className="form-label">{t('debts.amount')} *</label>
                 <input
                   type="number"
                   id="amount"
@@ -279,13 +281,13 @@ const Debts = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="description" className="form-label">Description *</label>
+                <label htmlFor="description" className="form-label">{t('debts.description')} *</label>
                 <textarea
                   id="description"
                   name="description"
                   className="form-control"
                   rows="3"
-                  placeholder="Enter debt description..."
+                  placeholder={t('debts.description.placeholder')}
                   value={formData.description}
                   onChange={handleInputChange}
                   required
@@ -293,7 +295,7 @@ const Debts = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="dataType" className="form-label">Debt Type *</label>
+                <label htmlFor="dataType" className="form-label">{t('debts.debt.type')} *</label>
                 <select
                   id="dataType"
                   name="dataType"
@@ -302,15 +304,15 @@ const Debts = () => {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="subscription">Subscription</option>
-                  <option value="fee">Fee</option>
-                  <option value="penalty">Penalty</option>
-                  <option value="other">Other</option>
+                  <option value="subscription">{t('debts.subscription')}</option>
+                  <option value="fee">{t('debts.fee')}</option>
+                  <option value="penalty">{t('debts.penalty')}</option>
+                  <option value="other">{t('debts.other')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="issuedOn" className="form-label">Issue Date *</label>
+                <label htmlFor="issuedOn" className="form-label">{t('debts.issue.date')} *</label>
                 <input
                   type="date"
                   id="issuedOn"
@@ -333,11 +335,11 @@ const Debts = () => {
                     onChange={handleInputChange}
                   />
                   <label htmlFor="isManualEntry" className="form-check-label">
-                    Manual Entry
+                    {t('debts.manual.entry.label')}
                   </label>
                 </div>
                 <small className="form-text text-muted">
-                  Check this if this debt was entered manually rather than generated automatically
+                  {t('debts.manual.entry.help')}
                 </small>
               </div>
 
@@ -348,7 +350,7 @@ const Debts = () => {
                   className="btn btn-secondary"
                   disabled={loading}
                 >
-                  Cancel
+                  {t('debts.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -358,10 +360,10 @@ const Debts = () => {
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2"></span>
-                      Creating...
+                      {t('debts.creating')}
                     </>
                   ) : (
-                    'Create Debt'
+                    t('debts.create.debt')
                   )}
                 </button>
               </div>
@@ -748,8 +750,8 @@ const Debts = () => {
           setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
         }}
         onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('applications.delete')}
+        cancelText={t('debts.cancel')}
       />
     </div>
   );

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { createReminder, getReminders, deleteReminder, sendReminder } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Reminders = () => {
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
+  const { t } = useLanguage();
   const [reminders, setReminders] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -144,9 +146,9 @@ const Reminders = () => {
   return (
     <div className="reminders-container">
       <div className="reminders-header">
-        <h2>Reminders & Notifications</h2>
+        <h2>{t('reminders.title')}</h2>
         <button onClick={() => setShowAddModal(true)} className="add-button">
-          <i className="fas fa-plus"></i> Add Reminder
+          <i className="fas fa-plus"></i> {t('reminders.add.reminder')}
         </button>
       </div>
 
@@ -159,14 +161,14 @@ const Reminders = () => {
       <div className="reminders-content">
         {!reminders.length && loading && !data.reminders ? (
           <div className="text-center py-5">
-            <p style={{ color: '#666' }}>Loading reminders...</p>
+            <p style={{ color: '#666' }}>{t('reminders.loading')}</p>
           </div>
         ) : reminders.length === 0 ? (
           <div className="no-data">
             <i className="fas fa-bell"></i>
-            <p>No reminders configured</p>
+            <p>{t('reminders.no.reminders')}</p>
             <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-              Create Your First Reminder
+              {t('reminders.create.first')}
             </button>
           </div>
         ) : (
@@ -184,14 +186,14 @@ const Reminders = () => {
                   <p className="reminder-message">{reminder.message}</p>
                   <div className="reminder-details">
                     <div className="detail-item">
-                      <span className="label">Scheduled:</span>
+                      <span className="label">{t('reminders.scheduled')}:</span>
                       <span className={`value ${isOverdue(reminder.reminderDate) ? 'overdue' : ''}`}>
                         {formatDate(reminder.reminderDate)}
                       </span>
                     </div>
                     {reminder.user && (
                       <div className="detail-item">
-                        <span className="label">Recipient:</span>
+                        <span className="label">{t('reminders.recipient')}:</span>
                         <span className="value">{reminder.user.firstName} {reminder.user.lastName}</span>
                       </div>
                     )}
@@ -202,15 +204,15 @@ const Reminders = () => {
                     <button
                       onClick={() => handleSendNow(reminder.id)}
                       className="btn btn-success btn-sm"
-                      title="Send now"
+                      title={t('reminders.send.now')}
                     >
-                      <i className="fas fa-paper-plane"></i> Send Now
+                      <i className="fas fa-paper-plane"></i> {t('reminders.send.now')}
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(reminder.id)}
                     className="btn btn-outline-danger btn-sm"
-                    title="Delete reminder"
+                    title={t('reminders.delete.reminder')}
                   >
                     <i className="fas fa-trash"></i>
                   </button>
@@ -226,7 +228,7 @@ const Reminders = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Add New Reminder</h3>
+              <h3>{t('reminders.add.modal')}</h3>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="modal-close"
@@ -238,13 +240,13 @@ const Reminders = () => {
 
             <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-group">
-                <label htmlFor="name" className="form-label">Reminder Name *</label>
+                <label htmlFor="name" className="form-label">{t('reminders.reminder.name')} *</label>
                 <input
                   type="text"
                   id="name"
                   name="name"
                   className="form-control"
-                  placeholder="Enter reminder name..."
+                  placeholder={t('reminders.reminder.name.placeholder')}
                   value={formData.name}
                   onChange={handleInputChange}
                   required
@@ -252,7 +254,7 @@ const Reminders = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="type" className="form-label">Reminder Type *</label>
+                <label htmlFor="type" className="form-label">{t('reminders.reminder.type')} *</label>
                 <select
                   id="type"
                   name="type"
@@ -261,16 +263,16 @@ const Reminders = () => {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="renewal">Renewal Reminder</option>
-                  <option value="payment_due">Payment Due</option>
-                  <option value="overdue">Overdue Notice</option>
-                  <option value="welcome">Welcome Message</option>
-                  <option value="custom">Custom Reminder</option>
+                  <option value="renewal">{t('reminders.renewal.reminder')}</option>
+                  <option value="payment_due">{t('reminders.payment.due')}</option>
+                  <option value="overdue">{t('reminders.overdue.notice')}</option>
+                  <option value="welcome">{t('reminders.welcome.message')}</option>
+                  <option value="custom">{t('reminders.custom.reminder')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="reminderDate" className="form-label">Reminder Date & Time *</label>
+                <label htmlFor="reminderDate" className="form-label">{t('reminders.reminder.date.time')} *</label>
                 <input
                   type="datetime-local"
                   id="reminderDate"
@@ -283,13 +285,13 @@ const Reminders = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="message" className="form-label">Message *</label>
+                <label htmlFor="message" className="form-label">{t('reminders.message')} *</label>
                 <textarea
                   id="message"
                   name="message"
                   className="form-control"
                   rows="4"
-                  placeholder="Enter reminder message..."
+                  placeholder={t('reminders.message.placeholder')}
                   value={formData.message}
                   onChange={handleInputChange}
                   required
@@ -303,7 +305,7 @@ const Reminders = () => {
                   className="btn btn-secondary"
                   disabled={loading}
                 >
-                  Cancel
+                  {t('reminders.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -313,10 +315,10 @@ const Reminders = () => {
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2"></span>
-                      Creating...
+                      {t('reminders.creating')}
                     </>
                   ) : (
-                    'Create Reminder'
+                    t('reminders.create.reminder')
                   )}
                 </button>
               </div>
@@ -670,8 +672,8 @@ const Reminders = () => {
           setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
         }}
         onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('applications.delete')}
+        cancelText={t('reminders.cancel')}
       />
     </div>
   );

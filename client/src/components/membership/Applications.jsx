@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Applications = () => {
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
+  const { t } = useLanguage();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,11 +77,11 @@ const Applications = () => {
     try {
       setJoiningOrganization(true);
       await api.post('/users/organizations/join', { organizationId });
-      alert('Successfully joined organization! You can now view applications.');
+      alert(t('applications.successfully.joined'));
       await fetchApplications(); // Refresh the applications
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert('Error joining organization: ' + (error.response?.data?.message || error.message));
+      alert(t('applications.error.joining', { error: error.response?.data?.message || error.message }));
     } finally {
       setJoiningOrganization(false);
     }
@@ -148,9 +150,9 @@ const Applications = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'pending': { class: 'bg-warning', text: 'Pending' },
-      'approved': { class: 'bg-success', text: 'Approved' },
-      'rejected': { class: 'bg-danger', text: 'Rejected' },
+      'pending': { class: 'bg-warning', text: t('applications.pending') },
+      'approved': { class: 'bg-success', text: t('applications.approved') },
+      'rejected': { class: 'bg-danger', text: t('applications.rejected') },
     };
     
     const config = statusConfig[status] || { class: 'bg-secondary', text: status };
@@ -169,7 +171,7 @@ const Applications = () => {
   if (!applications.length && loading && !data.applications) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading applications...</p>
+        <p>{t('applications.loading')}</p>
       </div>
     );
   }
@@ -180,14 +182,14 @@ const Applications = () => {
         <div className="organization-selector">
           <div className="selector-header">
             <i className="fas fa-building"></i>
-            <h2>Join an Organization</h2>
-            <p>You need to be a member of an organization to view membership applications.</p>
+            <h2>{t('applications.join.organization')}</h2>
+            <p>{t('applications.join.description')}</p>
           </div>
           
           <div className="organizations-list">
             {organizations.length === 0 ? (
               <div className="no-organizations">
-                <p>No organizations available to join.</p>
+                <p>{t('applications.no.organizations')}</p>
               </div>
             ) : (
               organizations.map(org => (
@@ -197,7 +199,7 @@ const Applications = () => {
                     <p>{org.description}</p>
                     {org.website && (
                       <a href={org.website} target="_blank" rel="noopener noreferrer">
-                        <i className="fas fa-external-link-alt"></i> Visit Website
+                        <i className="fas fa-external-link-alt"></i> {t('applications.visit.website')}
                       </a>
                     )}
                   </div>
@@ -206,7 +208,7 @@ const Applications = () => {
                     disabled={joiningOrganization}
                     className="join-button"
                   >
-                    {joiningOrganization ? 'Joining...' : 'Join Organization'}
+                    {joiningOrganization ? t('applications.joining') : t('applications.join.organization.button')}
                   </button>
                 </div>
               ))
@@ -329,7 +331,7 @@ const Applications = () => {
   return (
     <div className="applications-container">
       <div className="applications-header">
-        <h2>Membership Applications</h2>
+        <h2>{t('applications.title')}</h2>
       </div>
 
       <div className="applications-filters">
@@ -337,7 +339,7 @@ const Applications = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Search by name, email..."
+            placeholder={t('applications.search.placeholder')}
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -353,10 +355,10 @@ const Applications = () => {
           }}
           className="status-filter"
         >
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
+          <option value="">{t('applications.all.statuses')}</option>
+          <option value="pending">{t('applications.pending')}</option>
+          <option value="approved">{t('applications.approved')}</option>
+          <option value="rejected">{t('applications.rejected')}</option>
         </select>
       </div>
 
@@ -371,14 +373,14 @@ const Applications = () => {
         <table className="applications-table">
           <thead>
             <tr>
-              <th>Date Applied</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Plan</th>
-              <th>Student ID</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('applications.date.applied')}</th>
+              <th>{t('applications.name')}</th>
+              <th>{t('applications.email')}</th>
+              <th>{t('applications.phone')}</th>
+              <th>{t('applications.plan')}</th>
+              <th>{t('applications.student.id')}</th>
+              <th>{t('applications.status')}</th>
+              <th>{t('applications.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -400,14 +402,14 @@ const Applications = () => {
                         <button
                           onClick={() => openActionModal(application, 'approve')}
                           className="approve-button"
-                          title="Approve Application"
+                          title={t('applications.approve')}
                         >
                           <i className="fas fa-check"></i>
                         </button>
                         <button
                           onClick={() => openActionModal(application, 'reject')}
                           className="reject-button"
-                          title="Reject Application"
+                          title={t('applications.reject')}
                         >
                           <i className="fas fa-times"></i>
                         </button>
@@ -416,14 +418,14 @@ const Applications = () => {
                     <button
                       onClick={() => openActionModal(application, 'view')}
                       className="view-button"
-                      title="View Application Details"
+                      title={t('applications.view')}
                     >
                       <i className="fas fa-eye"></i>
                     </button>
                     <button
                       onClick={() => handleDelete(application.id)}
                       className="delete-button"
-                      title="Delete Application"
+                      title={t('applications.delete')}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
@@ -437,7 +439,7 @@ const Applications = () => {
         {applications.length === 0 && !loading && (
           <div className="no-data">
             <i className="fas fa-file-alt"></i>
-            <p>No applications found</p>
+            <p>{t('applications.no.applications')}</p>
           </div>
         )}
       </div>
@@ -450,7 +452,7 @@ const Applications = () => {
               <div className="modal-header border-0 pb-0">
                 <h5 className="modal-title">
                   <i className={`fas fa-${actionType === 'view' ? 'eye text-info' : actionType === 'approve' ? 'check-circle text-success' : 'times-circle text-danger'} me-2`}></i>
-                  {actionType === 'view' ? 'View Application Details' : actionType === 'approve' ? 'Approve Application' : 'Reject Application'}
+                  {actionType === 'view' ? t('applications.view.details') : actionType === 'approve' ? t('applications.approve.application') : t('applications.reject.application')}
                 </h5>
                 <button 
                   type="button" 
@@ -462,18 +464,18 @@ const Applications = () => {
                 {actionType === 'view' ? (
                   <div className="application-details">
                     <div className="basic-info mb-4">
-                      <h6 className="text-muted mb-3">Basic Information</h6>
+                      <h6 className="text-muted mb-3">{t('applications.basic.information')}</h6>
                       <div className="row">
                         <div className="col-md-6">
-                          <p><strong>Name:</strong> {selectedApplication.firstName} {selectedApplication.lastName}</p>
-                          <p><strong>Email:</strong> {selectedApplication.email}</p>
-                          <p><strong>Phone:</strong> {selectedApplication.phone || 'Not provided'}</p>
-                          <p><strong>Student ID:</strong> {selectedApplication.studentId || 'Not provided'}</p>
+                          <p><strong>{t('applications.name')}:</strong> {selectedApplication.firstName} {selectedApplication.lastName}</p>
+                          <p><strong>{t('applications.email')}:</strong> {selectedApplication.email}</p>
+                          <p><strong>{t('applications.phone')}:</strong> {selectedApplication.phone || t('applications.not.provided')}</p>
+                          <p><strong>{t('applications.student.id')}:</strong> {selectedApplication.studentId || t('applications.not.provided')}</p>
                         </div>
                         <div className="col-md-6">
-                          <p><strong>Plan:</strong> {selectedApplication.plan?.name || 'N/A'}</p>
-                          <p><strong>Status:</strong> {getStatusBadge(selectedApplication.status)}</p>
-                          <p><strong>Applied:</strong> {formatDate(selectedApplication.createdAt)}</p>
+                          <p><strong>{t('applications.plan')}:</strong> {selectedApplication.plan?.name || 'N/A'}</p>
+                          <p><strong>{t('applications.status')}:</strong> {getStatusBadge(selectedApplication.status)}</p>
+                          <p><strong>{t('applications.date.applied')}:</strong> {formatDate(selectedApplication.createdAt)}</p>
                           <p><strong>Referral:</strong> {selectedApplication.referral || 'None'}</p>
                         </div>
                       </div>
@@ -481,7 +483,7 @@ const Applications = () => {
 
                     {selectedApplication.formData && (
                       <div className="custom-form-data mb-4">
-                        <h6 className="text-muted mb-3">Custom Form Data</h6>
+                        <h6 className="text-muted mb-3">{t('applications.custom.form.data')}</h6>
                         <div className="form-data-display">
                           {(() => {
                             try {
@@ -494,7 +496,7 @@ const Applications = () => {
                                 return (
                                   <div key={key} className="form-field">
                                     <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong>
-                                    <span>{value || 'Not provided'}</span>
+                                    <span>{value || t('applications.not.provided')}</span>
                                   </div>
                                 );
                               }).filter(Boolean);
@@ -508,7 +510,7 @@ const Applications = () => {
 
                     {selectedApplication.paymentInfo && (
                       <div className="payment-info mb-4">
-                        <h6 className="text-muted mb-3">Payment Information</h6>
+                        <h6 className="text-muted mb-3">{t('applications.payment.information')}</h6>
                         <div className="payment-data-display">
                           {(() => {
                             try {
@@ -516,12 +518,12 @@ const Applications = () => {
                               return (
                                 <div className="row">
                                   <div className="col-md-6">
-                                    <p><strong>Payment Method:</strong> {paymentInfo.method}</p>
-                                    <p><strong>Amount:</strong> ${paymentInfo.amount}</p>
-                                    <p><strong>Transaction ID:</strong> {paymentInfo.transactionId}</p>
+                                    <p><strong>{t('applications.payment.method')}:</strong> {paymentInfo.method}</p>
+                                    <p><strong>{t('applications.amount')}:</strong> ${paymentInfo.amount}</p>
+                                    <p><strong>{t('applications.transaction.id')}:</strong> {paymentInfo.transactionId}</p>
                                   </div>
                                   <div className="col-md-6">
-                                    <p><strong>Processed:</strong> {new Date(paymentInfo.processedAt).toLocaleString()}</p>
+                                    <p><strong>{t('applications.processed')}:</strong> {new Date(paymentInfo.processedAt).toLocaleString()}</p>
                                   </div>
                                 </div>
                               );
@@ -549,25 +551,24 @@ const Applications = () => {
                     
                     <div className="mb-3">
                       <label className="form-label fw-medium">
-                        {actionType === 'approve' ? 'Approval' : 'Rejection'} Notes (Optional)
+                        {actionType === 'approve' ? t('applications.approval.notes') : t('applications.rejection.notes')}
                       </label>
                       <textarea
                         className="form-control"
                         rows="4"
-                        placeholder={`Add notes about this ${actionType === 'approve' ? 'approval' : 'rejection'}...`}
+                        placeholder={t('applications.add.notes', { type: actionType === 'approve' ? 'approval' : 'rejection' })}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                       ></textarea>
                       <div className="form-text">
-                        Notes will be saved with the application and can be viewed later.
+                        {t('applications.notes.help')}
                       </div>
                     </div>
                     
                     <div className={`alert alert-${actionType === 'approve' ? 'success' : 'danger'} d-flex align-items-center`}>
                       <i className={`fas fa-${actionType === 'approve' ? 'check-circle' : 'exclamation-triangle'} me-2`}></i>
                       <div>
-                        <strong>Action:</strong> {actionType === 'approve' ? 'Approve' : 'Reject'} application for {selectedApplication.firstName} {selectedApplication.lastName}
-                        {actionType === 'approve' && ' and create user account'}
+                        <strong>{t('applications.action')}:</strong> {actionType === 'approve' ? t('applications.approve.and.create', { name: `${selectedApplication.firstName} ${selectedApplication.lastName}` }) : t('applications.reject.application.for', { name: `${selectedApplication.firstName} ${selectedApplication.lastName}` })}
                       </div>
                     </div>
                   </>
@@ -579,7 +580,7 @@ const Applications = () => {
                   className="btn btn-secondary" 
                   onClick={() => setShowActionModal(false)}
                 >
-                  {actionType === 'view' ? 'Close' : 'Cancel'}
+                  {actionType === 'view' ? t('applications.close') : t('applications.cancel')}
                 </button>
                 {actionType !== 'view' && (
                   <button 
@@ -588,7 +589,7 @@ const Applications = () => {
                     onClick={handleConfirmAction}
                   >
                     <i className={`fas fa-${actionType === 'approve' ? 'check' : 'times'} me-2`}></i>
-                    {actionType === 'approve' ? 'Approve' : 'Reject'} Application
+                    {actionType === 'approve' ? t('applications.approve.application.button') : t('applications.reject.application.button')}
                   </button>
                 )}
               </div>
@@ -607,7 +608,7 @@ const Applications = () => {
             <i className="fas fa-chevron-left"></i>
           </button>
           <span className="pagination-info">
-            Page {currentPage} of {totalPages}
+            {t('applications.page', { current: currentPage, total: totalPages })}
           </span>
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}

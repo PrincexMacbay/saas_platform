@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { createScheduledPayment, getScheduledPayments, deleteScheduledPayment } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ScheduledPayments = () => {
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
+  const { t } = useLanguage();
   const [scheduledPayments, setScheduledPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -125,9 +127,9 @@ const ScheduledPayments = () => {
   return (
     <div className="scheduled-payments-container">
       <div className="scheduled-payments-header">
-        <h2>Scheduled Payments</h2>
+        <h2>{t('scheduled.payments.title')}</h2>
         <button onClick={() => setShowAddModal(true)} className="add-button">
-          <i className="fas fa-plus"></i> Add Scheduled Payment
+          <i className="fas fa-plus"></i> {t('scheduled.payments.add')}
         </button>
       </div>
 
@@ -140,14 +142,14 @@ const ScheduledPayments = () => {
       <div className="scheduled-payments-content">
         {!scheduledPayments.length && loading && !data.scheduledPayments ? (
           <div className="text-center py-5">
-            <p style={{ color: '#666' }}>Loading scheduled payments...</p>
+            <p style={{ color: '#666' }}>{t('scheduled.payments.loading')}</p>
           </div>
         ) : scheduledPayments.length === 0 ? (
           <div className="no-data">
             <i className="fas fa-calendar-alt"></i>
-            <p>No scheduled payments configured</p>
+            <p>{t('scheduled.payments.no.payments')}</p>
             <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-              Create Your First Scheduled Payment
+              {t('scheduled.payments.create.first')}
             </button>
           </div>
         ) : (
@@ -161,15 +163,15 @@ const ScheduledPayments = () => {
                   </div>
                   <div className="payment-details">
                     <div className="detail-item">
-                      <span className="label">Scheduled Date:</span>
+                      <span className="label">{t('scheduled.payments.scheduled.date')}:</span>
                       <span className="value">{formatDate(payment.scheduledDate)}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Frequency:</span>
+                      <span className="label">{t('scheduled.payments.frequency')}:</span>
                       <span className="value">{payment.frequency}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Status:</span>
+                      <span className="label">{t('applications.status')}:</span>
                       <span className="value">{getStatusBadge(payment.status)}</span>
                     </div>
                   </div>
@@ -194,7 +196,7 @@ const ScheduledPayments = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Add Scheduled Payment</h3>
+              <h3>{t('scheduled.payments.add.modal')}</h3>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="modal-close"
@@ -206,7 +208,7 @@ const ScheduledPayments = () => {
 
             <form onSubmit={handleSubmit} className="modal-body">
               <div className="form-group">
-                <label htmlFor="amount" className="form-label">Amount *</label>
+                <label htmlFor="amount" className="form-label">{t('scheduled.payments.amount')} *</label>
                 <input
                   type="number"
                   id="amount"
@@ -222,7 +224,7 @@ const ScheduledPayments = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="scheduledDate" className="form-label">Scheduled Date *</label>
+                <label htmlFor="scheduledDate" className="form-label">{t('scheduled.payments.scheduled.date.time')} *</label>
                 <input
                   type="datetime-local"
                   id="scheduledDate"
@@ -235,7 +237,7 @@ const ScheduledPayments = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="frequency" className="form-label">Frequency *</label>
+                <label htmlFor="frequency" className="form-label">{t('scheduled.payments.frequency')} *</label>
                 <select
                   id="frequency"
                   name="frequency"
@@ -244,28 +246,28 @@ const ScheduledPayments = () => {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="one-time">One Time</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="quarterly">Quarterly</option>
-                  <option value="yearly">Yearly</option>
+                  <option value="one-time">{t('scheduled.payments.one.time')}</option>
+                  <option value="monthly">{t('scheduled.payments.monthly')}</option>
+                  <option value="quarterly">{t('scheduled.payments.quarterly')}</option>
+                  <option value="yearly">{t('scheduled.payments.yearly')}</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="description" className="form-label">Description</label>
+                <label htmlFor="description" className="form-label">{t('scheduled.payments.description')}</label>
                 <textarea
                   id="description"
                   name="description"
                   className="form-control"
                   rows="3"
-                  placeholder="Enter payment description..."
+                  placeholder={t('scheduled.payments.description.placeholder')}
                   value={formData.description}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="planId" className="form-label">Associated Plan (Optional)</label>
+                <label htmlFor="planId" className="form-label">{t('scheduled.payments.associated.plan')}</label>
                 <select
                   id="planId"
                   name="planId"
@@ -273,7 +275,7 @@ const ScheduledPayments = () => {
                   value={formData.planId}
                   onChange={handleInputChange}
                 >
-                  <option value="">Select a plan</option>
+                  <option value="">{t('scheduled.payments.select.plan')}</option>
                   {/* Plan options would be populated from API */}
                 </select>
               </div>
@@ -285,7 +287,7 @@ const ScheduledPayments = () => {
                   className="btn btn-secondary"
                   disabled={loading}
                 >
-                  Cancel
+                  {t('scheduled.payments.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -295,10 +297,10 @@ const ScheduledPayments = () => {
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2"></span>
-                      Creating...
+                      {t('scheduled.payments.creating')}
                     </>
                   ) : (
-                    'Create Scheduled Payment'
+                    t('scheduled.payments.create')
                   )}
                 </button>
               </div>
@@ -596,8 +598,8 @@ const ScheduledPayments = () => {
           setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
         }}
         onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('applications.delete')}
+        cancelText={t('scheduled.payments.cancel')}
       />
     </div>
   );

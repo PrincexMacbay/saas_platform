@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MembershipSettings = () => {
+  const { t } = useLanguage();
   const [settings, setSettings] = useState({
     autoApproveApplications: false,
     enableApplicationForm: true,
@@ -14,18 +16,18 @@ const MembershipSettings = () => {
   });
 
   const handleSave = () => {
-    alert('Settings saved successfully!');
+    alert(t('settings.saved.successfully'));
   };
 
   return (
     <div className="settings-container">
       <div className="settings-header">
-        <h2>Membership Settings</h2>
+        <h2>{t('settings.title')}</h2>
       </div>
 
       <div className="settings-content">
         <div className="settings-section">
-          <h3>General Settings</h3>
+          <h3>{t('settings.general.settings')}</h3>
           <div className="setting-item">
             <label className="toggle-label">
               <input
@@ -37,7 +39,7 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              Auto-approve applications
+              {t('settings.auto.approve')}
             </label>
           </div>
           
@@ -52,7 +54,7 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              Enable application form
+              {t('settings.enable.form')}
             </label>
           </div>
           
@@ -67,26 +69,26 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              Allow bank transfers
+              {t('settings.allow.bank.transfers')}
             </label>
           </div>
         </div>
 
         <div className="settings-section">
-          <h3>Invoice Text</h3>
+          <h3>{t('settings.invoice.text')}</h3>
           <textarea
             value={settings.invoiceText}
             onChange={(e) => setSettings(prev => ({
               ...prev,
               invoiceText: e.target.value
             }))}
-            placeholder="Custom text to appear on invoices..."
+            placeholder={t('settings.invoice.text.placeholder')}
             rows="4"
           />
         </div>
 
         <div className="settings-section">
-          <h3>Email Notifications</h3>
+          <h3>{t('settings.email.notifications')}</h3>
           <div className="setting-item">
             <label className="toggle-label">
               <input
@@ -101,7 +103,7 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              New application notifications
+              {t('settings.new.application.notifications')}
             </label>
           </div>
           
@@ -119,7 +121,7 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              Payment received notifications
+              {t('settings.payment.received.notifications')}
             </label>
           </div>
           
@@ -137,14 +139,14 @@ const MembershipSettings = () => {
                 }))}
               />
               <span className="toggle-slider"></span>
-              Subscription expiring notifications
+              {t('settings.subscription.expiring.notifications')}
             </label>
           </div>
         </div>
 
         <div className="settings-actions">
           <button onClick={handleSave} className="save-button">
-            <i className="fas fa-save"></i> Save Settings
+            <i className="fas fa-save"></i> {t('settings.save.settings')}
           </button>
         </div>
       </div>
