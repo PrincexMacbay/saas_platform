@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // Plan Modal Component
 const PlanModal = ({ plan, onClose, onSave }) => {
+  const { t } = useLanguage();
   console.log('PlanModal rendering with plan:', plan);
   
   // Initialize form data with safe defaults
@@ -137,7 +139,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
       onSave();
     } catch (error) {
       console.error('Plan submission error:', error.response?.data);
-      alert('Error saving plan: ' + (error.response?.data?.message || error.message));
+      alert(t('plans.error.saving', { error: error.response?.data?.message || error.message }));
     } finally {
       setLoading(false);
     }
@@ -168,7 +170,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
         overflow: 'auto'
       }}>
         <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ margin: 0 }}>{plan ? 'Edit Plan' : 'Add Plan'}</h3>
+          <h3 style={{ margin: 0 }}>{plan ? t('plans.edit.modal') : t('plans.add.modal')}</h3>
           <button onClick={onClose} className="close-button" style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>
             <i className="fas fa-times"></i>
           </button>
@@ -176,31 +178,31 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label>Plan Name *</label>
+            <label>{t('plans.plan.name.label')} *</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="e.g., Basic Plan"
+              placeholder={t('plans.plan.name.placeholder')}
             />
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>{t('plans.description.label')}</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows="3"
-              placeholder="Plan description..."
+              placeholder={t('plans.description.placeholder')}
             />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Plan Type *</label>
+              <label>{t('plans.plan.type')} *</label>
               <div className="plan-type-selector">
                 <label className="radio-label">
                   <input
@@ -216,7 +218,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                       }));
                     }}
                   />
-                  <span>Paid Plan</span>
+                  <span>{t('plans.paid')}</span>
                 </label>
                 <label className="radio-label">
                   <input
@@ -232,13 +234,13 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                       }));
                     }}
                   />
-                  <span>Free Plan</span>
+                  <span>{t('plans.free')}</span>
                 </label>
               </div>
             </div>
 
             <div className="form-group">
-              <label>Fee {formData.planType === 'paid' ? '*' : ''}</label>
+              <label>{t('plans.fee.label')} {formData.planType === 'paid' ? '*' : ''}</label>
               <input
                 type="number"
                 name="fee"
@@ -248,40 +250,40 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                 min="0"
                 required={formData.planType === 'paid'}
                 disabled={formData.planType === 'free'}
-                placeholder={formData.planType === 'free' ? 'Free' : '0.00'}
+                placeholder={formData.planType === 'free' ? t('plans.free') : t('plans.fee.placeholder')}
               />
             </div>
 
             <div className="form-group">
-              <label>Renewal Interval *</label>
+              <label>{t('plans.renewal.interval.label')} *</label>
               <select
                 name="renewalInterval"
                 value={formData.renewalInterval}
                 onChange={handleChange}
                 required
               >
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
+                <option value="monthly">{t('plans.monthly')}</option>
+                <option value="quarterly">{t('plans.quarterly')}</option>
+                <option value="yearly">{t('plans.yearly')}</option>
                 <option value="one-time">One-time</option>
               </select>
             </div>
           </div>
 
           <div className="form-group">
-            <label>Max Members (optional)</label>
+            <label>{t('plans.max.members.label')} (optional)</label>
             <input
               type="number"
               name="maxMembers"
               value={formData.maxMembers}
               onChange={handleChange}
               min="1"
-              placeholder="Leave empty for unlimited"
+              placeholder={t('plans.unlimited')}
             />
           </div>
 
           <div className="form-group">
-            <label>Application Form</label>
+            <label>{t('plans.application.form')}</label>
             <div className="form-type-selector">
               <label className="radio-label">
                 <input
@@ -297,7 +299,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                     }));
                   }}
                 />
-                <span>Use Organization Default Form</span>
+                <span>{t('plans.use.default.form')}</span>
               </label>
               <label className="radio-label">
                 <input
@@ -312,17 +314,17 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                     }));
                   }}
                 />
-                <span>Use Custom Form</span>
+                <span>{t('plans.select.form')}</span>
               </label>
             </div>
             
             {!formData.useDefaultForm && (
               <div className="form-group">
-                <label>Select Custom Application Form</label>
+                <label>{t('plans.select.form')}</label>
                 {availableForms.length === 0 ? (
                   <div className="form-warning">
                     <i className="fas fa-exclamation-triangle"></i>
-                    <p>No published application forms available. Please create and publish a form first.</p>
+                    <p>{t('forms.no.forms')}</p>
                     <button 
                       type="button" 
                       className="create-form-button"
@@ -372,7 +374,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           </div>
 
           <div className="form-group">
-            <label>Benefits</label>
+            <label>{t('plans.benefits')}</label>
             <div className="benefits-list">
               {formData.benefits.map((benefit, index) => (
                 <div key={index} className="benefit-item">
@@ -380,7 +382,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                     type="text"
                     value={benefit}
                     onChange={(e) => handleBenefitChange(index, e.target.value)}
-                    placeholder="Enter benefit..."
+                    placeholder={t('plans.benefits.placeholder')}
                   />
                   <button
                     type="button"
@@ -396,17 +398,17 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                 onClick={addBenefit}
                 className="add-benefit"
               >
-                <i className="fas fa-plus"></i> Add Benefit
+                <i className="fas fa-plus"></i> {t('plans.add.benefit')}
               </button>
             </div>
           </div>
 
           <div className="modal-footer">
             <button type="button" onClick={onClose} className="cancel-button">
-              Cancel
+              {t('plans.cancel')}
             </button>
             <button type="submit" disabled={loading} className="save-button">
-              {loading ? 'Saving...' : 'Save Plan'}
+              {loading ? t('plans.saving') : t('plans.save.plan')}
             </button>
           </div>
         </form>
@@ -741,6 +743,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 
 const Plans = () => {
   const { data, loading, errors, refreshData, updateData, isInitialized, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   const [plans, setPlans] = useState([]);
   // Use context loading state instead of local state
   const isLoading = loading.plans;
@@ -811,7 +814,7 @@ const Plans = () => {
 
   const formatCurrency = (amount) => {
     if (amount === 0 || amount === '0' || amount === null || amount === undefined) {
-      return 'Free';
+      return t('plans.free');
     }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -821,9 +824,9 @@ const Plans = () => {
 
   const getRenewalText = (interval) => {
     const intervals = {
-      monthly: 'Monthly',
-      quarterly: 'Quarterly',
-      yearly: 'Yearly',
+      monthly: t('plans.monthly'),
+      quarterly: t('plans.quarterly'),
+      yearly: t('plans.yearly'),
       'one-time': 'One-time'
     };
     return intervals[interval] || interval;
@@ -844,7 +847,7 @@ const Plans = () => {
   const handleDeletePlan = async (planId) => {
     setConfirmDialog({
       isOpen: true,
-      message: 'Are you sure you want to delete this plan? This cannot be undone.',
+      message: t('plans.confirm.delete'),
       onConfirm: () => deletePlan(planId)
     });
   };
@@ -858,7 +861,7 @@ const Plans = () => {
     } catch (error) {
       console.error('Delete plan error:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to delete plan';
-      alert(`Error deleting plan: ${errorMessage}`);
+      alert(t('plans.error.deleting', { error: errorMessage }));
     }
   };
 
@@ -870,7 +873,7 @@ const Plans = () => {
       });
       fetchPlans();
     } catch (error) {
-      alert('Error updating plan: ' + (error.response?.data?.message || error.message));
+      alert(t('plans.error.saving', { error: error.response?.data?.message || error.message }));
     }
   };
 
@@ -878,7 +881,7 @@ const Plans = () => {
   if (!plans.length && isLoading && !data.plans) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading plans...</p>
+        <p>{t('plans.loading')}</p>
       </div>
     );
   }
@@ -886,9 +889,9 @@ const Plans = () => {
   return (
     <div className="plans-container">
       <div className="plans-header">
-        <h2>Membership Plans</h2>
+        <h2>{t('plans.title')}</h2>
         <button onClick={handleAddPlan} className="add-button">
-          <i className="fas fa-plus"></i> Add Plan
+          <i className="fas fa-plus"></i> {t('plans.add.plan')}
         </button>
       </div>
 
@@ -897,7 +900,7 @@ const Plans = () => {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Search plans..."
+            placeholder={t('plans.search.placeholder')}
             value={searchTerm}
             onChange={handleSearch}
           />
@@ -907,9 +910,9 @@ const Plans = () => {
           onChange={handleActiveFilter}
           className="status-filter"
         >
-          <option value="">All Plans</option>
-          <option value="true">Active Only</option>
-          <option value="false">Inactive Only</option>
+          <option value="">{t('plans.all.plans')}</option>
+          <option value="true">{t('plans.active.only')}</option>
+          <option value="false">{t('plans.inactive')}</option>
         </select>
       </div>
 
@@ -936,7 +939,7 @@ const Plans = () => {
                     <span className="toggle-slider"></span>
                   </label>
                   <span className={`status-text ${plan.isActive ? 'active' : 'inactive'}`}>
-                    {plan.isActive ? 'Active' : 'Inactive'}
+                    {plan.isActive ? t('plans.active') : t('plans.inactive')}
                   </span>
                 </div>
               </div>
@@ -944,14 +947,14 @@ const Plans = () => {
                 <button
                   onClick={() => handleEditPlan(plan)}
                   className="edit-button"
-                  title="Edit Plan"
+                  title={t('plans.edit.plan')}
                 >
                   <i className="fas fa-edit"></i>
                 </button>
                 <button
                   onClick={() => handleDeletePlan(plan.id)}
                   className="delete-button"
-                  title="Delete Plan"
+                  title={t('plans.delete.plan')}
                 >
                   <i className="fas fa-trash"></i>
                 </button>
@@ -1036,9 +1039,9 @@ const Plans = () => {
       {plans.length === 0 && !loading && (
         <div className="no-data">
           <i className="fas fa-layer-group"></i>
-          <p>No plans found</p>
+          <p>{t('plans.no.plans')}</p>
           <button onClick={handleAddPlan} className="add-first-button">
-            Create your first plan
+            {t('plans.create.first')}
           </button>
         </div>
       )}
