@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const MembershipDashboard = () => {
   const { data, loading, errors, refreshData, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   const dashboardData = data.dashboard;
   const isLoading = loading.dashboard;
   const error = errors.dashboard;
@@ -21,7 +23,7 @@ const MembershipDashboard = () => {
   if (!dashboardData && isLoading && !data.dashboard && !isLoadingAll) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading dashboard...</p>
+        <p>{t('membership.dashboard.loading')}</p>
       </div>
     );
   }
@@ -30,9 +32,9 @@ const MembershipDashboard = () => {
     return (
       <div className="dashboard-error">
         <i className="fas fa-exclamation-triangle"></i>
-        <p>Error loading dashboard: {error}</p>
+        <p>{t('membership.dashboard.error', { error })}</p>
         <button onClick={() => refreshData('dashboard')} className="retry-button">
-          <i className="fas fa-redo"></i> Retry
+          <i className="fas fa-redo"></i> {t('membership.dashboard.retry')}
         </button>
       </div>
     );
@@ -42,7 +44,7 @@ const MembershipDashboard = () => {
   if (!dashboardData || !dashboardData.stats) {
     return (
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-        <p>Loading dashboard data...</p>
+        <p>{t('membership.dashboard.loading.data')}</p>
       </div>
     );
   }
@@ -71,9 +73,9 @@ const MembershipDashboard = () => {
           </div>
           <div className="kpi-content">
             <h3>{stats.totalSubscriptions || 0}</h3>
-            <p>Total Subscriptions</p>
+            <p>{t('membership.dashboard.total.subscriptions')}</p>
             <span className="kpi-change positive">
-              +{stats.newSubscriptions || 0} this month
+              +{stats.newSubscriptions || 0} {t('membership.dashboard.this.month')}
             </span>
           </div>
         </div>
@@ -84,11 +86,11 @@ const MembershipDashboard = () => {
           </div>
           <div className="kpi-content">
             <h3>{stats.activeSubscriptions || 0}</h3>
-            <p>Active Subscriptions</p>
+            <p>{t('membership.dashboard.active.subscriptions')}</p>
             <span className="kpi-percentage">
               {(stats.totalSubscriptions || 0) > 0 
                 ? Math.round(((stats.activeSubscriptions || 0) / (stats.totalSubscriptions || 1)) * 100)
-                : 0}% of total
+                : 0}% {t('membership.dashboard.of.total')}
             </span>
           </div>
         </div>
@@ -99,11 +101,11 @@ const MembershipDashboard = () => {
           </div>
           <div className="kpi-content">
             <h3>{stats.pastDueSubscriptions || 0}</h3>
-            <p>Past Due</p>
+            <p>{t('membership.dashboard.past.due')}</p>
             <span className="kpi-percentage">
               {(stats.totalSubscriptions || 0) > 0 
                 ? Math.round(((stats.pastDueSubscriptions || 0) / (stats.totalSubscriptions || 1)) * 100)
-                : 0}% of total
+                : 0}% {t('membership.dashboard.of.total')}
             </span>
           </div>
         </div>
@@ -114,9 +116,9 @@ const MembershipDashboard = () => {
           </div>
           <div className="kpi-content">
             <h3>{formatCurrency(stats.totalRevenue || 0)}</h3>
-            <p>Total Revenue</p>
+            <p>{t('membership.dashboard.total.revenue')}</p>
             <span className="kpi-change positive">
-              {formatCurrency(stats.monthlyRevenue || 0)} this month
+              {formatCurrency(stats.monthlyRevenue || 0)} {t('membership.dashboard.this.month')}
             </span>
           </div>
         </div>
@@ -125,7 +127,7 @@ const MembershipDashboard = () => {
       {/* Charts Section */}
       <div className="charts-section">
         <div className="chart-container">
-          <h3>Subscription Trends</h3>
+          <h3>{t('membership.dashboard.subscription.trends')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -138,14 +140,14 @@ const MembershipDashboard = () => {
                 dataKey="subscriptions" 
                 stroke="#3498db" 
                 strokeWidth={2}
-                name="New Subscriptions"
+                name={t('membership.dashboard.new.subscriptions')}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         <div className="chart-container">
-          <h3>Revenue Trends</h3>
+          <h3>{t('membership.dashboard.revenue.trends')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -156,7 +158,7 @@ const MembershipDashboard = () => {
               <Bar 
                 dataKey="revenue" 
                 fill="#27ae60" 
-                name="Revenue"
+                name={t('membership.dashboard.revenue')}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -165,16 +167,16 @@ const MembershipDashboard = () => {
 
       {/* Recent Payments */}
       <div className="recent-payments">
-        <h3>Recent Payments</h3>
+        <h3>{t('membership.dashboard.recent.payments')}</h3>
         <div className="payments-table">
           <table>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Member</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Status</th>
+                <th>{t('membership.dashboard.date')}</th>
+                <th>{t('membership.dashboard.member')}</th>
+                <th>{t('membership.dashboard.plan')}</th>
+                <th>{t('membership.dashboard.amount')}</th>
+                <th>{t('membership.dashboard.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -203,7 +205,7 @@ const MembershipDashboard = () => {
           {recentPayments.length === 0 && (
             <div className="no-data">
               <i className="fas fa-inbox"></i>
-              <p>No recent payments</p>
+              <p>{t('membership.dashboard.no.recent.payments')}</p>
             </div>
           )}
         </div>

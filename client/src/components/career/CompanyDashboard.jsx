@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getCompanyJobs, updateJobStatus, getCompanyApplications, updateApplicationStatus } from '../../services/careerService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import CreateJobForm from './CreateJobForm';
 import CompanyAnalytics from './CompanyAnalytics';
 import EnhancedApplicationDropdown from './EnhancedApplicationDropdown';
@@ -10,6 +11,7 @@ import './CareerSelectStyles.css';
 const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = React.useRef(null);
+  const { t } = useLanguage();
 
   const handleStatusChange = (newStatus) => {
     onStatusChange(job.id, newStatus);
@@ -69,7 +71,7 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
         onClick={() => setIsOpen(!isOpen)}
       >
         <i className="fas fa-cog"></i>
-        Actions
+        {t('career.company.actions')}
       </button>
       {isOpen && (
         <div className="dropdown-menu show p-0 border-0 shadow-lg enhanced-job-dropdown" style={{ minWidth: '260px' }}>
@@ -90,7 +92,7 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
                 ></i>
               </div>
               <div>
-                <div className="fw-bold">Job Status</div>
+                <div className="fw-bold">{t('career.company.job.status')}</div>
                 <div className="text-capitalize text-muted">{job.status}</div>
               </div>
             </div>
@@ -114,8 +116,8 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
                 <i className="fas fa-play-circle" style={{ color: '#28a745' }}></i>
               </div>
               <div className="flex-grow-1 text-start">
-                <div className="fw-medium">Activate Job</div>
-                <div className="small text-muted">Make job visible to candidates</div>
+                <div className="fw-medium">{t('career.company.activate.job')}</div>
+                <div className="small text-muted">{t('career.company.activate.job.desc')}</div>
               </div>
               {job.status === 'active' && (
                 <i className="fas fa-check text-success"></i>
@@ -138,8 +140,8 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
                 <i className="fas fa-pause-circle" style={{ color: '#ffc107' }}></i>
               </div>
               <div className="flex-grow-1 text-start">
-                <div className="fw-medium">Pause Job</div>
-                <div className="small text-muted">Temporarily hide from candidates</div>
+                <div className="fw-medium">{t('career.company.pause.job')}</div>
+                <div className="small text-muted">{t('career.company.pause.job.desc')}</div>
               </div>
               {job.status === 'paused' && (
                 <i className="fas fa-check text-success"></i>
@@ -162,8 +164,8 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
                 <i className="fas fa-stop-circle" style={{ color: '#dc3545' }}></i>
               </div>
               <div className="flex-grow-1 text-start">
-                <div className="fw-medium">Close Job</div>
-                <div className="small text-muted">Stop accepting applications</div>
+                <div className="fw-medium">{t('career.company.close.job')}</div>
+                <div className="small text-muted">{t('career.company.close.job.desc')}</div>
               </div>
               {job.status === 'closed' && (
                 <i className="fas fa-check text-success"></i>
@@ -179,14 +181,14 @@ const JobActionsDropdown = ({ job, onStatusChange, onEdit, onViewApplications })
               onClick={handleEdit}
             >
               <i className="fas fa-edit me-3 text-muted"></i>
-              <span>Edit Job Details</span>
+              <span>{t('career.company.edit.job.details')}</span>
             </button>
             <button 
               className="dropdown-item d-flex align-items-center py-2 px-3 enhanced-job-item"
               onClick={handleViewApplications}
             >
               <i className="fas fa-eye me-3 text-muted"></i>
-              <span>View Applications</span>
+              <span>{t('career.company.view.applications')}</span>
             </button>
           </div>
         </div>
@@ -205,6 +207,7 @@ const CompanyDashboard = () => {
   const [editingJob, setEditingJob] = useState(null);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { t } = useLanguage();
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -358,7 +361,7 @@ const CompanyDashboard = () => {
   };
 
   const formatSalary = (min, max, currency = 'USD') => {
-    if (!min && !max) return 'Salary not specified';
+    if (!min && !max) return t('career.company.salary.not.specified');
     
     const formatNumber = (num) => {
       if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -380,7 +383,7 @@ const CompanyDashboard = () => {
       {showCreateForm ? (
         <div>
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5>{editingJob ? 'Edit Job Posting' : 'Create New Job Posting'}</h5>
+            <h5>{editingJob ? t('career.company.edit.job.posting') : t('career.company.create.new.job.posting')}</h5>
             <button 
               className="btn btn-outline-secondary"
               onClick={() => {
@@ -389,7 +392,7 @@ const CompanyDashboard = () => {
               }}
             >
               <i className="fas fa-times me-2"></i>
-              Cancel
+              {t('career.company.cancel')}
             </button>
           </div>
           <CreateJobForm 
@@ -405,29 +408,29 @@ const CompanyDashboard = () => {
               <div className="spinner-border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
-              <p className="mt-3">Loading your job postings...</p>
+              <p className="mt-3">{t('career.company.loading.jobs')}</p>
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-5">
               <i className="fas fa-briefcase fa-3x text-muted mb-3"></i>
-              <h5>No job postings yet</h5>
-              <p className="text-muted">Create your first job posting to get started.</p>
+              <h5>{t('career.company.no.job.postings')}</h5>
+              <p className="text-muted">{t('career.company.create.first.job')}</p>
               <button 
                 className="btn btn-primary"
                 onClick={() => setShowCreateForm(true)}
               >
-                              <i className="fas fa-plus me-2"></i> Post a Job
+                              <i className="fas fa-plus me-2"></i> {t('career.company.post.job')}
               </button>
             </div>
           ) : (
         <>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5>Your Job Postings ({jobs.filter(job => job.status === 'active').length} active)</h5>
+            <h5>{t('career.company.your.job.postings', { count: jobs.filter(job => job.status === 'active').length })}</h5>
             <button 
               className="btn btn-primary"
               onClick={() => setShowCreateForm(true)}
             >
-              <i className="fas fa-plus me-2"></i> Post New Job
+              <i className="fas fa-plus me-2"></i> {t('career.company.post.new.job')}
             </button>
           </div>
 
@@ -464,11 +467,11 @@ const CompanyDashboard = () => {
                     </div>
                     <div className="job-detail-item">
                       <i className="fas fa-calendar"></i>
-                      <span>Posted: {formatDate(job.createdAt)}</span>
+                      <span>{t('career.company.posted')}: {formatDate(job.createdAt)}</span>
                     </div>
                     <div className="job-detail-item">
                       <i className="fas fa-users"></i>
-                      <span>{job.applications?.length || 0} applications</span>
+                      <span>{job.applications?.length || 0} {t('career.company.applications')}</span>
                     </div>
                   </div>
 
@@ -486,7 +489,7 @@ const CompanyDashboard = () => {
                     <span className="badge bg-info">{job.experienceLevel}</span>
                     {job.remoteWork && (
                       <span className="badge bg-success">
-                        <i className="fas fa-home"></i> Remote
+                        <i className="fas fa-home"></i> {t('career.company.remote')}
                       </span>
                     )}
                     {job.salaryMin && (
@@ -510,7 +513,7 @@ const CompanyDashboard = () => {
                     onClick={() => handlePageChange(pagination.currentPage - 1)}
                     disabled={pagination.currentPage === 1}
                   >
-                    Previous
+                    {t('career.company.previous')}
                   </button>
                 </li>
                 
@@ -531,7 +534,7 @@ const CompanyDashboard = () => {
                     onClick={() => handlePageChange(pagination.currentPage + 1)}
                     disabled={pagination.currentPage === pagination.totalPages}
                   >
-                    Next
+                    {t('career.company.next')}
                   </button>
                 </li>
               </ul>
@@ -563,28 +566,28 @@ const CompanyDashboard = () => {
       <div className="row mb-4">
         <div className="col-md-6">
           <div className="career-select career-select-primary">
-            <label className="career-select-label">Filter by Status</label>
+            <label className="career-select-label">{t('career.company.filter.by.status')}</label>
             <select
               value={applicationFilters.status}
               onChange={(e) => setApplicationFilters(prev => ({ ...prev, status: e.target.value }))}
             >
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="reviewing">Reviewing</option>
-              <option value="interview">Interview</option>
-              <option value="accepted">Accepted</option>
-              <option value="rejected">Rejected</option>
+              <option value="">{t('career.company.all.status')}</option>
+              <option value="pending">{t('career.company.pending')}</option>
+              <option value="reviewing">{t('career.company.reviewing')}</option>
+              <option value="interview">{t('career.company.interview')}</option>
+              <option value="accepted">{t('career.company.accepted')}</option>
+              <option value="rejected">{t('career.company.rejected')}</option>
             </select>
           </div>
         </div>
         <div className="col-md-6">
           <div className="career-select career-select-primary">
-            <label className="career-select-label">Filter by Job</label>
+            <label className="career-select-label">{t('career.company.filter.by.job')}</label>
             <select
               value={applicationFilters.jobId}
               onChange={(e) => setApplicationFilters(prev => ({ ...prev, jobId: e.target.value }))}
             >
-              <option value="">All Jobs</option>
+              <option value="">{t('career.company.all.jobs')}</option>
               {jobs.map(job => (
                 <option key={job.id} value={job.id}>{job.title}</option>
               ))}
@@ -598,13 +601,13 @@ const CompanyDashboard = () => {
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="mt-3">Loading applications...</p>
+          <p className="mt-3">{t('career.company.loading.applications')}</p>
         </div>
       ) : applications.length === 0 ? (
       <div className="text-center py-5">
         <i className="fas fa-file-alt fa-3x text-muted mb-3"></i>
-          <h5>No applications yet</h5>
-          <p className="text-muted">Applications for your job postings will appear here.</p>
+          <h5>{t('career.company.no.applications')}</h5>
+          <p className="text-muted">{t('career.company.applications.desc')}</p>
         </div>
       ) : (
         <>
@@ -618,26 +621,26 @@ const CompanyDashboard = () => {
                         {application.applicant.firstName} {application.applicant.lastName}
                       </h5>
                       <h6 className="card-subtitle mb-2 text-muted">
-                        Applied for: {application.job.title}
+                        {t('career.company.applied.for')}: {application.job.title}
                       </h6>
                       <p className="card-text">
-                        <strong>Email:</strong> {application.applicant.email}<br/>
-                        <strong>Company:</strong> {application.job.employer?.companyProfile?.companyName || 'N/A'}<br/>
-                        <strong>Location:</strong> {application.job.location}<br/>
-                        <strong>Job Type:</strong> {application.job.jobType}<br/>
-                        <strong>Applied:</strong> {new Date(application.createdAt).toLocaleDateString()}
+                        <strong>{t('career.company.email')}:</strong> {application.applicant.email}<br/>
+                        <strong>{t('career.company')}:</strong> {application.job.employer?.companyProfile?.companyName || 'N/A'}<br/>
+                        <strong>{t('career.location')}:</strong> {application.job.location}<br/>
+                        <strong>{t('career.type')}:</strong> {application.job.jobType}<br/>
+                        <strong>{t('career.company.applied')}:</strong> {new Date(application.createdAt).toLocaleDateString()}
                       </p>
                       
                       {application.coverLetter && (
                         <div className="mt-3">
-                          <strong>Cover Letter:</strong>
+                          <strong>{t('career.company.cover.letter')}:</strong>
                           <p className="mt-1 text-muted">{application.coverLetter}</p>
                         </div>
                       )}
                       
                       {application.notes && (
                         <div className="mt-3">
-                          <strong>Notes:</strong>
+                          <strong>{t('career.company.notes')}:</strong>
                           <p className="mt-1 text-muted">{application.notes}</p>
                         </div>
                       )}
@@ -655,7 +658,7 @@ const CompanyDashboard = () => {
                             rel="noopener noreferrer"
                             className="btn btn-outline-primary btn-sm"
                           >
-                            <i className="fas fa-download me-2"></i> View Resume
+                            <i className="fas fa-download me-2"></i> {t('career.company.view.resume')}
                           </a>
                         </div>
                       )}
@@ -681,7 +684,7 @@ const CompanyDashboard = () => {
                     onClick={() => handleApplicationPageChange(applicationsPagination.currentPage - 1)}
                     disabled={applicationsPagination.currentPage === 1}
                   >
-                    Previous
+                    {t('career.company.previous')}
                   </button>
                 </li>
                 
@@ -702,7 +705,7 @@ const CompanyDashboard = () => {
                     onClick={() => handleApplicationPageChange(applicationsPagination.currentPage + 1)}
                     disabled={applicationsPagination.currentPage === applicationsPagination.totalPages}
                   >
-                    Next
+                    {t('career.company.next')}
                   </button>
                 </li>
               </ul>
@@ -718,9 +721,9 @@ const CompanyDashboard = () => {
   };
 
   const tabs = [
-    { id: 'jobs', label: 'Job Postings', icon: 'fas fa-briefcase' },
-    { id: 'applications', label: 'Applications', icon: 'fas fa-file-alt' },
-    { id: 'analytics', label: 'Analytics', icon: 'fas fa-chart-bar' },
+    { id: 'jobs', label: t('career.company.job.postings'), icon: 'fas fa-briefcase' },
+    { id: 'applications', label: t('career.company.applications'), icon: 'fas fa-file-alt' },
+    { id: 'analytics', label: t('career.company.analytics'), icon: 'fas fa-chart-bar' },
   ];
 
   const activeTabData = tabs.find(tab => tab.id === activeTab);
@@ -817,7 +820,7 @@ const CompanyDashboard = () => {
           >
             <span className="dropdown-button-content">
               <i className={activeTabData?.icon}></i>
-              <span>{activeTabData?.label || 'Select Page'}</span>
+              <span>{activeTabData?.label || t('career.company.select.page')}</span>
             </span>
             <i className={`fas fa-chevron-${isMobileDropdownOpen ? 'up' : 'down'} dropdown-arrow`}></i>
           </button>

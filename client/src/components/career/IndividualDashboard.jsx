@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
 import JobBoard from './JobBoard';
 import ApplicationHistory from './ApplicationHistory';
 import SavedJobs from './SavedJobs';
@@ -9,12 +10,13 @@ const IndividualDashboard = () => {
   const [activeTab, setActiveTab] = useState('jobs');
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { t } = useLanguage();
 
   const tabs = [
-    { id: 'jobs', label: 'Browse Jobs', icon: 'fas fa-search' },
-    { id: 'applications', label: 'My Applications', icon: 'fas fa-file-alt' },
-    { id: 'saved', label: 'Saved Jobs', icon: 'fas fa-bookmark' },
-    { id: 'profile', label: 'Career Profile', icon: 'fas fa-user' },
+    { id: 'jobs', label: t('career.individual.browse.jobs'), icon: 'fas fa-search' },
+    { id: 'applications', label: t('career.individual.my.applications'), icon: 'fas fa-file-alt' },
+    { id: 'saved', label: t('career.individual.saved.jobs'), icon: 'fas fa-bookmark' },
+    { id: 'profile', label: t('career.individual.career.profile'), icon: 'fas fa-user' },
   ];
 
   const activeTabData = tabs.find(tab => tab.id === activeTab);
@@ -107,7 +109,7 @@ const IndividualDashboard = () => {
           >
             <span className="dropdown-button-content">
               <i className={activeTabData?.icon}></i>
-              <span>{activeTabData?.label || 'Select Page'}</span>
+              <span>{activeTabData?.label || t('career.individual.select.page')}</span>
             </span>
             <i className={`fas fa-chevron-${isMobileDropdownOpen ? 'up' : 'down'} dropdown-arrow`}></i>
           </button>
