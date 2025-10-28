@@ -17,7 +17,36 @@ const translations = {
     'admin.dashboard.title': 'Admin Dashboard',
     'admin.dashboard.welcome': 'Welcome, {name}',
     'admin.dashboard.loading': 'Loading admin dashboard...',
+    'admin.dashboard.loading.stats': 'Loading dashboard statistics...',
+    'admin.dashboard.overview': 'Dashboard Overview',
+    'admin.dashboard.description': 'System statistics and health monitoring',
+    'admin.dashboard.retry': 'Retry',
+    'admin.dashboard.failed.load': 'Failed to load dashboard statistics',
     'admin.badge': 'Admin',
+    
+    // Admin Stats
+    'admin.stats.total.users': 'Total Users',
+    'admin.stats.active.users': 'Active Users',
+    'admin.stats.total.plans': 'Total Plans',
+    'admin.stats.active.subscriptions': 'Active Subscriptions',
+    'admin.stats.total.jobs': 'Total Jobs',
+    'admin.stats.job.applications': 'Job Applications',
+    'admin.stats.total.revenue': 'Total Revenue',
+    'admin.stats.monthly.revenue': 'Monthly Revenue',
+    'admin.stats.from.last.month': 'from last month',
+    
+    // Admin System Health
+    'admin.system.health': 'System Health',
+    'admin.system.server.uptime': 'Server Uptime',
+    'admin.system.memory.usage': 'Memory Usage',
+    'admin.system.node.version': 'Node Version',
+    'admin.system.platform': 'Platform',
+    
+    // Admin Recent Activity
+    'admin.recent.activity': 'Recent Activity',
+    'admin.latest.users': 'Latest Users',
+    'admin.latest.jobs': 'Latest Jobs',
+    'admin.unknown': 'Unknown',
     
     // Language selector
     'language.selector': 'Language',
@@ -46,6 +75,11 @@ const translations = {
     'dashboard.recent.activity': 'Recent Activity',
     'dashboard.quick.actions': 'Quick Actions',
     'dashboard.stats': 'Statistics',
+    'dashboard.no.posts': 'No posts yet. Create your first post above!',
+    'dashboard.no.memberships': "You don't have any active memberships yet.",
+    'dashboard.browse.all.memberships': 'Browse All Memberships',
+    'dashboard.membership.plan': 'Membership Plan',
+    'dashboard.organization': 'Organization',
     
     // Login/Register
     'auth.login.title': 'Login',
@@ -191,7 +225,36 @@ const translations = {
     'admin.dashboard.title': 'Yönetici Paneli',
     'admin.dashboard.welcome': 'Hoş geldiniz, {name}',
     'admin.dashboard.loading': 'Yönetici paneli yükleniyor...',
+    'admin.dashboard.loading.stats': 'Panel istatistikleri yükleniyor...',
+    'admin.dashboard.overview': 'Panel Genel Bakış',
+    'admin.dashboard.description': 'Sistem istatistikleri ve sağlık izleme',
+    'admin.dashboard.retry': 'Tekrar Dene',
+    'admin.dashboard.failed.load': 'Panel istatistikleri yüklenemedi',
     'admin.badge': 'Yönetici',
+    
+    // Admin Stats
+    'admin.stats.total.users': 'Toplam Kullanıcı',
+    'admin.stats.active.users': 'Aktif Kullanıcı',
+    'admin.stats.total.plans': 'Toplam Plan',
+    'admin.stats.active.subscriptions': 'Aktif Abonelik',
+    'admin.stats.total.jobs': 'Toplam İş',
+    'admin.stats.job.applications': 'İş Başvurusu',
+    'admin.stats.total.revenue': 'Toplam Gelir',
+    'admin.stats.monthly.revenue': 'Aylık Gelir',
+    'admin.stats.from.last.month': 'geçen aydan',
+    
+    // Admin System Health
+    'admin.system.health': 'Sistem Sağlığı',
+    'admin.system.server.uptime': 'Sunucu Çalışma Süresi',
+    'admin.system.memory.usage': 'Bellek Kullanımı',
+    'admin.system.node.version': 'Node Sürümü',
+    'admin.system.platform': 'Platform',
+    
+    // Admin Recent Activity
+    'admin.recent.activity': 'Son Aktiviteler',
+    'admin.latest.users': 'Son Kullanıcılar',
+    'admin.latest.jobs': 'Son İşler',
+    'admin.unknown': 'Bilinmeyen',
     
     // Language selector
     'language.selector': 'Dil',
@@ -220,6 +283,11 @@ const translations = {
     'dashboard.recent.activity': 'Son Aktiviteler',
     'dashboard.quick.actions': 'Hızlı İşlemler',
     'dashboard.stats': 'İstatistikler',
+    'dashboard.no.posts': 'Henüz gönderi yok. Yukarıdan ilk gönderinizi oluşturun!',
+    'dashboard.no.memberships': 'Henüz aktif üyeliğiniz yok.',
+    'dashboard.browse.all.memberships': 'Tüm Üyelikleri Gözat',
+    'dashboard.membership.plan': 'Üyelik Planı',
+    'dashboard.organization': 'Organizasyon',
     
     // Login/Register
     'auth.login.title': 'Giriş Yap',

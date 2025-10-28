@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import * as adminService from '../../services/adminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './AdminOverview.css';
 
 const AdminOverview = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchDashboardStats();
@@ -19,7 +21,7 @@ const AdminOverview = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching dashboard stats:', err);
-      setError('Failed to load dashboard statistics');
+      setError(t('admin.dashboard.failed.load'));
     } finally {
       setLoading(false);
     }
@@ -29,7 +31,7 @@ const AdminOverview = () => {
     return (
       <div className="loading">
         <div className="loading-spinner"></div>
-        <p>Loading dashboard statistics...</p>
+        <p>{t('admin.dashboard.loading.stats')}</p>
       </div>
     );
   }
@@ -37,9 +39,9 @@ const AdminOverview = () => {
   if (error) {
     return (
       <div className="error">
-        <p>{error}</p>
+        <p>{t('admin.dashboard.failed.load')}</p>
         <button onClick={fetchDashboardStats} className="btn btn-primary">
-          Retry
+          {t('admin.dashboard.retry')}
         </button>
       </div>
     );
@@ -49,7 +51,7 @@ const AdminOverview = () => {
 
   const statCards = [
     {
-      title: 'Total Users',
+      title: t('admin.stats.total.users'),
       value: overview.totalUsers,
       icon: '👥',
       color: 'blue',
@@ -57,7 +59,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Active Users',
+      title: t('admin.stats.active.users'),
       value: overview.activeUsers,
       icon: '✅',
       color: 'green',
@@ -65,7 +67,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Total Plans',
+      title: t('admin.stats.total.plans'),
       value: overview.totalPlans,
       icon: '💳',
       color: 'purple',
@@ -73,7 +75,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Active Subscriptions',
+      title: t('admin.stats.active.subscriptions'),
       value: overview.activeSubscriptions,
       icon: '🔄',
       color: 'orange',
@@ -81,7 +83,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Total Jobs',
+      title: t('admin.stats.total.jobs'),
       value: overview.totalJobs,
       icon: '💼',
       color: 'indigo',
@@ -89,7 +91,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Job Applications',
+      title: t('admin.stats.job.applications'),
       value: overview.totalApplications,
       icon: '📝',
       color: 'teal',
@@ -97,7 +99,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Total Revenue',
+      title: t('admin.stats.total.revenue'),
       value: `$${overview.totalRevenue?.toLocaleString() || '0'}`,
       icon: '💰',
       color: 'emerald',
@@ -105,7 +107,7 @@ const AdminOverview = () => {
       changeType: 'positive'
     },
     {
-      title: 'Monthly Revenue',
+      title: t('admin.stats.monthly.revenue'),
       value: `$${overview.monthlyRevenue?.toLocaleString() || '0'}`,
       icon: '📈',
       color: 'green',
@@ -129,8 +131,8 @@ const AdminOverview = () => {
   return (
     <div className="admin-overview">
       <div className="overview-header">
-        <h2>Dashboard Overview</h2>
-        <p>System statistics and health monitoring</p>
+        <h2>{t('admin.dashboard.overview')}</h2>
+        <p>{t('admin.dashboard.description')}</p>
       </div>
 
       {/* Stats Grid */}
@@ -146,7 +148,7 @@ const AdminOverview = () => {
             <div className="stat-card-value">{stat.value}</div>
             <div className={`stat-card-change ${stat.changeType}`}>
               <span>{stat.change}</span>
-              <span>from last month</span>
+              <span>{t('admin.stats.from.last.month')}</span>
             </div>
           </div>
         ))}
@@ -156,22 +158,22 @@ const AdminOverview = () => {
         <div className="overview-section">
           {/* System Health */}
           <div className="chart-container">
-            <h3 className="chart-title">System Health</h3>
+            <h3 className="chart-title">{t('admin.system.health')}</h3>
             <div className="system-health-grid">
               <div className="health-metric">
-                <div className="health-metric-label">Server Uptime</div>
+                <div className="health-metric-label">{t('admin.system.server.uptime')}</div>
                 <div className="health-metric-value">{formatUptime(systemHealth.serverUptime)}</div>
               </div>
               <div className="health-metric">
-                <div className="health-metric-label">Memory Usage</div>
+                <div className="health-metric-label">{t('admin.system.memory.usage')}</div>
                 <div className="health-metric-value">{formatMemoryUsage(systemHealth.memoryUsage.heapUsed)}</div>
               </div>
               <div className="health-metric">
-                <div className="health-metric-label">Node Version</div>
+                <div className="health-metric-label">{t('admin.system.node.version')}</div>
                 <div className="health-metric-value">{systemHealth.nodeVersion}</div>
               </div>
               <div className="health-metric">
-                <div className="health-metric-label">Platform</div>
+                <div className="health-metric-label">{t('admin.system.platform')}</div>
                 <div className="health-metric-value">{systemHealth.platform}</div>
               </div>
             </div>
@@ -179,10 +181,10 @@ const AdminOverview = () => {
 
           {/* Recent Activity */}
           <div className="chart-container">
-            <h3 className="chart-title">Recent Activity</h3>
+            <h3 className="chart-title">{t('admin.recent.activity')}</h3>
             <div className="recent-activity">
               <div className="activity-section">
-                <h4>Latest Users</h4>
+                <h4>{t('admin.latest.users')}</h4>
                 <div className="activity-list">
                   {recentActivity.recentUsers.map((user, index) => (
                     <div key={index} className="activity-item">
@@ -206,7 +208,7 @@ const AdminOverview = () => {
               </div>
 
               <div className="activity-section">
-                <h4>Latest Jobs</h4>
+                <h4>{t('admin.latest.jobs')}</h4>
                 <div className="activity-list">
                   {recentActivity.recentJobs.map((job, index) => (
                     <div key={index} className="activity-item">
@@ -214,7 +216,7 @@ const AdminOverview = () => {
                       <div className="activity-details">
                         <div className="activity-name">{job.title}</div>
                         <div className="activity-meta">
-                          {job.category} • {job.user?.username || 'Unknown'} • {new Date(job.createdAt).toLocaleDateString()}
+                          {job.category} • {job.user?.username || t('admin.unknown')} • {new Date(job.createdAt).toLocaleDateString()}
                         </div>
                       </div>
                     </div>

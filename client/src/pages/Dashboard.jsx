@@ -68,7 +68,7 @@ const Dashboard = () => {
           <div className="posts-feed">
             {(!posts || posts.length === 0) ? (
               <div className="card text-center">
-                <p>No posts yet. Create your first post above!</p>
+                <p>{t('dashboard.no.posts')}</p>
               </div>
             ) : (
               (Array.isArray(posts) ? posts : []).map((post) => (
@@ -85,7 +85,7 @@ const Dashboard = () => {
         <div className="sidebar">
           <div className="sidebar-title">{t('membership.current')}</div>
           {(!memberships || memberships.length === 0) ? (
-            <p className="text-muted">You don't have any active memberships yet.</p>
+            <p className="text-muted">{t('dashboard.no.memberships')}</p>
           ) : (
             <div className="memberships-list">
               {(Array.isArray(memberships) ? memberships : []).slice(0, 5).map((membership) => (
@@ -108,11 +108,11 @@ const Dashboard = () => {
                         marginRight: '8px'
                       }}></div>
                       <span style={{ fontSize: '14px', fontWeight: '600' }}>
-                        {membership.plan?.name || 'Membership Plan'}
+                        {membership.plan?.name || t('dashboard.membership.plan')}
                       </span>
                     </div>
                     <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '4px' }}>
-                      {membership.plan?.organization?.name || 'Organization'}
+                      {membership.plan?.organization?.name || t('dashboard.organization')}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ 
@@ -138,7 +138,7 @@ const Dashboard = () => {
           
           <div className="mt-3">
             <Link to="/browse-memberships" className="btn btn-outline btn-sm">
-              Browse All Memberships
+              {t('dashboard.browse.all.memberships')}
             </Link>
           </div>
         </div>
