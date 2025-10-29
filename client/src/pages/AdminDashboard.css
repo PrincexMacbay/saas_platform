@@ -514,3 +514,182 @@
     display: inline-flex;
   }
 }
+
+/* Mobile Admin Dropdown Menu */
+.admin-mobile-dropdown {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 60px; /* Start below the navbar */
+}
+
+.admin-mobile-dropdown-content {
+  background: white;
+  width: 100%;
+  max-width: 350px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0 8px 8px 0;
+}
+
+.admin-mobile-nav-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-mobile-actions-section {
+  padding: 1.5rem;
+}
+
+.admin-mobile-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.admin-mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.admin-mobile-nav-item:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.admin-mobile-nav-item.active {
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.admin-mobile-nav-item .nav-icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.admin-mobile-nav-item .nav-label {
+  font-weight: inherit;
+}
+
+/* Language Selector */
+.admin-mobile-language-selector {
+  margin-bottom: 1rem;
+}
+
+.admin-mobile-language-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.admin-mobile-language-label .language-icon {
+  font-size: 1rem;
+}
+
+.admin-mobile-language-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.admin-mobile-language-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* View as User Button */
+.admin-mobile-view-as-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 6px;
+  color: #16a34a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.admin-mobile-view-as-user-btn:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.admin-mobile-view-as-user-btn .view-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Logout Button */
+.admin-mobile-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-mobile-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.admin-mobile-logout-btn .logout-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.admin-mobile-logout-btn .btn-text,
+.admin-mobile-view-as-user-btn .btn-text {
+  font-weight: inherit;
+}

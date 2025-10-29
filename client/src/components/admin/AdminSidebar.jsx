@@ -5,7 +5,7 @@ import './AdminSidebar.css';
 
 const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, isMobileOpen, onMobileClose }) => {
   const { logout } = useAuth();
-  const { t, language, changeLanguage } = useLanguage();
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [hoverTimeout, setHoverTimeout] = useState(null);
   const sidebarRef = useRef(null);
@@ -144,44 +144,6 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, isMobil
       </nav>
 
       <div className="admin-sidebar-footer">
-        {/* Language Selector */}
-        <div className={`admin-language-selector ${isExpanded ? 'visible' : 'hidden'}`}>
-          <label className="admin-language-label">
-            <span className="language-icon">🌐</span>
-            <span className="language-text">{t('language.selector')}</span>
-          </label>
-          <select 
-            value={language} 
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="admin-language-select"
-          >
-            <option value="en">English</option>
-            <option value="tr">Türkçe</option>
-          </select>
-        </div>
-
-        {/* View as User Button */}
-        <button 
-          className="admin-view-as-user-btn" 
-          onClick={() => {
-            handleViewAsUser();
-            if (onMobileClose) onMobileClose();
-          }}
-        >
-          <span className="view-icon">👁️</span>
-          <span className={`${isExpanded ? 'visible' : 'hidden'}`}>
-            {t('admin.sidebar.view.as.user')}
-          </span>
-        </button>
-
-        {/* Logout Button */}
-        <button className="admin-logout-btn" onClick={handleLogout}>
-          <span className="logout-icon">🚪</span>
-          <span className={`${isExpanded ? 'visible' : 'hidden'}`}>
-            {t('admin.sidebar.logout')}
-          </span>
-        </button>
-
         <div className={`admin-footer-info ${isExpanded ? 'visible' : 'hidden'}`}>
           <small>{t('admin.sidebar.version')}</small>
         </div>

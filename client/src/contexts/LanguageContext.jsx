@@ -1032,6 +1032,10 @@ const translations = {
       'admin.user.failed.update.status': 'Failed to update user status',
       'admin.user.failed.update.role': 'Failed to update user role',
       'admin.user.failed.bulk.action': 'Failed to perform bulk action',
+
+    // Admin Mobile Menu
+    'admin.mobile.navigation': 'Navigation',
+    'admin.mobile.actions': 'Actions',
   },
   tr: {
     // Admin Dashboard
@@ -2053,6 +2057,10 @@ const translations = {
       'admin.user.failed.update.status': 'Kullanıcı durumu güncellenemedi',
       'admin.user.failed.update.role': 'Kullanıcı rolü güncellenemedi',
       'admin.user.failed.bulk.action': 'Toplu işlem gerçekleştirilemedi',
+
+    // Admin Mobile Menu
+    'admin.mobile.navigation': 'Navigasyon',
+    'admin.mobile.actions': 'İşlemler',
   }
 };
 

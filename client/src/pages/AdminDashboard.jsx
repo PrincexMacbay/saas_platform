@@ -12,8 +12,8 @@ import SystemConfiguration from '../components/admin/SystemConfiguration';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
-  const { t } = useLanguage();
+  const { user, logout } = useAuth();
+  const { t, language, changeLanguage } = useLanguage();
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -87,6 +87,133 @@ const AdminDashboard = () => {
             <span className="admin-badge">{t('admin.badge')}</span>
           </div>
         </div>
+
+        {/* Mobile Admin Dropdown Menu */}
+        {mobileSidebarOpen && (
+          <div className="admin-mobile-dropdown">
+            <div className="admin-mobile-dropdown-content">
+              {/* Admin Navigation Options */}
+              <div className="admin-mobile-nav-section">
+                <h3 className="admin-mobile-section-title">{t('admin.mobile.navigation')}</h3>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'overview' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('overview');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">📊</span>
+                  <span className="nav-label">{t('admin.sidebar.overview')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'users' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('users');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">👥</span>
+                  <span className="nav-label">{t('admin.sidebar.users')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'memberships' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('memberships');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">💳</span>
+                  <span className="nav-label">{t('admin.sidebar.memberships')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'financial' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('financial');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">💰</span>
+                  <span className="nav-label">{t('admin.sidebar.financial')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'jobs' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('jobs');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">💼</span>
+                  <span className="nav-label">{t('admin.sidebar.jobs')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'coupons' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('coupons');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">🎫</span>
+                  <span className="nav-label">{t('admin.sidebar.coupons')}</span>
+                </button>
+                <button 
+                  className={`admin-mobile-nav-item ${activeSection === 'system' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection('system');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="nav-icon">⚙️</span>
+                  <span className="nav-label">{t('admin.sidebar.system')}</span>
+                </button>
+              </div>
+
+              {/* Admin Actions Section */}
+              <div className="admin-mobile-actions-section">
+                <h3 className="admin-mobile-section-title">{t('admin.mobile.actions')}</h3>
+                
+                {/* Language Selector */}
+                <div className="admin-mobile-language-selector">
+                  <label className="admin-mobile-language-label">
+                    <span className="language-icon">🌐</span>
+                    <span className="language-text">{t('language.selector')}</span>
+                  </label>
+                  <select 
+                    value={language} 
+                    onChange={(e) => changeLanguage(e.target.value)}
+                    className="admin-mobile-language-select"
+                  >
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                  </select>
+                </div>
+
+                {/* View as User Button */}
+                <button 
+                  className="admin-mobile-view-as-user-btn"
+                  onClick={() => {
+                    window.open('/dashboard', '_blank');
+                    setMobileSidebarOpen(false);
+                  }}
+                >
+                  <span className="view-icon">👁️</span>
+                  <span className="btn-text">{t('admin.sidebar.view.as.user')}</span>
+                </button>
+
+                {/* Logout Button */}
+                <button 
+                  className="admin-mobile-logout-btn"
+                  onClick={() => {
+                    logout();
+                    window.location.href = '/login';
+                  }}
+                >
+                  <span className="logout-icon">🚪</span>
+                  <span className="btn-text">{t('admin.sidebar.logout')}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="admin-content">
           {renderActiveSection()}
         </div>
