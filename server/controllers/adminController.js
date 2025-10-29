@@ -748,10 +748,13 @@ const getMembershipPlans = async (req, res) => {
     // Calculate stats for each plan
     const plansWithStats = plans.map(plan => {
       const activeSubscriptions = plan.subscriptions ? plan.subscriptions.length : 0;
-      const revenue = activeSubscriptions * plan.price;
+      const revenue = activeSubscriptions * parseFloat(plan.fee);
       
       return {
         ...plan.toJSON(),
+        price: parseFloat(plan.fee), // Map fee to price for frontend compatibility
+        duration: plan.renewalInterval, // Map renewalInterval to duration for frontend compatibility
+        features: plan.benefits ? plan.benefits.split('\n').filter(b => b.trim()) : [], // Map benefits to features
         subscribers: activeSubscriptions,
         revenue: revenue
       };
@@ -779,10 +782,11 @@ const createMembershipPlan = async (req, res) => {
     const plan = await Plan.create({
       name,
       description,
-      price: parseFloat(price),
-      duration,
-      features: Array.isArray(features) ? features : features.split('\n').filter(f => f.trim()),
-      isActive: isActive !== false
+      fee: parseFloat(price),
+      renewalInterval: duration,
+      benefits: Array.isArray(features) ? features.join('\n') : features,
+      isActive: isActive !== false,
+      createdBy: req.user.id // Assuming req.user is available from auth middleware
     });
 
     res.json({
@@ -817,9 +821,9 @@ const updateMembershipPlan = async (req, res) => {
     await plan.update({
       name,
       description,
-      price: parseFloat(price),
-      duration,
-      features: Array.isArray(features) ? features : features.split('\n').filter(f => f.trim()),
+      fee: parseFloat(price),
+      renewalInterval: duration,
+      benefits: Array.isArray(features) ? features.join('\n') : features,
       isActive: isActive !== false
     });
 
@@ -860,7 +864,7 @@ const getActiveSubscriptions = async (req, res) => {
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'price', 'duration']
+          attributes: ['id', 'name', 'fee', 'renewalInterval']
         }
       ],
       order: [['createdAt', 'DESC']],
@@ -869,18 +873,33 @@ const getActiveSubscriptions = async (req, res) => {
     });
 
     // Calculate subscription stats
-    const totalRevenue = await Subscription.sum('amount', {
+    // Get total revenue from associated plans
+    const activeSubscriptions = await Subscription.findAll({
+      where: { status: 'active' },
+      include: [{
+        model: Plan,
+        as: 'plan',
+        attributes: ['fee']
+      }]
+    });
+    
+    const totalRevenue = activeSubscriptions.reduce((sum, sub) => {
+      return sum + (sub.plan ? parseFloat(sub.plan.fee) : 0);
+    }, 0);
+
+    // Calculate renewal rate based on autoRenew field
+    const totalActive = await Subscription.count({
       where: { status: 'active' }
     });
-
-    const renewalRate = await Subscription.count({
+    
+    const autoRenewCount = await Subscription.count({
       where: { 
         status: 'active',
-        renewalCount: { [Op.gt]: 0 }
+        autoRenew: true
       }
-    }) / await Subscription.count({
-      where: { status: 'active' }
-    }) * 100;
+    });
+    
+    const renewalRate = totalActive > 0 ? (autoRenewCount / totalActive) * 100 : 0;
 
     res.json({
       success: true,
@@ -920,55 +939,64 @@ const getMembershipApplications = async (req, res) => {
       whereClause.status = status;
     }
 
-    // For now, we'll use a mock approach since we don't have an applications table
-    // In a real implementation, you'd have an Application model
-    const applications = await User.findAll({
-      where: {
-        // This is a placeholder - in reality you'd have an applications table
-        createdAt: {
-          [Op.gte]: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
+    // Get applications from the Application model
+    const { count, rows: applications } = await Application.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'email', 'firstName', 'lastName']
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['id', 'name', 'fee']
         }
-      },
-      include: [{
-        model: Plan,
-        as: 'plan',
-        attributes: ['id', 'name', 'price']
-      }],
+      ],
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
     });
 
-    // Transform users to application format
-    const applicationData = applications.map(user => ({
-      id: user.id,
-      user: {
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName
-      },
-      plan: user.plan || { name: 'Basic Plan' },
-      status: 'pending',
-      appliedAt: user.createdAt,
-      message: 'New user registration'
-    }));
+    // Calculate application stats
+    const pendingCount = await Application.count({
+      where: { status: 'pending' }
+    });
+
+    const approvedToday = await Application.count({
+      where: {
+        status: 'approved',
+        updatedAt: {
+          [Op.gte]: new Date().setHours(0, 0, 0, 0)
+        }
+      }
+    });
+
+    const rejectedToday = await Application.count({
+      where: {
+        status: 'rejected',
+        updatedAt: {
+          [Op.gte]: new Date().setHours(0, 0, 0, 0)
+        }
+      }
+    });
 
     res.json({
       success: true,
       data: {
-        applications: applicationData,
+        applications,
         stats: {
-          pendingApplications: applicationData.length,
-          approvedToday: 0,
-          rejectedToday: 0,
+          pendingApplications: pendingCount,
+          approvedToday: approvedToday,
+          rejectedToday: rejectedToday,
           averageProcessingTime: 2.5
         },
         pagination: {
-          total: applicationData.length,
+          total: count,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(applicationData.length / limit)
+          totalPages: Math.ceil(count / limit)
         }
       }
     });
@@ -987,8 +1015,20 @@ const approveMembershipApplication = async (req, res) => {
     const { applicationId } = req.params;
     console.log('🔍 AdminController: Approving membership application:', applicationId);
 
-    // In a real implementation, you'd update the application status
-    // For now, we'll just return success
+    const application = await Application.findByPk(applicationId);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    await application.update({
+      status: 'approved',
+      reviewedBy: req.user.id,
+      reviewedAt: new Date()
+    });
+
     res.json({
       success: true,
       message: 'Application approved successfully'
@@ -1008,8 +1048,20 @@ const rejectMembershipApplication = async (req, res) => {
     const { applicationId } = req.params;
     console.log('🔍 AdminController: Rejecting membership application:', applicationId);
 
-    // In a real implementation, you'd update the application status
-    // For now, we'll just return success
+    const application = await Application.findByPk(applicationId);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    await application.update({
+      status: 'rejected',
+      reviewedBy: req.user.id,
+      reviewedAt: new Date()
+    });
+
     res.json({
       success: true,
       message: 'Application rejected successfully'

@@ -199,12 +199,54 @@ const MembershipManagement = () => {
     });
   };
 
-  const getDaysUntilRenewal = (nextBilling) => {
+  const getDaysUntilRenewal = (renewalDate) => {
     const today = new Date();
-    const renewal = new Date(nextBilling);
+    const renewal = new Date(renewalDate);
     const diffTime = renewal - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  const generateRevenueTrendData = () => {
+    // Generate revenue trend for the last 6 months
+    const months = [];
+    const revenueData = [];
+    const currentDate = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      months.push(monthName);
+      
+      // Calculate revenue for this month based on active subscriptions
+      const monthRevenue = membershipData.subscriptions.reduce((sum, sub) => {
+        const subDate = new Date(sub.startDate || sub.createdAt);
+        if (subDate.getMonth() === date.getMonth() && subDate.getFullYear() === date.getFullYear()) {
+          return sum + (sub.plan ? parseFloat(sub.plan.fee || sub.plan.price || 0) : 0);
+        }
+        return sum;
+      }, 0);
+      
+      revenueData.push(monthRevenue);
+    }
+    
+    return { months, revenueData };
+  };
+
+  const getChartData = () => {
+    const { months, revenueData } = generateRevenueTrendData();
+    const maxRevenue = Math.max(...revenueData, 1); // Avoid division by zero
+    
+    return months.map((month, index) => {
+      const revenue = revenueData[index];
+      const heightPercentage = (revenue / maxRevenue) * 100;
+      
+      return {
+        month,
+        revenue,
+        heightPercentage
+      };
+    });
   };
 
   if (loading) {
@@ -350,26 +392,22 @@ const MembershipManagement = () => {
             <h4>Revenue Trend</h4>
             <div className="chart-placeholder">
               <div className="chart-bars">
-                <div className="chart-bar">
-                  <div className="bar" style={{ height: '60%' }}></div>
-                  <span className="bar-label">Oct</span>
-                  <span className="bar-value">$1,200</span>
-                </div>
-                <div className="chart-bar">
-                  <div className="bar" style={{ height: '70%' }}></div>
-                  <span className="bar-label">Nov</span>
-                  <span className="bar-value">$1,350</span>
-                </div>
-                <div className="chart-bar">
-                  <div className="bar" style={{ height: '75%' }}></div>
-                  <span className="bar-label">Dec</span>
-                  <span className="bar-value">$1,420</span>
-                </div>
-                <div className="chart-bar">
-                  <div className="bar" style={{ height: '80%' }}></div>
-                  <span className="bar-label">Jan</span>
-                  <span className="bar-value">$1,939</span>
-                </div>
+                {getChartData().length > 0 ? (
+                  getChartData().map(({ month, revenue, heightPercentage }) => (
+                    <div key={month} className="chart-bar">
+                      <div 
+                        className="bar" 
+                        style={{ height: `${heightPercentage}%` }}
+                      ></div>
+                      <span className="bar-label">{month}</span>
+                      <span className="bar-value">{formatCurrency(revenue)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-data-message">
+                    <p>No revenue data available</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -402,13 +440,13 @@ const MembershipManagement = () => {
                   </div>
                   <div className="plan-info">
                     <div className="plan-name">{subscription.plan.name}</div>
-                    <div className="plan-price">{formatCurrency(subscription.plan.price)}/month</div>
+                    <div className="plan-price">{formatCurrency(subscription.plan.fee || subscription.plan.price)}/{subscription.plan.renewalInterval || subscription.plan.duration}</div>
                   </div>
                   <span className="status-badge active">Active</span>
                   <div className="billing-info">
-                    <div>{subscription.nextBillingDate ? formatDate(subscription.nextBillingDate) : 'N/A'}</div>
-                    <div className={`days-remaining ${subscription.nextBillingDate && getDaysUntilRenewal(subscription.nextBillingDate) < 7 ? 'urgent' : ''}`}>
-                      {subscription.nextBillingDate ? `${getDaysUntilRenewal(subscription.nextBillingDate)} days` : 'N/A'}
+                    <div>{subscription.renewalDate ? formatDate(subscription.renewalDate) : 'N/A'}</div>
+                    <div className={`days-remaining ${subscription.renewalDate && getDaysUntilRenewal(subscription.renewalDate) < 7 ? 'urgent' : ''}`}>
+                      {subscription.renewalDate ? `${getDaysUntilRenewal(subscription.renewalDate)} days` : 'N/A'}
                     </div>
                   </div>
                   <div className="action-buttons">
