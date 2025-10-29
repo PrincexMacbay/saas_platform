@@ -18,8 +18,33 @@ const adminService = {
     return response.data;
   },
 
+  getUserActivity: async (userId) => {
+    const response = await api.get(`/admin/users/${userId}/activity`);
+    return response.data;
+  },
+
+  getUserLoginHistory: async (userId) => {
+    const response = await api.get(`/admin/users/${userId}/login-history`);
+    return response.data;
+  },
+
+  getUserSubscriptions: async (userId) => {
+    const response = await api.get(`/admin/users/${userId}/subscriptions`);
+    return response.data;
+  },
+
+  getUserPayments: async (userId) => {
+    const response = await api.get(`/admin/users/${userId}/payments`);
+    return response.data;
+  },
+
   updateUserStatus: async (userId, data) => {
     const response = await api.put(`/admin/users/${userId}/status`, data);
+    return response.data;
+  },
+
+  bulkUpdateUsers: async (userIds, data) => {
+    const response = await api.put('/admin/users/bulk-update', { userIds, data });
     return response.data;
   },
 

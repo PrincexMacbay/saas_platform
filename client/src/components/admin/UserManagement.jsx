@@ -9,12 +9,25 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showMassEmailModal, setShowMassEmailModal] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [userActivity, setUserActivity] = useState([]);
+  const [userLoginHistory, setUserLoginHistory] = useState([]);
+  const [userSubscriptions, setUserSubscriptions] = useState([]);
+  const [userPayments, setUserPayments] = useState([]);
   const [filters, setFilters] = useState({
     search: '',
     status: '',
     role: '',
     page: 1,
     limit: 10
+  });
+  const [massEmailData, setMassEmailData] = useState({
+    subject: '',
+    message: '',
+    recipients: 'selected' // 'selected', 'all', 'active', 'inactive'
   });
   const { t } = useLanguage();
 
@@ -37,6 +50,29 @@ const UserManagement = () => {
     }
   };
 
+  const fetchUserDetails = async (userId) => {
+    try {
+      const response = await adminService.getUserDetails(userId);
+      setUserDetails(response.data);
+      
+      // Fetch additional user data
+      const [activityResponse, loginResponse, subscriptionsResponse, paymentsResponse] = await Promise.all([
+        adminService.getUserActivity(userId),
+        adminService.getUserLoginHistory(userId),
+        adminService.getUserSubscriptions(userId),
+        adminService.getUserPayments(userId)
+      ]);
+      
+      setUserActivity(activityResponse.data);
+      setUserLoginHistory(loginResponse.data);
+      setUserSubscriptions(subscriptionsResponse.data);
+      setUserPayments(paymentsResponse.data);
+    } catch (err) {
+      console.error('Error fetching user details:', err);
+      setError(t('admin.user.failed.load'));
+    }
+  };
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
       ...prev,
@@ -48,7 +84,6 @@ const UserManagement = () => {
   const handleUserStatusUpdate = async (userId, newStatus) => {
     try {
       await adminService.updateUserStatus(userId, { status: newStatus });
-      // Refresh users list
       fetchUsers();
     } catch (err) {
       console.error('Error updating user status:', err);
@@ -59,7 +94,6 @@ const UserManagement = () => {
   const handleUserRoleUpdate = async (userId, newRole) => {
     try {
       await adminService.updateUserStatus(userId, { role: newRole });
-      // Refresh users list
       fetchUsers();
     } catch (err) {
       console.error('Error updating user role:', err);
@@ -83,27 +117,70 @@ const UserManagement = () => {
     }
   };
 
+  const handleViewUserDetails = async (user) => {
+    setSelectedUser(user);
+    setShowUserDetails(true);
+    await fetchUserDetails(user.id);
+  };
+
   const handleBulkAction = async (action) => {
     if (selectedUsers.length === 0) return;
 
     try {
       switch (action) {
         case 'suspend':
-          // Implement bulk suspend
+          await adminService.bulkUpdateUsers(selectedUsers, { status: 0 });
           break;
         case 'activate':
-          // Implement bulk activate
+          await adminService.bulkUpdateUsers(selectedUsers, { status: 1 });
           break;
         case 'export':
-          // Implement bulk export
+          await handleExportUsers();
+          break;
+        case 'massEmail':
+          setShowMassEmailModal(true);
           break;
         default:
           break;
       }
       setSelectedUsers([]);
+      fetchUsers();
     } catch (err) {
       console.error('Error performing bulk action:', err);
       setError(t('admin.user.failed.bulk.action'));
+    }
+  };
+
+  const handleExportUsers = async () => {
+    try {
+      const response = await adminService.exportUsers('csv');
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting users:', err);
+      setError(t('admin.user.failed.export'));
+    }
+  };
+
+  const handleSendMassEmail = async () => {
+    try {
+      const emailData = {
+        ...massEmailData,
+        userIds: massEmailData.recipients === 'selected' ? selectedUsers : null
+      };
+      await adminService.sendMassEmail(emailData);
+      setShowMassEmailModal(false);
+      setMassEmailData({ subject: '', message: '', recipients: 'selected' });
+    } catch (err) {
+      console.error('Error sending mass email:', err);
+      setError(t('admin.user.failed.mass.email'));
     }
   };
 
@@ -251,6 +328,12 @@ const UserManagement = () => {
             >
               {t('admin.user.export')}
             </button>
+            <button 
+              className="btn btn-outline btn-sm"
+              onClick={() => handleBulkAction('massEmail')}
+            >
+              {t('admin.user.send.email')}
+            </button>
           </div>
         </div>
       )}
@@ -285,8 +368,8 @@ const UserManagement = () => {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id}>
-                <td>
+              <tr key={user.id} className="user-row" onClick={() => handleViewUserDetails(user)}>
+                <td onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={selectedUsers.includes(user.id)}
@@ -314,7 +397,7 @@ const UserManagement = () => {
                 <td>{getStatusBadge(user.status)}</td>
                 <td>{formatDate(user.createdAt)}</td>
                 <td>{user.lastLogin ? formatDate(user.lastLogin) : t('admin.user.never')}</td>
-                <td>
+                <td onClick={(e) => e.stopPropagation()}>
                   <div className="action-buttons">
                     <select
                       className="btn btn-sm btn-outline"
@@ -367,6 +450,164 @@ const UserManagement = () => {
           </div>
         )}
       </div>
+
+      {/* User Details Modal */}
+      {showUserDetails && selectedUser && (
+        <div className="modal-overlay" onClick={() => setShowUserDetails(false)}>
+          <div className="modal-content user-details-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{t('admin.user.details.title')}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowUserDetails(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="user-details-tabs">
+                <button className="tab-button active">{t('admin.user.details.profile')}</button>
+                <button className="tab-button">{t('admin.user.details.activity')}</button>
+                <button className="tab-button">{t('admin.user.details.login.history')}</button>
+                <button className="tab-button">{t('admin.user.details.subscriptions')}</button>
+                <button className="tab-button">{t('admin.user.details.payments')}</button>
+              </div>
+              
+              <div className="user-details-content">
+                {userDetails && (
+                  <div className="profile-info">
+                    <div className="profile-header">
+                      <div className="profile-avatar-large">
+                        {selectedUser.firstName ? selectedUser.firstName[0] : selectedUser.username[0]}
+                      </div>
+                      <div className="profile-info-text">
+                        <h4>
+                          {selectedUser.firstName && selectedUser.lastName 
+                            ? `${selectedUser.firstName} ${selectedUser.lastName}`
+                            : selectedUser.username
+                          }
+                        </h4>
+                        <p>@{selectedUser.username}</p>
+                        <p>{selectedUser.email}</p>
+                        <div className="profile-badges">
+                          {getRoleBadge(selectedUser.role)}
+                          {getStatusBadge(selectedUser.status)}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="profile-details">
+                      <div className="detail-row">
+                        <span className="detail-label">{t('admin.user.details.joined')}</span>
+                        <span className="detail-value">{formatDate(selectedUser.createdAt)}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">{t('admin.user.details.last.login')}</span>
+                        <span className="detail-value">
+                          {selectedUser.lastLogin ? formatDate(selectedUser.lastLogin) : t('admin.user.never')}
+                        </span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">{t('admin.user.details.email.verified')}</span>
+                        <span className="detail-value">
+                          {userDetails.emailVerified ? t('admin.user.details.yes') : t('admin.user.details.no')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowUserDetails(false)}
+              >
+                {t('admin.user.details.close')}
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={() => window.open(`/profile/${selectedUser.username}`, '_blank')}
+              >
+                {t('admin.user.details.view.profile')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mass Email Modal */}
+      {showMassEmailModal && (
+        <div className="modal-overlay" onClick={() => setShowMassEmailModal(false)}>
+          <div className="modal-content mass-email-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{t('admin.user.mass.email.title')}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowMassEmailModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">{t('admin.user.mass.email.recipients')}</label>
+                <select
+                  className="form-select"
+                  value={massEmailData.recipients}
+                  onChange={(e) => setMassEmailData(prev => ({ ...prev, recipients: e.target.value }))}
+                >
+                  <option value="selected">{t('admin.user.mass.email.selected.users')}</option>
+                  <option value="all">{t('admin.user.mass.email.all.users')}</option>
+                  <option value="active">{t('admin.user.mass.email.active.users')}</option>
+                  <option value="inactive">{t('admin.user.mass.email.inactive.users')}</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">{t('admin.user.mass.email.subject')}</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={massEmailData.subject}
+                  onChange={(e) => setMassEmailData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder={t('admin.user.mass.email.subject.placeholder')}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">{t('admin.user.mass.email.message')}</label>
+                <textarea
+                  className="form-textarea"
+                  rows="6"
+                  value={massEmailData.message}
+                  onChange={(e) => setMassEmailData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder={t('admin.user.mass.email.message.placeholder')}
+                />
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowMassEmailModal(false)}
+              >
+                {t('admin.user.mass.email.cancel')}
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={handleSendMassEmail}
+                disabled={!massEmailData.subject || !massEmailData.message}
+              >
+                {t('admin.user.mass.email.send')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
