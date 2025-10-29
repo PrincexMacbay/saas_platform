@@ -17,6 +17,7 @@ const UserManagement = () => {
   const [userLoginHistory, setUserLoginHistory] = useState([]);
   const [userSubscriptions, setUserSubscriptions] = useState([]);
   const [userPayments, setUserPayments] = useState([]);
+  const [activeTab, setActiveTab] = useState('profile');
   const [filters, setFilters] = useState({
     search: '',
     status: '',
@@ -24,6 +25,8 @@ const UserManagement = () => {
     page: 1,
     limit: 10
   });
+  const [allUsers, setAllUsers] = useState([]); // Store all users for client-side filtering
+  const [searchTerm, setSearchTerm] = useState(''); // Separate search term for immediate UI updates
   const [massEmailData, setMassEmailData] = useState({
     subject: '',
     message: '',
@@ -32,54 +35,80 @@ const UserManagement = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    fetchUsers();
-  }, [filters]);
+    fetchAllUsers();
+  }, []);
 
-  const fetchUsers = async () => {
+  // Client-side filtering effect
+  useEffect(() => {
+    filterUsers();
+  }, [allUsers, searchTerm, filters.status, filters.role, filters.page, filters.limit]);
+
+  const fetchAllUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔍 UserManagement: Starting to fetch users...');
-      console.log('🔍 UserManagement: Current filters:', filters);
-      console.log('🔍 UserManagement: Auth token exists:', !!localStorage.getItem('token'));
-      console.log('🔍 UserManagement: Token value:', localStorage.getItem('token')?.substring(0, 20) + '...');
+      console.log('🔍 UserManagement: Fetching all users...');
       
-      const response = await adminService.getUsers(filters);
-      console.log('✅ UserManagement: Users response received:', response);
-      console.log('✅ UserManagement: Users count:', response.data?.users?.length || 0);
-      console.log('✅ UserManagement: Pagination:', response.data?.pagination);
+      // Fetch all users without pagination for client-side filtering
+      const response = await adminService.getUsers({ 
+        page: 1, 
+        limit: 1000 // Get a large number to fetch all users
+      });
       
-      setUsers(response.data.users);
-      setPagination(response.data.pagination);
+      console.log('✅ UserManagement: All users loaded:', response.data?.users?.length || 0);
+      setAllUsers(response.data.users || []);
       setError(null);
     } catch (err) {
-      console.error('❌ UserManagement: Error fetching users:', err);
-      console.error('❌ UserManagement: Error type:', err.name);
-      console.error('❌ UserManagement: Error message:', err.message);
-      console.error('❌ UserManagement: Error stack:', err.stack);
-      console.error('❌ UserManagement: Error response status:', err.response?.status);
-      console.error('❌ UserManagement: Error response statusText:', err.response?.statusText);
-      console.error('❌ UserManagement: Error response data:', err.response?.data);
-      console.error('❌ UserManagement: Error config URL:', err.config?.url);
-      console.error('❌ UserManagement: Error config method:', err.config?.method);
-      console.error('❌ UserManagement: Error config headers:', err.config?.headers);
-      console.error('❌ UserManagement: Error config baseURL:', err.config?.baseURL);
-      
-      // Set more specific error message
-      let errorMessage = t('admin.user.failed.load');
-      if (err.response?.status === 401) {
-        errorMessage = 'Authentication failed. Please login again.';
-      } else if (err.response?.status === 403) {
-        errorMessage = 'Access denied. Admin privileges required.';
-      } else if (err.response?.status === 500) {
-        errorMessage = 'Server error. Please try again later.';
-      } else if (err.message === 'Network Error') {
-        errorMessage = 'Network error. Please check your connection.';
-      }
-      
-      setError(errorMessage);
+      console.error('❌ UserManagement: Error fetching all users:', err);
+      setError('Failed to load users. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterUsers = () => {
+    if (!allUsers.length) return;
+
+    let filtered = [...allUsers];
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(user => 
+        user.username?.toLowerCase().includes(term) ||
+        user.email?.toLowerCase().includes(term) ||
+        user.firstName?.toLowerCase().includes(term) ||
+        user.lastName?.toLowerCase().includes(term) ||
+        `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply status filter
+    if (filters.status !== '') {
+      filtered = filtered.filter(user => user.status === parseInt(filters.status));
+    }
+
+    // Apply role filter
+    if (filters.role !== '') {
+      filtered = filtered.filter(user => user.role === filters.role);
+    }
+
+    // Apply pagination
+    const startIndex = (filters.page - 1) * filters.limit;
+    const endIndex = startIndex + filters.limit;
+    const paginatedUsers = filtered.slice(startIndex, endIndex);
+
+    setUsers(paginatedUsers);
+    setPagination({
+      total: filtered.length,
+      totalPages: Math.ceil(filtered.length / filters.limit),
+      currentPage: filters.page,
+      limit: filters.limit
+    });
+  };
+
+  const fetchUsers = async () => {
+    // This function is now just for refreshing data
+    await fetchAllUsers();
   };
 
   const fetchUserDetails = async (userId) => {
@@ -106,11 +135,19 @@ const UserManagement = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value,
-      page: 1 // Reset to first page when filtering
-    }));
+    if (key === 'search') {
+      setSearchTerm(value);
+      setFilters(prev => ({
+        ...prev,
+        page: 1 // Reset to first page when searching
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        [key]: value,
+        page: 1 // Reset to first page when filtering
+      }));
+    }
   };
 
   const handleUserStatusUpdate = async (userId, newStatus) => {
@@ -152,6 +189,7 @@ const UserManagement = () => {
   const handleViewUserDetails = async (user) => {
     setSelectedUser(user);
     setShowUserDetails(true);
+    setActiveTab('profile'); // Reset to profile tab
     await fetchUserDetails(user.id);
   };
 
@@ -301,7 +339,7 @@ const UserManagement = () => {
             type="text"
             className="filter-input"
             placeholder={t('admin.user.search.placeholder')}
-            value={filters.search}
+            value={searchTerm}
             onChange={(e) => handleFilterChange('search', e.target.value)}
           />
         </div>
@@ -513,15 +551,40 @@ const UserManagement = () => {
             
             <div className="modal-body">
               <div className="user-details-tabs">
-                <button className="tab-button active">{t('admin.user.details.profile')}</button>
-                <button className="tab-button">{t('admin.user.details.activity')}</button>
-                <button className="tab-button">{t('admin.user.details.login.history')}</button>
-                <button className="tab-button">{t('admin.user.details.subscriptions')}</button>
-                <button className="tab-button">{t('admin.user.details.payments')}</button>
+                <button 
+                  className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('profile')}
+                >
+                  {t('admin.user.details.profile')}
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'activity' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('activity')}
+                >
+                  {t('admin.user.details.activity')}
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'login' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('login')}
+                >
+                  {t('admin.user.details.login.history')}
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'subscriptions' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('subscriptions')}
+                >
+                  {t('admin.user.details.subscriptions')}
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'payments' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('payments')}
+                >
+                  {t('admin.user.details.payments')}
+                </button>
               </div>
               
               <div className="user-details-content">
-                {userDetails && (
+                {activeTab === 'profile' && userDetails && (
                   <div className="profile-info">
                     <div className="profile-header">
                       <div className="profile-avatar-large">
@@ -561,6 +624,88 @@ const UserManagement = () => {
                         </span>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {activeTab === 'activity' && (
+                  <div className="tab-content">
+                    <h4>Recent Activity</h4>
+                    {userActivity.length > 0 ? (
+                      <div className="activity-list">
+                        {userActivity.map((activity, index) => (
+                          <div key={index} className="activity-item">
+                            <div className="activity-action">{activity.action}</div>
+                            <div className="activity-description">{activity.description}</div>
+                            <div className="activity-timestamp">{formatDate(activity.timestamp)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>No activity data available</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'login' && (
+                  <div className="tab-content">
+                    <h4>Login History</h4>
+                    {userLoginHistory.length > 0 ? (
+                      <div className="login-history-list">
+                        {userLoginHistory.map((login, index) => (
+                          <div key={index} className="login-item">
+                            <div className="login-time">{formatDate(login.loginTime)}</div>
+                            <div className="login-ip">IP: {login.ipAddress}</div>
+                            <div className="login-status">
+                              {login.success ? '✅ Success' : '❌ Failed'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>No login history available</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'subscriptions' && (
+                  <div className="tab-content">
+                    <h4>Subscriptions</h4>
+                    {userSubscriptions.length > 0 ? (
+                      <div className="subscriptions-list">
+                        {userSubscriptions.map((subscription, index) => (
+                          <div key={index} className="subscription-item">
+                            <div className="subscription-plan">{subscription.planName}</div>
+                            <div className="subscription-status">{subscription.status}</div>
+                            <div className="subscription-amount">${subscription.amount}</div>
+                            <div className="subscription-dates">
+                              {formatDate(subscription.startDate)} - {formatDate(subscription.endDate)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>No subscriptions found</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'payments' && (
+                  <div className="tab-content">
+                    <h4>Payment History</h4>
+                    {userPayments.length > 0 ? (
+                      <div className="payments-list">
+                        {userPayments.map((payment, index) => (
+                          <div key={index} className="payment-item">
+                            <div className="payment-amount">${payment.amount}</div>
+                            <div className="payment-status">{payment.status}</div>
+                            <div className="payment-method">{payment.paymentMethod}</div>
+                            <div className="payment-date">{formatDate(payment.createdAt)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>No payment history available</p>
+                    )}
                   </div>
                 )}
               </div>

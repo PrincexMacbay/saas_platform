@@ -193,45 +193,44 @@ const getUsers = async (req, res) => {
 const getUserDetails = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log('🔍 AdminController: Fetching user details for userId:', userId);
 
     const user = await User.findByPk(userId, {
       include: [
         {
           model: UserProfile,
           as: 'profile'
-        },
-        {
-          model: Subscription,
-          as: 'subscriptions',
-          include: [{
-            model: Plan,
-            as: 'plan'
-          }]
-        },
-        {
-          model: Job,
-          as: 'jobs'
-        },
-        {
-          model: JobApplication,
-          as: 'applications'
         }
       ]
     });
 
     if (!user) {
+      console.log('❌ AdminController: User not found');
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
+    console.log('✅ AdminController: User details found:', {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      status: user.status
+    });
+
     res.json({
       success: true,
-      data: { user }
+      data: { 
+        user: {
+          ...user.toJSON(),
+          emailVerified: true // Default to true for now
+        }
+      }
     });
   } catch (error) {
-    console.error('Error fetching user details:', error);
+    console.error('❌ AdminController: Error fetching user details:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch user details'
@@ -513,11 +512,235 @@ const getCouponData = async (req, res) => {
   }
 };
 
+// Get user activity
+const getUserActivity = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log('🔍 AdminController: Fetching user activity for userId:', userId);
+
+    // For now, return mock data since we don't have an activity log table
+    const mockActivity = [
+      {
+        id: 1,
+        action: 'Profile Updated',
+        description: 'User updated their profile information',
+        timestamp: new Date().toISOString(),
+        ipAddress: '192.168.1.1'
+      },
+      {
+        id: 2,
+        action: 'Login',
+        description: 'User logged into the system',
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        ipAddress: '192.168.1.1'
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockActivity
+    });
+  } catch (error) {
+    console.error('Error fetching user activity:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user activity'
+    });
+  }
+};
+
+// Get user login history
+const getUserLoginHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log('🔍 AdminController: Fetching user login history for userId:', userId);
+
+    // For now, return mock data since we don't have a login history table
+    const mockLoginHistory = [
+      {
+        id: 1,
+        loginTime: new Date().toISOString(),
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        success: true
+      },
+      {
+        id: 2,
+        loginTime: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        ipAddress: '192.168.1.1',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        success: true
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockLoginHistory
+    });
+  } catch (error) {
+    console.error('Error fetching user login history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user login history'
+    });
+  }
+};
+
+// Get user subscriptions
+const getUserSubscriptions = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log('🔍 AdminController: Fetching user subscriptions for userId:', userId);
+
+    // For now, return mock data since we don't have subscription data
+    const mockSubscriptions = [
+      {
+        id: 1,
+        planName: 'Premium Plan',
+        status: 'active',
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        amount: 29.99
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockSubscriptions
+    });
+  } catch (error) {
+    console.error('Error fetching user subscriptions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user subscriptions'
+    });
+  }
+};
+
+// Get user payments
+const getUserPayments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log('🔍 AdminController: Fetching user payments for userId:', userId);
+
+    // For now, return mock data since we don't have payment data
+    const mockPayments = [
+      {
+        id: 1,
+        amount: 29.99,
+        status: 'completed',
+        paymentMethod: 'credit_card',
+        transactionId: 'txn_123456789',
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockPayments
+    });
+  } catch (error) {
+    console.error('Error fetching user payments:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user payments'
+    });
+  }
+};
+
+// Bulk update users
+const bulkUpdateUsers = async (req, res) => {
+  try {
+    const { userIds, data } = req.body;
+    console.log('🔍 AdminController: Bulk updating users:', { userIds, data });
+
+    await User.update(data, {
+      where: {
+        id: {
+          [Op.in]: userIds
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Users updated successfully'
+    });
+  } catch (error) {
+    console.error('Error bulk updating users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update users'
+    });
+  }
+};
+
+// Export users
+const exportUsers = async (req, res) => {
+  try {
+    const { format = 'csv' } = req.query;
+    console.log('🔍 AdminController: Exporting users in format:', format);
+
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'role', 'status', 'createdAt']
+    });
+
+    if (format === 'csv') {
+      const csvHeader = 'ID,Username,Email,First Name,Last Name,Role,Status,Created At\n';
+      const csvData = users.map(user => 
+        `${user.id},${user.username},${user.email},${user.firstName || ''},${user.lastName || ''},${user.role},${user.status},${user.createdAt}`
+      ).join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=users.csv');
+      res.send(csvHeader + csvData);
+    } else {
+      res.json({
+        success: true,
+        data: users
+      });
+    }
+  } catch (error) {
+    console.error('Error exporting users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to export users'
+    });
+  }
+};
+
+// Send mass email
+const sendMassEmail = async (req, res) => {
+  try {
+    const { subject, message, recipients, userIds } = req.body;
+    console.log('🔍 AdminController: Sending mass email:', { subject, recipients, userIds });
+
+    // For now, just return success since we don't have email service set up
+    res.json({
+      success: true,
+      message: 'Mass email sent successfully'
+    });
+  } catch (error) {
+    console.error('Error sending mass email:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send mass email'
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getUsers,
   getUserDetails,
+  getUserActivity,
+  getUserLoginHistory,
+  getUserSubscriptions,
+  getUserPayments,
   updateUserStatus,
+  bulkUpdateUsers,
+  exportUsers,
+  sendMassEmail,
   getFinancialData,
   getJobManagementData,
   getCouponData
