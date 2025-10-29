@@ -31,6 +31,12 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     
+    console.log('🔍 API Interceptor: Processing request...');
+    console.log('🔍 API Interceptor: URL:', config.url);
+    console.log('🔍 API Interceptor: Method:', config.method);
+    console.log('🔍 API Interceptor: Token exists:', !!token);
+    console.log('🔍 API Interceptor: Token value:', token?.substring(0, 20) + '...');
+    
     // Don't add Authorization header to public endpoints
     const isPublicEndpoint = config.url && (
       config.url.includes('/auth/register') || 
@@ -38,12 +44,22 @@ api.interceptors.request.use(
       config.url.includes('/public/')
     );
     
+    console.log('🔍 API Interceptor: Is public endpoint:', isPublicEndpoint);
+    
     if (token && !isPublicEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ API Interceptor: Authorization header added');
+    } else if (!token && !isPublicEndpoint) {
+      console.log('⚠️ API Interceptor: No token available for protected endpoint');
+    } else {
+      console.log('ℹ️ API Interceptor: Public endpoint, no auth needed');
     }
+    
+    console.log('🔍 API Interceptor: Final headers:', config.headers);
     return config;
   },
   (error) => {
+    console.error('❌ API Interceptor: Request error:', error);
     return Promise.reject(error);
   }
 );

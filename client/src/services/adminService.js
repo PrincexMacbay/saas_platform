@@ -9,12 +9,31 @@ const adminService = {
 
   // User Management
   getUsers: async (params = {}) => {
-    console.log('🔍 AdminService: Fetching users with params:', params);
+    console.log('🔍 AdminService: Starting getUsers request...');
+    console.log('🔍 AdminService: Params:', params);
     console.log('🔍 AdminService: API base URL:', api.defaults.baseURL);
     console.log('🔍 AdminService: Full URL:', `${api.defaults.baseURL}/admin/users`);
-    const response = await api.get('/admin/users', { params });
-    console.log('✅ AdminService: Users response received:', response.data);
-    return response.data;
+    console.log('🔍 AdminService: Request headers:', api.defaults.headers);
+    console.log('🔍 AdminService: Auth token in headers:', api.defaults.headers.Authorization?.substring(0, 20) + '...');
+    
+    try {
+      const response = await api.get('/admin/users', { params });
+      console.log('✅ AdminService: Request successful');
+      console.log('✅ AdminService: Response status:', response.status);
+      console.log('✅ AdminService: Response headers:', response.headers);
+      console.log('✅ AdminService: Response data:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ AdminService: Request failed');
+      console.error('❌ AdminService: Error type:', error.name);
+      console.error('❌ AdminService: Error message:', error.message);
+      console.error('❌ AdminService: Error code:', error.code);
+      console.error('❌ AdminService: Error response status:', error.response?.status);
+      console.error('❌ AdminService: Error response statusText:', error.response?.statusText);
+      console.error('❌ AdminService: Error response data:', error.response?.data);
+      console.error('❌ AdminService: Error config:', error.config);
+      throw error;
+    }
   },
 
   getUserDetails: async (userId) => {

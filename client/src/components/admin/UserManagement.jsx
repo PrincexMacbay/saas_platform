@@ -38,21 +38,45 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Fetching users with filters:', filters);
+      console.log('🔍 UserManagement: Starting to fetch users...');
+      console.log('🔍 UserManagement: Current filters:', filters);
+      console.log('🔍 UserManagement: Auth token exists:', !!localStorage.getItem('token'));
+      console.log('🔍 UserManagement: Token value:', localStorage.getItem('token')?.substring(0, 20) + '...');
+      
       const response = await adminService.getUsers(filters);
-      console.log('✅ Users response:', response);
+      console.log('✅ UserManagement: Users response received:', response);
+      console.log('✅ UserManagement: Users count:', response.data?.users?.length || 0);
+      console.log('✅ UserManagement: Pagination:', response.data?.pagination);
+      
       setUsers(response.data.users);
       setPagination(response.data.pagination);
       setError(null);
     } catch (err) {
-      console.error('❌ Error fetching users:', err);
-      console.error('❌ Error details:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        config: err.config
-      });
-      setError(t('admin.user.failed.load'));
+      console.error('❌ UserManagement: Error fetching users:', err);
+      console.error('❌ UserManagement: Error type:', err.name);
+      console.error('❌ UserManagement: Error message:', err.message);
+      console.error('❌ UserManagement: Error stack:', err.stack);
+      console.error('❌ UserManagement: Error response status:', err.response?.status);
+      console.error('❌ UserManagement: Error response statusText:', err.response?.statusText);
+      console.error('❌ UserManagement: Error response data:', err.response?.data);
+      console.error('❌ UserManagement: Error config URL:', err.config?.url);
+      console.error('❌ UserManagement: Error config method:', err.config?.method);
+      console.error('❌ UserManagement: Error config headers:', err.config?.headers);
+      console.error('❌ UserManagement: Error config baseURL:', err.config?.baseURL);
+      
+      // Set more specific error message
+      let errorMessage = t('admin.user.failed.load');
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please login again.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Admin privileges required.';
+      } else if (err.response?.status === 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (err.message === 'Network Error') {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -244,6 +268,20 @@ const UserManagement = () => {
       <div className="management-header">
         <h2>{t('admin.user.title')}</h2>
         <p>{t('admin.user.description')}</p>
+        <button 
+          onClick={fetchUsers} 
+          style={{
+            background: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginTop: '10px'
+          }}
+        >
+          🔍 Debug: Test Fetch Users
+        </button>
       </div>
 
       {error && (
