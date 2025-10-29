@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as adminService from '../../services/adminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -15,6 +16,7 @@ const UserManagement = () => {
     page: 1,
     limit: 10
   });
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchUsers();
@@ -29,7 +31,7 @@ const UserManagement = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to load users');
+      setError(t('admin.user.failed.load'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ const UserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error('Error updating user status:', err);
-      setError('Failed to update user status');
+      setError(t('admin.user.failed.update.status'));
     }
   };
 
@@ -61,7 +63,7 @@ const UserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error('Error updating user role:', err);
-      setError('Failed to update user role');
+      setError(t('admin.user.failed.update.role'));
     }
   };
 
@@ -101,17 +103,17 @@ const UserManagement = () => {
       setSelectedUsers([]);
     } catch (err) {
       console.error('Error performing bulk action:', err);
-      setError('Failed to perform bulk action');
+      setError(t('admin.user.failed.bulk.action'));
     }
   };
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      0: { label: 'Disabled', class: 'inactive' },
-      1: { label: 'Active', class: 'active' },
-      2: { label: 'Pending', class: 'pending' }
+      0: { label: t('admin.user.disabled'), class: 'inactive' },
+      1: { label: t('admin.user.active'), class: 'active' },
+      2: { label: t('admin.user.pending'), class: 'pending' }
     };
-    const statusInfo = statusMap[status] || { label: 'Unknown', class: 'inactive' };
+    const statusInfo = statusMap[status] || { label: t('admin.unknown'), class: 'inactive' };
     return (
       <span className={`status-badge ${statusInfo.class}`}>
         {statusInfo.label}
@@ -121,11 +123,11 @@ const UserManagement = () => {
 
   const getRoleBadge = (role) => {
     const roleMap = {
-      user: { label: 'User', class: 'secondary' },
-      admin: { label: 'Admin', class: 'primary' },
-      moderator: { label: 'Moderator', class: 'warning' }
+      user: { label: t('admin.user.user'), class: 'secondary' },
+      admin: { label: t('admin.user.admin'), class: 'primary' },
+      moderator: { label: t('admin.user.moderator'), class: 'warning' }
     };
-    const roleInfo = roleMap[role] || { label: 'User', class: 'secondary' };
+    const roleInfo = roleMap[role] || { label: t('admin.user.user'), class: 'secondary' };
     return (
       <span className={`role-badge ${roleInfo.class}`}>
         {roleInfo.label}
@@ -147,7 +149,7 @@ const UserManagement = () => {
     return (
       <div className="loading">
         <div className="loading-spinner"></div>
-        <p>Loading users...</p>
+        <p>{t('admin.user.loading')}</p>
       </div>
     );
   }
@@ -155,15 +157,15 @@ const UserManagement = () => {
   return (
     <div className="user-management">
       <div className="management-header">
-        <h2>User Management</h2>
-        <p>Manage users, roles, and permissions</p>
+        <h2>{t('admin.user.title')}</h2>
+        <p>{t('admin.user.description')}</p>
       </div>
 
       {error && (
         <div className="error">
           <p>{error}</p>
           <button onClick={fetchUsers} className="btn btn-primary">
-            Retry
+            {t('admin.user.retry')}
           </button>
         </div>
       )}
@@ -171,46 +173,46 @@ const UserManagement = () => {
       {/* Filters */}
       <div className="admin-filters">
         <div className="filter-group">
-          <label className="filter-label">Search</label>
+          <label className="filter-label">{t('admin.user.search')}</label>
           <input
             type="text"
             className="filter-input"
-            placeholder="Search by name, email, or username..."
+            placeholder={t('admin.user.search.placeholder')}
             value={filters.search}
             onChange={(e) => handleFilterChange('search', e.target.value)}
           />
         </div>
         
         <div className="filter-group">
-          <label className="filter-label">Status</label>
+          <label className="filter-label">{t('admin.user.status')}</label>
           <select
             className="filter-select"
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
           >
-            <option value="">All Statuses</option>
-            <option value="1">Active</option>
-            <option value="0">Disabled</option>
-            <option value="2">Pending</option>
+            <option value="">{t('admin.user.all.statuses')}</option>
+            <option value="1">{t('admin.user.active')}</option>
+            <option value="0">{t('admin.user.disabled')}</option>
+            <option value="2">{t('admin.user.pending')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label className="filter-label">Role</label>
+          <label className="filter-label">{t('admin.user.role')}</label>
           <select
             className="filter-select"
             value={filters.role}
             onChange={(e) => handleFilterChange('role', e.target.value)}
           >
-            <option value="">All Roles</option>
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-            <option value="moderator">Moderator</option>
+            <option value="">{t('admin.user.all.roles')}</option>
+            <option value="user">{t('admin.user.user')}</option>
+            <option value="admin">{t('admin.user.admin')}</option>
+            <option value="moderator">{t('admin.user.moderator')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label className="filter-label">Per Page</label>
+          <label className='filter-label'>{t('admin.user.per.page')}</label>
           <select
             className="filter-select"
             value={filters.limit}
@@ -228,26 +230,26 @@ const UserManagement = () => {
       {selectedUsers.length > 0 && (
         <div className="bulk-actions">
           <span className="bulk-actions-label">
-            {selectedUsers.length} user(s) selected
+            {selectedUsers.length} {t('admin.user.bulk.actions')}
           </span>
           <div className="bulk-actions-buttons">
             <button 
               className="btn btn-outline btn-sm"
               onClick={() => handleBulkAction('activate')}
             >
-              Activate
+              {t('admin.user.activate')}
             </button>
             <button 
               className="btn btn-outline btn-sm"
               onClick={() => handleBulkAction('suspend')}
             >
-              Suspend
+              {t('admin.user.suspend')}
             </button>
             <button 
               className="btn btn-outline btn-sm"
               onClick={() => handleBulkAction('export')}
             >
-              Export
+              {t('admin.user.export')}
             </button>
           </div>
         </div>
@@ -256,9 +258,9 @@ const UserManagement = () => {
       {/* Users Table */}
       <div className="admin-table-container">
         <div className="admin-table-header">
-          <h3 className="admin-table-title">Users ({pagination.total})</h3>
+          <h3 className="admin-table-title">{t('admin.user.users')} ({pagination.total})</h3>
           <button className="btn btn-primary" onClick={fetchUsers}>
-            Refresh
+            {t('admin.user.refresh')}
           </button>
         </div>
 
@@ -272,13 +274,13 @@ const UserManagement = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th>User</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Last Login</th>
-              <th>Actions</th>
+              <th>{t('admin.user.user.column')}</th>
+              <th>{t('admin.user.email')}</th>
+              <th>{t('admin.user.role.column')}</th>
+              <th>{t('admin.user.status.column')}</th>
+              <th>{t('admin.user.joined')}</th>
+              <th>{t('admin.user.last.login')}</th>
+              <th>{t('admin.user.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -311,7 +313,7 @@ const UserManagement = () => {
                 <td>{getRoleBadge(user.role)}</td>
                 <td>{getStatusBadge(user.status)}</td>
                 <td>{formatDate(user.createdAt)}</td>
-                <td>{user.lastLogin ? formatDate(user.lastLogin) : 'Never'}</td>
+                <td>{user.lastLogin ? formatDate(user.lastLogin) : t('admin.user.never')}</td>
                 <td>
                   <div className="action-buttons">
                     <select
@@ -319,9 +321,9 @@ const UserManagement = () => {
                       value={user.status}
                       onChange={(e) => handleUserStatusUpdate(user.id, parseInt(e.target.value))}
                     >
-                      <option value="1">Active</option>
-                      <option value="0">Suspend</option>
-                      <option value="2">Pending</option>
+                      <option value="1">{t('admin.user.active')}</option>
+                      <option value="0">{t('admin.user.suspend')}</option>
+                      <option value="2">{t('admin.user.pending')}</option>
                     </select>
                     
                     <select
@@ -329,9 +331,9 @@ const UserManagement = () => {
                       value={user.role}
                       onChange={(e) => handleUserRoleUpdate(user.id, e.target.value)}
                     >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                      <option value="moderator">Moderator</option>
+                      <option value="user">{t('admin.user.user')}</option>
+                      <option value="admin">{t('admin.user.admin')}</option>
+                      <option value="moderator">{t('admin.user.moderator')}</option>
                     </select>
                   </div>
                 </td>
@@ -348,11 +350,11 @@ const UserManagement = () => {
               disabled={filters.page === 1}
               onClick={() => handleFilterChange('page', filters.page - 1)}
             >
-              Previous
+              {t('admin.user.previous')}
             </button>
             
             <span className="pagination-info">
-              Page {filters.page} of {pagination.totalPages}
+              {t('admin.user.page.of', { current: filters.page, total: pagination.totalPages })}
             </span>
             
             <button
@@ -360,7 +362,7 @@ const UserManagement = () => {
               disabled={filters.page === pagination.totalPages}
               onClick={() => handleFilterChange('page', filters.page + 1)}
             >
-              Next
+              {t('admin.user.next')}
             </button>
           </div>
         )}

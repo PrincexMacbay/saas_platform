@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ApplicationFormBuilder = () => {
   const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   const [formConfig, setFormConfig] = useState({
     title: 'Membership Application',
     description: '',
@@ -66,13 +68,13 @@ const ApplicationFormBuilder = () => {
         });
       } else {
         // Form not found or user doesn't have access
-        alert('Form not found or you do not have access to this form.');
+        alert(t('form.builder.form.not.found'));
         fetchFormConfig();
       }
     } catch (error) {
       console.error('Error fetching form by ID:', error);
       if (error.response?.status === 404 || error.response?.status === 403) {
-        alert('Form not found or you do not have access to this form.');
+        alert(t('form.builder.form.not.found'));
       }
       fetchFormConfig();
     } finally {
@@ -121,11 +123,11 @@ const ApplicationFormBuilder = () => {
     try {
       setJoiningOrganization(true);
       await api.post('/users/organizations/join', { organizationId });
-      alert('Successfully joined organization! You can now create application forms.');
+      alert(t('form.builder.successfully.joined'));
       await fetchFormConfig(); // Refresh the form config
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert('Error joining organization: ' + (error.response?.data?.message || error.message));
+      alert(t('form.builder.error.joining', { error: error.response?.data?.message || error.message }));
     } finally {
       setJoiningOrganization(false);
     }
@@ -137,12 +139,12 @@ const ApplicationFormBuilder = () => {
       if (formConfig.id) {
         // Update existing form
         await api.put(`/membership/application-forms/${formConfig.id}`, formConfig);
-        alert('Application form updated successfully!');
+        alert(t('form.builder.form.updated'));
       } else {
         // Create new form
         const response = await api.post('/membership/application-forms', formConfig);
         setFormConfig(prev => ({ ...prev, id: response.data.data.id }));
-        alert('Application form saved successfully!');
+        alert(t('form.builder.form.saved'));
       }
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
@@ -152,7 +154,7 @@ const ApplicationFormBuilder = () => {
         setShowOrganizationSelector(true);
         await fetchOrganizations();
       } else {
-        alert('Error saving form: ' + (error.response?.data?.message || error.message));
+        alert(t('form.builder.error.saving', { error: error.response?.data?.message || error.message }));
       }
     } finally {
       setSaving(false);
@@ -174,7 +176,7 @@ const ApplicationFormBuilder = () => {
       // Then publish it using the correct ID
       await api.patch(`/membership/application-forms/${formId}/publish`);
       setFormConfig(prev => ({ ...prev, isPublished: true }));
-      alert('Application form published successfully!');
+      alert(t('form.builder.form.published'));
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
@@ -183,7 +185,7 @@ const ApplicationFormBuilder = () => {
         setShowOrganizationSelector(true);
         await fetchOrganizations();
       } else {
-        alert('Error publishing form: ' + (error.response?.data?.message || error.message));
+        alert(t('form.builder.error.publishing', { error: error.response?.data?.message || error.message }));
       }
     } finally {
       setSaving(false);
@@ -194,17 +196,17 @@ const ApplicationFormBuilder = () => {
     try {
       setSaving(true);
       if (!formConfig.id) {
-        alert('Cannot unpublish a form that has not been saved yet');
+        alert(t('form.builder.cannot.unpublish'));
         return;
       }
       await api.patch(`/membership/application-forms/${formConfig.id}/unpublish`);
       setFormConfig(prev => ({ ...prev, isPublished: false }));
-      alert('Application form unpublished successfully!');
+      alert(t('form.builder.form.unpublished'));
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
       console.error('Error unpublishing form:', error);
-      alert('Error unpublishing form: ' + (error.response?.data?.message || error.message));
+      alert(t('form.builder.error.unpublishing', { error: error.response?.data?.message || error.message }));
     } finally {
       setSaving(false);
     }
@@ -237,7 +239,7 @@ const ApplicationFormBuilder = () => {
 
   const handleSaveField = () => {
     if (!newField.name || !newField.label) {
-      alert('Field name and label are required');
+      alert(t('form.builder.field.name.required'));
       return;
     }
 
@@ -270,7 +272,7 @@ const ApplicationFormBuilder = () => {
     return (
       <div className="form-builder-container">
         <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-          <p>Loading form builder...</p>
+          <p>{t('form.builder.loading')}</p>
         </div>
       </div>
     );
@@ -282,14 +284,14 @@ const ApplicationFormBuilder = () => {
         <div className="organization-selector">
           <div className="selector-header">
             <i className="fas fa-building"></i>
-            <h2>Join an Organization</h2>
-            <p>You need to be a member of an organization to create application forms.</p>
+            <h2>{t('form.builder.join.organization')}</h2>
+            <p>{t('form.builder.join.description')}</p>
           </div>
           
           <div className="organizations-list">
             {organizations.length === 0 ? (
               <div className="no-organizations">
-                <p>No organizations available to join.</p>
+                <p>{t('form.builder.no.organizations')}</p>
               </div>
             ) : (
               organizations.map(org => (
@@ -299,7 +301,7 @@ const ApplicationFormBuilder = () => {
                     <p>{org.description}</p>
                     {org.website && (
                       <a href={org.website} target="_blank" rel="noopener noreferrer">
-                        <i className="fas fa-external-link-alt"></i> Visit Website
+                        <i className="fas fa-external-link-alt"></i> {t('form.builder.visit.website')}
                       </a>
                     )}
                   </div>
@@ -308,7 +310,7 @@ const ApplicationFormBuilder = () => {
                     disabled={joiningOrganization}
                     className="join-button"
                   >
-                    {joiningOrganization ? 'Joining...' : 'Join Organization'}
+                    {joiningOrganization ? t('form.builder.joining') : t('form.builder.join.organization.button')}
                   </button>
                 </div>
               ))
@@ -447,23 +449,23 @@ const ApplicationFormBuilder = () => {
   return (
     <div className="form-builder-container">
       <div className="form-builder-header">
-        <h2>{formConfig.id ? 'Edit Application Form' : 'Application Form Builder'}</h2>
+        <h2>{formConfig.id ? t('form.builder.edit.title') : t('form.builder.title')}</h2>
         <div className="header-actions">
           <button onClick={handleSave} className="save-button" disabled={saving}>
-            <i className="fas fa-save"></i> {saving ? 'Saving...' : 'Save'}
+            <i className="fas fa-save"></i> {saving ? t('form.builder.saving') : t('form.builder.save')}
           </button>
           {formConfig.isPublished ? (
             <button onClick={handleUnpublish} className="unpublish-button" disabled={saving}>
-              <i className="fas fa-eye-slash"></i> {saving ? 'Unpublishing...' : 'Unpublish'}
+              <i className="fas fa-eye-slash"></i> {saving ? t('form.builder.unpublishing') : t('form.builder.unpublish')}
             </button>
           ) : (
             <button onClick={handlePublish} className="publish-button" disabled={saving}>
-              <i className="fas fa-globe"></i> {saving ? 'Publishing...' : 'Publish'}
+              <i className="fas fa-globe"></i> {saving ? t('form.builder.publishing') : t('form.builder.publish')}
             </button>
           )}
           {formConfig.isPublished && (
             <div className="published-status">
-              <i className="fas fa-check-circle"></i> Published
+              <i className="fas fa-check-circle"></i> {t('form.builder.published')}
             </div>
           )}
         </div>
@@ -472,10 +474,10 @@ const ApplicationFormBuilder = () => {
       <div className="form-builder-content">
         <div className="form-config">
           <div className="config-section">
-            <h3>Form Configuration</h3>
+            <h3>{t('form.builder.form.configuration')}</h3>
             
             <div className="form-group">
-              <label>Title</label>
+              <label>{t('form.builder.title.label')}</label>
               <input
                 type="text"
                 value={formConfig.title}
@@ -483,71 +485,71 @@ const ApplicationFormBuilder = () => {
                   ...prev,
                   title: e.target.value
                 }))}
-                placeholder="Form title"
+                placeholder={t('form.builder.title.placeholder')}
               />
             </div>
             
             <div className="form-group">
-              <label>Description</label>
+              <label>{t('form.builder.description.label')}</label>
               <textarea
                 value={formConfig.description}
                 onChange={(e) => setFormConfig(prev => ({
                   ...prev,
                   description: e.target.value
                 }))}
-                placeholder="Form description"
+                placeholder={t('form.builder.description.placeholder')}
                 rows="3"
               />
             </div>
             
             <div className="form-group">
-              <label>Footer</label>
+              <label>{t('form.builder.footer.label')}</label>
               <textarea
                 value={formConfig.footer}
                 onChange={(e) => setFormConfig(prev => ({
                   ...prev,
                   footer: e.target.value
                 }))}
-                placeholder="Footer text"
+                placeholder={t('form.builder.footer.placeholder')}
                 rows="2"
               />
             </div>
             
             <div className="form-group">
-              <label>Terms & Conditions</label>
+              <label>{t('form.builder.terms.label')}</label>
               <textarea
                 value={formConfig.terms}
                 onChange={(e) => setFormConfig(prev => ({
                   ...prev,
                   terms: e.target.value
                 }))}
-                placeholder="Terms and conditions"
+                placeholder={t('form.builder.terms.placeholder')}
                 rows="4"
               />
             </div>
             
             <div className="form-group">
-              <label>Agreement Text</label>
+              <label>{t('form.builder.agreement.label')}</label>
               <textarea
                 value={formConfig.agreement}
                 onChange={(e) => setFormConfig(prev => ({
                   ...prev,
                   agreement: e.target.value
                 }))}
-                placeholder="Agreement text"
+                placeholder={t('form.builder.agreement.placeholder')}
                 rows="2"
               />
             </div>
           </div>
 
           <div className="config-section">
-            <h3>Dynamic Fields</h3>
+            <h3>{t('form.builder.dynamic.fields')}</h3>
             {formConfig.fields.length === 0 ? (
               <div className="no-fields">
                 <i className="fas fa-edit"></i>
-                <p>No custom fields added yet</p>
+                <p>{t('form.builder.no.fields')}</p>
                 <button className="add-field-button" onClick={handleAddField}>
-                  <i className="fas fa-plus"></i> Add Field
+                  <i className="fas fa-plus"></i> {t('form.builder.add.field')}
                 </button>
               </div>
             ) : (
@@ -568,7 +570,7 @@ const ApplicationFormBuilder = () => {
                   </div>
                 ))}
                 <button className="add-field-button" onClick={handleAddField}>
-                  <i className="fas fa-plus"></i> Add Another Field
+                  <i className="fas fa-plus"></i> {t('form.builder.add.another.field')}
                 </button>
               </div>
             )}
@@ -576,7 +578,7 @@ const ApplicationFormBuilder = () => {
         </div>
 
         <div className="form-preview">
-          <h3>Preview</h3>
+          <h3>{t('form.builder.preview')}</h3>
           <div className="preview-container">
             <div className="preview-form">
               <h2>{formConfig.title}</h2>
@@ -586,19 +588,19 @@ const ApplicationFormBuilder = () => {
               
               <div className="preview-fields">
                 <div className="preview-field">
-                  <label>Email *</label>
+                  <label>{t('form.builder.email.label')} *</label>
                   <input type="email" disabled placeholder="email@example.com" />
                 </div>
                 <div className="preview-field">
-                  <label>First Name *</label>
+                  <label>{t('form.builder.first.name.label')} *</label>
                   <input type="text" disabled placeholder="John" />
                 </div>
                 <div className="preview-field">
-                  <label>Last Name</label>
+                  <label>{t('form.builder.last.name.label')}</label>
                   <input type="text" disabled placeholder="Doe" />
                 </div>
                 <div className="preview-field">
-                  <label>Phone</label>
+                  <label>{t('form.builder.phone.label')}</label>
                   <input type="tel" disabled placeholder="+1 (555) 123-4567" />
                 </div>
                 
@@ -642,7 +644,7 @@ const ApplicationFormBuilder = () => {
               
               {formConfig.terms && (
                 <div className="preview-terms">
-                  <h4>Terms & Conditions</h4>
+                  <h4>{t('form.builder.terms.conditions')}</h4>
                   <p>{formConfig.terms}</p>
                 </div>
               )}
@@ -663,7 +665,7 @@ const ApplicationFormBuilder = () => {
               )}
               
               <button className="preview-submit" disabled>
-                Submit Application
+                {t('form.builder.submit.application')}
               </button>
             </div>
           </div>
@@ -1362,7 +1364,7 @@ const ApplicationFormBuilder = () => {
         <div className="modal-overlay" onClick={() => setShowAddFieldModal(false)}>
           <div className="modal-content add-field-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3><i className="fas fa-plus-circle"></i> Add New Field</h3>
+              <h3><i className="fas fa-plus-circle"></i> {t('form.builder.add.field')}</h3>
               <button className="close-button" onClick={() => setShowAddFieldModal(false)}>
                 <i className="fas fa-times"></i>
               </button>
@@ -1372,32 +1374,32 @@ const ApplicationFormBuilder = () => {
               {/* Basic Information Section */}
               <div className="form-section">
                 <h4 className="section-title">
-                  <i className="fas fa-info-circle"></i> Basic Information
+                  <i className="fas fa-info-circle"></i> {t('form.builder.basic.information')}
                 </h4>
                 <div className="form-row">
                   <div className="form-group">
-                    <label className="required-label">Field Name *</label>
+                    <label className="required-label">{t('form.builder.field.name')} *</label>
                     <input
                       type="text"
                       name="name"
                       value={newField.name}
                       onChange={handleFieldInputChange}
-                      placeholder="e.g., company_name"
+                      placeholder={t('form.builder.field.name.placeholder')}
                       className="form-input"
                     />
-                    <small>Internal field identifier (no spaces, lowercase)</small>
+                    <small>{t('form.builder.field.name.help')}</small>
                   </div>
                   <div className="form-group">
-                    <label className="required-label">Display Label *</label>
+                    <label className="required-label">{t('form.builder.field.label')} *</label>
                     <input
                       type="text"
                       name="label"
                       value={newField.label}
                       onChange={handleFieldInputChange}
-                      placeholder="e.g., Company Name"
+                      placeholder={t('form.builder.field.label.placeholder')}
                       className="form-input"
                     />
-                    <small>Label shown to users</small>
+                    <small>{t('form.builder.field.label.help')}</small>
                   </div>
                 </div>
 
@@ -1573,10 +1575,10 @@ const ApplicationFormBuilder = () => {
 
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setShowAddFieldModal(false)}>
-                <i className="fas fa-times"></i> Cancel
+                <i className="fas fa-times"></i> {t('form.builder.cancel')}
               </button>
               <button className="btn btn-primary" onClick={handleSaveField}>
-                <i className="fas fa-plus"></i> Add Field
+                <i className="fas fa-plus"></i> {t('form.builder.add.field.button')}
               </button>
             </div>
           </div>

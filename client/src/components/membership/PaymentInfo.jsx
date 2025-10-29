@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const PaymentInfo = () => {
   const { user } = useAuth();
   const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
+  const { t } = useLanguage();
   const [paymentInfo, setPaymentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -111,7 +113,7 @@ const PaymentInfo = () => {
     } catch (error) {
       console.error('Error loading payment info:', error);
       if (error.response?.status !== 404) {
-        showMessage('Failed to load payment information', 'error');
+        showMessage(t('payment.info.failed.load'), 'error');
       }
     } finally {
       setLoading(false);
@@ -150,7 +152,7 @@ const PaymentInfo = () => {
       }
     } catch (error) {
       console.error('Error saving payment info:', error);
-      showMessage(error.response?.data?.message || 'Failed to save payment information', 'error');
+      showMessage(error.response?.data?.message || t('payment.info.failed.save'), 'error');
     } finally {
       setSaving(false);
     }
@@ -176,7 +178,7 @@ const PaymentInfo = () => {
       }
     } catch (error) {
       console.error('Error testing gateway:', error);
-      showMessage('Failed to test payment gateway', 'error');
+      showMessage(t('payment.info.failed.test'), 'error');
     } finally {
       setTesting(false);
     }
@@ -204,7 +206,7 @@ const PaymentInfo = () => {
     return (
       <div className="payment-info-loading">
         <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-          <p>Loading payment information...</p>
+          <p>{t('payment.info.loading')}</p>
         </div>
       </div>
     );
@@ -234,11 +236,11 @@ const PaymentInfo = () => {
             <div className="form-section">
               <h3>
                 <i className="fas fa-university"></i>
-                Bank Information
+                {t('payment.info.bank.information')}
               </h3>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="bankName">Bank Name</label>
+                  <label htmlFor="bankName">{t('payment.info.bank.name')}</label>
                   <input
                     type="text"
                     id="bankName"
@@ -246,11 +248,11 @@ const PaymentInfo = () => {
                     value={formData.bankName}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter bank name"
+                    placeholder={t('payment.info.bank.name.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="accountNumber">Account Number</label>
+                  <label htmlFor="accountNumber">{t('payment.info.account.number')}</label>
                   <input
                     type="text"
                     id="accountNumber"
@@ -258,11 +260,11 @@ const PaymentInfo = () => {
                     value={formData.accountNumber}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter account number"
+                    placeholder={t('payment.info.account.number.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="routingNumber">Routing Number</label>
+                  <label htmlFor="routingNumber">{t('payment.info.routing.number')}</label>
                   <input
                     type="text"
                     id="routingNumber"
@@ -270,11 +272,11 @@ const PaymentInfo = () => {
                     value={formData.routingNumber}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter routing number"
+                    placeholder={t('payment.info.routing.number.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="accountHolderName">Account Holder Name</label>
+                  <label htmlFor="accountHolderName">{t('payment.info.account.holder')}</label>
                   <input
                     type="text"
                     id="accountHolderName"
@@ -282,11 +284,11 @@ const PaymentInfo = () => {
                     value={formData.accountHolderName}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter account holder name"
+                    placeholder={t('payment.info.account.holder.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="accountType">Account Type</label>
+                  <label htmlFor="accountType">{t('payment.info.account.type')}</label>
                   <select
                     id="accountType"
                     name="accountType"
@@ -294,9 +296,9 @@ const PaymentInfo = () => {
                     onChange={handleInputChange}
                     className="form-control"
                   >
-                    <option value="checking">Checking</option>
-                    <option value="savings">Savings</option>
-                    <option value="business">Business</option>
+                    <option value="checking">{t('payment.info.checking')}</option>
+                    <option value="savings">{t('payment.info.savings')}</option>
+                    <option value="business">{t('payment.info.business')}</option>
                   </select>
                 </div>
               </div>
@@ -306,11 +308,11 @@ const PaymentInfo = () => {
             <div className="form-section">
               <h3>
                 <i className="fas fa-building"></i>
-                Business Information
+                {t('payment.info.business.information')}
               </h3>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="businessName">Business Name (Optional)</label>
+                  <label htmlFor="businessName">{t('payment.info.business.name')}</label>
                   <input
                     type="text"
                     id="businessName"
@@ -318,11 +320,11 @@ const PaymentInfo = () => {
                     value={formData.businessName}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter business name"
+                    placeholder={t('payment.info.business.name.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="taxId">Tax ID (Optional)</label>
+                  <label htmlFor="taxId">{t('payment.info.tax.id')}</label>
                   <input
                     type="text"
                     id="taxId"
@@ -330,7 +332,7 @@ const PaymentInfo = () => {
                     value={formData.taxId}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter tax ID"
+                    placeholder={t('payment.info.tax.id.placeholder')}
                   />
                 </div>
               </div>
@@ -343,10 +345,10 @@ const PaymentInfo = () => {
             <div className="form-section">
               <h3>
                 <i className="fas fa-link"></i>
-                Cryptocurrency Information
+                {t('payment.info.crypto.information')}
               </h3>
               <div className="form-group">
-                <label htmlFor="preferredCrypto">Preferred Cryptocurrency</label>
+                <label htmlFor="preferredCrypto">{t('payment.info.preferred.crypto')}</label>
                 <select
                   id="preferredCrypto"
                   name="preferredCrypto"
@@ -367,9 +369,9 @@ const PaymentInfo = () => {
                 {['BTC', 'ETH', 'LTC', 'BCH', 'XMR'].map(crypto => (
                   <div key={crypto} className="form-group">
                     <label htmlFor={getCryptoAddressField(crypto)}>
-                      {crypto} Address
+                      {t('payment.info.crypto.address', { crypto })}
                       {formData.preferredCrypto === crypto && (
-                        <span className="badge badge-primary ml-2">Preferred</span>
+                        <span className="badge badge-primary ml-2">{t('payment.info.preferred')}</span>
                       )}
                     </label>
                     <input
@@ -379,7 +381,7 @@ const PaymentInfo = () => {
                       value={formData[getCryptoAddressField(crypto)]}
                       onChange={handleInputChange}
                       className="form-control"
-                      placeholder={`Enter ${crypto} address`}
+                      placeholder={t('payment.info.crypto.address.placeholder', { crypto })}
                     />
                   </div>
                 ))}
@@ -390,11 +392,11 @@ const PaymentInfo = () => {
             <div className="form-section">
               <h3>
                 <i className="fas fa-cogs"></i>
-                Payment Gateway Settings
+                {t('payment.info.gateway.settings')}
               </h3>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="paymentGateway">Payment Gateway</label>
+                  <label htmlFor="paymentGateway">{t('payment.info.payment.gateway')}</label>
                   <select
                     id="paymentGateway"
                     name="paymentGateway"
@@ -402,16 +404,16 @@ const PaymentInfo = () => {
                     onChange={handleInputChange}
                     className="form-control"
                   >
-                    <option value="nowpayments">NowPayments (Free)</option>
-                    <option value="btcpay">BTCPay Server</option>
-                    <option value="manual">Manual (No Gateway)</option>
+                    <option value="nowpayments">{t('payment.info.nowpayments')}</option>
+                    <option value="btcpay">{t('payment.info.btcpay')}</option>
+                    <option value="manual">{t('payment.info.manual')}</option>
                   </select>
                   <small className="form-text text-muted">
-                    NowPayments is free and supports 50+ cryptocurrencies
+                    {t('payment.info.gateway.description')}
                   </small>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="gatewayApiKey">API Key</label>
+                  <label htmlFor="gatewayApiKey">{t('payment.info.api.key')}</label>
                   <input
                     type="password"
                     id="gatewayApiKey"
@@ -419,15 +421,15 @@ const PaymentInfo = () => {
                     value={formData.gatewayApiKey}
                     onChange={handleInputChange}
                     className="form-control"
-                    placeholder="Enter API key"
+                    placeholder={t('payment.info.api.key.placeholder')}
                   />
                   <small className="form-text text-muted">
-                    Required for {formData.paymentGateway === 'btcpay' ? 'BTCPay' : 'NowPayments'}
+                    {t('payment.info.api.key.required', { gateway: formData.paymentGateway === 'btcpay' ? 'BTCPay' : 'NowPayments' })}
                   </small>
                 </div>
                 {formData.paymentGateway === 'btcpay' && (
                   <div className="form-group">
-                    <label htmlFor="gatewayStoreId">Store ID</label>
+                    <label htmlFor="gatewayStoreId">{t('payment.info.store.id')}</label>
                     <input
                       type="text"
                       id="gatewayStoreId"
@@ -435,7 +437,7 @@ const PaymentInfo = () => {
                       value={formData.gatewayStoreId}
                       onChange={handleInputChange}
                       className="form-control"
-                      placeholder="Enter store ID"
+                      placeholder={t('payment.info.store.id.placeholder')}
                     />
                   </div>
                 )}
@@ -451,22 +453,22 @@ const PaymentInfo = () => {
                   {testing ? (
                     <>
                       <i className="fas fa-spinner fa-spin"></i>
-                      Testing...
+                      {t('payment.info.testing')}
                     </>
                   ) : (
                     <>
                       <i className="fas fa-plug"></i>
-                      Test Connection
+                      {t('payment.info.test.connection')}
                     </>
                   )}
                 </button>
 
                 {testResult && (
                   <div className={`alert alert-${testResult.success ? 'success' : 'danger'} mt-3`}>
-                    <strong>{testResult.success ? 'Success!' : 'Error!'}</strong> {testResult.message}
+                    <strong>{testResult.success ? t('payment.info.test.success') : t('payment.info.test.error')}</strong> {testResult.message}
                     {testResult.supportedCurrencies && (
                       <div className="mt-2">
-                        <small>Supported currencies: {testResult.supportedCurrencies}</small>
+                        <small>{t('payment.info.supported.currencies', { currencies: testResult.supportedCurrencies })}</small>
                       </div>
                     )}
                   </div>
@@ -480,11 +482,11 @@ const PaymentInfo = () => {
         <div className="form-section payment-preferences-section">
           <h3>
             <i className="fas fa-sliders-h"></i>
-            Payment Preferences
+            {t('payment.info.payment.preferences')}
           </h3>
           <div className="preferences-grid">
             <div className="form-group">
-              <label htmlFor="minimumPaymentAmount">Minimum Payment Amount</label>
+              <label htmlFor="minimumPaymentAmount">{t('payment.info.minimum.amount')}</label>
               <div className="input-group">
                 <span className="input-group-text">$</span>
                 <input
@@ -510,13 +512,13 @@ const PaymentInfo = () => {
                   className="form-check-input"
                 />
                 <label htmlFor="isActive" className="form-check-label">
-                  Accept payments
+                  {t('payment.info.accept.payments')}
                 </label>
               </div>
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="paymentInstructions">Payment Instructions</label>
+            <label htmlFor="paymentInstructions">{t('payment.info.payment.instructions')}</label>
             <textarea
               id="paymentInstructions"
               name="paymentInstructions"
@@ -524,7 +526,7 @@ const PaymentInfo = () => {
               onChange={handleInputChange}
               className="form-control"
               rows="3"
-              placeholder="Any special instructions for payers..."
+              placeholder={t('payment.info.payment.instructions.placeholder')}
             />
           </div>
         </div>
@@ -538,12 +540,12 @@ const PaymentInfo = () => {
             {saving ? (
               <>
                 <i className="fas fa-spinner fa-spin"></i>
-                Saving...
+                {t('payment.info.saving')}
               </>
             ) : (
               <>
                 <i className="fas fa-save"></i>
-                Save Payment Information
+                {t('payment.info.save')}
               </>
             )}
           </button>

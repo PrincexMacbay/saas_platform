@@ -1,58 +1,63 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './AdminSidebar.css';
 
-const AdminSidebar = ({ activeSection, onSectionChange }) => {
+const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle }) => {
   const { logout } = useAuth();
+  const { t } = useLanguage();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState(null);
+  const sidebarRef = useRef(null);
 
   const menuItems = [
     {
       id: 'overview',
-      label: 'Overview',
+      label: t('admin.sidebar.overview'),
       icon: '📊',
-      description: 'Dashboard statistics and system health'
+      description: t('admin.sidebar.overview.description')
     },
     {
       id: 'users',
-      label: 'User Management',
+      label: t('admin.sidebar.users'),
       icon: '👥',
-      description: 'Manage users, roles, and permissions'
+      description: t('admin.sidebar.users.description')
     },
     {
       id: 'memberships',
-      label: 'Memberships',
+      label: t('admin.sidebar.memberships'),
       icon: '💳',
-      description: 'Membership plans and subscriptions'
+      description: t('admin.sidebar.memberships.description')
     },
     {
       id: 'financial',
-      label: 'Financial',
+      label: t('admin.sidebar.financial'),
       icon: '💰',
-      description: 'Payments, transactions, and revenue'
+      description: t('admin.sidebar.financial.description')
     },
     {
       id: 'jobs',
-      label: 'Job Board',
+      label: t('admin.sidebar.jobs'),
       icon: '💼',
-      description: 'Job postings and applications'
+      description: t('admin.sidebar.jobs.description')
     },
     {
       id: 'coupons',
-      label: 'Coupons',
+      label: t('admin.sidebar.coupons'),
       icon: '🎫',
-      description: 'Discount codes and analytics'
+      description: t('admin.sidebar.coupons.description')
     },
     {
       id: 'system',
-      label: 'System Config',
+      label: t('admin.sidebar.system'),
       icon: '⚙️',
-      description: 'Platform settings and features'
+      description: t('admin.sidebar.system.description')
     },
     {
       id: 'view-as-user',
-      label: 'View as User',
+      label: t('admin.sidebar.view.as.user'),
       icon: '👁️',
-      description: 'Preview platform from user perspective',
+      description: t('admin.sidebar.view.as.user.description'),
       isSpecial: true
     }
   ];
@@ -67,12 +72,47 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
     window.open('/dashboard', '_blank');
   };
 
+  // Hover handlers for expand/collapse functionality
+  const handleMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setIsExpanded(true);
+    onSidebarToggle && onSidebarToggle(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Delay collapse to prevent flickering when moving between elements
+    const timeout = setTimeout(() => {
+      setIsExpanded(false);
+      onSidebarToggle && onSidebarToggle(false);
+    }, 150);
+    setHoverTimeout(timeout);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
+
   return (
-    <div className="admin-sidebar">
+    <div 
+      ref={sidebarRef}
+      className={`admin-sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="admin-sidebar-header">
         <div className="admin-logo">
           <span className="logo-icon">🔧</span>
-          <span className="logo-text">Admin Panel</span>
+          <span className={`logo-text ${isExpanded ? 'visible' : 'hidden'}`}>
+            {t('admin.sidebar.version')}
+          </span>
         </div>
       </div>
 
@@ -88,10 +128,12 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
                 onSectionChange(item.id);
               }
             }}
-            title={item.description}
+            title={isExpanded ? item.description : item.label}
           >
             <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
+            <span className={`nav-label ${isExpanded ? 'visible' : 'hidden'}`}>
+              {item.label}
+            </span>
           </button>
         ))}
       </nav>
@@ -99,10 +141,12 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
       <div className="admin-sidebar-footer">
         <button className="admin-logout-btn" onClick={handleLogout}>
           <span className="logout-icon">🚪</span>
-          <span>Logout</span>
+          <span className={`${isExpanded ? 'visible' : 'hidden'}`}>
+            {t('admin.sidebar.logout')}
+          </span>
         </button>
-        <div className="admin-footer-info">
-          <small>Admin Panel v1.0</small>
+        <div className={`admin-footer-info ${isExpanded ? 'visible' : 'hidden'}`}>
+          <small>{t('admin.sidebar.version')}</small>
         </div>
       </div>
     </div>

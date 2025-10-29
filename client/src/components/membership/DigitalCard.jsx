@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const DigitalCard = () => {
+  const { t } = useLanguage();
   const [cardConfig, setCardConfig] = useState({
-    organizationName: 'Your Organization',
-    cardTitle: 'Membership Card',
-    headerText: 'Member Since 2024',
-    footerText: 'Thank you for being a member',
+    organizationName: t('digital.card.organization.name.placeholder'),
+    cardTitle: t('digital.card.title.placeholder'),
+    headerText: t('digital.card.member.since') + ' 2024',
+    footerText: t('digital.card.thank.you'),
     enableBarcode: true,
     barcodeType: 'qr',
     barcodeData: 'member_number',
@@ -21,25 +23,25 @@ const DigitalCard = () => {
   };
 
   const handleSave = () => {
-    alert('Digital card template saved successfully!');
+    alert(t('digital.card.saved'));
   };
 
   return (
     <div className="digital-card-container">
       <div className="digital-card-header">
-        <h2>Digital Card Designer</h2>
+        <h2>{t('digital.card.title')}</h2>
         <button onClick={handleSave} className="save-button">
-          <i className="fas fa-save"></i> Save Template
+          <i className="fas fa-save"></i> {t('digital.card.save.template')}
         </button>
       </div>
 
       <div className="digital-card-content">
         <div className="card-config">
           <div className="config-section">
-            <h3>Card Information</h3>
+            <h3>{t('digital.card.information')}</h3>
             
             <div className="form-group">
-              <label>Organization Logo</label>
+              <label>{t('digital.card.organization.logo')}</label>
               <div className="logo-upload">
                 <input
                   type="file"
@@ -49,14 +51,14 @@ const DigitalCard = () => {
                   id="logo-upload"
                 />
                 <label htmlFor="logo-upload" className="upload-button">
-                  <i className="fas fa-upload"></i> Upload Logo
+                  <i className="fas fa-upload"></i> {t('digital.card.upload.logo')}
                 </label>
                 {logoFile && <span className="file-name">{logoFile.name}</span>}
               </div>
             </div>
             
             <div className="form-group">
-              <label>Organization Name</label>
+              <label>{t('digital.card.organization.name')}</label>
               <input
                 type="text"
                 value={cardConfig.organizationName}
@@ -68,7 +70,7 @@ const DigitalCard = () => {
             </div>
             
             <div className="form-group">
-              <label>Card Title</label>
+              <label>{t('digital.card.title.label')}</label>
               <input
                 type="text"
                 value={cardConfig.cardTitle}
@@ -80,7 +82,7 @@ const DigitalCard = () => {
             </div>
             
             <div className="form-group">
-              <label>Header Text</label>
+              <label>{t('digital.card.header.text')}</label>
               <input
                 type="text"
                 value={cardConfig.headerText}
@@ -92,7 +94,7 @@ const DigitalCard = () => {
             </div>
             
             <div className="form-group">
-              <label>Footer Text</label>
+              <label>{t('digital.card.footer.text')}</label>
               <input
                 type="text"
                 value={cardConfig.footerText}
@@ -105,7 +107,7 @@ const DigitalCard = () => {
           </div>
 
           <div className="config-section">
-            <h3>Barcode Settings</h3>
+            <h3>{t('digital.card.barcode.settings')}</h3>
             
             <div className="form-group">
               <label className="checkbox-label">
@@ -118,14 +120,14 @@ const DigitalCard = () => {
                   }))}
                 />
                 <span className="checkmark"></span>
-                Enable Barcode
+                {t('digital.card.enable.barcode')}
               </label>
             </div>
             
             {cardConfig.enableBarcode && (
               <>
                 <div className="form-group">
-                  <label>Barcode Type</label>
+                  <label>{t('digital.card.barcode.type')}</label>
                   <select
                     value={cardConfig.barcodeType}
                     onChange={(e) => setCardConfig(prev => ({
@@ -133,14 +135,14 @@ const DigitalCard = () => {
                       barcodeType: e.target.value
                     }))}
                   >
-                    <option value="qr">QR Code</option>
+                    <option value="qr">{t('digital.card.qr.code')}</option>
                     <option value="code128">Code 128</option>
                     <option value="code39">Code 39</option>
                   </select>
                 </div>
                 
                 <div className="form-group">
-                  <label>Barcode Data</label>
+                  <label>{t('digital.card.barcode.data')}</label>
                   <select
                     value={cardConfig.barcodeData}
                     onChange={(e) => setCardConfig(prev => ({
@@ -148,9 +150,9 @@ const DigitalCard = () => {
                       barcodeData: e.target.value
                     }))}
                   >
-                    <option value="member_number">Member Number</option>
+                    <option value="member_number">{t('digital.card.member.number')}</option>
                     <option value="user_id">User ID</option>
-                    <option value="custom">Custom</option>
+                    <option value="custom">{t('digital.card.custom.text')}</option>
                   </select>
                 </div>
               </>
@@ -158,11 +160,11 @@ const DigitalCard = () => {
           </div>
 
           <div className="config-section">
-            <h3>Colors</h3>
+            <h3>{t('digital.card.color.settings')}</h3>
             
             <div className="color-group">
               <div className="color-input">
-                <label>Primary Color</label>
+                <label>{t('digital.card.primary.color')}</label>
                 <div className="color-picker">
                   <input
                     type="color"
@@ -174,7 +176,7 @@ const DigitalCard = () => {
               </div>
               
               <div className="color-input">
-                <label>Secondary Color</label>
+                <label>{t('digital.card.secondary.color')}</label>
                 <div className="color-picker">
                   <input
                     type="color"
@@ -186,7 +188,7 @@ const DigitalCard = () => {
               </div>
               
               <div className="color-input">
-                <label>Text Color</label>
+                <label>{t('digital.card.text.color')}</label>
                 <div className="color-picker">
                   <input
                     type="color"
@@ -201,7 +203,7 @@ const DigitalCard = () => {
         </div>
 
         <div className="card-preview">
-          <h3>Card Preview</h3>
+          <h3>{t('digital.card.preview')}</h3>
           <div className="preview-container">
             <div 
               className="membership-card"

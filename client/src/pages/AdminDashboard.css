@@ -32,9 +32,20 @@
 
 .admin-main-content {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 70px; /* Start with collapsed sidebar width */
   margin-top: -60px; /* Offset the dashboard margin-top */
   padding: 0;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When sidebar is collapsed */
+.admin-main-content.sidebar-collapsed {
+  margin-left: 70px;
+}
+
+/* When sidebar is expanded */
+.admin-main-content.sidebar-expanded {
+  margin-left: 250px;
 }
 
 .admin-header {
@@ -452,4 +463,25 @@
 .empty-state-description {
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-main-content {
+    margin-left: 70px; /* Keep collapsed sidebar width on tablet */
+  }
+  
+  .admin-main-content.sidebar-expanded {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-main-content {
+    margin-left: 0; /* Full width on mobile */
+  }
+  
+  .admin-main-content.sidebar-expanded {
+    margin-left: 0; /* Full width on mobile even when sidebar is expanded */
+  }
 }

@@ -16,6 +16,7 @@ const AdminDashboard = () => {
   const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   useEffect(() => {
     // Check if user is admin
@@ -61,9 +62,10 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <AdminSidebar 
         activeSection={activeSection} 
-        onSectionChange={setActiveSection} 
+        onSectionChange={setActiveSection}
+        onSidebarToggle={setSidebarExpanded}
       />
-      <div className="admin-main-content">
+      <div className={`admin-main-content ${sidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
         <div className="admin-header">
           <h1>{t('admin.dashboard.title')}</h1>
           <div className="admin-user-info">

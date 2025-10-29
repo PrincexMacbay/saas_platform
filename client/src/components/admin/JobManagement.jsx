@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as adminService from '../../services/adminService';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const JobManagement = () => {
   const [loading, setLoading] = useState(false);
@@ -9,77 +10,77 @@ const JobManagement = () => {
     page: 1,
     limit: 10
   });
+  const { t } = useLanguage();
 
   return (
     <div className="job-management">
       <div className="management-header">
-        <h2>Job Board Management</h2>
-        <p>Manage job postings and applications</p>
+        <h2>{t('admin.job.title')}</h2>
+        <p>{t('admin.job.description')}</p>
       </div>
 
       {/* Filters */}
       <div className="admin-filters">
         <div className="filter-group">
-          <label className="filter-label">Status</label>
+          <label className="filter-label">{t('admin.job.status')}</label>
           <select
             className="filter-select"
             value={filters.status}
             onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
           >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="closed">Closed</option>
+            <option value="">{t('admin.job.all.statuses')}</option>
+            <option value="active">{t('admin.job.active')}</option>
+            <option value="paused">{t('admin.job.paused')}</option>
+            <option value="closed">{t('admin.job.closed')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label className="filter-label">Category</label>
+          <label className="filter-label">{t('admin.job.category')}</label>
           <select
             className="filter-select"
             value={filters.category}
             onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
           >
-            <option value="">All Categories</option>
-            <option value="technology">Technology</option>
-            <option value="marketing">Marketing</option>
-            <option value="sales">Sales</option>
-            <option value="design">Design</option>
-            <option value="other">Other</option>
+            <option value="">{t('admin.job.all.categories')}</option>
+            <option value="technology">{t('admin.job.technology')}</option>
+            <option value="marketing">{t('admin.job.marketing')}</option>
+            <option value="sales">{t('admin.job.sales')}</option>
+            <option value="design">{t('admin.job.design')}</option>
+            <option value="other">{t('admin.job.other')}</option>
           </select>
         </div>
       </div>
 
       <div className="chart-container">
-        <h3 className="chart-title">Job Statistics</h3>
+        <h3 className="chart-title">{t('admin.job.statistics')}</h3>
         <div className="empty-state">
           <div className="empty-state-icon">💼</div>
-          <div className="empty-state-title">Job Analytics</div>
+          <div className="empty-state-title">{t('admin.job.analytics')}</div>
           <div className="empty-state-description">
-            View job posting statistics, application rates, and hiring metrics.
-            This will include total jobs, active jobs, applications per job, and success rates.
+            {t('admin.job.analytics.description')}
           </div>
         </div>
       </div>
 
       <div className="chart-container">
-        <h3 className="chart-title">Recent Job Postings</h3>
+        <h3 className="chart-title">{t('admin.job.recent.postings')}</h3>
         <div className="empty-state">
           <div className="empty-state-icon">📝</div>
-          <div className="empty-state-title">Job Management</div>
+          <div className="empty-state-title">{t('admin.job.management')}</div>
           <div className="empty-state-description">
-            Review and manage job postings, edit job details, and monitor application activity.
+            {t('admin.job.management.description')}
           </div>
         </div>
       </div>
 
       <div className="chart-container">
-        <h3 className="chart-title">Application Analytics</h3>
+        <h3 className="chart-title">{t('admin.job.application.analytics')}</h3>
         <div className="empty-state">
           <div className="empty-state-icon">📊</div>
-          <div className="empty-state-title">Application Metrics</div>
+          <div className="empty-state-title">{t('admin.job.application.metrics')}</div>
           <div className="empty-state-description">
-            Analyze application trends, success rates, and candidate engagement.
+            {t('admin.job.application.description')}
           </div>
         </div>
       </div>

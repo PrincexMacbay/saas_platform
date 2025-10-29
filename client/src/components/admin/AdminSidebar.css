@@ -3,7 +3,7 @@
   position: fixed;
   top: 60px; /* Start below the navbar */
   left: 0;
-  width: 250px;
+  width: 70px; /* Collapsed width - only icons */
   height: calc(100vh - 60px); /* Account for navbar height */
   background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
   color: white;
@@ -11,27 +11,53 @@
   flex-direction: column;
   z-index: 999;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Expanded state */
+.admin-sidebar.expanded {
+  width: 250px;
 }
 
 .admin-sidebar-header {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  justify-content: center;
+  width: 100%;
 }
 
 .logo-icon {
   font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .logo-text {
   font-size: 1.25rem;
   font-weight: 700;
   color: white;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.logo-text.hidden {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.logo-text.visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .admin-sidebar-nav {
@@ -54,6 +80,20 @@
   transition: all 0.2s;
   font-size: 0.875rem;
   font-weight: 500;
+  justify-content: center;
+  min-height: 48px;
+}
+
+/* When collapsed, center the icon */
+.admin-sidebar.collapsed .admin-nav-item {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+/* When expanded, align to left */
+.admin-sidebar.expanded .admin-nav-item {
+  justify-content: flex-start;
+  padding: 0.75rem 1.5rem;
 }
 
 .admin-nav-item:hover {
@@ -92,10 +132,26 @@
 .nav-icon {
   font-size: 1.125rem;
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
 .nav-label {
   font-weight: 500;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nav-label.hidden {
+  opacity: 0;
+  transform: translateX(-10px);
+  width: 0;
+  overflow: hidden;
+}
+
+.nav-label.visible {
+  opacity: 1;
+  transform: translateX(0);
+  width: auto;
 }
 
 .admin-sidebar-footer {
@@ -104,6 +160,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  align-items: center;
+}
+
+/* When collapsed, center footer content */
+.admin-sidebar.collapsed .admin-sidebar-footer {
+  padding: 1rem 0.75rem;
+  align-items: center;
+}
+
+/* When expanded, align footer content to left */
+.admin-sidebar.expanded .admin-sidebar-footer {
+  align-items: stretch;
 }
 
 .admin-logout-btn {
@@ -120,6 +188,18 @@
   transition: all 0.2s;
   font-size: 0.875rem;
   font-weight: 500;
+  justify-content: center;
+}
+
+/* When collapsed, center the logout button content */
+.admin-sidebar.collapsed .admin-logout-btn {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+/* When expanded, align logout button content to left */
+.admin-sidebar.expanded .admin-logout-btn {
+  justify-content: flex-start;
 }
 
 .admin-logout-btn:hover {
@@ -137,6 +217,22 @@
   text-align: center;
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.admin-footer-info.hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+}
+
+.admin-footer-info.visible {
+  opacity: 1;
+  transform: translateY(0);
+  height: auto;
 }
 
 .admin-footer-info small {
@@ -147,8 +243,19 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .admin-sidebar {
+    width: 70px; /* Keep collapsed on tablet */
+  }
+  
+  .admin-sidebar.expanded {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    width: 250px; /* Full width on mobile when open */
   }
   
   .admin-sidebar.open {
@@ -163,22 +270,6 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
-  }
-}
-
-@media (max-width: 768px) {
-  .admin-sidebar {
-    width: 100%;
-    max-width: 280px;
-  }
-  
-  .admin-nav-item {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .nav-icon {
-    font-size: 1.25rem;
   }
 }
 
