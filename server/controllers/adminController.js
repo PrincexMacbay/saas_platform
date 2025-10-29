@@ -946,17 +946,47 @@ const getMembershipApplications = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'username', 'email', 'firstName', 'lastName']
+          attributes: ['id', 'username', 'email', 'firstName', 'lastName'],
+          required: false
         },
         {
           model: Plan,
           as: 'plan',
-          attributes: ['id', 'name', 'fee']
+          attributes: ['id', 'name', 'fee'],
+          required: true
         }
       ],
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
+    });
+
+    // Transform applications to match expected format
+    const formattedApplications = applications.map(app => {
+      // If user exists, use user data; otherwise, use application data
+      const user = app.user || {
+        username: app.email.split('@')[0],
+        email: app.email,
+        firstName: app.firstName,
+        lastName: app.lastName
+      };
+
+      return {
+        id: app.id,
+        user: {
+          username: user.username,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName
+        },
+        plan: {
+          name: app.plan.name,
+          fee: app.plan.fee
+        },
+        status: app.status,
+        appliedAt: app.createdAt,
+        message: app.formData ? JSON.parse(app.formData).message || 'Membership application' : 'Membership application'
+      };
     });
 
     // Calculate application stats
@@ -985,7 +1015,7 @@ const getMembershipApplications = async (req, res) => {
     res.json({
       success: true,
       data: {
-        applications,
+        applications: formattedApplications,
         stats: {
           pendingApplications: pendingCount,
           approvedToday: approvedToday,
@@ -1024,9 +1054,7 @@ const approveMembershipApplication = async (req, res) => {
     }
 
     await application.update({
-      status: 'approved',
-      reviewedBy: req.user.id,
-      reviewedAt: new Date()
+      status: 'approved'
     });
 
     res.json({
@@ -1057,9 +1085,7 @@ const rejectMembershipApplication = async (req, res) => {
     }
 
     await application.update({
-      status: 'rejected',
-      reviewedBy: req.user.id,
-      reviewedAt: new Date()
+      status: 'rejected'
     });
 
     res.json({

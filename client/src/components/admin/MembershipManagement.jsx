@@ -41,28 +41,65 @@ const MembershipManagement = () => {
       setLoading(true);
       console.log('🔍 MembershipManagement: Fetching membership data...');
       
-      // Fetch all data in parallel
-      const [plansResponse, subscriptionsResponse, applicationsResponse] = await Promise.all([
+      // Fetch all data in parallel, but handle individual failures
+      const [plansResponse, subscriptionsResponse, applicationsResponse] = await Promise.allSettled([
         adminService.getMembershipPlans(),
         adminService.getActiveSubscriptions({ limit: 10 }),
         adminService.getMembershipApplications({ limit: 10 })
       ]);
 
-      console.log('✅ MembershipManagement: All data fetched successfully');
+      console.log('✅ MembershipManagement: All data fetch attempts completed');
       
-      const plans = plansResponse.data.plans || [];
-      const subscriptions = subscriptionsResponse.data.subscriptions || [];
-      const applications = applicationsResponse.data.applications || [];
+      // Handle plans response
+      const plans = plansResponse.status === 'fulfilled' 
+        ? (plansResponse.value.data?.plans || [])
+        : [];
+      
+      if (plansResponse.status === 'rejected') {
+        console.error('❌ Failed to fetch plans:', plansResponse.reason);
+      }
+      
+      // Handle subscriptions response
+      const subscriptions = subscriptionsResponse.status === 'fulfilled'
+        ? (subscriptionsResponse.value.data?.subscriptions || [])
+        : [];
+      
+      if (subscriptionsResponse.status === 'rejected') {
+        console.error('❌ Failed to fetch subscriptions:', subscriptionsResponse.reason);
+      }
+      
+      // Handle applications response
+      const applications = applicationsResponse.status === 'fulfilled'
+        ? (applicationsResponse.value.data?.applications || [])
+        : [];
+      
+      if (applicationsResponse.status === 'rejected') {
+        console.error('❌ Failed to fetch applications:', applicationsResponse.reason);
+      }
       
       // Calculate overall stats
       const totalPlans = plans.length;
-      const activeSubscriptions = subscriptionsResponse.data.stats?.totalActive || 0;
-      const pendingApplications = applicationsResponse.data.stats?.pendingApplications || 0;
-      const monthlyRevenue = subscriptionsResponse.data.stats?.monthlyRevenue || 0;
-      const renewalRate = subscriptionsResponse.data.stats?.renewalRate || 0;
-      const approvedToday = applicationsResponse.data.stats?.approvedToday || 0;
-      const rejectedToday = applicationsResponse.data.stats?.rejectedToday || 0;
-      const averageProcessingTime = applicationsResponse.data.stats?.averageProcessingTime || '2.5h';
+      const activeSubscriptions = subscriptionsResponse.status === 'fulfilled'
+        ? (subscriptionsResponse.value.data.stats?.totalActive || 0)
+        : 0;
+      const pendingApplications = applicationsResponse.status === 'fulfilled'
+        ? (applicationsResponse.value.data.stats?.pendingApplications || 0)
+        : 0;
+      const monthlyRevenue = subscriptionsResponse.status === 'fulfilled'
+        ? (subscriptionsResponse.value.data.stats?.monthlyRevenue || 0)
+        : 0;
+      const renewalRate = subscriptionsResponse.status === 'fulfilled'
+        ? (subscriptionsResponse.value.data.stats?.renewalRate || 0)
+        : 0;
+      const approvedToday = applicationsResponse.status === 'fulfilled'
+        ? (applicationsResponse.value.data.stats?.approvedToday || 0)
+        : 0;
+      const rejectedToday = applicationsResponse.status === 'fulfilled'
+        ? (applicationsResponse.value.data.stats?.rejectedToday || 0)
+        : 0;
+      const averageProcessingTime = applicationsResponse.status === 'fulfilled'
+        ? (applicationsResponse.value.data.stats?.averageProcessingTime || '0h')
+        : '0h';
 
       setMembershipData({
         plans,
