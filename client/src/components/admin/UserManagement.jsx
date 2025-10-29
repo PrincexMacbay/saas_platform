@@ -38,12 +38,20 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Fetching users with filters:', filters);
       const response = await adminService.getUsers(filters);
+      console.log('✅ Users response:', response);
       setUsers(response.data.users);
       setPagination(response.data.pagination);
       setError(null);
     } catch (err) {
-      console.error('Error fetching users:', err);
+      console.error('❌ Error fetching users:', err);
+      console.error('❌ Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: err.config
+      });
       setError(t('admin.user.failed.load'));
     } finally {
       setLoading(false);

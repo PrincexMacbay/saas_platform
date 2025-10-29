@@ -9,7 +9,11 @@ const adminService = {
 
   // User Management
   getUsers: async (params = {}) => {
+    console.log('🔍 AdminService: Fetching users with params:', params);
+    console.log('🔍 AdminService: API base URL:', api.defaults.baseURL);
+    console.log('🔍 AdminService: Full URL:', `${api.defaults.baseURL}/admin/users`);
     const response = await api.get('/admin/users', { params });
+    console.log('✅ AdminService: Users response received:', response.data);
     return response.data;
   },
 

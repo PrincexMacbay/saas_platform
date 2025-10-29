@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { logApiError } from '../utils/simpleErrorLogger';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Debug API configuration
 console.log('🔍 API Configuration Debug:');
-console.log('- VITE_API_URL:', API_BASE_URL);
+console.log('- VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('- API_BASE_URL (used):', API_BASE_URL);
 console.log('- Environment:', import.meta.env.MODE);
 
 if (!API_BASE_URL) {
