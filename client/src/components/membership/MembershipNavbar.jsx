@@ -21,7 +21,9 @@ const MembershipNavbar = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const dropdownRef = useRef(null);
+  const sidebarRef = useRef(null);
   
   const { preloadAllData, isLoadingAll } = useMembershipData();
   const { t } = useLanguage();
@@ -357,16 +359,20 @@ const MembershipNavbar = () => {
         .sidebar-nav-outer {
           display: flex;
           flex-direction: column;
-          width: 280px;
+          width: 70px; /* collapsed width */
           background: white;
           border-right: 1px solid #ecf0f1;
           box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
           overflow-y: auto;
-          transition: transform 0.3s ease;
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           flex-shrink: 0;
           height: 130vh;
           min-height: calc(100vh - 120px);
+        }
+
+        .sidebar-nav-outer.expanded {
+          width: 280px; /* expanded width */
         }
 
         .sidebar-nav-item {
@@ -398,6 +404,7 @@ const MembershipNavbar = () => {
           border-radius: 0 8px 8px 0;
           line-height: 1.4;
           cursor: pointer;
+          justify-content: center; /* center when collapsed */
         }
 
         .sidebar-nav-button:hover {
@@ -427,15 +434,33 @@ const MembershipNavbar = () => {
 
         .sidebar-nav-button i {
           width: 20px;
-          margin-right: 15px;
+          margin-right: 0;
           font-size: 1.1rem;
           text-align: center;
           display: inline-block;
         }
 
-        .sidebar-nav-button:hover i,
-        .sidebar-nav-button.active i {
-          margin-right: 15px;
+        .sidebar-nav-outer.expanded .sidebar-nav-button {
+          justify-content: flex-start; /* align left when expanded */
+        }
+
+        .nav-label {
+          white-space: nowrap;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-label.hidden {
+          opacity: 0;
+          transform: translateX(-10px);
+          width: 0;
+          overflow: hidden;
+        }
+
+        .nav-label.visible {
+          opacity: 1;
+          transform: translateX(0);
+          width: auto;
+          margin-left: 12px;
         }
 
         .membership-content {
@@ -525,7 +550,12 @@ const MembershipNavbar = () => {
 
         <div className="membership-layout">
           {/* Desktop Sidebar */}
-          <div className="sidebar-nav-outer desktop-sidebar">
+          <div
+            className={`sidebar-nav-outer desktop-sidebar ${isSidebarExpanded ? 'expanded' : ''}`}
+            ref={sidebarRef}
+            onMouseEnter={() => setIsSidebarExpanded(true)}
+            onMouseLeave={() => setIsSidebarExpanded(false)}
+          >
             {tabs.map(tab => (
               <div key={tab.id} className="sidebar-nav-item">
                 <button
@@ -533,7 +563,7 @@ const MembershipNavbar = () => {
                   className={`sidebar-nav-button ${activeTab === tab.id ? 'active' : ''}`}
                 >
                   <i className={tab.icon}></i>
-                  <span>{tab.label}</span>
+                  <span className={`nav-label ${isSidebarExpanded ? 'visible' : 'hidden'}`}>{tab.label}</span>
                 </button>
               </div>
             ))}
