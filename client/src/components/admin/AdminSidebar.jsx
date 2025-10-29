@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './AdminSidebar.css';
 
-const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, isMobileOpen, onMobileClose }) => {
+const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle }) => {
   const { logout } = useAuth();
   const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -101,13 +101,9 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, isMobil
   }, [hoverTimeout]);
 
   return (
-    <>
-    {isMobileOpen && (
-      <div className="admin-sidebar-overlay" onClick={onMobileClose}></div>
-    )}
     <div 
       ref={sidebarRef}
-      className={`admin-sidebar ${isExpanded ? 'expanded' : 'collapsed'} ${isMobileOpen ? 'open' : ''}`}
+      className={`admin-sidebar ${isExpanded ? 'expanded' : 'collapsed'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -149,7 +145,6 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, isMobil
         </div>
       </div>
     </div>
-    </>
   );
 };
 
