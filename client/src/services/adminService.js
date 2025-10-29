@@ -125,6 +125,56 @@ const adminService = {
   getFeatureFlags: async () => {
     const response = await api.get('/admin/system/features');
     return response.data;
+  },
+
+  // Membership Management
+  getMembershipPlans: async () => {
+    console.log('🔍 AdminService: Fetching membership plans...');
+    const response = await api.get('/admin/membership/plans');
+    console.log('✅ AdminService: Membership plans response:', response.data);
+    return response.data;
+  },
+
+  createMembershipPlan: async (planData) => {
+    console.log('🔍 AdminService: Creating membership plan:', planData);
+    const response = await api.post('/admin/membership/plans', planData);
+    console.log('✅ AdminService: Plan created:', response.data);
+    return response.data;
+  },
+
+  updateMembershipPlan: async (planId, planData) => {
+    console.log('🔍 AdminService: Updating membership plan:', planId, planData);
+    const response = await api.put(`/admin/membership/plans/${planId}`, planData);
+    console.log('✅ AdminService: Plan updated:', response.data);
+    return response.data;
+  },
+
+  getActiveSubscriptions: async (params = {}) => {
+    console.log('🔍 AdminService: Fetching active subscriptions with params:', params);
+    const response = await api.get('/admin/membership/subscriptions', { params });
+    console.log('✅ AdminService: Subscriptions response:', response.data);
+    return response.data;
+  },
+
+  getMembershipApplications: async (params = {}) => {
+    console.log('🔍 AdminService: Fetching membership applications with params:', params);
+    const response = await api.get('/admin/membership/applications', { params });
+    console.log('✅ AdminService: Applications response:', response.data);
+    return response.data;
+  },
+
+  approveMembershipApplication: async (applicationId) => {
+    console.log('🔍 AdminService: Approving application:', applicationId);
+    const response = await api.post(`/admin/membership/applications/${applicationId}/approve`);
+    console.log('✅ AdminService: Application approved:', response.data);
+    return response.data;
+  },
+
+  rejectMembershipApplication: async (applicationId) => {
+    console.log('🔍 AdminService: Rejecting application:', applicationId);
+    const response = await api.post(`/admin/membership/applications/${applicationId}/reject`);
+    console.log('✅ AdminService: Application rejected:', response.data);
+    return response.data;
   }
 };
 

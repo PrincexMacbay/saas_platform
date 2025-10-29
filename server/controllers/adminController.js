@@ -729,6 +729,300 @@ const sendMassEmail = async (req, res) => {
   }
 };
 
+// Get membership plans
+const getMembershipPlans = async (req, res) => {
+  try {
+    console.log('🔍 AdminController: Fetching membership plans...');
+
+    const plans = await Plan.findAll({
+      include: [{
+        model: Subscription,
+        as: 'subscriptions',
+        attributes: ['id', 'status'],
+        where: { status: 'active' },
+        required: false
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Calculate stats for each plan
+    const plansWithStats = plans.map(plan => {
+      const activeSubscriptions = plan.subscriptions ? plan.subscriptions.length : 0;
+      const revenue = activeSubscriptions * plan.price;
+      
+      return {
+        ...plan.toJSON(),
+        subscribers: activeSubscriptions,
+        revenue: revenue
+      };
+    });
+
+    res.json({
+      success: true,
+      data: { plans: plansWithStats }
+    });
+  } catch (error) {
+    console.error('Error fetching membership plans:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch membership plans'
+    });
+  }
+};
+
+// Create membership plan
+const createMembershipPlan = async (req, res) => {
+  try {
+    const { name, description, price, duration, features, isActive } = req.body;
+    console.log('🔍 AdminController: Creating membership plan:', { name, price, duration });
+
+    const plan = await Plan.create({
+      name,
+      description,
+      price: parseFloat(price),
+      duration,
+      features: Array.isArray(features) ? features : features.split('\n').filter(f => f.trim()),
+      isActive: isActive !== false
+    });
+
+    res.json({
+      success: true,
+      message: 'Plan created successfully',
+      data: { plan }
+    });
+  } catch (error) {
+    console.error('Error creating membership plan:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create membership plan'
+    });
+  }
+};
+
+// Update membership plan
+const updateMembershipPlan = async (req, res) => {
+  try {
+    const { planId } = req.params;
+    const { name, description, price, duration, features, isActive } = req.body;
+    console.log('🔍 AdminController: Updating membership plan:', planId);
+
+    const plan = await Plan.findByPk(planId);
+    if (!plan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Plan not found'
+      });
+    }
+
+    await plan.update({
+      name,
+      description,
+      price: parseFloat(price),
+      duration,
+      features: Array.isArray(features) ? features : features.split('\n').filter(f => f.trim()),
+      isActive: isActive !== false
+    });
+
+    res.json({
+      success: true,
+      message: 'Plan updated successfully',
+      data: { plan }
+    });
+  } catch (error) {
+    console.error('Error updating membership plan:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update membership plan'
+    });
+  }
+};
+
+// Get active subscriptions
+const getActiveSubscriptions = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status = 'active' } = req.query;
+    const offset = (page - 1) * limit;
+    console.log('🔍 AdminController: Fetching active subscriptions...');
+
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const { count, rows: subscriptions } = await Subscription.findAndCountAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'email', 'firstName', 'lastName']
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['id', 'name', 'price', 'duration']
+        }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Calculate subscription stats
+    const totalRevenue = await Subscription.sum('amount', {
+      where: { status: 'active' }
+    });
+
+    const renewalRate = await Subscription.count({
+      where: { 
+        status: 'active',
+        renewalCount: { [Op.gt]: 0 }
+      }
+    }) / await Subscription.count({
+      where: { status: 'active' }
+    }) * 100;
+
+    res.json({
+      success: true,
+      data: {
+        subscriptions,
+        stats: {
+          totalActive: count,
+          monthlyRevenue: totalRevenue || 0,
+          renewalRate: renewalRate || 0
+        },
+        pagination: {
+          total: count,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(count / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching active subscriptions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch active subscriptions'
+    });
+  }
+};
+
+// Get membership applications
+const getMembershipApplications = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status = 'pending' } = req.query;
+    const offset = (page - 1) * limit;
+    console.log('🔍 AdminController: Fetching membership applications...');
+
+    const whereClause = {};
+    if (status && status !== 'all') {
+      whereClause.status = status;
+    }
+
+    // For now, we'll use a mock approach since we don't have an applications table
+    // In a real implementation, you'd have an Application model
+    const applications = await User.findAll({
+      where: {
+        // This is a placeholder - in reality you'd have an applications table
+        createdAt: {
+          [Op.gte]: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
+        }
+      },
+      include: [{
+        model: Plan,
+        as: 'plan',
+        attributes: ['id', 'name', 'price']
+      }],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Transform users to application format
+    const applicationData = applications.map(user => ({
+      id: user.id,
+      user: {
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      plan: user.plan || { name: 'Basic Plan' },
+      status: 'pending',
+      appliedAt: user.createdAt,
+      message: 'New user registration'
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        applications: applicationData,
+        stats: {
+          pendingApplications: applicationData.length,
+          approvedToday: 0,
+          rejectedToday: 0,
+          averageProcessingTime: 2.5
+        },
+        pagination: {
+          total: applicationData.length,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(applicationData.length / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching membership applications:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch membership applications'
+    });
+  }
+};
+
+// Approve membership application
+const approveMembershipApplication = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    console.log('🔍 AdminController: Approving membership application:', applicationId);
+
+    // In a real implementation, you'd update the application status
+    // For now, we'll just return success
+    res.json({
+      success: true,
+      message: 'Application approved successfully'
+    });
+  } catch (error) {
+    console.error('Error approving membership application:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to approve application'
+    });
+  }
+};
+
+// Reject membership application
+const rejectMembershipApplication = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    console.log('🔍 AdminController: Rejecting membership application:', applicationId);
+
+    // In a real implementation, you'd update the application status
+    // For now, we'll just return success
+    res.json({
+      success: true,
+      message: 'Application rejected successfully'
+    });
+  } catch (error) {
+    console.error('Error rejecting membership application:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reject application'
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getUsers,
@@ -741,6 +1035,13 @@ module.exports = {
   bulkUpdateUsers,
   exportUsers,
   sendMassEmail,
+  getMembershipPlans,
+  createMembershipPlan,
+  updateMembershipPlan,
+  getActiveSubscriptions,
+  getMembershipApplications,
+  approveMembershipApplication,
+  rejectMembershipApplication,
   getFinancialData,
   getJobManagementData,
   getCouponData

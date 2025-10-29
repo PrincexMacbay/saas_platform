@@ -13,6 +13,13 @@ const {
   bulkUpdateUsers,
   exportUsers,
   sendMassEmail,
+  getMembershipPlans,
+  createMembershipPlan,
+  updateMembershipPlan,
+  getActiveSubscriptions,
+  getMembershipApplications,
+  approveMembershipApplication,
+  rejectMembershipApplication,
   getFinancialData,
   getJobManagementData,
   getCouponData
@@ -35,6 +42,15 @@ router.put('/users/:userId/status', updateUserStatus);
 router.put('/users/bulk-update', bulkUpdateUsers);
 router.get('/users/export', exportUsers);
 router.post('/users/mass-email', sendMassEmail);
+
+// Membership management routes
+router.get('/membership/plans', getMembershipPlans);
+router.post('/membership/plans', createMembershipPlan);
+router.put('/membership/plans/:planId', updateMembershipPlan);
+router.get('/membership/subscriptions', getActiveSubscriptions);
+router.get('/membership/applications', getMembershipApplications);
+router.post('/membership/applications/:applicationId/approve', approveMembershipApplication);
+router.post('/membership/applications/:applicationId/reject', rejectMembershipApplication);
 
 // Financial management routes
 router.get('/financial', getFinancialData);
