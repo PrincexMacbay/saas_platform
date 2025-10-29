@@ -17,6 +17,7 @@ const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is admin
@@ -64,10 +65,23 @@ const AdminDashboard = () => {
         activeSection={activeSection} 
         onSectionChange={setActiveSection}
         onSidebarToggle={setSidebarExpanded}
+        isMobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
       <div className={`admin-main-content ${sidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
         <div className="admin-header">
-          <h1>{t('admin.dashboard.title')}</h1>
+          <div className="admin-header-left">
+            <button 
+              className="admin-mobile-menu-btn"
+              aria-label="Open admin menu"
+              onClick={() => setMobileSidebarOpen(true)}
+            >
+              <span className="hamburger-bar"></span>
+              <span className="hamburger-bar"></span>
+              <span className="hamburger-bar"></span>
+            </button>
+            <h1>{t('admin.dashboard.title')}</h1>
+          </div>
           <div className="admin-user-info">
             <span>{t('admin.dashboard.welcome', { name: `${user?.firstName} ${user?.lastName}` })}</span>
             <span className="admin-badge">{t('admin.badge')}</span>

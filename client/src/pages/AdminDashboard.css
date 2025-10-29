@@ -58,6 +58,31 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-mobile-menu-btn {
+  display: none;
+  width: 36px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-mobile-menu-btn .hamburger-bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #334155;
+  margin: 3px 0;
+}
+
 .admin-header h1 {
   margin: 0;
   color: #1e293b;
@@ -483,5 +508,9 @@
   
   .admin-main-content.sidebar-expanded {
     margin-left: 0; /* Full width on mobile even when sidebar is expanded */
+  }
+  
+  .admin-mobile-menu-btn {
+    display: inline-flex;
   }
 }
