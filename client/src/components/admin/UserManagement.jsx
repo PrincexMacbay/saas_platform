@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as adminService from '../../services/adminService';
+import adminService from '../../services/adminService';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './UserManagement.css';
 
