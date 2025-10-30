@@ -416,7 +416,7 @@ const getJobManagementData = async (req, res) => {
       include: [
         {
           model: User,
-          as: 'user',
+          as: 'employer',
           attributes: ['username', 'firstName', 'lastName']
         },
         {

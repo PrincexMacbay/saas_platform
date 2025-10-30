@@ -198,7 +198,7 @@ const JobManagement = () => {
                       <h4 className="job-title">{job.title}</h4>
                       <div className="job-meta">
                         <span className="job-company">
-                          {job.user.firstName ? `${job.user.firstName} ${job.user.lastName}` : job.user.username}
+                          {job.employer.firstName ? `${job.employer.firstName} ${job.employer.lastName}` : job.employer.username}
                         </span>
                         <span className="job-separator">•</span>
                         <span className="job-category">{job.category}</span>
