@@ -29,6 +29,7 @@ const DigitalCard = require('./DigitalCard');
 const UserPaymentInfo = require('./UserPaymentInfo');
 const Organization = require('./Organization');
 const PasswordResetToken = require('./PasswordResetToken');
+const SystemSettings = require('./SystemSettings');
 
 // Define associations
 User.hasMany(Space, { 
@@ -531,4 +532,5 @@ module.exports = {
   UserPaymentInfo,
   Organization,
   PasswordResetToken,
+  SystemSettings,
 };

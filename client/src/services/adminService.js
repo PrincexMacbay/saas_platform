@@ -112,6 +112,26 @@ const adminService = {
     return response.data;
   },
 
+  // System Configuration
+  getSystemSettings: async () => {
+    const response = await api.get('/admin/system/settings');
+    return response.data;
+  },
+
+  updateSystemSetting: async (settingData) => {
+    console.log('🔍 AdminService: Updating system setting:', settingData);
+    const response = await api.post('/admin/system/settings', settingData);
+    console.log('✅ AdminService: System setting updated:', response.data);
+    return response.data;
+  },
+
+  deleteSystemSetting: async (settingId) => {
+    console.log('🔍 AdminService: Deleting system setting:', settingId);
+    const response = await api.delete(`/admin/system/settings/${settingId}`);
+    console.log('✅ AdminService: System setting deleted:', response.data);
+    return response.data;
+  },
+
   // Bulk Actions
   exportUsers: async (format = 'csv') => {
     const response = await api.get('/admin/users/export', {

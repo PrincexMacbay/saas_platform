@@ -13,6 +13,7 @@ const {
   Space,
   Post,
   Comment,
+  SystemSettings,
   sequelize
 } = require('../models');
 
@@ -1312,6 +1313,154 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
+// Get all system settings
+const getSystemSettings = async (req, res) => {
+  try {
+    const { type } = req.query;
+    const whereClause = {};
+    
+    if (type) {
+      whereClause.settingType = type;
+    }
+
+    const settings = await SystemSettings.findAll({
+      where: whereClause,
+      order: [['settingType', 'ASC'], ['settingKey', 'ASC']]
+    });
+
+    // Group settings by type
+    const groupedSettings = {
+      platform: [],
+      email: [],
+      notification: [],
+      feature: [],
+      security: []
+    };
+
+    settings.forEach(setting => {
+      groupedSettings[setting.settingType].push({
+        id: setting.id,
+        key: setting.settingKey,
+        value: setting.settingValue,
+        type: setting.settingType,
+        description: setting.description,
+        isActive: setting.isActive,
+        createdAt: setting.createdAt,
+        updatedAt: setting.updatedAt
+      });
+    });
+
+    res.json({
+      success: true,
+      data: groupedSettings
+    });
+  } catch (error) {
+    console.error('Error fetching system settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch system settings',
+      error: error.message
+    });
+  }
+};
+
+// Create or update system setting
+const updateSystemSetting = async (req, res) => {
+  try {
+    const { key, value, type, description, isActive } = req.body;
+
+    // Validate required fields
+    if (!key || !type) {
+      return res.status(400).json({
+        success: false,
+        message: 'Setting key and type are required'
+      });
+    }
+
+    // Validate type
+    const validTypes = ['platform', 'email', 'notification', 'feature', 'security'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid setting type'
+      });
+    }
+
+    // Check if setting exists
+    const existingSetting = await SystemSettings.findOne({
+      where: { settingKey: key }
+    });
+
+    if (existingSetting) {
+      // Update existing setting
+      await existingSetting.update({
+        settingValue: value,
+        settingType: type,
+        description: description,
+        isActive: isActive !== undefined ? isActive : existingSetting.isActive
+      });
+
+      res.json({
+        success: true,
+        message: 'System setting updated successfully',
+        data: existingSetting
+      });
+    } else {
+      // Create new setting
+      const newSetting = await SystemSettings.create({
+        settingKey: key,
+        settingValue: value,
+        settingType: type,
+        description: description,
+        isActive: isActive !== undefined ? isActive : true
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'System setting created successfully',
+        data: newSetting
+      });
+    }
+  } catch (error) {
+    console.error('Error updating system setting:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update system setting',
+      error: error.message
+    });
+  }
+};
+
+// Delete system setting
+const deleteSystemSetting = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const setting = await SystemSettings.findByPk(id);
+
+    if (!setting) {
+      return res.status(404).json({
+        success: false,
+        message: 'System setting not found'
+      });
+    }
+
+    await setting.destroy();
+
+    res.json({
+      success: true,
+      message: 'System setting deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting system setting:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete system setting',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getUsers,
@@ -1337,5 +1486,8 @@ module.exports = {
   getCouponData,
   createCoupon,
   updateCoupon,
-  deleteCoupon
+  deleteCoupon,
+  getSystemSettings,
+  updateSystemSetting,
+  deleteSystemSetting
 };

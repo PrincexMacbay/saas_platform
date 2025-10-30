@@ -26,7 +26,10 @@ const {
   getCouponData,
   createCoupon,
   updateCoupon,
-  deleteCoupon
+  deleteCoupon,
+  getSystemSettings,
+  updateSystemSetting,
+  deleteSystemSetting
 } = require('../controllers/adminController');
 
 // All admin routes require authentication
@@ -68,5 +71,11 @@ router.get('/coupons', getCouponData);
 router.post('/coupons', createCoupon);
 router.put('/coupons/:id', updateCoupon);
 router.delete('/coupons/:id', deleteCoupon);
+
+// System configuration routes
+router.get('/system/settings', getSystemSettings);
+router.post('/system/settings', updateSystemSetting);
+router.put('/system/settings/:id', updateSystemSetting);
+router.delete('/system/settings/:id', deleteSystemSetting);
 
 module.exports = router;
