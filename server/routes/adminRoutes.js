@@ -23,7 +23,10 @@ const {
   rejectMembershipApplication,
   getFinancialData,
   getJobManagementData,
-  getCouponData
+  getCouponData,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon
 } = require('../controllers/adminController');
 
 // All admin routes require authentication
@@ -62,5 +65,8 @@ router.get('/jobs', getJobManagementData);
 
 // Coupon management routes
 router.get('/coupons', getCouponData);
+router.post('/coupons', createCoupon);
+router.put('/coupons/:id', updateCoupon);
+router.delete('/coupons/:id', deleteCoupon);
 
 module.exports = router;

@@ -479,9 +479,9 @@ const getCouponData = async (req, res) => {
   try {
     const coupons = await Coupon.findAll({
       include: [{
-        model: Plan,
-        as: 'plan',
-        attributes: ['name']
+        model: User,
+        as: 'creator',
+        attributes: ['username', 'firstName', 'lastName']
       }],
       order: [['createdAt', 'DESC']]
     });
@@ -491,8 +491,27 @@ const getCouponData = async (req, res) => {
       attributes: [
         [sequelize.fn('COUNT', sequelize.col('id')), 'totalCoupons'],
         [sequelize.literal('COUNT(CASE WHEN "isActive" = true THEN 1 END)'), 'activeCoupons'],
-        [sequelize.fn('SUM', sequelize.col('usageCount')), 'totalUsage']
+        [sequelize.fn('SUM', sequelize.col('currentRedemptions')), 'totalRedemptions']
       ],
+      raw: true
+    });
+
+    // Calculate additional metrics
+    const expiredCoupons = await Coupon.count({
+      where: {
+        expiryDate: {
+          [Op.lt]: new Date()
+        }
+      }
+    });
+
+    const totalDiscount = await Coupon.findOne({
+      attributes: [
+        [sequelize.fn('SUM', sequelize.col('discount')), 'totalDiscount']
+      ],
+      where: {
+        isActive: true
+      },
       raw: true
     });
 
@@ -500,7 +519,11 @@ const getCouponData = async (req, res) => {
       success: true,
       data: {
         coupons,
-        stats: couponStats
+        stats: {
+          ...couponStats,
+          expiredCoupons,
+          totalDiscount: totalDiscount?.totalDiscount || 0
+        }
       }
     });
   } catch (error) {
@@ -1145,6 +1168,150 @@ const rejectMembershipApplication = async (req, res) => {
   }
 };
 
+// Create a new coupon (admin)
+const createCoupon = async (req, res) => {
+  try {
+    const {
+      name,
+      couponId,
+      discount,
+      discountType,
+      maxRedemptions,
+      expiryDate,
+      applicablePlans,
+      isActive
+    } = req.body;
+
+    // Check if coupon ID already exists
+    const existingCoupon = await Coupon.findOne({
+      where: { couponId }
+    });
+
+    if (existingCoupon) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coupon ID already exists'
+      });
+    }
+
+    const coupon = await Coupon.create({
+      name,
+      couponId,
+      discount: parseFloat(discount),
+      discountType,
+      maxRedemptions: maxRedemptions ? parseInt(maxRedemptions) : null,
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      applicablePlans: applicablePlans ? JSON.stringify(applicablePlans) : null,
+      currentRedemptions: 0,
+      isActive: isActive !== undefined ? isActive : true,
+      createdBy: req.user.id
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Coupon created successfully',
+      data: coupon
+    });
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create coupon',
+      error: error.message
+    });
+  }
+};
+
+// Update coupon (admin)
+const updateCoupon = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const coupon = await Coupon.findByPk(id);
+    
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Coupon not found'
+      });
+    }
+
+    // If updating couponId, check for uniqueness
+    if (updateData.couponId && updateData.couponId !== coupon.couponId) {
+      const existingCoupon = await Coupon.findOne({
+        where: { couponId: updateData.couponId }
+      });
+
+      if (existingCoupon) {
+        return res.status(400).json({
+          success: false,
+          message: 'Coupon ID already exists'
+        });
+      }
+    }
+
+    // Parse data if needed
+    if (updateData.discount !== undefined) {
+      updateData.discount = parseFloat(updateData.discount);
+    }
+    if (updateData.maxRedemptions !== undefined) {
+      updateData.maxRedemptions = updateData.maxRedemptions ? parseInt(updateData.maxRedemptions) : null;
+    }
+    if (updateData.expiryDate !== undefined) {
+      updateData.expiryDate = updateData.expiryDate ? new Date(updateData.expiryDate) : null;
+    }
+    if (updateData.applicablePlans !== undefined) {
+      updateData.applicablePlans = updateData.applicablePlans ? JSON.stringify(updateData.applicablePlans) : null;
+    }
+
+    await coupon.update(updateData);
+
+    res.json({
+      success: true,
+      message: 'Coupon updated successfully',
+      data: coupon
+    });
+  } catch (error) {
+    console.error('Error updating coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update coupon',
+      error: error.message
+    });
+  }
+};
+
+// Delete coupon (admin)
+const deleteCoupon = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const coupon = await Coupon.findByPk(id);
+    
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Coupon not found'
+      });
+    }
+
+    await coupon.destroy();
+
+    res.json({
+      success: true,
+      message: 'Coupon deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete coupon',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getUsers,
@@ -1167,5 +1334,8 @@ module.exports = {
   rejectMembershipApplication,
   getFinancialData,
   getJobManagementData,
-  getCouponData
+  getCouponData,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon
 };

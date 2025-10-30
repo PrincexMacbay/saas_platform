@@ -91,6 +91,27 @@ const adminService = {
     return response.data;
   },
 
+  createCoupon: async (couponData) => {
+    console.log('🔍 AdminService: Creating coupon:', couponData);
+    const response = await api.post('/admin/coupons', couponData);
+    console.log('✅ AdminService: Coupon created:', response.data);
+    return response.data;
+  },
+
+  updateCoupon: async (couponId, couponData) => {
+    console.log('🔍 AdminService: Updating coupon:', couponId, couponData);
+    const response = await api.put(`/admin/coupons/${couponId}`, couponData);
+    console.log('✅ AdminService: Coupon updated:', response.data);
+    return response.data;
+  },
+
+  deleteCoupon: async (couponId) => {
+    console.log('🔍 AdminService: Deleting coupon:', couponId);
+    const response = await api.delete(`/admin/coupons/${couponId}`);
+    console.log('✅ AdminService: Coupon deleted:', response.data);
+    return response.data;
+  },
+
   // Bulk Actions
   exportUsers: async (format = 'csv') => {
     const response = await api.get('/admin/users/export', {

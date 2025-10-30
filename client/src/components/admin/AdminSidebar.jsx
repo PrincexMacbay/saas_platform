@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './AdminSidebar.css';
 
-const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle }) => {
+const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobileClose }) => {
   const { logout } = useAuth();
   const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
