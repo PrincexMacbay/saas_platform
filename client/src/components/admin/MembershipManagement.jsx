@@ -222,7 +222,10 @@ const MembershipManagement = () => {
   };
 
   const handleDeletePlan = async (planId) => {
-    if (!window.confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
+    if (!t || typeof t !== 'function') {
+      console.warn('Translation function t not available');
+    }
+    if (!window.confirm(t('membership.plans.confirm.delete'))) {
       return;
     }
 
@@ -235,7 +238,7 @@ const MembershipManagement = () => {
       fetchMembershipData();
     } catch (err) {
       console.error('❌ Error deleting plan:', err);
-      setError(err.response?.data?.message || 'Failed to delete plan. Please try again.');
+      setError(err.response?.data?.message || t('plans.error.deleting', { error: err.message }));
     }
   };
 

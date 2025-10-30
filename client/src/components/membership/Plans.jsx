@@ -1496,8 +1496,8 @@ const Plans = () => {
           setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
         }}
         onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('plans.delete')}
+        cancelText={t('plans.cancel')}
       />
     </div>
   );
