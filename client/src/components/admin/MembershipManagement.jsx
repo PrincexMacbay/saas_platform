@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
 import { useLanguage } from '../../contexts/LanguageContext';
+import ConfirmDialog from '../ConfirmDialog';
 import './MembershipManagement.css';
 
 const MembershipManagement = () => {
@@ -22,6 +23,7 @@ const MembershipManagement = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const [planForm, setPlanForm] = useState({
     name: '',
     description: '',
@@ -222,13 +224,14 @@ const MembershipManagement = () => {
   };
 
   const handleDeletePlan = async (planId) => {
-    if (!t || typeof t !== 'function') {
-      console.warn('Translation function t not available');
-    }
-    if (!window.confirm(t('membership.plans.confirm.delete'))) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      message: t('membership.plans.confirm.delete'),
+      onConfirm: () => deletePlan(planId)
+    });
+  };
 
+  const deletePlan = async (planId) => {
     try {
       console.log('Deleting plan:', planId);
       await adminService.deleteMembershipPlan(planId);
@@ -714,6 +717,19 @@ const MembershipManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          confirmDialog.onConfirm?.();
+          setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: null })}
+        confirmText={t('membership.plans.delete')}
+        cancelText={t('common.cancel')}
+      />
     </div>
   );
 };
