@@ -21,8 +21,11 @@ const MembershipManagement = () => {
   });
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showPlanDetailsModal, setShowPlanDetailsModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [selectedApplicationForDetails, setSelectedApplicationForDetails] = useState(null);
+  const [selectedApplications, setSelectedApplications] = useState([]);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
   const [planForm, setPlanForm] = useState({
     name: '',
@@ -260,6 +263,82 @@ const MembershipManagement = () => {
     });
   };
 
+  const handleViewPlanDetails = (plan) => {
+    setSelectedPlan(plan);
+    setShowPlanDetailsModal(true);
+  };
+
+  const handleViewApplicationDetails = (application) => {
+    setSelectedApplicationForDetails(application);
+    setShowApplicationModal(true);
+  };
+
+  const handleToggleApplicationSelection = (applicationId) => {
+    setSelectedApplications(prev => {
+      if (prev.includes(applicationId)) {
+        return prev.filter(id => id !== applicationId);
+      } else {
+        return [...prev, applicationId];
+      }
+    });
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedApplications.length === 0) {
+      setError('Please select at least one application to approve');
+      return;
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      message: `Are you sure you want to approve ${selectedApplications.length} application(s)?`,
+      onConfirm: async () => {
+        try {
+          for (const applicationId of selectedApplications) {
+            await adminService.approveMembershipApplication(applicationId);
+          }
+          console.log('✅ Applications approved successfully');
+          setSelectedApplications([]);
+          fetchMembershipData();
+        } catch (err) {
+          console.error('❌ Error approving applications:', err);
+          setError('Failed to approve some applications. Please try again.');
+        }
+      }
+    });
+  };
+
+  const handleExportData = () => {
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Plan', 'Status', 'Applied Date', 'Message'];
+    const rows = membershipData.applications.map(app => [
+      app.user.firstName && app.user.lastName 
+        ? `${app.user.firstName} ${app.user.lastName}`
+        : app.user.username,
+      app.user.email,
+      app.plan.name,
+      app.status,
+      formatDate(app.appliedAt),
+      app.message || 'N/A'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `membership-applications-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getDaysUntilRenewal = (renewalDate) => {
     const today = new Date();
     const renewal = new Date(renewalDate);
@@ -341,7 +420,7 @@ const MembershipManagement = () => {
       {/* Chart Container 1: Membership Overview */}
       <div className="chart-container">
         <div className="chart-header">
-          <h3 className="chart-title">Membership Overview</h3>
+        <h3 className="chart-title">Membership Overview</h3>
           <p className="chart-subtitle">View and manage membership plans, active subscriptions, and member applications</p>
         </div>
         
@@ -430,7 +509,10 @@ const MembershipManagement = () => {
                   >
                     Edit
                   </button>
-                  <button className="btn btn-sm btn-outline">
+                  <button 
+                    className="btn btn-sm btn-outline"
+                    onClick={() => handleViewPlanDetails(plan)}
+                  >
                     View Details
                   </button>
                   <button 
@@ -449,7 +531,7 @@ const MembershipManagement = () => {
       {/* Chart Container 2: Active Subscriptions */}
       <div className="chart-container">
         <div className="chart-header">
-          <h3 className="chart-title">Active Subscriptions</h3>
+        <h3 className="chart-title">Active Subscriptions</h3>
           <p className="chart-subtitle">Monitor subscription statuses, renewal rates, and member engagement metrics</p>
         </div>
         
@@ -530,7 +612,7 @@ const MembershipManagement = () => {
       {/* Chart Container 3: Pending Applications */}
       <div className="chart-container">
         <div className="chart-header">
-          <h3 className="chart-title">Pending Applications</h3>
+        <h3 className="chart-title">Pending Applications</h3>
           <p className="chart-subtitle">Review and approve membership applications from potential members</p>
         </div>
         
@@ -559,14 +641,31 @@ const MembershipManagement = () => {
           <div className="section-header">
             <h4>Application Details</h4>
             <div className="bulk-actions">
-              <button className="btn btn-outline">Bulk Approve</button>
-              <button className="btn btn-outline">Export Data</button>
+              <button 
+                className="btn btn-outline" 
+                onClick={handleBulkApprove}
+                disabled={selectedApplications.length === 0}
+              >
+                Bulk Approve ({selectedApplications.length})
+              </button>
+              <button 
+                className="btn btn-outline" 
+                onClick={handleExportData}
+              >
+                Export Data
+              </button>
             </div>
           </div>
           
           <div className="applications-list">
             {membershipData.applications.map(application => (
               <div key={application.id} className="application-item">
+                <input
+                  type="checkbox"
+                  checked={selectedApplications.includes(application.id)}
+                  onChange={() => handleToggleApplicationSelection(application.id)}
+                  style={{ position: 'absolute', left: '10px', top: '10px' }}
+                />
                 <div className="application-header">
                   <div className="user-info">
                     <div className="user-avatar">
@@ -600,7 +699,7 @@ const MembershipManagement = () => {
                 <div className="application-actions">
                   <button 
                     className="btn btn-outline"
-                    onClick={() => setSelectedApplication(application)}
+                    onClick={() => handleViewApplicationDetails(application)}
                   >
                     View Details
                   </button>
@@ -712,6 +811,182 @@ const MembershipManagement = () => {
                 onClick={handleSavePlan}
               >
                 {selectedPlan ? 'Update Plan' : 'Create Plan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plan Details Modal */}
+      {showPlanDetailsModal && selectedPlan && (
+        <div className="modal-overlay" onClick={() => setShowPlanDetailsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Plan Details: {selectedPlan.name}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowPlanDetailsModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="plan-details">
+                <div className="detail-row">
+                  <strong>Name:</strong>
+                  <span>{selectedPlan.name}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Description:</strong>
+                  <span>{selectedPlan.description || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Fee:</strong>
+                  <span>{formatCurrency(selectedPlan.fee)}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Renewal Interval:</strong>
+                  <span>{selectedPlan.renewalInterval}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Subscribers:</strong>
+                  <span>{selectedPlan.subscribers || 0}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Revenue:</strong>
+                  <span>{formatCurrency(selectedPlan.revenue || 0)}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Status:</strong>
+                  <span>{selectedPlan.isActive ? 'Active' : 'Inactive'}</span>
+                </div>
+                {selectedPlan.benefits && (
+                  <div className="detail-row">
+                    <strong>Benefits:</strong>
+                    <div>
+                      {typeof selectedPlan.benefits === 'string' 
+                        ? JSON.parse(selectedPlan.benefits).map((benefit, idx) => (
+                            <div key={idx}>• {benefit}</div>
+                          ))
+                        : selectedPlan.benefits.map((benefit, idx) => (
+                            <div key={idx}>• {benefit}</div>
+                          ))
+                      }
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowPlanDetailsModal(false);
+                  handleEditPlan(selectedPlan);
+                }}
+              >
+                Edit Plan
+              </button>
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowPlanDetailsModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Application Details Modal */}
+      {showApplicationModal && selectedApplicationForDetails && (
+        <div className="modal-overlay" onClick={() => setShowApplicationModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Application Details</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowApplicationModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="application-details">
+                <div className="detail-section">
+                  <h4>User Information</h4>
+                  <div className="detail-row">
+                    <strong>Name:</strong>
+                    <span>
+                      {selectedApplicationForDetails.user.firstName && selectedApplicationForDetails.user.lastName 
+                        ? `${selectedApplicationForDetails.user.firstName} ${selectedApplicationForDetails.user.lastName}`
+                        : selectedApplicationForDetails.user.username
+                      }
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Email:</strong>
+                    <span>{selectedApplicationForDetails.user.email}</span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Username:</strong>
+                    <span>{selectedApplicationForDetails.user.username}</span>
+                  </div>
+                </div>
+                
+                <div className="detail-section">
+                  <h4>Application Information</h4>
+                  <div className="detail-row">
+                    <strong>Plan:</strong>
+                    <span>{selectedApplicationForDetails.plan.name}</span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Status:</strong>
+                    <span className={`status-badge ${selectedApplicationForDetails.status}`}>
+                      {selectedApplicationForDetails.status}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <strong>Applied Date:</strong>
+                    <span>{formatDate(selectedApplicationForDetails.appliedAt)}</span>
+                  </div>
+                  {selectedApplicationForDetails.message && (
+                    <div className="detail-row">
+                      <strong>Message:</strong>
+                      <span>{selectedApplicationForDetails.message}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              {selectedApplicationForDetails.status === 'pending' && (
+                <>
+                  <button 
+                    className="btn btn-success"
+                    onClick={() => {
+                      handleApproveApplication(selectedApplicationForDetails.id);
+                      setShowApplicationModal(false);
+                    }}
+                  >
+                    Approve
+                  </button>
+                  <button 
+                    className="btn btn-danger"
+                    onClick={() => {
+                      handleRejectApplication(selectedApplicationForDetails.id);
+                      setShowApplicationModal(false);
+                    }}
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
+              <button 
+                className="btn btn-outline"
+                onClick={() => setShowApplicationModal(false)}
+              >
+                Close
               </button>
             </div>
           </div>

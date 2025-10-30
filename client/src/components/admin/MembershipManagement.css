@@ -832,3 +832,61 @@
     margin: 20px;
   }
 }
+
+/* Plan Details Styling */
+.plan-details,
+.application-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-section {
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-section h4 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row strong {
+  color: #374151;
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.detail-row span {
+  color: #6b7280;
+  text-align: right;
+}
+
+.detail-row div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+/* Application item styling for checkbox */
+.application-item {
+  position: relative;
+  padding-left: 40px;
+}
