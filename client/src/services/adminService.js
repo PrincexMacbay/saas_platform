@@ -149,6 +149,13 @@ const adminService = {
     return response.data;
   },
 
+  deleteMembershipPlan: async (planId) => {
+    console.log('🔍 AdminService: Deleting membership plan:', planId);
+    const response = await api.delete(`/admin/membership/plans/${planId}`);
+    console.log('✅ AdminService: Plan deleted:', response.data);
+    return response.data;
+  },
+
   getActiveSubscriptions: async (params = {}) => {
     console.log('🔍 AdminService: Fetching active subscriptions with params:', params);
     const response = await api.get('/admin/membership/subscriptions', { params });

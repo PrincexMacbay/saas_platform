@@ -841,6 +841,50 @@ const updateMembershipPlan = async (req, res) => {
   }
 };
 
+// Delete membership plan
+const deleteMembershipPlan = async (req, res) => {
+  try {
+    const { planId } = req.params;
+    console.log('🔍 AdminController: Deleting membership plan:', planId);
+
+    const plan = await Plan.findByPk(planId);
+    if (!plan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Plan not found'
+      });
+    }
+
+    // Check if plan has active subscriptions
+    const activeSubscriptions = await Subscription.count({
+      where: {
+        planId: planId,
+        status: 'active'
+      }
+    });
+
+    if (activeSubscriptions > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete plan with ${activeSubscriptions} active subscription(s). Please cancel or transfer subscriptions first.`
+      });
+    }
+
+    await plan.destroy();
+
+    res.json({
+      success: true,
+      message: 'Plan deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting membership plan:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete membership plan'
+    });
+  }
+};
+
 // Get active subscriptions
 const getActiveSubscriptions = async (req, res) => {
   try {
@@ -1116,6 +1160,7 @@ module.exports = {
   getMembershipPlans,
   createMembershipPlan,
   updateMembershipPlan,
+  deleteMembershipPlan,
   getActiveSubscriptions,
   getMembershipApplications,
   approveMembershipApplication,

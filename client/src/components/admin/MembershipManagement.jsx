@@ -221,6 +221,24 @@ const MembershipManagement = () => {
     }
   };
 
+  const handleDeletePlan = async (planId) => {
+    if (!window.confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      console.log('Deleting plan:', planId);
+      await adminService.deleteMembershipPlan(planId);
+      console.log('✅ Plan deleted successfully');
+      
+      // Refresh data
+      fetchMembershipData();
+    } catch (err) {
+      console.error('❌ Error deleting plan:', err);
+      setError(err.response?.data?.message || 'Failed to delete plan. Please try again.');
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -408,6 +426,12 @@ const MembershipManagement = () => {
                   </button>
                   <button className="btn btn-sm btn-outline">
                     View Details
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDeletePlan(plan.id)}
+                  >
+                    Delete
                   </button>
                 </div>
               </div>

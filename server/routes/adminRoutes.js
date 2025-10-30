@@ -16,6 +16,7 @@ const {
   getMembershipPlans,
   createMembershipPlan,
   updateMembershipPlan,
+  deleteMembershipPlan,
   getActiveSubscriptions,
   getMembershipApplications,
   approveMembershipApplication,
@@ -47,6 +48,7 @@ router.post('/users/mass-email', sendMassEmail);
 router.get('/membership/plans', getMembershipPlans);
 router.post('/membership/plans', createMembershipPlan);
 router.put('/membership/plans/:planId', updateMembershipPlan);
+router.delete('/membership/plans/:planId', deleteMembershipPlan);
 router.get('/membership/subscriptions', getActiveSubscriptions);
 router.get('/membership/applications', getMembershipApplications);
 router.post('/membership/applications/:applicationId/approve', approveMembershipApplication);
