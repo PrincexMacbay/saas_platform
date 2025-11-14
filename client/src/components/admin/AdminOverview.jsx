@@ -216,7 +216,7 @@ const AdminOverview = () => {
                       <div className="activity-details">
                         <div className="activity-name">{job.title}</div>
                         <div className="activity-meta">
-                          {job.category} • {job.user?.username || t('admin.unknown')} • {new Date(job.createdAt).toLocaleDateString()}
+                          {job.category} • {job.employer?.username || t('admin.unknown')} • {new Date(job.createdAt).toLocaleDateString()}
                         </div>
                       </div>
                     </div>

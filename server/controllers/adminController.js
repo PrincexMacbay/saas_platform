@@ -98,7 +98,7 @@ const getDashboardStats = async (req, res) => {
       attributes: ['id', 'title', 'category', 'status', 'createdAt'],
       include: [{
         model: User,
-        as: 'user',
+        as: 'employer',
         attributes: ['username', 'firstName', 'lastName']
       }]
     });
