@@ -7,16 +7,17 @@ const AdminOverview = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
   const { t } = useLanguage();
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    fetchDashboardStats(selectedPeriod);
+  }, [selectedPeriod]);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = async (period) => {
     try {
       setLoading(true);
-      const response = await adminService.getDashboardStats();
+      const response = await adminService.getDashboardStats(period);
       setStats(response.data);
       setError(null);
     } catch (err) {
@@ -25,6 +26,10 @@ const AdminOverview = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePeriodChange = (e) => {
+    setSelectedPeriod(e.target.value);
   };
 
   if (loading) {
@@ -47,7 +52,13 @@ const AdminOverview = () => {
     );
   }
 
-  const { overview, systemHealth, recentActivity } = stats;
+  const { overview, changes, systemHealth, recentActivity } = stats;
+
+  const formatChange = (change) => {
+    if (change === undefined || change === null) return '0%';
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change}%`;
+  };
 
   const statCards = [
     {
@@ -55,64 +66,64 @@ const AdminOverview = () => {
       value: overview.totalUsers,
       icon: '👥',
       color: 'blue',
-      change: '+12%',
-      changeType: 'positive'
+      change: formatChange(changes?.totalUsers),
+      changeType: (changes?.totalUsers || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.active.users'),
       value: overview.activeUsers,
       icon: '✅',
       color: 'green',
-      change: '+8%',
-      changeType: 'positive'
+      change: formatChange(changes?.activeUsers),
+      changeType: (changes?.activeUsers || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.total.plans'),
       value: overview.totalPlans,
       icon: '💳',
       color: 'purple',
-      change: '+3',
-      changeType: 'positive'
+      change: formatChange(changes?.totalPlans),
+      changeType: (changes?.totalPlans || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.active.subscriptions'),
       value: overview.activeSubscriptions,
       icon: '🔄',
       color: 'orange',
-      change: '+15%',
-      changeType: 'positive'
+      change: formatChange(changes?.activeSubscriptions),
+      changeType: (changes?.activeSubscriptions || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.total.jobs'),
       value: overview.totalJobs,
       icon: '💼',
       color: 'indigo',
-      change: '+7',
-      changeType: 'positive'
+      change: formatChange(changes?.totalJobs),
+      changeType: (changes?.totalJobs || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.job.applications'),
       value: overview.totalApplications,
       icon: '📝',
       color: 'teal',
-      change: '+23%',
-      changeType: 'positive'
+      change: formatChange(changes?.totalApplications),
+      changeType: (changes?.totalApplications || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.total.revenue'),
       value: `$${overview.totalRevenue?.toLocaleString() || '0'}`,
       icon: '💰',
       color: 'emerald',
-      change: '+18%',
-      changeType: 'positive'
+      change: formatChange(changes?.totalRevenue),
+      changeType: (changes?.totalRevenue || 0) >= 0 ? 'positive' : 'negative'
     },
     {
       title: t('admin.stats.monthly.revenue'),
       value: `$${overview.monthlyRevenue?.toLocaleString() || '0'}`,
       icon: '📈',
       color: 'green',
-      change: '+12%',
-      changeType: 'positive'
+      change: formatChange(changes?.monthlyRevenue),
+      changeType: (changes?.monthlyRevenue || 0) >= 0 ? 'positive' : 'negative'
     }
   ];
 
@@ -135,6 +146,22 @@ const AdminOverview = () => {
         <p>{t('admin.dashboard.description')}</p>
       </div>
 
+      {/* Period Selection */}
+      <div className="period-selector">
+        <label htmlFor="period-select">{t('admin.dashboard.select.period') || 'Select Period:'}</label>
+        <select 
+          id="period-select" 
+          value={selectedPeriod} 
+          onChange={handlePeriodChange}
+          className="period-dropdown"
+        >
+          <option value="week">{t('admin.dashboard.period.week') || 'Week'}</option>
+          <option value="month">{t('admin.dashboard.period.month') || 'Month'}</option>
+          <option value="quarter">{t('admin.dashboard.period.quarter') || 'Quarter'}</option>
+          <option value="year">{t('admin.dashboard.period.year') || 'Year'}</option>
+        </select>
+      </div>
+
       {/* Stats Grid */}
       <div className="stats-grid">
         {statCards.map((stat, index) => (
@@ -148,7 +175,6 @@ const AdminOverview = () => {
             <div className="stat-card-value">{stat.value}</div>
             <div className={`stat-card-change ${stat.changeType}`}>
               <span>{stat.change}</span>
-              <span>{t('admin.stats.from.last.month')}</span>
             </div>
           </div>
         ))}

@@ -17,11 +17,87 @@ const {
   sequelize
 } = require('../models');
 
+// Helper function to calculate date range based on period
+const getDateRange = (period) => {
+  const now = new Date();
+  let currentStart, previousStart, previousEnd;
+  
+  switch (period) {
+    case 'week':
+      // Current week (last 7 days)
+      currentStart = new Date(now);
+      currentStart.setDate(now.getDate() - 7);
+      // Previous week (7 days before that)
+      previousStart = new Date(currentStart);
+      previousStart.setDate(previousStart.getDate() - 7);
+      previousEnd = new Date(currentStart);
+      break;
+    case 'month':
+      // Current month
+      currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      // Previous month
+      previousStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      previousEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+      break;
+    case 'quarter':
+      // Current quarter
+      const currentQuarter = Math.floor(now.getMonth() / 3);
+      currentStart = new Date(now.getFullYear(), currentQuarter * 3, 1);
+      // Previous quarter
+      const prevQuarter = currentQuarter === 0 ? 3 : currentQuarter - 1;
+      const prevYear = currentQuarter === 0 ? now.getFullYear() - 1 : now.getFullYear();
+      previousStart = new Date(prevYear, prevQuarter * 3, 1);
+      previousEnd = new Date(prevYear, (prevQuarter + 1) * 3, 0);
+      break;
+    case 'year':
+      // Current year
+      currentStart = new Date(now.getFullYear(), 0, 1);
+      // Previous year
+      previousStart = new Date(now.getFullYear() - 1, 0, 1);
+      previousEnd = new Date(now.getFullYear() - 1, 11, 31);
+      break;
+    default: // 'month' as default
+      currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      previousStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      previousEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+  }
+  
+  return { currentStart, previousStart, previousEnd };
+};
+
+// Helper function to calculate percentage change
+const calculatePercentageChange = (current, previous) => {
+  if (!previous || previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
+  const change = ((current - previous) / previous) * 100;
+  return Math.round(change * 10) / 10; // Round to 1 decimal place
+};
+
 // Get dashboard overview statistics
 const getDashboardStats = async (req, res) => {
   try {
+    const period = req.query.period || 'month'; // Default to 'month'
+    const { currentStart, previousStart, previousEnd } = getDateRange(period);
+    
+    // Current period stats
     // Total Users
     const totalUsers = await User.count();
+    const totalUsersCurrent = await User.count({
+      where: {
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const totalUsersPrevious = await User.count({
+      where: {
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
     
     // Active Users (logged in within last 30 days)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -32,9 +108,39 @@ const getDashboardStats = async (req, res) => {
         }
       }
     });
+    const activeUsersCurrent = await User.count({
+      where: {
+        lastLogin: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const activeUsersPrevious = await User.count({
+      where: {
+        lastLogin: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
 
     // Total Membership Plans
     const totalPlans = await Plan.count();
+    const totalPlansCurrent = await Plan.count({
+      where: {
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const totalPlansPrevious = await Plan.count({
+      where: {
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
     
     // Active Subscriptions
     const activeSubscriptions = await Subscription.count({
@@ -42,12 +148,59 @@ const getDashboardStats = async (req, res) => {
         status: 'active'
       }
     });
+    const activeSubscriptionsCurrent = await Subscription.count({
+      where: {
+        status: 'active',
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const activeSubscriptionsPrevious = await Subscription.count({
+      where: {
+        status: 'active',
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
 
     // Total Jobs
     const totalJobs = await Job.count();
+    const totalJobsCurrent = await Job.count({
+      where: {
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const totalJobsPrevious = await Job.count({
+      where: {
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
     
     // Total Job Applications
     const totalApplications = await JobApplication.count();
+    const totalApplicationsCurrent = await JobApplication.count({
+      where: {
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      }
+    });
+    const totalApplicationsPrevious = await JobApplication.count({
+      where: {
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
+      }
+    });
 
     // Revenue Statistics
     const revenueStats = await Payment.findOne({
@@ -57,6 +210,35 @@ const getDashboardStats = async (req, res) => {
       ],
       where: {
         status: 'completed'
+      },
+      raw: true
+    });
+
+    // Current period revenue
+    const currentRevenue = await Payment.findOne({
+      attributes: [
+        [sequelize.fn('SUM', sequelize.col('amount')), 'currentRevenue']
+      ],
+      where: {
+        status: 'completed',
+        createdAt: {
+          [Op.gte]: currentStart
+        }
+      },
+      raw: true
+    });
+
+    // Previous period revenue
+    const previousRevenue = await Payment.findOne({
+      attributes: [
+        [sequelize.fn('SUM', sequelize.col('amount')), 'previousRevenue']
+      ],
+      where: {
+        status: 'completed',
+        createdAt: {
+          [Op.gte]: previousStart,
+          [Op.lte]: previousEnd
+        }
       },
       raw: true
     });
@@ -76,6 +258,24 @@ const getDashboardStats = async (req, res) => {
       },
       raw: true
     });
+
+    // Calculate percentage changes
+    const changes = {
+      totalUsers: calculatePercentageChange(totalUsersCurrent, totalUsersPrevious),
+      activeUsers: calculatePercentageChange(activeUsersCurrent, activeUsersPrevious),
+      totalPlans: calculatePercentageChange(totalPlansCurrent, totalPlansPrevious),
+      activeSubscriptions: calculatePercentageChange(activeSubscriptionsCurrent, activeSubscriptionsPrevious),
+      totalJobs: calculatePercentageChange(totalJobsCurrent, totalJobsPrevious),
+      totalApplications: calculatePercentageChange(totalApplicationsCurrent, totalApplicationsPrevious),
+      totalRevenue: calculatePercentageChange(
+        parseFloat(currentRevenue?.currentRevenue || 0),
+        parseFloat(previousRevenue?.previousRevenue || 0)
+      ),
+      monthlyRevenue: calculatePercentageChange(
+        parseFloat(monthlyRevenue?.monthlyRevenue || 0),
+        parseFloat(previousRevenue?.previousRevenue || 0)
+      )
+    };
 
     // System Health Metrics
     const systemHealth = {
@@ -117,6 +317,7 @@ const getDashboardStats = async (req, res) => {
           monthlyRevenue: monthlyRevenue?.monthlyRevenue || 0,
           totalTransactions: revenueStats?.totalTransactions || 0
         },
+        changes,
         systemHealth,
         recentActivity: {
           recentUsers,
