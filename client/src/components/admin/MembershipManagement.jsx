@@ -404,7 +404,7 @@ const MembershipManagement = () => {
         <h2>Membership Management</h2>
         <p>View and manage membership plans, active subscriptions, and member applications</p>
         <button className="btn btn-primary" onClick={handleCreatePlan}>
-          + Create New Plan
+          + {t('admin.membership.create.plan')}
         </button>
       </div>
 
@@ -727,7 +727,7 @@ const MembershipManagement = () => {
         <div className="modal-overlay" onClick={() => setShowPlanModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{selectedPlan ? 'Edit Plan' : 'Create New Plan'}</h3>
+              <h3>{selectedPlan ? t('admin.membership.edit.plan') : t('admin.membership.create.plan')}</h3>
               <button 
                 className="modal-close"
                 onClick={() => setShowPlanModal(false)}
@@ -804,13 +804,13 @@ const MembershipManagement = () => {
                 className="btn btn-outline"
                 onClick={() => setShowPlanModal(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button 
                 className="btn btn-primary"
                 onClick={handleSavePlan}
               >
-                {selectedPlan ? 'Update Plan' : 'Create Plan'}
+                {selectedPlan ? t('admin.membership.update.plan') : t('admin.membership.create.plan.button')}
               </button>
             </div>
           </div>
@@ -885,7 +885,7 @@ const MembershipManagement = () => {
                   handleEditPlan(selectedPlan);
                 }}
               >
-                Edit Plan
+                {t('admin.membership.edit.plan')}
               </button>
               <button 
                 className="btn btn-outline"

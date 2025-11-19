@@ -22,6 +22,11 @@ const translations = {
     'admin.dashboard.description': 'System statistics and health monitoring',
     'admin.dashboard.retry': 'Retry',
     'admin.dashboard.failed.load': 'Failed to load dashboard statistics',
+    'admin.dashboard.select.period': 'Select Period:',
+    'admin.dashboard.period.week': 'Week',
+    'admin.dashboard.period.month': 'Month',
+    'admin.dashboard.period.quarter': 'Quarter',
+    'admin.dashboard.period.year': 'Year',
     'admin.badge': 'Admin',
     
     // Admin Stats
@@ -915,6 +920,34 @@ const translations = {
       'admin.coupon.create': 'Create New Coupon',
       'admin.coupon.creation': 'Coupon Creation',
       'admin.coupon.creation.description': 'Create new discount codes, set expiration dates, and configure usage limits.',
+      'admin.coupon.total': 'Total Coupons',
+      'admin.coupon.active': 'Active Coupons',
+      'admin.coupon.redemptions': 'Total Redemptions',
+      'admin.coupon.expired': 'Expired Coupons',
+      'admin.coupon.created': 'Created:',
+      'admin.coupon.usage.rate': 'Usage Rate:',
+      'admin.coupon.edit': 'Edit',
+      'admin.coupon.delete': 'Delete',
+      'admin.coupon.edit.coupon': 'Edit Coupon',
+      'admin.coupon.update': 'Update Coupon',
+      'admin.coupon.create.button': 'Create Coupon',
+      'admin.coupon.expires': 'Expires:',
+      'admin.coupon.redemptions.label': 'Redemptions:',
+      'admin.coupon.view.usage': 'View Usage',
+      'admin.coupon.name': 'Coupon Name',
+      'admin.coupon.name.placeholder': 'Enter coupon name',
+      'admin.coupon.code': 'Coupon Code',
+      'admin.coupon.code.placeholder': 'Enter coupon code',
+      'admin.coupon.discount.type': 'Discount Type',
+      'admin.coupon.discount.percentage': 'Percentage',
+      'admin.coupon.discount.fixed': 'Fixed Amount',
+      'admin.coupon.discount.value': 'Discount Value',
+      'admin.coupon.discount.placeholder': 'Enter discount',
+      'admin.coupon.max.redemptions': 'Max Redemptions',
+      'admin.coupon.max.redemptions.placeholder': 'Leave empty for unlimited',
+      'admin.coupon.expiry.date': 'Expiry Date',
+      'admin.coupon.active.coupon': 'Active Coupon',
+      'admin.coupon.no.coupons': 'No coupons found',
       
       // Admin Financial Management
       'admin.financial.title': 'Financial Management',
@@ -960,6 +993,7 @@ const translations = {
       'admin.job.application.analytics': 'Application Analytics',
       'admin.job.application.metrics': 'Application Metrics',
       'admin.job.application.description': 'Analyze application trends, success rates, and candidate engagement.',
+      'admin.job.edit': 'Edit',
       
       // Admin Membership Management
       'admin.membership.title': 'Membership Management',
@@ -973,6 +1007,10 @@ const translations = {
       'admin.membership.pending.applications': 'Pending Applications',
       'admin.membership.application.review': 'Application Review',
       'admin.membership.application.description': 'Review and approve membership applications from potential members.',
+      'admin.membership.create.plan': 'Create New Plan',
+      'admin.membership.edit.plan': 'Edit Plan',
+      'admin.membership.update.plan': 'Update Plan',
+      'admin.membership.create.plan.button': 'Create Plan',
       
       // Admin System Configuration
       'admin.system.title': 'System Configuration',
@@ -992,6 +1030,10 @@ const translations = {
       'admin.system.security.settings': 'Security Settings',
       'admin.system.security.configuration': 'Security Configuration',
       'admin.system.security.description': 'Configure security settings, authentication requirements, and access controls.',
+      'admin.system.edit': 'Edit',
+      'admin.system.delete': 'Delete',
+      'admin.system.edit.setting': 'Edit Setting',
+      'admin.system.save.setting': 'Save Setting',
       
       // Admin User Management
       'admin.user.title': 'User Management',
@@ -1075,6 +1117,11 @@ const translations = {
     'admin.dashboard.description': 'Sistem istatistikleri ve sağlık izleme',
     'admin.dashboard.retry': 'Tekrar Dene',
     'admin.dashboard.failed.load': 'Panel istatistikleri yüklenemedi',
+    'admin.dashboard.select.period': 'Dönem Seç:',
+    'admin.dashboard.period.week': 'Hafta',
+    'admin.dashboard.period.month': 'Ay',
+    'admin.dashboard.period.quarter': 'Çeyrek',
+    'admin.dashboard.period.year': 'Yıl',
     'admin.badge': 'Yönetici',
     
     // Admin Stats
@@ -1968,6 +2015,34 @@ const translations = {
       'admin.coupon.create': 'Yeni Kupon Oluştur',
       'admin.coupon.creation': 'Kupon Oluşturma',
       'admin.coupon.creation.description': 'Yeni indirim kodları oluşturun, son kullanma tarihlerini belirleyin ve kullanım limitlerini yapılandırın.',
+      'admin.coupon.total': 'Toplam Kupon',
+      'admin.coupon.active': 'Aktif Kupon',
+      'admin.coupon.redemptions': 'Toplam Kullanım',
+      'admin.coupon.expired': 'Süresi Dolmuş Kupon',
+      'admin.coupon.created': 'Oluşturuldu:',
+      'admin.coupon.usage.rate': 'Kullanım Oranı:',
+      'admin.coupon.edit': 'Düzenle',
+      'admin.coupon.delete': 'Sil',
+      'admin.coupon.edit.coupon': 'Kuponu Düzenle',
+      'admin.coupon.update': 'Kuponu Güncelle',
+      'admin.coupon.create.button': 'Kupon Oluştur',
+      'admin.coupon.expires': 'Bitiş:',
+      'admin.coupon.redemptions.label': 'Kullanımlar:',
+      'admin.coupon.view.usage': 'Kullanımı Görüntüle',
+      'admin.coupon.name': 'Kupon Adı',
+      'admin.coupon.name.placeholder': 'Kupon adını girin',
+      'admin.coupon.code': 'Kupon Kodu',
+      'admin.coupon.code.placeholder': 'Kupon kodunu girin',
+      'admin.coupon.discount.type': 'İndirim Türü',
+      'admin.coupon.discount.percentage': 'Yüzde',
+      'admin.coupon.discount.fixed': 'Sabit Tutar',
+      'admin.coupon.discount.value': 'İndirim Değeri',
+      'admin.coupon.discount.placeholder': 'İndirimi girin',
+      'admin.coupon.max.redemptions': 'Maksimum Kullanım',
+      'admin.coupon.max.redemptions.placeholder': 'Sınırsız için boş bırakın',
+      'admin.coupon.expiry.date': 'Son Kullanma Tarihi',
+      'admin.coupon.active.coupon': 'Aktif Kupon',
+      'admin.coupon.no.coupons': 'Kupon bulunamadı',
       
       // Admin Financial Management
       'admin.financial.title': 'Mali Yönetim',
@@ -2013,6 +2088,7 @@ const translations = {
       'admin.job.application.analytics': 'Başvuru Analizi',
       'admin.job.application.metrics': 'Başvuru Metrikleri',
       'admin.job.application.description': 'Başvuru trendlerini, başarı oranlarını ve aday katılımını analiz edin.',
+      'admin.job.edit': 'Düzenle',
       
       // Admin Membership Management
       'admin.membership.title': 'Üyelik Yönetimi',
@@ -2026,6 +2102,10 @@ const translations = {
       'admin.membership.pending.applications': 'Bekleyen Başvurular',
       'admin.membership.application.review': 'Başvuru İnceleme',
       'admin.membership.application.description': 'Potansiyel üyelerden gelen üyelik başvurularını inceleyin ve onaylayın.',
+      'admin.membership.create.plan': 'Yeni Plan Oluştur',
+      'admin.membership.edit.plan': 'Planı Düzenle',
+      'admin.membership.update.plan': 'Planı Güncelle',
+      'admin.membership.create.plan.button': 'Plan Oluştur',
       
       // Admin System Configuration
       'admin.system.title': 'Sistem Yapılandırması',
@@ -2045,6 +2125,10 @@ const translations = {
       'admin.system.security.settings': 'Güvenlik Ayarları',
       'admin.system.security.configuration': 'Güvenlik Yapılandırması',
       'admin.system.security.description': 'Güvenlik ayarlarını, kimlik doğrulama gereksinimlerini ve erişim kontrollerini yapılandırın.',
+      'admin.system.edit': 'Düzenle',
+      'admin.system.delete': 'Sil',
+      'admin.system.edit.setting': 'Ayarı Düzenle',
+      'admin.system.save.setting': 'Ayarı Kaydet',
       
       // Admin User Management
       'admin.user.title': 'Kullanıcı Yönetimi',

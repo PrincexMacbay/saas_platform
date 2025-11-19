@@ -220,7 +220,7 @@ const JobManagement = () => {
                   )}
                   <div className="job-actions">
                     <button className="btn btn-sm btn-outline">View</button>
-                    <button className="btn btn-sm btn-outline">Edit</button>
+                    <button className="btn btn-sm btn-outline">{t('admin.job.edit')}</button>
                     <button className="btn btn-sm btn-outline">Manage</button>
                   </div>
                 </div>

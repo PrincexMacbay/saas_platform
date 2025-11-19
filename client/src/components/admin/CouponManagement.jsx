@@ -171,28 +171,28 @@ const CouponManagement = () => {
           <div className="stat-card">
             <div className="stat-icon">🎫</div>
             <div className="stat-content">
-              <div className="stat-label">Total Coupons</div>
+              <div className="stat-label">{t('admin.coupon.total')}</div>
               <div className="stat-value">{stats.totalCoupons || 0}</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">✅</div>
             <div className="stat-content">
-              <div className="stat-label">Active Coupons</div>
+              <div className="stat-label">{t('admin.coupon.active')}</div>
               <div className="stat-value">{stats.activeCoupons || 0}</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">📊</div>
             <div className="stat-content">
-              <div className="stat-label">Total Redemptions</div>
+              <div className="stat-label">{t('admin.coupon.redemptions')}</div>
               <div className="stat-value">{stats.totalRedemptions || 0}</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">⏰</div>
             <div className="stat-content">
-              <div className="stat-label">Expired Coupons</div>
+              <div className="stat-label">{t('admin.coupon.expired')}</div>
               <div className="stat-value">{stats.expiredCoupons || 0}</div>
             </div>
           </div>
@@ -227,23 +227,23 @@ const CouponManagement = () => {
                 </div>
                 <div className="coupon-details">
                   <div className="detail-item">
-                    <span className="detail-label">Created:</span>
+                    <span className="detail-label">{t('admin.coupon.created')}</span>
                     <span className="detail-value">{formatDate(coupon.createdAt)}</span>
                   </div>
                   {coupon.expiryDate && (
                     <div className="detail-item">
-                      <span className="detail-label">Expires:</span>
+                      <span className="detail-label">{t('admin.coupon.expires')}</span>
                       <span className="detail-value">{formatDate(coupon.expiryDate)}</span>
                     </div>
                   )}
                   <div className="detail-item">
-                    <span className="detail-label">Redemptions:</span>
+                    <span className="detail-label">{t('admin.coupon.redemptions.label')}</span>
                     <span className="detail-value">
                       {coupon.currentRedemptions || 0} / {coupon.maxRedemptions || '∞'}
                     </span>
                   </div>
                   <div className="detail-item">
-                    <span className="detail-label">Usage Rate:</span>
+                    <span className="detail-label">{t('admin.coupon.usage.rate')}</span>
                     <span className="detail-value">{getUsageRate(coupon)}</span>
                   </div>
                 </div>
@@ -252,20 +252,20 @@ const CouponManagement = () => {
                     className="btn btn-sm btn-outline"
                     onClick={() => handleEditCoupon(coupon)}
                   >
-                    Edit
+                    {t('admin.coupon.edit')}
                   </button>
-                  <button className="btn btn-sm btn-outline">View Usage</button>
+                  <button className="btn btn-sm btn-outline">{t('admin.coupon.view.usage')}</button>
                   <button 
                     className="btn btn-sm btn-danger"
                     onClick={() => handleDeleteCoupon(coupon.id)}
                   >
-                    Delete
+                    {t('admin.coupon.delete')}
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="empty-state">No coupons found</div>
+            <div className="empty-state">{t('admin.coupon.no.coupons')}</div>
           )}
         </div>
       </div>
@@ -278,7 +278,7 @@ const CouponManagement = () => {
             className="btn btn-primary"
             onClick={handleCreateCoupon}
           >
-            <i className="fas fa-plus"></i> Create New Coupon
+            <i className="fas fa-plus"></i> {t('admin.coupon.create')}
           </button>
         </div>
       </div>
@@ -288,7 +288,7 @@ const CouponManagement = () => {
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{editingCouponId ? 'Edit Coupon' : 'Create New Coupon'}</h3>
+              <h3>{editingCouponId ? t('admin.coupon.edit.coupon') : t('admin.coupon.create')}</h3>
               <button 
                 className="modal-close"
                 onClick={() => {
@@ -301,56 +301,56 @@ const CouponManagement = () => {
             </div>
             <div className="modal-body">
               <div className="form-group">
-                <label>Coupon Name</label>
+                <label>{t('admin.coupon.name')}</label>
                 <input
                   type="text"
                   value={couponForm.name}
                   onChange={(e) => setCouponForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter coupon name"
+                  placeholder={t('admin.coupon.name.placeholder')}
                 />
               </div>
               <div className="form-group">
-                <label>Coupon Code</label>
+                <label>{t('admin.coupon.code')}</label>
                 <input
                   type="text"
                   value={couponForm.couponId}
                   onChange={(e) => setCouponForm(prev => ({ ...prev, couponId: e.target.value }))}
-                  placeholder="Enter coupon code"
+                  placeholder={t('admin.coupon.code.placeholder')}
                 />
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Discount Type</label>
+                  <label>{t('admin.coupon.discount.type')}</label>
                   <select
                     value={couponForm.discountType}
                     onChange={(e) => setCouponForm(prev => ({ ...prev, discountType: e.target.value }))}
                   >
-                    <option value="percentage">Percentage</option>
-                    <option value="fixed">Fixed Amount</option>
+                    <option value="percentage">{t('admin.coupon.discount.percentage')}</option>
+                    <option value="fixed">{t('admin.coupon.discount.fixed')}</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Discount Value</label>
+                  <label>{t('admin.coupon.discount.value')}</label>
                   <input
                     type="number"
                     value={couponForm.discount}
                     onChange={(e) => setCouponForm(prev => ({ ...prev, discount: e.target.value }))}
-                    placeholder="Enter discount"
+                    placeholder={t('admin.coupon.discount.placeholder')}
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Max Redemptions</label>
+                  <label>{t('admin.coupon.max.redemptions')}</label>
                   <input
                     type="number"
                     value={couponForm.maxRedemptions}
                     onChange={(e) => setCouponForm(prev => ({ ...prev, maxRedemptions: e.target.value }))}
-                    placeholder="Leave empty for unlimited"
+                    placeholder={t('admin.coupon.max.redemptions.placeholder')}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Expiry Date</label>
+                  <label>{t('admin.coupon.expiry.date')}</label>
                   <input
                     type="date"
                     value={couponForm.expiryDate}
@@ -365,7 +365,7 @@ const CouponManagement = () => {
                     checked={couponForm.isActive}
                     onChange={(e) => setCouponForm(prev => ({ ...prev, isActive: e.target.checked }))}
                   />
-                  Active Coupon
+                  {t('admin.coupon.active.coupon')}
                 </label>
               </div>
             </div>
@@ -374,13 +374,13 @@ const CouponManagement = () => {
                 className="btn btn-outline"
                 onClick={() => setShowCreateModal(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button 
                 className="btn btn-primary"
                 onClick={handleSaveCoupon}
               >
-                {editingCouponId ? 'Update Coupon' : 'Create Coupon'}
+                {editingCouponId ? t('admin.coupon.update') : t('admin.coupon.create.button')}
               </button>
             </div>
           </div>

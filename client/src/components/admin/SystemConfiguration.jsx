@@ -120,13 +120,13 @@ const SystemConfiguration = () => {
             className="btn btn-sm btn-outline"
             onClick={() => handleEditSetting(setting)}
           >
-            Edit
+            {t('admin.system.edit')}
           </button>
           <button
             className="btn btn-sm btn-danger"
             onClick={() => handleDeleteSetting(setting)}
           >
-            Delete
+            {t('admin.system.delete')}
           </button>
         </div>
       </div>
@@ -218,7 +218,7 @@ const SystemConfiguration = () => {
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Edit Setting</h3>
+              <h3>{t('admin.system.edit.setting')}</h3>
               <button
                 className="modal-close"
                 onClick={() => {
@@ -291,13 +291,13 @@ const SystemConfiguration = () => {
                   setEditingSetting(null);
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 className="btn btn-primary"
                 onClick={handleSaveSetting}
               >
-                Save Setting
+                {t('admin.system.save.setting')}
               </button>
             </div>
           </div>
