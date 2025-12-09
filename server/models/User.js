@@ -74,6 +74,16 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  emailVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: 'Whether the user has verified their email address',
+  },
+  emailVerifiedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Timestamp when email was verified',
+  },
   
   // Organization fields (moved from Organization table)
   organizationName: {

@@ -412,8 +412,18 @@ The platform implements a comprehensive authentication and authorization system 
 - **Password Hashing**: bcryptjs with salt rounds for secure password storage
   - **Implementation**: Passwords are automatically hashed using bcryptjs with 12 salt rounds before being stored in the database (configured in `server/models/User.js`)
   - **Security Level**: 12 salt rounds provides strong protection against rainbow table attacks and brute force attempts
-  - **Verification**: The `validatePassword()` method compares plain-text passwords with hashed versions during login
-  - **Protection**: Even if the database is compromised, passwords cannot be reversed to their original form
+  - **How Password Verification Works**: 
+    - When a user registers, their plaintext password is hashed with a random salt and stored (e.g., `"MyPassword123"` → `"$2a$12$xyz...hashedvalue"`)
+    - When a user logs in, they provide their plaintext password again
+    - The `validatePassword()` method calls `bcrypt.compare(plaintextPassword, storedHash)`
+    - **bcrypt.compare() internally**:
+      1. Extracts the salt from the stored hash (the salt is embedded in the hash string)
+      2. Hashes the provided plaintext password using that same extracted salt
+      3. Compares the newly generated hash with the stored hash
+      4. Returns `true` if they match, `false` otherwise
+    - This works because bcrypt hashes are deterministic: the same password + same salt = same hash
+    - The salt is randomly generated during registration, so even identical passwords produce different hashes for different users
+  - **Protection**: Even if the database is compromised, passwords cannot be reversed to their original form. The one-way hashing means you can verify a password is correct, but cannot retrieve the original password from the hash
 
 - **Role-Based Access Control**: Admin and member role separation
   - **Implementation**: Users have a `role` field (`'user'`, `'admin'`, or `'moderator'`) stored in the database
@@ -454,48 +464,43 @@ Additional security layers protect the platform from common web vulnerabilities:
   - **Custom CSP**: Modified to allow images from external sources (`https:`, `http:`) for profile pictures and post attachments while maintaining security
   - **Impact**: Protects against cross-site scripting (XSS), clickjacking, and other client-side attacks
 
-- **CORS Configuration**: Controlled cross-origin resource sharing
-  - **Implementation**: Configured in `server/app.js` with whitelist-based origin checking
-  - **Allowed Origins**: Only specific origins are permitted:
-    - Development: `localhost:3000`, `localhost:5173` (Vite dev server)
-    - Production: Render deployment URLs and environment-configured frontend URLs
-  - **Security**: Prevents unauthorized websites from making API requests to the backend
-  - **Credentials**: `credentials: true` allows cookies and authorization headers to be sent cross-origin
-  - **Methods**: Restricts allowed HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`)
-  - **Headers**: Limits allowed request headers to prevent header injection attacks
+**CORS Configuration for Cross-Origin Resource Sharing**
 
-- **Input Validation**: Express-validator for request validation
-  - **Implementation**: Validation rules defined in controllers (e.g., `server/controllers/authController.js`, `postController.js`)
-  - **Examples**:
-    - Username: 3-100 characters, alphanumeric and underscores only
-    - Email: Valid email format with normalization
-    - Password: Minimum 6 characters, must contain uppercase, lowercase, and number for password resets
-    - Post messages: 1-5000 characters
-    - Job descriptions: 1-5000 characters with required fields
-  - **Error Handling**: `server/middleware/validation.js` processes validation errors and returns structured error responses
-  - **Protection**: Prevents malformed data from reaching the database, protects against injection attacks, and ensures data integrity
+The platform implements a strict CORS (Cross-Origin Resource Sharing) policy to control which websites can communicate with the backend API. This is critical because the frontend React application runs on a different origin (domain/port) than the backend Express server, especially in production where they may be deployed on separate Render services.
 
-- **SQL Injection Prevention**: Sequelize ORM parameterized queries
-  - **Implementation**: All database queries use Sequelize ORM, which automatically parameterizes queries
-  - **Protection**: User input is never directly concatenated into SQL strings
-  - **Examples**: 
-    - `User.findOne({ where: { email: req.body.email } })` - Email is parameterized
-    - `Post.findAll({ where: { userId: req.user.id } })` - User ID is safely parameterized
-    - Dynamic queries use Sequelize operators (`Op.or`, `Op.and`, `Op.like`) which are parameterized
-  - **Security**: Even if malicious input is provided, it cannot execute arbitrary SQL commands
+The CORS configuration in `server/app.js` uses a whitelist-based approach that only permits requests from trusted origins. During development, the system allows requests from local development servers (`localhost:3000`, `localhost:5173` for Vite), while in production it restricts access to the deployed Render frontend URLs and any additional origins specified in environment variables. When a request arrives, the middleware checks the `Origin` header against this whitelist. If the origin doesn't match any allowed origin, the request is rejected with a CORS error, preventing malicious websites from making unauthorized API calls to steal user data or perform actions on behalf of users.
 
-- **File Upload Security**: Multer with file type and size restrictions
-  - **Implementation**: `server/middleware/upload.js` configures Multer with strict security rules
-  - **File Type Validation**: 
-    - Images: Only `image/*` MIME types allowed (JPEG, PNG, GIF, WebP)
-    - Documents: Only PDF, DOC, DOCX for resume uploads
-    - MIME type checking prevents file extension spoofing
-  - **Size Limits**: 
-    - Default: 10MB maximum file size (configurable via `MAX_FILE_SIZE` environment variable)
-    - Prevents denial-of-service attacks through large file uploads
-  - **Filename Sanitization**: Unique filenames generated with timestamps to prevent path traversal attacks
-  - **Image Processing**: Sharp library processes uploaded images (resizing, optimization) to remove potential embedded malicious code
-  - **Storage**: Files stored in isolated `uploads/` directory with proper permissions
+The configuration also enables `credentials: true`, which is essential for the JWT authentication system to work properly. This allows the frontend to send the `Authorization` header containing the JWT token in cross-origin requests. Additionally, the system restricts which HTTP methods are allowed (only `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS`) and limits the allowed request headers to `Content-Type`, `Authorization`, and `X-Requested-With`. This prevents header injection attacks where malicious scripts might try to inject unauthorized headers into requests.
+
+**Input Validation with Express-Validator**
+
+Before any user input reaches the database or business logic, it must pass through comprehensive validation rules defined using Express-validator. This validation layer is implemented across all controllers in the platform, ensuring that every piece of user-submitted data meets strict criteria before processing.
+
+For user authentication, the validation rules in `server/controllers/authController.js` enforce that usernames must be between 3 and 100 characters and contain only alphanumeric characters and underscores, preventing special characters that could cause issues in URLs or database queries. Email addresses are validated to ensure they follow proper email format, and the validator automatically normalizes them (converting to lowercase, trimming whitespace) to prevent duplicate accounts with slight variations like "User@Example.com" and "user@example.com". Password validation requires a minimum of 6 characters for basic registration, but for password reset operations, the rules are more stringent, requiring at least one uppercase letter, one lowercase letter, and one number to ensure stronger password security.
+
+When users create posts in spaces or on their profiles, the validation in `postController.js` ensures messages are between 1 and 5000 characters, preventing empty posts and limiting the potential for extremely long content that could impact performance. Similarly, job postings in the career center have validation rules that ensure titles, descriptions, and locations meet length requirements, and job types must be one of the predefined values (`full-time`, `part-time`, `contract`, `internship`, `freelance`).
+
+When validation fails, the `handleValidationErrors` middleware in `server/middleware/validation.js` intercepts the errors and returns a structured JSON response to the frontend, listing each field that failed validation along with a specific error message. This provides clear feedback to users about what needs to be corrected, improving the user experience while simultaneously protecting the backend from malformed or malicious input.
+
+**SQL Injection Prevention Through Sequelize ORM**
+
+The platform protects against SQL injection attacks by using Sequelize ORM for all database interactions, which automatically parameterizes all queries. This means that user input is never directly concatenated into SQL strings, eliminating the possibility of malicious SQL code being executed.
+
+When the application queries the database, such as finding a user by email during login (`User.findOne({ where: { email: req.body.email } })`), Sequelize converts this into a parameterized SQL query. Instead of building a query like `SELECT * FROM users WHERE email = 'user@example.com'`, Sequelize sends the query structure and the email value separately to the database, with the database engine handling the safe insertion of the parameter. This means that even if an attacker attempts to inject SQL code like `' OR '1'='1` into the email field, it will be treated as a literal string value rather than executable SQL code.
+
+The protection extends to more complex queries as well. When searching for posts or users using dynamic filters, the application uses Sequelize operators like `Op.or`, `Op.and`, and `Op.like`, all of which are also parameterized. For example, when a user searches for posts containing certain keywords, the query `Post.findAll({ where: { message: { [Op.like]: `%${searchTerm}%` } } })` is safely parameterized, preventing injection attacks even in search functionality. This comprehensive protection means that regardless of what malicious input an attacker provides, they cannot execute arbitrary SQL commands to read, modify, or delete data from the database.
+
+**File Upload Security with Multer and Image Processing**
+
+The platform handles file uploads for profile pictures, post attachments, and resume documents through a multi-layered security system implemented in `server/middleware/upload.js`. This system protects against various file-based attacks including malicious file uploads, path traversal attempts, and denial-of-service attacks through oversized files.
+
+When a user uploads a file, Multer first validates the file's MIME type by checking the actual file content, not just the file extension. This prevents file extension spoofing where an attacker might rename a malicious script file to have a `.jpg` extension. For images, only files with MIME types starting with `image/` (JPEG, PNG, GIF, WebP) are accepted, while document uploads for resumes are restricted to PDF, DOC, and DOCX formats. If a file doesn't match these criteria, the upload is immediately rejected before any processing occurs.
+
+The system also enforces strict size limits, with a default maximum of 10MB per file (configurable via the `MAX_FILE_SIZE` environment variable). This prevents attackers from uploading extremely large files that could consume server storage, memory, or processing resources, potentially causing the server to crash or become unresponsive. The size check happens before file processing, so even attempting to upload an oversized file is rejected immediately.
+
+To prevent path traversal attacks where malicious filenames like `../../../etc/passwd` could potentially access files outside the intended upload directory, the system generates unique filenames using timestamps and random numbers. The original filename is discarded, and files are stored with names like `profileImage-1234567890-987654321.jpg`, ensuring that even if an attacker somehow controls the filename, they cannot navigate to unauthorized directories.
+
+For image uploads specifically, the platform uses the Sharp library to process and optimize images after upload. This processing includes resizing images to reasonable dimensions (800x600px for post attachments, 200x200px for profile pictures) and converting them to optimized JPEG format. This image processing step serves an additional security purpose: it effectively sanitizes the image file by removing any embedded metadata, scripts, or malicious code that might have been hidden in the original file. The processed image is a clean, newly generated file that only contains the visual image data, eliminating potential security risks from embedded content.
 
 **Code Example: Authentication Middleware**
 
@@ -991,25 +996,49 @@ export default api;
 
 #### 3.2.3 Database Query Optimization
 
-**Sequelize ORM Usage:**
+The platform's database query optimization strategy was critical to ensuring responsive performance, especially as the system scales to handle multiple organizations, thousands of users, and complex relationships between entities. The optimization approach focused on minimizing database round trips, reducing query execution time, and ensuring data consistency across related tables.
 
-- Eager loading with `include` to reduce N+1 queries
-- Transaction support for data consistency
-- Model associations for relationship management
-- Query scopes for reusable query logic
+**Eager Loading and N+1 Query Prevention**
 
-**Example Query Optimization:**
+One of the most significant performance challenges in relational databases is the N+1 query problem, where fetching a list of records and then loading their related data results in executing one query for the main records plus N additional queries for each related record. For example, if we need to display 100 subscriptions with their associated user and plan information, a naive implementation would execute 1 query to get subscriptions, then 100 queries to get users, and 100 more queries to get plans - totaling 201 database queries for a single page load.
 
-```javascript
-// Efficient query with associations
-const subscriptions = await Subscription.findAll({
-  include: [
-    { model: User, as: 'user' },
-    { model: Plan, as: 'plan' }
-  ],
-  where: { status: 'active' }
-});
-```
+To address this, the platform extensively uses Sequelize's eager loading feature through the `include` option. When fetching subscriptions, the system simultaneously loads all related user and plan data in a single optimized query using SQL JOINs. This transforms 201 queries into just 1 query, dramatically reducing database load and response time. The database engine can efficiently join the tables using foreign key indexes, and the application receives all necessary data in one round trip.
+
+The eager loading strategy is applied consistently across the platform. When displaying the admin dashboard, for instance, the system fetches subscriptions along with user profiles, plan details, and recent payment information in a single query. This approach is particularly important for the membership management dashboard, where administrators need to view comprehensive information about multiple subscriptions simultaneously. Without eager loading, loading a page with 50 subscriptions could take several seconds; with proper optimization, the same page loads in milliseconds.
+
+**Transaction Management for Data Consistency**
+
+The platform implements database transactions to ensure data consistency during complex operations that involve multiple related tables. Transactions guarantee that either all operations succeed together or all fail together, preventing partial updates that could leave the database in an inconsistent state. This is especially critical for operations like processing membership applications, where creating a subscription, generating a digital card, and recording the initial payment must all succeed or all be rolled back.
+
+For example, when an administrator approves a membership application, the system must create a subscription record, update the application status, generate a digital membership card, and potentially process an initial payment. If any of these steps fail after others have succeeded, the database would be left in an inconsistent state - perhaps with a subscription created but no card generated, or a payment recorded but no subscription to attach it to. By wrapping these operations in a transaction, the system ensures atomicity: if the digital card generation fails, the entire operation is rolled back, including the subscription creation, leaving the database exactly as it was before the operation began.
+
+Transactions are also used for financial operations where data integrity is paramount. When processing a payment, the system must update the payment record, update the subscription status, potentially create an invoice, and update revenue statistics. All of these operations occur within a single transaction, ensuring that financial records remain accurate and consistent even if the server encounters an error mid-operation.
+
+**Model Associations and Relationship Management**
+
+The platform leverages Sequelize's model association system to define relationships between database tables declaratively. These associations serve multiple purposes: they enable eager loading, they enforce referential integrity through foreign key constraints, and they provide convenient methods for navigating relationships in application code. The associations are defined once in the model configuration, and Sequelize automatically handles the complex SQL required to join tables and maintain relationships.
+
+The relationship definitions create a clear map of how data entities connect to each other. For instance, the User model has a one-to-many relationship with Subscriptions, meaning one user can have multiple subscriptions. The Plan model also has a one-to-many relationship with Subscriptions, as one plan can be subscribed to by many users. These bidirectional relationships allow the application to easily navigate from a user to their subscriptions, or from a plan to all users who have subscribed to it, without writing complex join queries manually.
+
+The association system also handles cascade operations automatically. When a user account is deleted, the system can be configured to automatically delete all associated subscriptions, payments, and other related records, or to set foreign keys to null, depending on the business requirements. This prevents orphaned records and maintains database integrity without requiring manual cleanup code.
+
+**Query Scopes for Reusable Logic**
+
+The platform implements query scopes to encapsulate commonly used query logic into reusable, named filters. These scopes allow the application to define complex query conditions once and reuse them across multiple controllers and services. For example, a scope might be defined to fetch only active subscriptions, or to filter subscriptions by a specific organization, or to retrieve subscriptions that are due for renewal within the next 30 days.
+
+Query scopes improve code maintainability by centralizing query logic. If the definition of an "active subscription" changes - perhaps to include additional status checks or date validations - the change only needs to be made in one place, the scope definition, rather than in every controller that queries subscriptions. Scopes can also be chained together, allowing developers to combine multiple filters in a readable, declarative way.
+
+**Strategic Indexing for Query Performance**
+
+Beyond query structure, the platform implements strategic database indexing to accelerate common query patterns. Indexes are created on foreign key columns, frequently filtered columns like status fields, and columns used in sorting operations. For instance, the subscriptions table has indexes on the userId, planId, and status columns, as these are the most common filters when querying subscriptions.
+
+These indexes allow the database engine to quickly locate relevant records without scanning entire tables. When querying for all active subscriptions for a specific user, the database can use the index on userId to immediately find the relevant rows, then use the status index to filter for active subscriptions, rather than examining every row in the table. As the database grows to thousands or millions of records, these indexes become increasingly important for maintaining query performance.
+
+**Selective Field Loading**
+
+The platform optimizes queries by selectively loading only the fields that are actually needed for a particular operation, rather than loading entire records with all columns. This reduces the amount of data transferred from the database to the application, decreasing network overhead and memory usage. For example, when displaying a list of subscriptions in a table, the system only loads the subscription ID, member number, status, and dates - it doesn't load the full plan benefits JSON or other large fields that aren't needed for the list view.
+
+This selective loading is achieved through Sequelize's `attributes` option, which allows specifying exactly which columns to include in the query result. When detailed information is needed, such as when viewing a single subscription's full details, a separate query can load the complete record with all fields. This two-tier approach - lightweight queries for lists and comprehensive queries for details - optimizes performance for the most common use cases while still providing full data access when needed.
 
 ### 3.3 System Integration
 
@@ -1081,136 +1110,67 @@ The platform supports multiple organizations with data isolation:
 
 #### 4.1.1 Completed Features
 
-✅ **100% Complete Features:**
+The project has achieved complete implementation of all planned features, resulting in a fully functional SaaS platform that addresses the comprehensive needs of organizations managing memberships, communities, and career services. Each major feature area has been developed to production-ready standards with full functionality, proper error handling, and user-friendly interfaces.
 
-1. **User Management System**
-   - User registration and authentication
-   - Profile management
-   - Role-based access control
-   - Password reset functionality
+**User Management System**
 
-2. **Membership Management**
-   - Complete CRUD operations for plans
-   - Application workflow (submit → review → approve)
-   - Subscription lifecycle management
-   - Payment processing framework
-   - Digital card generation
-   - Coupon system
-   - Debt and reminder management
+The user management system provides a complete foundation for platform authentication and user identity management. The registration process supports both individual users and company accounts, with distinct profile types that enable different functionality based on user roles. The authentication system implements secure password hashing and JWT token-based sessions, ensuring that user credentials are protected while providing seamless access across different parts of the platform. Profile management extends beyond basic information storage, allowing users to maintain comprehensive profiles that include personal details, professional information, and organizational affiliations. The system supports profile image uploads with automatic optimization, and profile information is integrated throughout the platform to personalize the user experience. Role-based access control ensures that users can only access features and data appropriate to their role, whether they are regular members, administrators, or moderators. The password reset functionality provides a secure mechanism for users to recover their accounts through email verification, implementing industry-standard security practices to prevent unauthorized access while maintaining usability.
 
-3. **Social Networking**
-   - Spaces/communities creation and management
-   - Post creation with attachments
-   - Comment system
-   - Like functionality
-   - User following system
-   - Activity feed
+**Membership Management**
 
-4. **Career Center**
-   - Job posting system
-   - Job application tracking
-   - Company and individual profiles
-   - Saved jobs functionality
+The membership management system represents the core functionality of the platform, providing organizations with comprehensive tools to create, manage, and monetize membership programs. The system enables complete CRUD operations for membership plans, allowing administrators to define pricing structures, renewal intervals, benefits, and eligibility criteria. Plans can be configured as free or paid, with flexible pricing models including one-time fees, recurring subscriptions, and custom renewal intervals. The application workflow implements a complete pipeline from initial interest to active membership. Users can browse available membership plans, submit applications through customizable forms, and track their application status. Administrators receive notifications of new applications and can review detailed applicant information before making approval decisions. Upon approval, the system automatically creates subscriptions, generates digital membership cards, and initiates the payment process if required.
 
-5. **Administrative Features**
-   - Comprehensive admin dashboard
-   - Analytics and reporting
-   - User management
-   - System configuration
+Subscription lifecycle management handles the entire journey of a membership from creation through renewal, cancellation, or expiration. The system tracks subscription status, manages renewal dates, supports auto-renewal configurations, and handles various subscription states including active, past due, cancelled, and expired. The payment processing framework supports multiple payment methods including credit cards, bank transfers, and cryptocurrency, providing flexibility for different organizational needs and member preferences. Payment history is meticulously tracked, and the system generates invoices automatically for all transactions. Digital card generation creates personalized membership cards for each active subscriber, incorporating member information, organization branding, and QR codes for verification. The coupon system enables organizations to offer discounts and promotional pricing, with support for percentage-based and fixed-amount discounts. Debt and reminder management provides organizations with tools to track outstanding payments and communicate with members about payment obligations, automatically creating debt records when payments fail and generating email reminders.
+
+**Social Networking**
+
+The social networking features transform the platform from a simple membership management tool into a vibrant community platform where members can connect, share, and engage with each other. The spaces system allows users to create and join communities organized around topics, interests, or organizational groups. Spaces can be configured as public or private, with different membership models including open joining, approval-based membership, or invitation-only access. Post creation enables members to share content with text, images, and attachments, creating rich multimedia posts that enhance community engagement. The system processes and optimizes uploaded images automatically, ensuring fast loading times while maintaining image quality. The comment system enables threaded discussions on posts, fostering deeper engagement and community interaction. The like functionality provides quick feedback mechanisms, allowing members to express appreciation for posts and comments. The user following system enables members to follow other users and spaces, creating personalized networks that enhance the community experience. When members follow users or spaces, content from those sources appears in their personalized activity feed, ensuring they stay connected with the people and communities that matter to them.
+
+**Career Center**
+
+The career center provides a complete job board and application management system that serves both job seekers and employers. The job posting system enables companies to create detailed job listings with comprehensive descriptions, requirements, salary information, and application instructions. Job postings support multiple job types including full-time, part-time, contract, internship, and freelance positions, accommodating diverse employment needs. Job application tracking provides both employers and job seekers with visibility into the application process. Employers can view all applications for their posted positions, track application status, and manage the hiring pipeline. Job seekers can track their application history, view application status, and manage their saved job listings. The system supports resume uploads and document management, allowing applicants to maintain professional portfolios within the platform. Company and individual profiles provide distinct experiences for employers and job seekers, with company profiles showcasing organizational information and individual profiles highlighting job seeker qualifications and career interests.
+
+**Administrative Features**
+
+The comprehensive admin dashboard provides administrators with a centralized view of all platform activity, metrics, and management tools. The dashboard displays key performance indicators including total members, active subscriptions, revenue metrics, and application statistics, giving administrators immediate insight into platform health and business performance. Analytics and reporting capabilities enable data-driven decision making through visualizations of trends, comparisons, and patterns. The system tracks revenue over time, subscription growth, member acquisition rates, and engagement metrics. Administrators can export data in CSV format for external analysis, and the dashboard provides real-time updates as data changes. User management tools allow administrators to view, search, and manage user accounts across the platform, with the ability to update user information, modify roles, manage account status, and access comprehensive user activity histories. System configuration provides administrators with control over platform settings, including membership defaults, notification preferences, payment configurations, and feature toggles, allowing organizations to customize the platform to match their specific operational needs.
 
 ### 4.2 Technical Achievements
 
 #### 4.2.1 Database Implementation
 
-- **27+ Database Tables**: Comprehensive schema covering all features
-- **Normalized Design**: Third normal form compliance
-- **Relationship Integrity**: Foreign keys and constraints properly implemented
-- **Indexing**: Optimized queries with strategic indexes
+The database implementation represents a comprehensive and well-architected foundation for the entire platform, consisting of over 27 normalized tables that support all platform features while maintaining data integrity and enabling efficient querying. The database schema was designed following third normal form principles, eliminating data redundancy and ensuring that each piece of information is stored in exactly one place, with relationships maintained through foreign keys rather than data duplication.
 
-**Database Schema Details:**
+The normalization process involved carefully analyzing the data requirements for each feature area and identifying the optimal way to structure tables to minimize redundancy while maintaining query performance. This approach ensures that when information needs to be updated - such as a user's email address or a plan's pricing - the change only needs to be made in one location, and all related queries automatically reflect the updated information. This not only simplifies data maintenance but also prevents inconsistencies that could arise from having the same information stored in multiple places.
 
-The database implementation includes comprehensive normalization:
+**User Management Tables**
 
-1. **User Management (4 tables)**
-   - `users`: Core authentication (11 fields)
-   - `user_profiles`: Extended profiles (5 fields)
-   - `individual_profiles`: Job seeker data (4 fields)
-   - `company_profiles`: Employer data (7 fields)
+The user management system is built on four interconnected tables that separate concerns and enable flexible user profiles. The `users` table serves as the core authentication table, storing essential login credentials, account status, and basic identification information. This table is kept minimal to ensure fast authentication queries, with only 11 essential fields that are required for every user account. The `user_profiles` table extends the user information with additional profile data that may not be needed for every authentication operation, including user type classifications and organizational roles. This separation allows the system to quickly authenticate users without loading unnecessary profile data, while still providing comprehensive profile information when needed.
 
-2. **Membership System (13 tables)**
-   - `organizations`: Multi-tenant support
-   - `plans`: Subscription plans (15+ fields)
-   - `subscriptions`: User subscriptions (10 fields)
-   - `applications`: Membership applications (8 fields)
-   - `application_forms`: Dynamic forms (JSON fields)
-   - `payments`: Payment records (10 fields)
-   - `invoices`: Invoice generation (8 fields)
-   - `scheduled_payments`: Recurring payments (9 fields)
-   - `debts`: Outstanding debts (8 fields)
-   - `reminders`: Notification system (9 fields)
-   - `coupons`: Discount system (10 fields)
-   - `digital_cards`: Card templates (JSON design)
-   - `membership_settings`: Configuration (JSON settings)
+The `individual_profiles` and `company_profiles` tables implement a specialized profile pattern that allows the platform to support both individual job seekers and company employers with distinct data requirements. Individual profiles store job seeker-specific information such as career interests and resume details, while company profiles store employer-specific information like company size, industry, and hiring preferences. This design enables the platform to provide tailored experiences for different user types while maintaining a unified authentication system.
 
-3. **Social Networking (6 tables)**
-   - `spaces`: Communities (10 fields)
-   - `posts`: User posts (9 fields)
-   - `comments`: Post comments (6 fields)
-   - `memberships`: User-space relationships (6 fields)
-   - `follows`: Following relationships (5 fields)
-   - `likes`: Engagement tracking (5 fields)
+**Membership System Tables**
 
-4. **Career Center (3 tables)**
-   - `jobs`: Job postings (15+ fields)
-   - `job_applications`: Applications (10 fields)
-   - `saved_jobs`: User bookmarks (4 fields)
+The membership system is supported by 13 tables that work together to provide comprehensive membership management functionality. The `organizations` table enables the multi-tenant architecture, allowing multiple organizations to use the platform while maintaining complete data isolation. Each organization can have its own membership plans, application forms, and configuration settings, all linked through organization foreign keys.
 
-**Code Example: Complex Query with Multiple Associations**
+The `plans` table stores detailed information about membership subscription plans, including pricing, renewal intervals, benefits, and eligibility criteria. With over 15 fields, this table captures all the complexity needed to support diverse membership models, from simple free memberships to complex tiered subscription systems. The `subscriptions` table tracks individual user subscriptions to plans, maintaining the relationship between users and their active memberships while tracking status, dates, and renewal information.
 
-```javascript
-// Efficient query fetching subscription with all related data
-const subscription = await Subscription.findOne({
-  where: { id: subscriptionId },
-  include: [
-    {
-      model: User,
-      as: 'user',
-      attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'profileImage'],
-      include: [
-        {
-          model: UserProfile,
-          as: 'profile',
-          attributes: ['userType', 'organizationRole']
-        }
-      ]
-    },
-    {
-      model: Plan,
-      as: 'plan',
-      attributes: ['id', 'name', 'fee', 'renewalInterval', 'benefits'],
-      include: [
-        {
-          model: Organization,
-          as: 'organization',
-          attributes: ['id', 'name', 'logo']
-        }
-      ]
-    },
-    {
-      model: Payment,
-      as: 'payments',
-      limit: 5,
-      order: [['paymentDate', 'DESC']],
-      attributes: ['id', 'amount', 'status', 'paymentDate', 'paymentMethod']
-    },
-    {
-      model: DigitalCard,
-      as: 'digitalCard',
-      attributes: ['id', 'cardData', 'qrCode']
-    }
-  ]
-});
-```
+The `applications` table manages the membership application workflow, storing application submissions, status, and review information. This table works in conjunction with the `application_forms` table, which stores customizable form configurations as JSON, allowing organizations to create application forms tailored to their specific needs without requiring database schema changes. The `payments` table maintains a complete audit trail of all financial transactions, recording amounts, methods, status, and dates for every payment processed through the platform. The `invoices` table generates formal invoice records that can be used for accounting and record-keeping purposes.
+
+The `scheduled_payments` table enables automated recurring payment processing, storing payment schedules and automating the creation of payment records at appropriate intervals. The `debts` table tracks outstanding payment obligations, automatically created when payments fail or are missed, and provides a mechanism for organizations to manage payment recovery. The `reminders` table supports automated communication, storing reminder configurations and tracking when reminders have been sent to members about upcoming payments or other important events.
+
+The `coupons` table manages discount codes and promotional pricing, storing coupon configurations, usage limits, and expiration information. The `digital_cards` table stores template designs and generated card data as JSON, allowing flexible card customization while maintaining structured storage. Finally, the `membership_settings` table stores organization-specific configuration options as JSON, enabling customization of membership workflows and features without requiring schema modifications.
+
+**Social Networking Tables**
+
+The social networking features are supported by six tables that enable community engagement and content sharing. The `spaces` table stores community information including names, descriptions, privacy settings, and membership models. The `posts` table stores user-generated content with support for text, images, and attachments, linking posts to both users and spaces. The `comments` table enables threaded discussions on posts, maintaining parent-child relationships for comment replies.
+
+The `memberships` table (distinct from subscription memberships) manages the many-to-many relationship between users and spaces, tracking when users join communities and their roles within those communities. The `follows` table enables users to follow other users and spaces, creating personalized content networks. The `likes` table tracks engagement metrics, recording when users like posts or comments, enabling the platform to display like counts and identify popular content.
+
+**Career Center Tables**
+
+The career center functionality is supported by three focused tables that enable job posting and application management. The `jobs` table stores comprehensive job posting information including titles, descriptions, requirements, salary information, and application instructions. With over 15 fields, this table captures all the detail needed for effective job listings. The `job_applications` table manages the application process, storing application submissions, status, and associated documents. The `saved_jobs` table allows job seekers to bookmark interesting positions for later review, creating a personalized job search experience.
+
+The database implementation leverages strategic indexing on foreign key columns, frequently queried fields like status columns, and columns used in sorting operations. These indexes dramatically improve query performance, especially as the database grows. When querying for all active subscriptions for a specific user, the database can use indexes to quickly locate relevant records without scanning entire tables. The relationship integrity is maintained through foreign key constraints that ensure referential integrity, preventing orphaned records and maintaining data consistency across related tables.
 
 #### 4.2.2 API Implementation
 

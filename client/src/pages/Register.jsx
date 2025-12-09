@@ -8,6 +8,7 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
+    confirmPassword: '',
     firstName: '',
     lastName: '',
   });
@@ -43,10 +44,25 @@ const Register = () => {
     setIsLoading(true);
     setErrors({});
 
-    const result = await register(formData);
+    // Validate confirm password
+    if (formData.password !== formData.confirmPassword) {
+      setErrors({ confirmPassword: 'Passwords do not match' });
+      setIsLoading(false);
+      return;
+    }
+
+    // Remove confirmPassword from data sent to server
+    const { confirmPassword, ...registrationData } = formData;
+    const result = await register(registrationData);
     
     if (result.success) {
-      navigate('/dashboard');
+      // Navigate to email verification page instead of dashboard
+      navigate('/verify-email', { 
+        state: { 
+          email: formData.email,
+          message: result.message || 'Please check your email to verify your account'
+        } 
+      });
     } else {
       if (result.errors && result.errors.length > 0) {
         const fieldErrors = {};
@@ -170,6 +186,26 @@ const Register = () => {
             />
             {errors.password && (
               <div className="error-message">{errors.password}</div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              className={`form-control ${errors.confirmPassword ? 'error' : ''}`}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+              minLength="6"
+            />
+            {errors.confirmPassword && (
+              <div className="error-message">{errors.confirmPassword}</div>
             )}
           </div>
 

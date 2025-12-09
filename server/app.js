@@ -29,6 +29,7 @@ const { sequelize } = require("./models");
 const { testConnection } = require("./config/db");
 const initializeAdmin = require("./scripts/init-admin");
 const migrateUserRoles = require("./scripts/migrate-user-roles");
+const migrateEmailVerification = require("./scripts/create-email-verification-tables");
 const seederService = require("./services/seederService");
 
 const app = express();
@@ -225,6 +226,16 @@ const startServer = async () => {
     // Run user roles migration (runs after database sync)
     console.log('🔄 Running user roles migration...');
     await migrateUserRoles();
+
+    // Run email verification migration (runs after database sync)
+    console.log('🔄 Running email verification migration...');
+    try {
+      await migrateEmailVerification();
+    } catch (error) {
+      // Log error but don't stop server startup
+      console.error('⚠️  Email verification migration failed (non-critical):', error.message);
+      console.log('ℹ️  Server will continue to start. You can run the migration manually later.');
+    }
 
     // Initialize admin account (runs after migration)
     console.log('🔧 Initializing admin account...');

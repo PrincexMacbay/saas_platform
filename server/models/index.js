@@ -29,6 +29,7 @@ const DigitalCard = require('./DigitalCard');
 const UserPaymentInfo = require('./UserPaymentInfo');
 const Organization = require('./Organization');
 const PasswordResetToken = require('./PasswordResetToken');
+const EmailVerificationToken = require('./EmailVerificationToken');
 const SystemSettings = require('./SystemSettings');
 
 // Define associations
@@ -501,6 +502,17 @@ PasswordResetToken.belongsTo(User, {
   as: 'user'
 });
 
+// Email Verification Token relationships
+User.hasMany(EmailVerificationToken, { 
+  foreignKey: 'userId', 
+  as: 'emailVerificationTokens',
+  onDelete: 'CASCADE'
+});
+EmailVerificationToken.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -532,5 +544,6 @@ module.exports = {
   UserPaymentInfo,
   Organization,
   PasswordResetToken,
+  EmailVerificationToken,
   SystemSettings,
 };

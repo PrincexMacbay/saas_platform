@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { body } = require('express-validator');
-const { User, UserProfile, IndividualProfile, CompanyProfile, PasswordResetToken } = require('../models');
+const { User, UserProfile, IndividualProfile, CompanyProfile, PasswordResetToken, EmailVerificationToken } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const emailService = require('../services/emailService');
 const { Op } = require('sequelize');
@@ -19,6 +19,13 @@ const registerValidation = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
   body('firstName')
     .optional()
     .isLength({ max: 100 })
@@ -98,13 +105,14 @@ const register = async (req, res) => {
       });
     }
 
-    // Create new user
+    // Create new user with emailVerified set to false
     const user = await User.create({
       username,
       email,
       password,
       firstName,
       lastName,
+      emailVerified: false, // Email not verified yet
     });
 
     // Don't create a default user profile - let user choose their role
@@ -113,30 +121,50 @@ const register = async (req, res) => {
     // Get user without profile data initially
     const userWithoutProfile = await User.findByPk(user.id);
 
-    // Generate token
-    const token = generateToken(user.id);
+    // Get client IP and user agent for security logging
+    const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const userAgent = req.get('User-Agent');
 
-    // Send welcome email (async, don't wait for it)
-    emailService.sendWelcomeEmail(user).then(result => {
+    // Create email verification token
+    const { plainToken, verificationToken } = await EmailVerificationToken.createVerificationToken(
+      user.id,
+      {
+        ipAddress,
+        userAgent,
+        expiryHours: 24 // 24 hours expiry
+      }
+    );
+
+    console.log(`✅ Email verification token created for user: ${user.username} (ID: ${user.id})`);
+
+    // Send email verification email (async, don't wait for it)
+    emailService.sendEmailVerificationEmail(user, plainToken).then(result => {
       if (process.env.NODE_ENV === 'development') {
         if (result.success) {
-          console.log('📧 Welcome email sent successfully');
+          console.log('📧 Verification email sent successfully');
         } else {
-          console.log('📧 Welcome email failed (non-critical):', result.message);
+          console.log('📧 Verification email failed (non-critical):', result.message);
         }
       }
     }).catch(error => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('📧 Welcome email error (non-critical):', error.message);
+        console.log('📧 Verification email error (non-critical):', error.message);
       }
     });
 
+    // Don't generate JWT token yet - user needs to verify email first
+    // Return success but indicate email verification is required
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Registration successful! Please check your email to verify your account before logging in.',
       data: {
-        token,
         user: userWithoutProfile.toJSON(),
+        emailVerificationRequired: true,
+        // In development, return the token for testing
+        ...(process.env.NODE_ENV === 'development' && {
+          debugToken: plainToken,
+          expiresAt: verificationToken.expiresAt
+        })
       }
     });
   } catch (error) {
@@ -235,6 +263,16 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Account is not active'
+      });
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      console.log('❌ Email not verified');
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email address before logging in. Check your inbox for the verification email.',
+        emailVerificationRequired: true
       });
     }
 
@@ -500,10 +538,224 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * Verify Email Controller
+ * 
+ * This endpoint handles email verification by:
+ * 1. Validating the verification token
+ * 2. Checking if token is expired or already used
+ * 3. Marking the user's email as verified
+ * 4. Marking the token as used
+ * 5. Sending a welcome email
+ * 
+ * Security features:
+ * - Tokens are validated against hashed versions in database
+ * - Tokens are single-use only
+ * - Tokens expire after 24 hours
+ */
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token is required'
+      });
+    }
+    
+    console.log(`📧 Email verification attempt with token: ${token.substring(0, 8)}...`);
+    
+    // Validate the verification token
+    const verificationTokenRecord = await EmailVerificationToken.validateToken(token);
+    
+    if (!verificationTokenRecord) {
+      console.log(`❌ Invalid or expired verification token: ${token.substring(0, 8)}...`);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification token. Please request a new verification email.'
+      });
+    }
+
+    console.log(`✅ Valid verification token found for user ID: ${verificationTokenRecord.userId}`);
+
+    // Get the user
+    const user = await User.findByPk(verificationTokenRecord.userId);
+    
+    if (!user) {
+      console.log(`❌ User not found for verification token: ${verificationTokenRecord.userId}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification token. Please request a new verification email.'
+      });
+    }
+
+    // Check if email is already verified
+    if (user.emailVerified) {
+      console.log(`ℹ️ Email already verified for user: ${user.email}`);
+      // Mark token as used anyway
+      await EmailVerificationToken.markTokenAsUsed(token);
+      return res.status(200).json({
+        success: true,
+        message: 'Email is already verified. You can log in now.',
+        data: {
+          userId: user.id,
+          username: user.username,
+          emailVerified: true
+        }
+      });
+    }
+
+    // Update the user's email verification status
+    await user.update({
+      emailVerified: true,
+      emailVerifiedAt: new Date()
+    });
+    
+    console.log(`✅ Email verified successfully for user: ${user.username}`);
+
+    // Mark the token as used
+    await EmailVerificationToken.markTokenAsUsed(token);
+    
+    console.log(`✅ Verification token marked as used for user: ${user.username}`);
+
+    // Clean up expired tokens (async, don't wait for it)
+    EmailVerificationToken.cleanupExpiredTokens().catch(error => {
+      console.error('⚠️ Error cleaning up expired verification tokens:', error);
+    });
+
+    // Send welcome email (async, don't wait for it)
+    emailService.sendWelcomeEmail(user).catch(error => {
+      console.error('⚠️ Error sending welcome email:', error);
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully! You can now log in to your account.',
+      data: {
+        userId: user.id,
+        username: user.username,
+        emailVerified: true
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Verify email error:', error);
+    
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while verifying your email. Please try again.'
+    });
+  }
+};
+
+/**
+ * Resend Verification Email Controller
+ * 
+ * Allows users to request a new verification email if they didn't receive the first one
+ */
+const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required'
+      });
+    }
+    
+    console.log(`📧 Resend verification email requested for: ${email}`);
+    
+    // Find user by email
+    const user = await User.findOne({
+      where: { email: email.toLowerCase() }
+    });
+
+    // Always return success message to prevent email enumeration attacks
+    const successMessage = 'If an account with that email exists and is not verified, we have sent a verification email.';
+
+    if (!user) {
+      console.log(`⚠️ Resend verification requested for non-existent email: ${email}`);
+      return res.json({
+        success: true,
+        message: successMessage
+      });
+    }
+
+    // Check if email is already verified
+    if (user.emailVerified) {
+      console.log(`ℹ️ Resend verification requested for already verified email: ${email}`);
+      return res.json({
+        success: true,
+        message: 'This email is already verified. You can log in now.'
+      });
+    }
+
+    // Check if user account is active
+    if (user.status !== 1) {
+      console.log(`⚠️ Resend verification requested for inactive account: ${email}`);
+      return res.json({
+        success: true,
+        message: successMessage
+      });
+    }
+
+    // Get client IP and user agent for security logging
+    const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+    const userAgent = req.get('User-Agent');
+
+    // Create new verification token
+    const { plainToken, verificationToken } = await EmailVerificationToken.createVerificationToken(
+      user.id,
+      {
+        ipAddress,
+        userAgent,
+        expiryHours: 24
+      }
+    );
+
+    console.log(`✅ New verification token created for user: ${user.username} (ID: ${user.id})`);
+
+    // Send verification email
+    const emailResult = await emailService.sendEmailVerificationEmail(user, plainToken);
+    
+    if (emailResult.success) {
+      console.log(`📧 Verification email sent successfully to: ${email}`);
+    } else {
+      console.error(`❌ Failed to send verification email to: ${email}`, emailResult.error);
+      // Don't fail the request if email fails - token is still created
+    }
+
+    res.json({
+      success: true,
+      message: successMessage,
+      data: {
+        // In development, return the token for testing
+        ...(process.env.NODE_ENV === 'development' && {
+          debugToken: plainToken,
+          expiresAt: verificationToken.expiresAt
+        })
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Resend verification email error:', error);
+    
+    // Always return success to prevent information disclosure
+    res.json({
+      success: true,
+      message: 'If an account with that email exists and is not verified, we have sent a verification email.'
+    });
+  }
+};
+
 module.exports = {
   register: [registerValidation, handleValidationErrors, register],
   login: [loginValidation, handleValidationErrors, login],
   getProfile,
   forgotPassword: [forgotPasswordValidation, handleValidationErrors, forgotPassword],
   resetPassword: [resetPasswordValidation, handleValidationErrors, resetPassword],
+  verifyEmail,
+  resendVerificationEmail: [forgotPasswordValidation, handleValidationErrors, resendVerificationEmail],
 };

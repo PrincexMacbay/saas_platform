@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getDashboardPath } from '../hooks/useAdminRedirect';
@@ -15,6 +15,7 @@ const Login = () => {
   const { login, isAuthenticated, user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -56,6 +57,19 @@ const Login = () => {
         {error && (
           <div className="error-message" style={{ marginBottom: '20px', textAlign: 'center' }}>
             {error}
+            {error.includes('verify your email') && (
+              <div style={{ marginTop: '10px' }}>
+                <Link to="/verify-email" style={{ color: '#3498db', textDecoration: 'underline' }}>
+                  Resend verification email
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {location.state?.verified && (
+          <div className="success-message" style={{ marginBottom: '20px', textAlign: 'center', background: '#d4edda', color: '#155724', padding: '10px', borderRadius: '4px' }}>
+            {location.state.message || 'Email verified successfully! Please log in.'}
           </div>
         )}
 
