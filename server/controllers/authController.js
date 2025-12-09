@@ -571,22 +571,22 @@ const resetPassword = async (req, res) => {
  */
 const verifyEmail = async (req, res) => {
   try {
-    const { token } = req.query;
+    const { token: verificationToken } = req.query; // Rename to avoid conflict
     
-    if (!token) {
+    if (!verificationToken) {
       return res.status(400).json({
         success: false,
         message: 'Verification token is required'
       });
     }
     
-    console.log(`📧 Email verification attempt with token: ${token.substring(0, 8)}...`);
+    console.log(`📧 Email verification attempt with token: ${verificationToken.substring(0, 8)}...`);
     
     // Validate the verification token
-    const verificationTokenRecord = await EmailVerificationToken.validateToken(token);
+    const verificationTokenRecord = await EmailVerificationToken.validateToken(verificationToken);
     
     if (!verificationTokenRecord) {
-      console.log(`❌ Invalid or expired verification token: ${token.substring(0, 8)}...`);
+      console.log(`❌ Invalid or expired verification token: ${verificationToken.substring(0, 8)}...`);
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired verification token. Please request a new verification email.'
@@ -610,7 +610,7 @@ const verifyEmail = async (req, res) => {
     if (user.emailVerified) {
       console.log(`ℹ️ Email already verified for user: ${user.email}`);
       // Mark token as used anyway
-      await EmailVerificationToken.markTokenAsUsed(token);
+      await EmailVerificationToken.markTokenAsUsed(verificationToken);
       
       // Get user with profile data
       const userWithProfile = await User.findOne({
@@ -623,7 +623,7 @@ const verifyEmail = async (req, res) => {
         ]
       });
       
-      // Generate token for auto-login
+      // Generate JWT token for auto-login
       const loginToken = generateToken(user.id);
       
       return res.status(200).json({
@@ -645,8 +645,8 @@ const verifyEmail = async (req, res) => {
     
     console.log(`✅ Email verified successfully for user: ${user.username}`);
 
-    // Mark the token as used
-    await EmailVerificationToken.markTokenAsUsed(token);
+    // Mark the verification token as used
+    await EmailVerificationToken.markTokenAsUsed(verificationToken);
     
     console.log(`✅ Verification token marked as used for user: ${user.username}`);
 
@@ -672,14 +672,14 @@ const verifyEmail = async (req, res) => {
     });
 
     // Generate JWT token for automatic login
-    const token = generateToken(user.id);
+    const loginToken = generateToken(user.id);
     console.log(`✅ Token generated for auto-login: ${user.username}`);
 
     res.json({
       success: true,
       message: 'Email verified successfully! You are now logged in.',
       data: {
-        token,
+        token: loginToken,
         user: userWithProfile ? userWithProfile.toJSON() : user.toJSON(),
         emailVerified: true
       }
