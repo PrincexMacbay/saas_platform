@@ -51,9 +51,8 @@ const Register = () => {
       return;
     }
 
-    // Remove confirmPassword from data sent to server
-    const { confirmPassword, ...registrationData } = formData;
-    const result = await register(registrationData);
+    // Send confirmPassword to server for validation, then remove it
+    const result = await register(formData);
     
     if (result.success) {
       // Navigate to email verification page instead of dashboard

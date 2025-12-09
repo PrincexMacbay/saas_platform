@@ -20,7 +20,10 @@ const registerValidation = [
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
   body('confirmPassword')
+    .notEmpty()
+    .withMessage('Please confirm your password')
     .custom((value, { req }) => {
+      // confirmPassword must match password
       if (value !== req.body.password) {
         throw new Error('Passwords do not match');
       }
@@ -84,7 +87,13 @@ const register = async (req, res) => {
     console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
     console.log('Content-Type:', req.headers['content-type']);
     
-    const { username, email, password, firstName, lastName } = req.body;
+    // Extract data (confirmPassword is validated but not stored)
+    const { username, email, password, firstName, lastName, confirmPassword } = req.body;
+    
+    // Log validation info (confirmPassword should be present from frontend)
+    if (!confirmPassword) {
+      console.log('⚠️  Warning: confirmPassword not provided in request');
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({
