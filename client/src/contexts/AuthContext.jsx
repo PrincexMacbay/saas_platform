@@ -130,12 +130,24 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'UPDATE_USER', payload: userData });
   };
 
+  // Helper function to manually set user (for auto-login after email verification)
+  const setUser = (userData) => {
+    if (userData.token) {
+      localStorage.setItem('token', userData.token);
+    }
+    dispatch({
+      type: 'LOGIN_SUCCESS',
+      payload: userData,
+    });
+  };
+
   const value = {
     ...state,
     login,
     register,
     logout,
     updateUser,
+    setUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

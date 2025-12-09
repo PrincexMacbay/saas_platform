@@ -611,12 +611,27 @@ const verifyEmail = async (req, res) => {
       console.log(`ℹ️ Email already verified for user: ${user.email}`);
       // Mark token as used anyway
       await EmailVerificationToken.markTokenAsUsed(token);
+      
+      // Get user with profile data
+      const userWithProfile = await User.findOne({
+        where: { id: user.id },
+        include: [
+          {
+            model: UserProfile,
+            as: 'profile'
+          }
+        ]
+      });
+      
+      // Generate token for auto-login
+      const loginToken = generateToken(user.id);
+      
       return res.status(200).json({
         success: true,
-        message: 'Email is already verified. You can log in now.',
+        message: 'Email is already verified. You are now logged in.',
         data: {
-          userId: user.id,
-          username: user.username,
+          token: loginToken,
+          user: userWithProfile ? userWithProfile.toJSON() : user.toJSON(),
           emailVerified: true
         }
       });
@@ -645,12 +660,27 @@ const verifyEmail = async (req, res) => {
       console.error('⚠️ Error sending welcome email:', error);
     });
 
+    // Get user with profile data for response
+    const userWithProfile = await User.findOne({
+      where: { id: user.id },
+      include: [
+        {
+          model: UserProfile,
+          as: 'profile'
+        }
+      ]
+    });
+
+    // Generate JWT token for automatic login
+    const token = generateToken(user.id);
+    console.log(`✅ Token generated for auto-login: ${user.username}`);
+
     res.json({
       success: true,
-      message: 'Email verified successfully! You can now log in to your account.',
+      message: 'Email verified successfully! You are now logged in.',
       data: {
-        userId: user.id,
-        username: user.username,
+        token,
+        user: userWithProfile ? userWithProfile.toJSON() : user.toJSON(),
         emailVerified: true
       }
     });

@@ -54,10 +54,10 @@ This means your SendGrid API key is either missing, invalid, or your free tier l
      ```
      EMAIL_SERVICE=sendgrid
      EMAIL_PASSWORD=SG.your_api_key_here
-     EMAIL_FROM=noreply@yourdomain.com
+     EMAIL_FROM=macbayprince76@gmail.com
      ```
    - Replace `SG.your_api_key_here` with your actual SendGrid API key
-   - Replace `noreply@yourdomain.com` with your verified sender email
+   - **Important**: Use `macbayprince76@gmail.com` (your verified SendGrid email) for `EMAIL_FROM`
 
 5. **Redeploy** your Render service to apply the changes
 

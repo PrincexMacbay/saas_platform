@@ -92,9 +92,47 @@ class EmailService {
     // Use SendGrid HTTP API if configured (bypasses SMTP firewall issues)
     if (this.useSendGridAPI) {
       try {
+        // Validate EMAIL_FROM is set and extract email address
+        const emailFrom = process.env.EMAIL_FROM;
+        if (!emailFrom) {
+          console.error('❌ EMAIL_FROM environment variable is not set');
+          console.error('Please set EMAIL_FROM to a valid email address (e.g., macbayprince76@gmail.com)');
+          return {
+            success: false,
+            message: 'Email service not configured. Please set EMAIL_FROM environment variable.',
+            error: 'EMAIL_FROM_MISSING'
+          };
+        }
+
+        // Extract email address from formatted string like "Name" <email@domain.com> or just email@domain.com
+        let fromEmail = emailFrom;
+        const emailMatch = emailFrom.match(/<([^>]+)>/); // Extract email from <email@domain.com>
+        if (emailMatch) {
+          fromEmail = emailMatch[1]; // Use the email inside <>
+        } else if (!emailFrom.includes('@')) {
+          console.error('❌ EMAIL_FROM does not contain a valid email address');
+          console.error('Current value:', emailFrom);
+          return {
+            success: false,
+            message: 'EMAIL_FROM must contain a valid email address.',
+            error: 'EMAIL_FROM_INVALID'
+          };
+        }
+
+        // Validate the extracted email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(fromEmail)) {
+          console.error('❌ EMAIL_FROM is not a valid email address:', fromEmail);
+          return {
+            success: false,
+            message: 'EMAIL_FROM must be a valid email address.',
+            error: 'EMAIL_FROM_INVALID'
+          };
+        }
+
         const msg = {
           to: to,
-          from: process.env.EMAIL_FROM || '"Social Network" <noreply@social-network.com>',
+          from: fromEmail, // Use just the email address for SendGrid
           subject: subject,
           html: htmlContent,
           text: textContent || htmlContent.replace(/<[^>]*>/g, '')
@@ -131,8 +169,15 @@ class EmailService {
     }
 
     try {
+      // Extract email from formatted string for SMTP
+      let fromEmail = process.env.EMAIL_FROM || 'noreply@humhub-clone.com';
+      const emailMatch = fromEmail.match(/<([^>]+)>/);
+      if (emailMatch) {
+        fromEmail = emailMatch[1]; // Extract email from <email@domain.com>
+      }
+
       const mailOptions = {
-        from: process.env.EMAIL_FROM || '"HumHub Clone" <noreply@humhub-clone.com>',
+        from: fromEmail,
         to: to,
         subject: subject,
         html: htmlContent,
