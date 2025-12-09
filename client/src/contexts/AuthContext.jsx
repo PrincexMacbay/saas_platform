@@ -89,13 +89,27 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
-      const { user, token } = response.data;
+      const { user, token, emailVerificationRequired } = response.data;
       
-      localStorage.setItem('token', token);
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user, token },
-      });
+      // Don't log in automatically if email verification is required
+      if (emailVerificationRequired || !token) {
+        // Registration successful but email verification needed
+        return { 
+          success: true, 
+          user,
+          message: response.data.message || 'Please check your email to verify your account',
+          emailVerificationRequired: true
+        };
+      }
+      
+      // If token is provided (shouldn't happen with email verification, but handle it)
+      if (token) {
+        localStorage.setItem('token', token);
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: { user, token },
+        });
+      }
       
       return { success: true, user };
     } catch (error) {

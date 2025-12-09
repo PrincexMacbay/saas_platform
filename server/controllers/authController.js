@@ -148,17 +148,15 @@ const register = async (req, res) => {
 
     // Send email verification email (async, don't wait for it)
     emailService.sendEmailVerificationEmail(user, plainToken).then(result => {
-      if (process.env.NODE_ENV === 'development') {
-        if (result.success) {
-          console.log('📧 Verification email sent successfully');
-        } else {
-          console.log('📧 Verification email failed (non-critical):', result.message);
-        }
+      if (result.success) {
+        console.log('📧 Verification email sent successfully to:', user.email);
+      } else {
+        console.error('📧 Verification email failed:', result.message);
+        console.error('📧 Error details:', result.error);
       }
     }).catch(error => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📧 Verification email error (non-critical):', error.message);
-      }
+      console.error('📧 Verification email error:', error.message);
+      console.error('📧 Error stack:', error.stack);
     });
 
     // Don't generate JWT token yet - user needs to verify email first
