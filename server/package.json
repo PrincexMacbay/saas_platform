@@ -17,7 +17,8 @@
     "db:test-render": "node scripts/test-render-connection.js",
     "db:setup-supabase": "node scripts/setup-supabase-database.js",
     "db:migrate-password-reset": "node scripts/create-password-reset-table.js",
-    "db:migrate-email-verification": "node scripts/create-email-verification-tables.js"
+    "db:migrate-email-verification": "node scripts/create-email-verification-tables.js",
+    "db:verify-existing-users": "node scripts/verify-existing-users.js"
   },
   "keywords": [],
   "author": "",

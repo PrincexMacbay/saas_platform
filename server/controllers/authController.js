@@ -266,13 +266,22 @@ const login = async (req, res) => {
       });
     }
 
-    // Check if email is verified
-    if (!user.emailVerified) {
+    // Check if email is verified (skip for admin users)
+    if (!user.emailVerified && user.role !== 'admin') {
       console.log('❌ Email not verified');
       return res.status(401).json({
         success: false,
         message: 'Please verify your email address before logging in. Check your inbox for the verification email.',
         emailVerificationRequired: true
+      });
+    }
+    
+    // Auto-verify admin users if not already verified (for existing admins)
+    if (!user.emailVerified && user.role === 'admin') {
+      console.log('ℹ️  Auto-verifying admin user email');
+      await user.update({
+        emailVerified: true,
+        emailVerifiedAt: new Date()
       });
     }
 

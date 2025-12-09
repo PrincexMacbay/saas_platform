@@ -240,6 +240,29 @@ const startServer = async () => {
     // Initialize admin account (runs after migration)
     console.log('🔧 Initializing admin account...');
     await initializeAdmin();
+    
+    // Auto-verify existing admin accounts (so they can log in immediately)
+    console.log('🔧 Verifying existing admin accounts...');
+    try {
+      const { User } = require('./models');
+      const adminCount = await User.update(
+        {
+          emailVerified: true,
+          emailVerifiedAt: new Date()
+        },
+        {
+          where: {
+            role: 'admin',
+            emailVerified: false
+          }
+        }
+      );
+      if (adminCount[0] > 0) {
+        console.log(`✅ Auto-verified ${adminCount[0]} existing admin account(s)`);
+      }
+    } catch (error) {
+      console.log('⚠️  Could not auto-verify admin accounts:', error.message);
+    }
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
