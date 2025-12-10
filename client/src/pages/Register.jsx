@@ -77,14 +77,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl w-full">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
           {/* Left Side - Visual/Info */}
-          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-purple-600 to-pink-600 text-white relative overflow-hidden">
+          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-blue-600 to-[#2c3e50] text-white relative overflow-hidden">
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#34495e] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
             
             <div className="relative z-10">
               <div className="mb-8">
@@ -96,7 +96,7 @@ const Register = () => {
                 <h2 className="text-4xl font-bold mb-4">
                   {t('auth.register.welcome') || 'Join Us Today!'}
                 </h2>
-                <p className="text-purple-100 text-lg">
+                <p className="text-blue-100 text-lg">
                   {t('auth.register.subtitle') || 'Create your account and unlock access to membership management, career opportunities, and a vibrant community.'}
                 </p>
               </div>
@@ -112,7 +112,7 @@ const Register = () => {
                     <h3 className="font-semibold text-lg mb-1">
                       {t('auth.register.feature.community') || 'Build Your Network'}
                     </h3>
-                    <p className="text-purple-100">
+                    <p className="text-blue-100">
                       {t('auth.register.feature.community.desc') || 'Connect with professionals and organizations worldwide.'}
                     </p>
                   </div>
@@ -128,7 +128,7 @@ const Register = () => {
                     <h3 className="font-semibold text-lg mb-1">
                       {t('auth.register.feature.career') || 'Career Opportunities'}
                     </h3>
-                    <p className="text-purple-100">
+                    <p className="text-blue-100">
                       {t('auth.register.feature.career.desc') || 'Discover job opportunities and advance your career.'}
                     </p>
                   </div>
@@ -144,7 +144,7 @@ const Register = () => {
                     <h3 className="font-semibold text-lg mb-1">
                       {t('auth.register.feature.secure') || 'Secure Platform'}
                     </h3>
-                    <p className="text-purple-100">
+                    <p className="text-blue-100">
                       {t('auth.register.feature.secure.desc') || 'Your privacy and security are our top priorities.'}
                     </p>
                   </div>
@@ -202,7 +202,7 @@ const Register = () => {
                         type="text"
                         id="firstName"
                         name="firstName"
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
+                        className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                           errors.firstName ? 'border-red-300' : 'border-gray-300'
                         }`}
                         placeholder={t('auth.first.name.placeholder') || 'John'}
@@ -230,7 +230,7 @@ const Register = () => {
                         type="text"
                         id="lastName"
                         name="lastName"
-                        className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${
+                        className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                           errors.lastName ? 'border-red-300' : 'border-gray-300'
                         }`}
                         placeholder={t('auth.last.name.placeholder') || 'Doe'}
@@ -402,7 +402,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-[#2c3e50] hover:from-blue-700 hover:to-[#34495e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isLoading ? (
                     <>
@@ -428,7 +428,7 @@ const Register = () => {
                   {t('auth.have.account')}{' '}
                   <Link
                     to="/login"
-                    className="font-semibold text-purple-600 hover:text-purple-500 transition-colors"
+                    className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
                   >
                     {t('auth.login.title')}
                   </Link>

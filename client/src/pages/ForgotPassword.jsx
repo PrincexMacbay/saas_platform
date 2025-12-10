@@ -108,7 +108,7 @@ const ForgotPassword = () => {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-8 sm:p-12 text-center">
@@ -149,7 +149,7 @@ const ForgotPassword = () => {
                 <button 
                   type="button" 
                   onClick={handleResend}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-[#2c3e50] hover:from-blue-700 hover:to-[#34495e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,13 +177,13 @@ const ForgotPassword = () => {
 
   // Form state
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl w-full">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
           {/* Left Side - Visual/Info */}
-          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-orange-600 to-red-600 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-blue-600 to-[#2c3e50] text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#34495e] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
             
             <div className="relative z-10">
               <div className="mb-8">
@@ -195,7 +195,7 @@ const ForgotPassword = () => {
                 <h2 className="text-4xl font-bold mb-4">
                   {t('auth.forgot.password.title') || 'Forgot Password?'}
                 </h2>
-                <p className="text-orange-100 text-lg">
+                <p className="text-blue-100 text-lg">
                   {t('auth.forgot.password.subtitle') || "No worries! Enter your email address and we'll send you a secure link to reset your password."}
                 </p>
               </div>
@@ -211,7 +211,7 @@ const ForgotPassword = () => {
                     <h3 className="font-semibold text-lg mb-1">
                       {t('auth.forgot.password.feature.secure') || 'Secure Process'}
                     </h3>
-                    <p className="text-orange-100">
+                    <p className="text-blue-100">
                       {t('auth.forgot.password.feature.secure.desc') || 'Your password reset link is encrypted and expires in 15 minutes.'}
                     </p>
                   </div>
@@ -227,7 +227,7 @@ const ForgotPassword = () => {
                     <h3 className="font-semibold text-lg mb-1">
                       {t('auth.forgot.password.feature.quick') || 'Quick Recovery'}
                     </h3>
-                    <p className="text-orange-100">
+                    <p className="text-blue-100">
                       {t('auth.forgot.password.feature.quick.desc') || 'Get back into your account in minutes.'}
                     </p>
                   </div>
@@ -283,7 +283,7 @@ const ForgotPassword = () => {
                       type="email"
                       id="email"
                       name="email"
-                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                         validationErrors.email ? 'border-red-300' : 'border-gray-300'
                       }`}
                       placeholder={t('auth.email.placeholder') || 'Enter your email address'}
@@ -307,7 +307,7 @@ const ForgotPassword = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !formData.email.trim()}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-[#2c3e50] hover:from-blue-700 hover:to-[#34495e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isLoading ? (
                     <>
@@ -341,7 +341,7 @@ const ForgotPassword = () => {
                 
                 <Link
                   to="/register"
-                  className="w-full flex justify-center items-center py-3 px-4 border-2 border-orange-300 rounded-lg text-orange-600 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 font-semibold text-base transition-all duration-200"
+                  className="w-full flex justify-center items-center py-3 px-4 border-2 border-blue-300 rounded-lg text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold text-base transition-all duration-200"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
