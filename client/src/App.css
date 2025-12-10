@@ -19,15 +19,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 60px;
-  height: auto;
+  height: 60px; /* Keep navbar at 60px height */
   gap: 1.5rem; /* Add gap between logo and nav items */
+  overflow: visible; /* Allow logo to overflow if needed */
 }
 
-/* Responsive navbar height to accommodate larger logo */
+/* Responsive padding adjustments for larger logo */
 @media (min-width: 640px) {
   .navbar-container {
-    min-height: 80px;
     padding: 0 24px;
     gap: 2rem;
   }
@@ -35,7 +34,6 @@
 
 @media (min-width: 768px) {
   .navbar-container {
-    min-height: 90px;
     padding: 0 28px;
     gap: 2.5rem;
   }
@@ -43,8 +41,7 @@
 
 @media (min-width: 1024px) {
   .navbar-container {
-    min-height: 120px; /* Accommodate 100px logo + padding */
-    padding: 10px 32px; /* Vertical padding for better spacing */
+    padding: 0 32px; /* More horizontal padding on desktop */
     gap: 3rem; /* More space between logo and nav items */
   }
 }
@@ -56,7 +53,8 @@
   text-decoration: none;
   display: flex;
   align-items: center;
-  height: 100%; /* Take full height of container */
+  height: 60px; /* Match navbar height */
+  overflow: visible; /* Allow logo to overflow */
 }
 
 .navbar-brand img {
@@ -81,7 +79,7 @@
 
 @media (min-width: 1024px) {
   .navbar-brand img {
-    height: 100px; /* 100px logo on desktop */
+    height: 100px !important; /* 100px logo on desktop - force override */
   }
 }
 
