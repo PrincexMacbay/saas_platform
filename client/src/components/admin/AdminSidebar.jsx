@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import logoImage from '../../Logo/Near_East_University.svg.png';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobileClose }) => {
@@ -109,7 +110,16 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobil
     >
       <div className="admin-sidebar-header">
         <div className="admin-logo">
-          <span className="logo-icon">🔧</span>
+          <img 
+            src={logoImage} 
+            alt="Near East University" 
+            style={{
+              height: isExpanded ? '40px' : '32px',
+              width: 'auto',
+              objectFit: 'contain',
+              transition: 'all 0.3s ease'
+            }}
+          />
           <span className={`logo-text ${isExpanded ? 'visible' : 'hidden'}`}>
             {t('admin.sidebar.version')}
           </span>
