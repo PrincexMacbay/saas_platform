@@ -3,7 +3,26 @@
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
-  margin-top: 60px; /* Account for fixed navbar */
+  margin-top: 60px; /* Account for fixed navbar - mobile */
+}
+
+/* Responsive margin for larger navbar */
+@media (min-width: 640px) {
+  .admin-dashboard {
+    margin-top: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .admin-dashboard {
+    margin-top: 90px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-dashboard {
+    margin-top: 120px; /* Account for larger navbar on desktop */
+  }
 }
 
 .admin-dashboard-loading {
@@ -33,9 +52,28 @@
 .admin-main-content {
   flex: 1;
   margin-left: 70px; /* Start with collapsed sidebar width */
-  margin-top: -60px; /* Offset the dashboard margin-top */
+  margin-top: -60px; /* Offset the dashboard margin-top - mobile */
   padding: 0;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.3s ease;
+}
+
+/* Responsive margin-top offset */
+@media (min-width: 640px) {
+  .admin-main-content {
+    margin-top: -80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .admin-main-content {
+    margin-top: -90px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-main-content {
+    margin-top: -120px; /* Offset for larger navbar on desktop */
+  }
 }
 
 /* When sidebar is collapsed */

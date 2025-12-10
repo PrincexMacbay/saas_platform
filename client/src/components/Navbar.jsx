@@ -52,7 +52,6 @@ const Navbar = () => {
             <img 
               src={logoImage} 
               alt="Near East University - Faculty of AI and Informatics" 
-              className="h-16 sm:h-20 md:h-24 lg:h-[100px] w-auto object-contain"
             />
           </Link>
           
@@ -97,7 +96,6 @@ const Navbar = () => {
           <img 
             src={logoImage} 
             alt="Near East University - Faculty of AI and Informatics" 
-            className="h-16 sm:h-20 md:h-24 lg:h-[100px] w-auto object-contain"
           />
         </Link>
         
