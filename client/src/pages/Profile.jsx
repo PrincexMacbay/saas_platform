@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
-import api from '../services/api';
 import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import MembershipCard from '../components/membership/MembershipCard';
@@ -35,7 +34,6 @@ const Profile = () => {
   }, [identifier]);
 
   useEffect(() => {
-    // Check if edit mode should be enabled from URL parameter
     const shouldEdit = searchParams.get('edit') === 'true';
     if (shouldEdit && isOwnProfile) {
       setIsEditing(true);
@@ -74,7 +72,6 @@ const Profile = () => {
         });
       }
 
-      // Load followers and following
       if (userResponse.data.user) {
         try {
           const [followersResponse, followingResponse] = await Promise.all([
@@ -99,7 +96,6 @@ const Profile = () => {
     setActionLoading(true);
     try {
       const response = await toggleFollowUser(profileUser.id);
-      // Update the local state instead of reloading all data
       setProfileUser(prev => ({
         ...prev,
         isFollowing: response.data.isFollowing
@@ -116,9 +112,9 @@ const Profile = () => {
     
     try {
       await updateProfile(editData);
-      updateUser(editData); // Update context
+      updateUser(editData);
       setIsEditing(false);
-      loadProfileData(); // Reload profile
+      loadProfileData();
     } catch (error) {
       console.error('Error updating profile:', error);
     }
@@ -134,9 +130,9 @@ const Profile = () => {
 
   const getVisibilityText = (visibility) => {
     switch (visibility) {
-      case 1: return 'Registered Users';
-      case 2: return 'Public';
-      case 3: return 'Hidden';
+      case 1: return t('profile.visibility.registered') || 'Registered Users';
+      case 2: return t('profile.visibility.public') || 'Public';
+      case 3: return t('profile.visibility.hidden') || 'Hidden';
       default: return 'Unknown';
     }
   };
@@ -145,166 +141,164 @@ const Profile = () => {
     if (user.profile?.userType === 'company' && user.companyProfile?.companyName) {
       return `Company: ${user.companyProfile.companyName}`;
     } else if (user.profile?.userType === 'individual' && user.individualProfile?.workExperience) {
-      return user.individualProfile.workExperience.split('\n')[0]; // First line of work experience
+      return user.individualProfile.workExperience.split('\n')[0];
     } else if (user.profile?.userType) {
       return user.profile.userType.charAt(0).toUpperCase() + user.profile.userType.slice(1);
     }
-    return 'Not specified';
+    return t('profile.profession.not.specified') || 'Not specified';
   };
 
   if (isLoading) {
     return (
-      <div className="container text-center" style={{ paddingTop: '100px' }}>
-        <div className="spinner"></div>
-        <p>Loading profile...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">{t('profile.loading') || 'Loading profile...'}</p>
+        </div>
       </div>
     );
   }
 
   if (!profileUser) {
     return (
-      <div className="container text-center" style={{ paddingTop: '100px' }}>
-        <h3>User not found</h3>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('profile.not.found') || 'User not found'}</h3>
+          <p className="text-gray-600">{t('profile.not.found.message') || 'The user you are looking for does not exist.'}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ paddingTop: '80px' }}>
+    <div className="min-h-screen bg-gray-50 pb-8">
       {/* Profile Header */}
-      <div className="card mb-4">
-        <div style={{ padding: '30px' }}>
-          <div className="d-flex align-items-center mb-3">
-            <div className="user-avatar-lg" style={{ marginRight: '20px', position: 'relative' }}>
-              {profileUser.profileImage ? (
-                <img 
-                  src={buildImageUrl(profileUser.profileImage)}
-                  alt={profileUser.username}
-                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                />
-              ) : (
-                getInitials(profileUser)
-              )}
-              {isOwnProfile && (
-                <button
-                  onClick={() => setShowImageUpload(!showImageUpload)}
-                  style={{
-                    position: 'absolute',
-                    bottom: '5px',
-                    right: '5px',
-                    background: '#3498db',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '30px',
-                    height: '30px',
-                    cursor: 'pointer',
-                    fontSize: '12px'
-                  }}
-                  title="Change profile picture"
-                >
-                  <i className="fas fa-camera"></i>
-                </button>
-              )}
-            </div>
-            <div style={{ flex: 1 }}>
-              <h1 style={{ margin: 0, marginBottom: '5px' }}>
-                {profileUser.firstName && profileUser.lastName
-                  ? `${profileUser.firstName} ${profileUser.lastName}`
-                  : profileUser.username}
-              </h1>
-              <p style={{ margin: 0, color: '#7f8c8d', fontSize: '16px' }}>
-                @{profileUser.username}
-              </p>
-              <p style={{ margin: '5px 0', color: '#3498db', fontSize: '14px' }}>
-                {getProfession(profileUser)}
-              </p>
-              {profileUser.about && (
-                <p style={{ marginTop: '10px', lineHeight: '1.6' }}>
-                  {profileUser.about}
-                </p>
-              )}
-            </div>
-            <div>
-              {isOwnProfile ? (
-                <div>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setIsEditing(!isEditing)}
-                    style={{ marginRight: '10px' }}
-                  >
-                    <i className="fas fa-edit"></i> {isEditing ? t('common.cancel') : t('profile.edit')}
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowImageUpload(!showImageUpload)}
-                  >
-                    <i className="fas fa-camera"></i> Change Photo
-                  </button>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 pt-20 pb-8 md:pt-24 md:pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mt-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+              {/* Profile Image */}
+              <div className="relative flex-shrink-0">
+                <div className="relative">
+                  {profileUser.profileImage ? (
+                    <img 
+                      src={buildImageUrl(profileUser.profileImage)}
+                      alt={profileUser.username}
+                      className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl md:text-5xl font-bold border-4 border-white shadow-lg">
+                      {getInitials(profileUser)}
+                    </div>
+                  )}
+                  {isOwnProfile && (
+                    <button
+                      onClick={() => setShowImageUpload(!showImageUpload)}
+                      className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-all transform hover:scale-110"
+                      title={t('profile.change.photo') || 'Change profile picture'}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <button
-                  className={`btn ${profileUser.isFollowing ? 'btn-secondary' : 'btn-primary'}`}
-                  onClick={handleFollow}
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? t('common.loading') : 
-                   profileUser.isFollowing ? t('users.unfollow') : t('users.follow')}
-                </button>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Profile Stats */}
-          <div className="row">
-            <div className="col-2">
-              <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {followers.length}
+              {/* Profile Info */}
+              <div className="flex-1 text-center md:text-left w-full">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  {profileUser.firstName && profileUser.lastName
+                    ? `${profileUser.firstName} ${profileUser.lastName}`
+                    : profileUser.username}
+                </h1>
+                <p className="text-gray-600 text-lg mb-1">@{profileUser.username}</p>
+                <p className="text-blue-600 font-medium mb-4">{getProfession(profileUser)}</p>
+                
+                {profileUser.about && (
+                  <p className="text-gray-700 mb-6 max-w-2xl mx-auto md:mx-0">
+                    {profileUser.about}
+                  </p>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                  {isOwnProfile ? (
+                    <>
+                      <button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all transform hover:scale-105"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        {isEditing ? t('common.cancel') : t('profile.edit')}
+                      </button>
+                      <button
+                        onClick={() => setShowImageUpload(!showImageUpload)}
+                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md transition-all"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {t('profile.change.photo') || 'Change Photo'}
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleFollow}
+                      disabled={actionLoading}
+                      className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg shadow-md transition-all transform hover:scale-105 ${
+                        profileUser.isFollowing
+                          ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {actionLoading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          {t('common.loading')}
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {profileUser.isFollowing ? (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            ) : (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            )}
+                          </svg>
+                          {profileUser.isFollowing ? t('users.unfollow') : t('users.follow')}
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.followers')}</div>
               </div>
             </div>
-            <div className="col-2">
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-200">
               <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {following.length}
-                </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.following')}</div>
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{followers.length}</div>
+                <div className="text-sm text-gray-600 mt-1">{t('nav.followers')}</div>
               </div>
-            </div>
-            <div className="col-2">
               <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {userMemberships.length}
-                </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>{t('nav.memberships')}</div>
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{following.length}</div>
+                <div className="text-sm text-gray-600 mt-1">{t('nav.following')}</div>
               </div>
-            </div>
-            <div className="col-2">
               <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {posts.length}
-                </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Posts</div>
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{userMemberships.length}</div>
+                <div className="text-sm text-gray-600 mt-1">{t('nav.memberships')}</div>
               </div>
-            </div>
-            <div className="col-2">
               <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {getVisibilityText(profileUser.visibility)}
-                </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Profile visibility</div>
-              </div>
-            </div>
-            <div className="col-2">
-              <div className="text-center">
-                <div style={{ fontSize: '14px', color: '#2c3e50' }}>
-                  {profileUser.lastLogin 
-                    ? new Date(profileUser.lastLogin).toLocaleDateString()
-                    : 'Never'}
-                </div>
-                <div style={{ fontSize: '12px', color: '#7f8c8d' }}>Last login</div>
+                <div className="text-2xl md:text-3xl font-bold text-gray-900">{posts.length}</div>
+                <div className="text-sm text-gray-600 mt-1">{t('profile.posts') || 'Posts'}</div>
               </div>
             </div>
           </div>
@@ -313,15 +307,13 @@ const Profile = () => {
 
       {/* Image Upload Form */}
       {showImageUpload && isOwnProfile && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3>Update Profile Picture</h3>
-          </div>
-          <div style={{ padding: '20px' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{t('profile.update.photo') || 'Update Profile Picture'}</h3>
             <ProfileImageUpload 
               onUploadComplete={() => {
                 setShowImageUpload(false);
-                loadProfileData(); // Reload profile data
+                loadProfileData();
               }}
             />
           </div>
@@ -329,298 +321,312 @@ const Profile = () => {
       )}
 
       {/* Edit Profile Form */}
-      {isEditing && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3>Edit Profile</h3>
-          </div>
-          <form onSubmit={handleSaveProfile}>
-            <div className="row">
-              <div className="col-2">
-                <div className="form-group">
-                  <label className="form-label">First Name</label>
+      {isEditing && isOwnProfile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">{t('profile.edit')}</h3>
+            <form onSubmit={handleSaveProfile} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t('auth.first.name')}
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={editData.firstName}
                     onChange={(e) => setEditData({...editData, firstName: e.target.value})}
                     disabled={actionLoading}
                   />
                 </div>
-              </div>
-              <div className="col-2">
-                <div className="form-group">
-                  <label className="form-label">Last Name</label>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t('auth.last.name')}
+                  </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={editData.lastName}
                     onChange={(e) => setEditData({...editData, lastName: e.target.value})}
                     disabled={actionLoading}
                   />
                 </div>
               </div>
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">About</label>
-              <textarea
-                className="form-control"
-                rows="3"
-                value={editData.about}
-                onChange={(e) => setEditData({...editData, about: e.target.value})}
-                disabled={actionLoading}
-                maxLength="1000"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">Profile Visibility</label>
-              <select
-                className="form-control"
-                value={editData.visibility}
-                onChange={(e) => setEditData({...editData, visibility: parseInt(e.target.value)})}
-                disabled={actionLoading}
-              >
-                <option value={1}>Registered Users</option>
-                <option value={2}>Public</option>
-                <option value={3}>Hidden</option>
-              </select>
-            </div>
-            
-            <div className="d-flex justify-content-end">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setIsEditing(false)}
-                disabled={actionLoading}
-                style={{ marginRight: '10px' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={actionLoading}
-              >
-                {actionLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('profile.about')}
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows="4"
+                  value={editData.about}
+                  onChange={(e) => setEditData({...editData, about: e.target.value})}
+                  disabled={actionLoading}
+                  maxLength="1000"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  {t('profile.visibility') || 'Profile Visibility'}
+                </label>
+                <select
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={editData.visibility}
+                  onChange={(e) => setEditData({...editData, visibility: parseInt(e.target.value)})}
+                  disabled={actionLoading}
+                >
+                  <option value={1}>{t('profile.visibility.registered') || 'Registered Users'}</option>
+                  <option value={2}>{t('profile.visibility.public') || 'Public'}</option>
+                  <option value={3}>{t('profile.visibility.hidden') || 'Hidden'}</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  disabled={actionLoading}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all"
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+                >
+                  {actionLoading ? t('common.saving') || 'Saving...' : t('profile.save')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
       {/* Profile Tabs */}
-      <div className="card mb-4">
-        <div className="card-header">
-          <ul className="nav nav-tabs card-header-tabs">
-            <li className="nav-item">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <nav className="flex overflow-x-auto -mb-px">
               <button
-                className={`nav-link ${activeTab === 'posts' ? 'active' : ''}`}
                 onClick={() => setActiveTab('posts')}
+                className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'posts'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <i className="fas fa-file-alt me-2"></i> Posts ({posts.length})
+                <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {t('profile.posts') || 'Posts'} ({posts.length})
               </button>
-            </li>
-            <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'memberships' ? 'active' : ''}`}
                 onClick={() => setActiveTab('memberships')}
+                className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'memberships'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <i className="fas fa-id-card me-2"></i> Memberships ({userMemberships.length})
+                <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
+                {t('nav.memberships')} ({userMemberships.length})
               </button>
-            </li>
-            <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'followers' ? 'active' : ''}`}
                 onClick={() => setActiveTab('followers')}
+                className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'followers'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <i className="fas fa-user-plus me-2"></i> Followers ({followers.length})
+                <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                {t('nav.followers')} ({followers.length})
               </button>
-            </li>
-            <li className="nav-item">
               <button
-                className={`nav-link ${activeTab === 'following' ? 'active' : ''}`}
                 onClick={() => setActiveTab('following')}
+                className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'following'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <i className="fas fa-user-friends me-2"></i> Following ({following.length})
+                <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {t('nav.following')} ({following.length})
               </button>
-            </li>
-          </ul>
-        </div>
-        <div className="card-body">
-          {/* Posts Tab */}
-          {activeTab === 'posts' && (
-            <div>
-              <h4>Posts by {profileUser.firstName && profileUser.lastName
-                ? `${profileUser.firstName} ${profileUser.lastName}`
-                : profileUser.username}</h4>
-              
-              <div className="posts-feed">
-                {posts.length === 0 ? (
-                  <div className="text-center py-4">
-                    <i className="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                    <p>{isOwnProfile ? 'You haven\'t posted anything yet.' : 'No posts to show.'}</p>
-                  </div>
-                ) : (
-                  posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      onUpdate={loadProfileData}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
-          )}
+            </nav>
+          </div>
 
-          {/* Memberships Tab */}
-          {activeTab === 'memberships' && (
-            <div>
-              <h4>Memberships</h4>
-              {userMemberships.length === 0 ? (
-                <div className="text-center py-4">
-                  <i className="fas fa-id-card fa-3x text-muted mb-3"></i>
-                  <p>{isOwnProfile ? 'You haven\'t joined any memberships yet.' : 'No memberships to show.'}</p>
-                  {isOwnProfile && (
-                    <a href="/membership" className="btn btn-primary">
-                      <i className="fas fa-plus"></i> Browse Memberships
-                    </a>
+          {/* Tab Content */}
+          <div className="p-6">
+            {/* Posts Tab */}
+            {activeTab === 'posts' && (
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-6">
+                  {t('profile.posts.by') || 'Posts by'} {profileUser.firstName && profileUser.lastName
+                    ? `${profileUser.firstName} ${profileUser.lastName}`
+                    : profileUser.username}
+                </h4>
+                
+                <div className="space-y-4">
+                  {posts.length === 0 ? (
+                    <div className="text-center py-12">
+                      <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-gray-600">{isOwnProfile ? t('profile.no.posts.own') || "You haven't posted anything yet." : t('profile.no.posts') || 'No posts to show.'}</p>
+                    </div>
+                  ) : (
+                    posts.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        onUpdate={loadProfileData}
+                      />
+                    ))
                   )}
                 </div>
-              ) : (
-                <div className="row">
-                  {userMemberships.map((membership) => (
-                    <div key={membership.id} className="col-md-6 col-lg-4 mb-3">
+              </div>
+            )}
+
+            {/* Memberships Tab */}
+            {activeTab === 'memberships' && (
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-6">{t('nav.memberships')}</h4>
+                {userMemberships.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                    </svg>
+                    <p className="text-gray-600 mb-4">{isOwnProfile ? t('profile.no.memberships.own') || "You haven't joined any memberships yet." : t('profile.no.memberships') || 'No memberships to show.'}</p>
+                    {isOwnProfile && (
+                      <Link to="/membership" className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        {t('dashboard.browse.all.memberships')}
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {userMemberships.map((membership) => (
                       <MembershipCard 
+                        key={membership.id}
                         membership={membership}
                         onViewCard={() => {}}
                       />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Followers Tab */}
-          {activeTab === 'followers' && (
-            <div>
-              <h4>Followers</h4>
-              {followers.length === 0 ? (
-                <div className="text-center py-4">
-                  <i className="fas fa-user-plus fa-3x text-muted mb-3"></i>
-                  <p>No followers yet.</p>
-                </div>
-              ) : (
-                <div className="row">
-                  {followers.map((follower) => (
-                    <div key={follower.id} className="col-md-6 col-lg-4 mb-3">
-                      <div className="card">
-                        <div className="card-body">
-                          <div className="d-flex align-items-center">
-                            <div className="user-avatar-sm me-3">
-                              {follower.profileImage ? (
-                                <img 
-                                  src={buildImageUrl(follower.profileImage)}
-                                  alt={follower.username}
-                                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                                />
-                              ) : (
-                                <div style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '50%',
-                                  backgroundColor: '#3498db',
-                                  color: 'white',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '16px',
-                                  fontWeight: 'bold'
-                                }}>
-                                  {getInitials(follower)}
-                                </div>
-                              )}
+            {/* Followers Tab */}
+            {activeTab === 'followers' && (
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-6">{t('nav.followers')}</h4>
+                {followers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    <p className="text-gray-600">{t('profile.no.followers') || 'No followers yet.'}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {followers.map((follower) => (
+                      <Link
+                        key={follower.id}
+                        to={`/profile/${follower.username}`}
+                        className="bg-gray-50 hover:bg-gray-100 rounded-lg p-4 transition-all border border-gray-200"
+                      >
+                        <div className="flex items-center gap-4">
+                          {follower.profileImage ? (
+                            <img 
+                              src={buildImageUrl(follower.profileImage)}
+                              alt={follower.username}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                              {getInitials(follower)}
                             </div>
-                            <div>
-                              <h6 className="mb-1">
-                                {follower.firstName && follower.lastName
-                                  ? `${follower.firstName} ${follower.lastName}`
-                                  : follower.username}
-                              </h6>
-                              <p className="mb-1 text-muted small">@{follower.username}</p>
-                              <p className="mb-0 text-muted small">{getProfession(follower)}</p>
-                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h6 className="font-semibold text-gray-900 truncate">
+                              {follower.firstName && follower.lastName
+                                ? `${follower.firstName} ${follower.lastName}`
+                                : follower.username}
+                            </h6>
+                            <p className="text-sm text-gray-600 truncate">@{follower.username}</p>
+                            <p className="text-xs text-gray-500 truncate">{getProfession(follower)}</p>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Following Tab */}
-          {activeTab === 'following' && (
-            <div>
-              <h4>Following</h4>
-              {following.length === 0 ? (
-                <div className="text-center py-4">
-                  <i className="fas fa-user-friends fa-3x text-muted mb-3"></i>
-                  <p>{isOwnProfile ? 'You\'re not following anyone yet.' : 'Not following anyone.'}</p>
-                </div>
-              ) : (
-                <div className="row">
-                  {following.map((followed) => (
-                    <div key={followed.id} className="col-md-6 col-lg-4 mb-3">
-                      <div className="card">
-                        <div className="card-body">
-                          <div className="d-flex align-items-center">
-                            <div className="user-avatar-sm me-3">
-                              {followed.profileImage ? (
-                                <img 
-                                  src={buildImageUrl(followed.profileImage)}
-                                  alt={followed.username}
-                                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                                />
-                              ) : (
-                                <div style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '50%',
-                                  backgroundColor: '#3498db',
-                                  color: 'white',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '16px',
-                                  fontWeight: 'bold'
-                                }}>
-                                  {getInitials(followed)}
-                                </div>
-                              )}
+            {/* Following Tab */}
+            {activeTab === 'following' && (
+              <div>
+                <h4 className="text-xl font-bold text-gray-900 mb-6">{t('nav.following')}</h4>
+                {following.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p className="text-gray-600">{isOwnProfile ? t('profile.no.following.own') || "You're not following anyone yet." : t('profile.no.following') || 'Not following anyone.'}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {following.map((followed) => (
+                      <Link
+                        key={followed.id}
+                        to={`/profile/${followed.username}`}
+                        className="bg-gray-50 hover:bg-gray-100 rounded-lg p-4 transition-all border border-gray-200"
+                      >
+                        <div className="flex items-center gap-4">
+                          {followed.profileImage ? (
+                            <img 
+                              src={buildImageUrl(followed.profileImage)}
+                              alt={followed.username}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                              {getInitials(followed)}
                             </div>
-                            <div>
-                              <h6 className="mb-1">
-                                {followed.firstName && followed.lastName
-                                  ? `${followed.firstName} ${followed.lastName}`
-                                  : followed.username}
-                              </h6>
-                              <p className="mb-1 text-muted small">@{followed.username}</p>
-                              <p className="mb-0 text-muted small">{getProfession(followed)}</p>
-                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h6 className="font-semibold text-gray-900 truncate">
+                              {followed.firstName && followed.lastName
+                                ? `${followed.firstName} ${followed.lastName}`
+                                : followed.username}
+                            </h6>
+                            <p className="text-sm text-gray-600 truncate">@{followed.username}</p>
+                            <p className="text-xs text-gray-500 truncate">{getProfession(followed)}</p>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

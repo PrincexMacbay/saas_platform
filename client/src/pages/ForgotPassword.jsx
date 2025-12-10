@@ -2,23 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import logoImage from '../Logo/neu2.png';
 
-/**
- * ForgotPasswordPage Component
- * 
- * This component handles password reset requests by:
- * 1. Collecting user email address
- * 2. Validating email format
- * 3. Calling the backend forgot password API
- * 4. Showing success/error feedback
- * 5. Providing navigation back to login
- * 
- * Security features:
- * - Email validation on frontend
- * - Loading states to prevent double submissions
- * - Clear user feedback
- * - Responsive design
- */
 const ForgotPassword = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -32,17 +17,12 @@ const ForgotPassword = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
 
-  /**
-   * Handle form input changes
-   * Clears errors and updates form data
-   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -50,7 +30,6 @@ const ForgotPassword = () => {
       [name]: value,
     });
     
-    // Clear specific field error when user starts typing
     if (validationErrors[name]) {
       setValidationErrors({
         ...validationErrors,
@@ -58,46 +37,31 @@ const ForgotPassword = () => {
       });
     }
     
-    // Clear general error
     if (error) {
       setError('');
     }
   };
 
-  /**
-   * Validate email format
-   * @param {string} email - Email to validate
-   * @returns {boolean} - True if valid
-   */
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  /**
-   * Validate form data
-   * @returns {Object} - Validation errors object
-   */
   const validateForm = () => {
     const errors = {};
     
     if (!formData.email.trim()) {
-      errors.email = 'Email address is required';
+      errors.email = t('auth.forgot.password.email.required') || 'Email address is required';
     } else if (!validateEmail(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = t('auth.forgot.password.email.invalid') || 'Please enter a valid email address';
     }
     
     return errors;
   };
 
-  /**
-   * Handle form submission
-   * Sends password reset request to backend
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -124,525 +88,289 @@ const ForgotPassword = () => {
 
       if (response.ok && data.success) {
         setSuccess(true);
-        console.log('Password reset email sent successfully');
-        
-        // In development, log the debug token
-        if (data.data?.debugToken) {
-          console.log('🔑 Debug reset token:', data.data.debugToken);
-          console.log('⏰ Token expires at:', data.data.expiresAt);
-        }
       } else {
-        setError(data.message || 'Failed to send reset email. Please try again.');
+        setError(data.message || t('auth.forgot.password.error') || 'Failed to send reset email. Please try again.');
       }
     } catch (error) {
       console.error('Forgot password error:', error);
-      setError('Network error. Please check your connection and try again.');
+      setError(t('auth.forgot.password.network.error') || 'Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  /**
-   * Handle resend email (if user wants to try again)
-   */
   const handleResend = () => {
     setSuccess(false);
     setError('');
     setFormData({ email: '' });
   };
 
-  // Show success state
+  // Success state
   if (success) {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="success-icon">
-            <i className="fas fa-envelope-open-text"></i>
-          </div>
-          
-          <h2 className="auth-title">{t('auth.reset.password')}</h2>
-          <p className="auth-subtitle">
-            We've sent a password reset link to <strong>{formData.email}</strong>
-          </p>
-          
-          <div className="success-message">
-            <p>
-              <i className="fas fa-info-circle"></i>
-              If you don't see the email in your inbox, please check your spam folder.
-            </p>
-            <p>
-              <i className="fas fa-clock"></i>
-              The reset link will expire in 15 minutes for security.
-            </p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-8 sm:p-12 text-center">
+              <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6 animate-bounce">
+                <svg className="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                {t('auth.forgot.password.email.sent') || 'Check Your Email!'}
+              </h2>
+              
+              <p className="text-gray-600 mb-6">
+                {t('auth.forgot.password.email.sent.message') || "We've sent a password reset link to"} <strong className="text-gray-900">{formData.email}</strong>
+              </p>
+              
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
+                <div className="flex items-start gap-3 mb-3">
+                  <svg className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-green-800">
+                    {t('auth.forgot.password.check.spam') || "If you don't see the email in your inbox, please check your spam folder."}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <svg className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-green-800">
+                    {t('auth.forgot.password.expires') || 'The reset link will expire in 15 minutes for security.'}
+                  </p>
+                </div>
+              </div>
 
-          <div className="auth-actions">
-            <button 
-              type="button" 
-              onClick={handleResend}
-              className="btn btn-secondary"
-              disabled={isLoading}
-            >
-              <i className="fas fa-redo"></i> Send Another Email
-            </button>
-          </div>
-
-          <div className="auth-links">
-            <Link to="/login" className="auth-link">
-              <i className="fas fa-arrow-left"></i> Back to Login
-            </Link>
+              <div className="space-y-3">
+                <button 
+                  type="button" 
+                  onClick={handleResend}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  {t('auth.forgot.password.send.another') || 'Send Another Email'}
+                </button>
+                
+                <Link
+                  to="/login"
+                  className="w-full flex justify-center items-center py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 font-semibold text-base transition-all duration-200"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  {t('auth.forgot.password.back.to.login') || 'Back to Login'}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-
-        <style jsx>{`
-          .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-          }
-
-          .auth-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-          }
-
-          .success-icon {
-            font-size: 4rem;
-            color: #27ae60;
-            margin-bottom: 20px;
-            animation: bounce 1s ease-in-out;
-          }
-
-          @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-              transform: translateY(0);
-            }
-            40% {
-              transform: translateY(-10px);
-            }
-            60% {
-              transform: translateY(-5px);
-            }
-          }
-
-          .auth-title {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
-          }
-
-          .auth-subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            line-height: 1.5;
-          }
-
-          .success-message {
-            background: #e8f5e8;
-            border: 1px solid #c3e6c3;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 30px 0;
-            text-align: left;
-          }
-
-          .success-message p {
-            margin: 10px 0;
-            color: #155724;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-
-          .success-message i {
-            color: #27ae60;
-            width: 16px;
-          }
-
-          .auth-actions {
-            margin: 30px 0;
-          }
-
-          .btn {
-            width: 100%;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-          }
-
-          .btn-secondary {
-            background: #6c757d;
-            color: white;
-          }
-
-          .btn-secondary:hover:not(:disabled) {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-          }
-
-          .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-          }
-
-          .auth-links {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
-          }
-
-          .auth-link {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 1px solid #3498db;
-            background: transparent;
-            position: relative;
-            overflow: hidden;
-          }
-
-          .auth-link:hover {
-            color: white;
-            background: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-          }
-
-          .auth-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-          }
-
-          .auth-link:hover::before {
-            left: 100%;
-          }
-
-          @media (max-width: 480px) {
-            .auth-card {
-              padding: 30px 20px;
-              margin: 10px;
-            }
-            
-            .success-icon {
-              font-size: 3rem;
-            }
-            
-            .auth-title {
-              font-size: 1.5rem;
-            }
-          }
-        `}</style>
       </div>
     );
   }
 
-  // Show form state
+  // Form state
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <div className="auth-icon">
-            <i className="fas fa-key"></i>
-          </div>
-          <h2 className="auth-title">{t('auth.forgot.password')}</h2>
-          <p className="auth-subtitle">
-            No worries! Enter your email address and we'll send you a link to reset your password.
-          </p>
-        </div>
-
-        {error && (
-          <div className="error-message">
-            <i className="fas fa-exclamation-triangle"></i>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              <i className="fas fa-envelope"></i>
-              {t('auth.email')}
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`form-input ${validationErrors.email ? 'error' : ''}`}
-              placeholder="Enter your email address"
-              disabled={isLoading}
-              autoComplete="email"
-              autoFocus
-            />
-            {validationErrors.email && (
-              <div className="field-error">
-                <i className="fas fa-exclamation-circle"></i>
-                {validationErrors.email}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl w-full">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+          {/* Left Side - Visual/Info */}
+          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-orange-600 to-red-600 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+            
+            <div className="relative z-10">
+              <div className="mb-8">
+                <img 
+                  src={logoImage} 
+                  alt="Near East University" 
+                  className="h-16 mb-6"
+                />
+                <h2 className="text-4xl font-bold mb-4">
+                  {t('auth.forgot.password.title') || 'Forgot Password?'}
+                </h2>
+                <p className="text-orange-100 text-lg">
+                  {t('auth.forgot.password.subtitle') || "No worries! Enter your email address and we'll send you a secure link to reset your password."}
+                </p>
               </div>
-            )}
+
+              <div className="space-y-6 mt-8">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">
+                      {t('auth.forgot.password.feature.secure') || 'Secure Process'}
+                    </h3>
+                    <p className="text-orange-100">
+                      {t('auth.forgot.password.feature.secure.desc') || 'Your password reset link is encrypted and expires in 15 minutes.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">
+                      {t('auth.forgot.password.feature.quick') || 'Quick Recovery'}
+                    </h3>
+                    <p className="text-orange-100">
+                      {t('auth.forgot.password.feature.quick.desc') || 'Get back into your account in minutes.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={isLoading || !formData.email.trim()}
-          >
-            {isLoading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                Sending Reset Link...
-              </>
-            ) : (
-              <>
-                <i className="fas fa-paper-plane"></i>
-                {t('auth.send.reset')}
-              </>
-            )}
-          </button>
-        </form>
+          {/* Right Side - Form */}
+          <div className="p-8 sm:p-12 flex flex-col justify-center">
+            <div className="lg:hidden mb-8 text-center">
+              <img 
+                src={logoImage} 
+                alt="Near East University" 
+                className="h-12 mx-auto mb-4"
+              />
+              <h2 className="text-3xl font-bold text-gray-900">
+                {t('auth.forgot.password')}
+              </h2>
+            </div>
 
-        <div className="auth-links">
-          <Link to="/login" className="auth-link">
-            <i className="fas fa-arrow-left"></i> Back to Login
-          </Link>
-          <Link to="/register" className="auth-link">
-            <i className="fas fa-user-plus"></i> Create Account
-          </Link>
+            <div className="max-w-md mx-auto w-full">
+              <div className="hidden lg:block mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  {t('auth.forgot.password')}
+                </h2>
+                <p className="text-gray-600">
+                  {t('auth.forgot.password.enter.email') || 'Enter your email address to receive a password reset link'}
+                </p>
+              </div>
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-red-800 font-medium">{error}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t('auth.email')}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
+                        validationErrors.email ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                      placeholder={t('auth.email.placeholder') || 'Enter your email address'}
+                      value={formData.email}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      autoComplete="email"
+                      autoFocus
+                    />
+                  </div>
+                  {validationErrors.email && (
+                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      {validationErrors.email}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !formData.email.trim()}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {t('auth.forgot.password.sending') || 'Sending Reset Link...'}
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      {t('auth.send.reset')}
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-6 space-y-3">
+                <Link
+                  to="/login"
+                  className="w-full flex justify-center items-center py-3 px-4 border-2 border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 font-semibold text-base transition-all duration-200"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  {t('auth.forgot.password.back.to.login') || 'Back to Login'}
+                </Link>
+                
+                <Link
+                  to="/register"
+                  className="w-full flex justify-center items-center py-3 px-4 border-2 border-orange-300 rounded-lg text-orange-600 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 font-semibold text-base transition-all duration-200"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  {t('auth.register.button')}
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <style jsx>{`
-        .auth-container {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
-
-        .auth-card {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-          padding: 40px;
-          width: 100%;
-          max-width: 450px;
-        }
-
-        .auth-header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-
-        .auth-icon {
-          font-size: 3rem;
-          color: #3498db;
-          margin-bottom: 20px;
-        }
-
-        .auth-title {
-          color: #2c3e50;
-          margin-bottom: 10px;
-          font-size: 1.8rem;
-          font-weight: 700;
-        }
-
-        .auth-subtitle {
-          color: #7f8c8d;
-          margin-bottom: 0;
-          font-size: 1rem;
-          line-height: 1.5;
-        }
-
-        .error-message {
-          background: #f8d7da;
-          border: 1px solid #f5c6cb;
-          color: #721c24;
-          padding: 12px 16px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.9rem;
-        }
-
-        .auth-form {
-          margin-bottom: 30px;
-        }
-
-        .form-group {
-          margin-bottom: 20px;
-        }
-
-        .form-label {
-          display: block;
-          margin-bottom: 8px;
-          color: #2c3e50;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 12px 16px;
-          border: 2px solid #e9ecef;
-          border-radius: 8px;
-          font-size: 1rem;
-          transition: all 0.3s ease;
-          box-sizing: border-box;
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: #3498db;
-          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        .form-input.error {
-          border-color: #e74c3c;
-        }
-
-        .form-input:disabled {
-          background-color: #f8f9fa;
-          cursor: not-allowed;
-        }
-
-        .field-error {
-          color: #e74c3c;
-          font-size: 0.85rem;
-          margin-top: 5px;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-
-        .btn {
-          width: 100%;
-          padding: 14px 20px;
-          border: none;
-          border-radius: 12px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-          color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-          background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
-          transform: translateY(-3px);
-          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-primary:active:not(:disabled) {
-          transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-          background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
-          color: #2c3e50;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          border: 1px solid #bdc3c7;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-          background: linear-gradient(135deg, #d5dbdb 0%, #bdc3c7 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
-        }
-
-        .btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-
-        .btn:hover:not(:disabled)::before {
-          left: 100%;
-        }
-
-        .auth-links {
-          display: flex;
-          justify-content: space-between;
-          gap: 15px;
-          padding-top: 20px;
-          border-top: 1px solid #ecf0f1;
-        }
-
-
-        @media (max-width: 480px) {
-          .auth-card {
-            padding: 30px 20px;
-            margin: 10px;
+      <style>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
           }
-          
-          .auth-links {
-            flex-direction: column;
-            gap: 10px;
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
           }
-          
-          .auth-link {
-            justify-content: center;
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
           }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
         }
       `}</style>
     </div>
