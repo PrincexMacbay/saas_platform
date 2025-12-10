@@ -383,32 +383,71 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     
-    console.log(`🔐 Password reset requested for email: ${email}`);
+    // Validate email is provided
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required'
+      });
+    }
+
+    // Normalize email (lowercase and trim)
+    const normalizedEmail = email.toLowerCase().trim();
     
-    // Find user by email
+    console.log(`🔐 Password reset requested for email: ${normalizedEmail}`);
+    
+    // CRITICAL: Check if user exists in database BEFORE doing anything else
+    // This prevents sending emails to non-existent accounts
     const user = await User.findOne({
-      where: { email: email.toLowerCase() }
+      where: { email: normalizedEmail }
     });
 
     // Always return success message to prevent email enumeration attacks
     const successMessage = 'If an account with that email exists, we have sent a password reset link.';
 
+    // IMPORTANT: If user doesn't exist, return immediately WITHOUT sending any email
     if (!user) {
-      console.log(`⚠️ Password reset requested for non-existent email: ${email}`);
+      console.log(`⚠️ Password reset requested for non-existent email: ${normalizedEmail} - NO EMAIL SENT`);
       return res.json({
         success: true,
         message: successMessage
       });
     }
 
-    // Check if user account is active
-    if (user.status !== 1) {
-      console.log(`⚠️ Password reset requested for inactive account: ${email}`);
+    // Verify user object is valid and has required properties
+    if (!user.id || !user.email) {
+      console.log(`⚠️ Invalid user object found for email: ${normalizedEmail} - NO EMAIL SENT`);
       return res.json({
         success: true,
         message: successMessage
       });
     }
+
+    // Check if user account is active (status 1 = enabled)
+    if (user.status !== 1) {
+      console.log(`⚠️ Password reset requested for inactive account: ${normalizedEmail} (status: ${user.status}) - NO EMAIL SENT`);
+      return res.json({
+        success: true,
+        message: successMessage
+      });
+    }
+
+    // Double-check: Verify the email matches (case-insensitive)
+    if (user.email.toLowerCase() !== normalizedEmail) {
+      console.log(`⚠️ Email mismatch detected for: ${normalizedEmail} - NO EMAIL SENT`);
+      return res.json({
+        success: true,
+        message: successMessage
+      });
+    }
+
+    // At this point, we've confirmed:
+    // 1. User exists in database
+    // 2. User account is active
+    // 3. Email matches the registered account
+    // NOW we can safely create token and send email
+
+    console.log(`✅ Valid user found: ${user.username} (ID: ${user.id}, Email: ${user.email})`);
 
     // Get client IP and user agent for security logging
     const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
@@ -426,13 +465,13 @@ const forgotPassword = async (req, res) => {
 
     console.log(`✅ Password reset token created for user: ${user.username} (ID: ${user.id})`);
 
-    // Send password reset email
+    // Send password reset email ONLY to verified registered user
     const emailResult = await emailService.sendPasswordResetEmail(user, plainToken);
     
     if (emailResult.success) {
-      console.log(`📧 Password reset email sent successfully to: ${email}`);
+      console.log(`📧 Password reset email sent successfully to registered user: ${user.email}`);
     } else {
-      console.error(`❌ Failed to send password reset email to: ${email}`, emailResult.error);
+      console.error(`❌ Failed to send password reset email to: ${user.email}`, emailResult.error);
       // Don't fail the request if email fails - token is still created
     }
 
@@ -452,6 +491,7 @@ const forgotPassword = async (req, res) => {
     console.error('❌ Forgot password error:', error);
     
     // Always return success to prevent information disclosure
+    // But ensure NO email is sent if there's an error
     res.json({
       success: true,
       message: 'If an account with that email exists, we have sent a password reset link.'

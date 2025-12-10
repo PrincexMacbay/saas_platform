@@ -245,7 +245,7 @@ class EmailService {
     const html = `
       <h2>New Follower!</h2>
       <p>Hi ${followedUser.firstName || followedUser.username},</p>
-      <p><strong>${follower.firstName || follower.username}</strong> (@${follower.username}) started following you on HumHub Clone!</p>
+      <p><strong>${follower.firstName || follower.username}</strong> (@${follower.username}) started following you on Social Network!</p>
       ${follower.about ? `<p><em>"${follower.about}"</em></p>` : ''}
       <p>
         <a href="${process.env.CLIENT_URL}/profile/${follower.username}" 
@@ -290,7 +290,7 @@ class EmailService {
 
   // Template for welcome email
   async sendWelcomeEmail(user) {
-    const subject = `Welcome to HumHub Clone!`;
+    const subject = `Welcome to Social Network!`;
     const html = `
       <h2>Welcome to Social Network</h2>
       <p>Hi ${user.firstName || user.username},</p>
@@ -311,7 +311,7 @@ class EmailService {
       <p>If you have any questions, feel free to explore our platform or reach out to our community!</p>
       <hr>
       <p style="color: #666; font-size: 12px;">
-        Thank you for joining HumHub Clone!
+        Thank you for joining Social Network!
       </p>
     `;
 
