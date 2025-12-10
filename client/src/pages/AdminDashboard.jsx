@@ -76,14 +76,6 @@ const AdminDashboard = () => {
         onSidebarToggle={setSidebarExpanded}
       />
       <div className={`admin-main-content ${sidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
-        <div className="admin-header">
-          <h1>{t('admin.dashboard.title')}</h1>
-          <div className="admin-user-info">
-            <span>{t('admin.dashboard.welcome', { name: `${user?.firstName} ${user?.lastName}` })}</span>
-            <span className="admin-badge">{t('admin.badge')}</span>
-          </div>
-        </div>
-
         <div className="admin-content">
           {renderActiveSection()}
         </div>

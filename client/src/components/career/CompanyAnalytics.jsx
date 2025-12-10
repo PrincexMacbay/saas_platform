@@ -122,21 +122,6 @@ const CompanyAnalytics = () => {
     <>
       <style>{getStyles()}</style>
       <div className="analytics-container">
-        {/* Header */}
-        <div className="analytics-header">
-          <div>
-            <h1 className="analytics-page-title">
-              <i className="fas fa-chart-bar analytics-page-title-icon"></i>
-              Company Analytics
-            </h1>
-            <p className="analytics-page-subtitle">Real-time insights and performance metrics</p>
-          </div>
-          <button className="analytics-refresh-button" onClick={fetchAnalytics}>
-            <i className="fas fa-sync-alt" style={{ marginRight: '8px' }}></i>
-            Refresh Data
-          </button>
-        </div>
-
         {/* Stats Grid */}
         <div className="analytics-stats-grid">
           {statCards.map((stat, index) => (

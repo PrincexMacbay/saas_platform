@@ -95,10 +95,6 @@ const FinancialManagement = () => {
 
   return (
     <div className="financial-management">
-      <div className="management-header">
-        <h2>{t('admin.financial.title')}</h2>
-        <p>{t('admin.financial.description')}</p>
-      </div>
 
       {/* Period Selector */}
       <div className="admin-filters">

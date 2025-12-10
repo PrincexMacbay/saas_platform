@@ -84,10 +84,6 @@ const JobManagement = () => {
 
   return (
     <div className="job-management">
-      <div className="management-header">
-        <h2>{t('admin.job.title')}</h2>
-        <p>{t('admin.job.description')}</p>
-      </div>
 
       {/* Filters */}
       <div className="admin-filters">

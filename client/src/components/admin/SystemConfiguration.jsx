@@ -167,10 +167,6 @@ const SystemConfiguration = () => {
 
   return (
     <div className="system-configuration">
-      <div className="management-header">
-        <h2>{t('admin.system.title')}</h2>
-        <p>{t('admin.system.description')}</p>
-      </div>
 
       {error && (
         <div className="alert alert-error">

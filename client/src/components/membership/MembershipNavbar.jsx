@@ -207,15 +207,16 @@ const MembershipNavbar = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex flex-col lg:flex-row">
-        {/* Desktop Sidebar */}
+      <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+        {/* Desktop Sidebar - Fixed */}
         <div
-          className={`hidden lg:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
+          className={`hidden lg:flex flex-col bg-white border-r border-gray-200 transition-all duration-300 fixed left-0 z-10 ${
             isSidebarExpanded ? 'w-64' : 'w-20'
           }`}
           ref={sidebarRef}
           onMouseEnter={() => setIsSidebarExpanded(true)}
           onMouseLeave={() => setIsSidebarExpanded(false)}
+          style={{ top: '60px', height: 'calc(100vh - 60px)' }}
         >
           <div className="flex-1 overflow-y-auto py-4">
             {tabs.map(tab => (
@@ -290,8 +291,15 @@ const MembershipNavbar = () => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 min-w-0">
+        {/* Main Content - Scrollable */}
+        <div 
+          className="flex-1 min-w-0 overflow-y-auto" 
+          style={{ 
+            marginLeft: isSidebarExpanded ? '256px' : '80px',
+            marginTop: '60px',
+            height: 'calc(100vh - 60px)'
+          }}
+        >
           <div className="p-4 sm:p-6 lg:p-8">
             {renderActiveContent()}
           </div>

@@ -158,10 +158,6 @@ const CouponManagement = () => {
 
   return (
     <div className="coupon-management">
-      <div className="management-header">
-        <h2>{t('admin.coupon.title')}</h2>
-        <p>{t('admin.coupon.description')}</p>
-      </div>
 
       {/* Coupon Analytics */}
       <div className="chart-container">

@@ -400,13 +400,6 @@ const MembershipManagement = () => {
 
   return (
     <div className="membership-management">
-      <div className="management-header">
-        <h2>Membership Management</h2>
-        <p>View and manage membership plans, active subscriptions, and member applications</p>
-        <button className="btn btn-primary" onClick={handleCreatePlan}>
-          + {t('admin.membership.create.plan')}
-        </button>
-      </div>
 
       {error && (
         <div className="error">

@@ -92,37 +92,6 @@ const CareerCenter = () => {
   // Render different dashboards based on user type
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {t('nav.career.center') || 'Career Center'}
-              </h1>
-              <p className="text-gray-600">
-                {user.profile?.userType === 'individual' 
-                  ? t('career.job.seeker') || 'Job Seeker Dashboard'
-                  : t('career.employer') || 'Employer Dashboard'
-                }
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                user.profile?.userType === 'individual'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-green-100 text-green-800'
-              }`}>
-                {user.profile?.userType === 'individual' 
-                  ? t('career.job.seeker') || 'Job Seeker'
-                  : t('career.employer') || 'Employer'
-                }
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {user.profile?.userType === 'individual' ? (

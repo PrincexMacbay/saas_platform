@@ -303,24 +303,6 @@ const UserManagement = () => {
 
   return (
     <div className="user-management">
-      <div className="management-header">
-        <h2>{t('admin.user.title')}</h2>
-        <p>{t('admin.user.description')}</p>
-        <button 
-          onClick={fetchUsers} 
-          style={{
-            background: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}
-        >
-          🔍 Debug: Test Fetch Users
-        </button>
-      </div>
 
       {error && (
         <div className="error">
