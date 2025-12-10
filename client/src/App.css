@@ -15,11 +15,34 @@
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
+  min-height: 60px;
+  height: auto;
+}
+
+/* Responsive navbar height for larger logo */
+@media (min-width: 1024px) {
+  .navbar-container {
+    min-height: 120px;
+    padding: 15px 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .navbar-container {
+    min-height: 100px;
+    padding: 12px 20px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .navbar-container {
+    min-height: 90px;
+    padding: 10px 20px;
+  }
 }
 
 .navbar-brand {

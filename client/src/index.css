@@ -24,8 +24,30 @@ body {
 }
 
 .main-content {
-  padding-top: 60px; /* Account for fixed navbar */
+  padding-top: 60px; /* Account for fixed navbar - mobile */
   min-height: calc(100vh - 60px);
+}
+
+/* Responsive padding for larger navbar on desktop */
+@media (min-width: 640px) {
+  .main-content {
+    padding-top: 90px;
+    min-height: calc(100vh - 90px);
+  }
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding-top: 120px; /* Account for larger logo on desktop */
+    min-height: calc(100vh - 120px);
+  }
 }
 
 /* Container styles */

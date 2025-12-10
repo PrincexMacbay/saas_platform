@@ -1,18 +1,41 @@
 /* Admin Sidebar Styles */
 .admin-sidebar {
   position: fixed;
-  top: 60px; /* Start below the navbar */
+  top: 60px; /* Start below the navbar - mobile */
   left: 0;
   width: 70px; /* Collapsed width - only icons */
-  height: calc(100vh - 60px); /* Account for navbar height */
+  height: calc(100vh - 60px); /* Account for navbar height - mobile */
   background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
   color: white;
   display: flex;
   flex-direction: column;
   z-index: 999;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s ease, height 0.3s ease;
   overflow: hidden;
+}
+
+/* Responsive navbar positioning for larger logo */
+@media (min-width: 640px) {
+  .admin-sidebar {
+    top: 90px;
+    height: calc(100vh - 90px);
+  }
+}
+
+@media (min-width: 768px) {
+  .admin-sidebar {
+    top: 100px;
+    height: calc(100vh - 100px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-sidebar {
+    top: 120px; /* Account for larger navbar on desktop */
+    height: calc(100vh - 120px);
+  }
+}
 }
 
 /* Expanded state */
