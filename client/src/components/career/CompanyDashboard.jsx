@@ -471,7 +471,7 @@ const CompanyDashboard = () => {
                     </div>
                     <div className="job-detail-item">
                       <i className="fas fa-users"></i>
-                      <span>{job.applications?.length || 0} {t('career.company.applications')}</span>
+                      <span>{job.applications?.length || 0} {t('career.company.applications.count')}</span>
                     </div>
                   </div>
 
