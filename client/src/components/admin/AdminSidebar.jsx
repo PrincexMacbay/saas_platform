@@ -113,11 +113,9 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobil
           <img 
             src={logoImage} 
             alt="Near East University" 
+            className="w-auto object-contain transition-all duration-300 ease-in-out"
             style={{
-              height: isExpanded ? '40px' : '32px',
-              width: 'auto',
-              objectFit: 'contain',
-              transition: 'all 0.3s ease'
+              height: isExpanded ? '100px' : '60px'
             }}
           />
           <span className={`logo-text ${isExpanded ? 'visible' : 'hidden'}`}>
