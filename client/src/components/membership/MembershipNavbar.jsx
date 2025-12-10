@@ -207,31 +207,6 @@ const MembershipNavbar = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                {t('membership.title') || 'Membership Management'}
-              </h1>
-              <p className="text-gray-600 mt-1 text-sm md:text-base">
-                {t('membership.manage.subtitle') || 'Manage subscriptions, payments, and member data'}
-              </p>
-            </div>
-            {isLoadingAll && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
-                <span className="text-sm hidden sm:inline">{t('common.loading')}</span>
-              </div>
-            )}
-          </div>
-      </div>
-
       <div className="flex flex-col lg:flex-row">
         {/* Desktop Sidebar */}
         <div
