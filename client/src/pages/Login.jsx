@@ -55,7 +55,7 @@ const Login = () => {
       <div className="max-w-6xl w-full">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
           {/* Left Side - Visual/Info */}
-          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-gray-800 to-indigo-700 text-white relative overflow-hidden">
+          <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-blue-600 to-indigo-700 text-white relative overflow-hidden">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-gray-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -195,7 +195,7 @@ const Login = () => {
                       type="text"
                       id="login"
                       name="login"
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder={t('auth.login.placeholder') || 'Username or email'}
                       value={formData.login}
                       onChange={handleChange}
@@ -219,7 +219,7 @@ const Login = () => {
                       type={showPassword ? 'text' : 'password'}
                       id="password"
                       name="password"
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder={t('auth.password.placeholder') || 'Enter your password'}
                       value={formData.password}
                       onChange={handleChange}
@@ -251,7 +251,7 @@ const Login = () => {
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 text-gray-800 focus:ring-gray-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                       {t('auth.remember.me')}
@@ -261,7 +261,7 @@ const Login = () => {
                   <div className="text-sm">
                     <Link
                       to="/forgot-password"
-                      className="font-medium text-gray-800 hover:text-gray-700 transition-colors"
+                      className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
                     >
                       {t('auth.forgot.password.link')}
                     </Link>
@@ -271,7 +271,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-semibold text-base transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isLoading ? (
                     <>
@@ -297,7 +297,7 @@ const Login = () => {
                   {t('auth.dont.have.account')}{' '}
                   <Link
                     to="/register"
-                    className="font-semibold text-gray-800 hover:text-gray-700 transition-colors"
+                    className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
                   >
                     {t('auth.register.button')}
                   </Link>
