@@ -36,7 +36,6 @@
     height: calc(100vh - 120px);
   }
 }
-}
 
 /* Expanded state */
 .admin-sidebar.expanded {
