@@ -68,7 +68,7 @@ const FileUpload = ({ onFileSelect, accept = "image/*", maxSize = 10485760, chil
         onDragLeave={handleDragLeave}
         onClick={handleClick}
         style={{
-          border: `2px dashed ${isDragging ? 'rgb(17 24 39)' : '#ddd'}`,
+          border: `2px dashed ${isDragging ? '#3498db' : '#ddd'}`,
           borderRadius: '8px',
           padding: '20px',
           textAlign: 'center',

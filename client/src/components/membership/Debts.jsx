@@ -408,7 +408,7 @@ const Debts = () => {
         }
 
         .add-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
           padding: 12px 24px;
@@ -578,7 +578,7 @@ const Debts = () => {
 
         .form-control:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
@@ -620,7 +620,7 @@ const Debts = () => {
         }
 
         .btn-primary {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -704,7 +704,7 @@ const Debts = () => {
         }
 
         .badge-info {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 

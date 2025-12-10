@@ -86,7 +86,7 @@ class ErrorBoundary extends React.Component {
 
             .error-details summary {
               cursor: pointer;
-              color: rgb(17 24 39);
+              color: #3498db;
               margin-bottom: 10px;
             }
 
@@ -101,7 +101,7 @@ class ErrorBoundary extends React.Component {
             }
 
             .retry-button {
-              background: rgb(17 24 39);
+              background: #3498db;
               color: white;
               border: none;
               padding: 12px 24px;

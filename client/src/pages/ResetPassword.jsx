@@ -543,7 +543,7 @@ const ResetPassword = () => {
 
         .auth-icon {
           font-size: 3rem;
-          color: rgb(17 24 39);
+          color: #3498db;
           margin-bottom: 20px;
         }
 
@@ -608,7 +608,7 @@ const ResetPassword = () => {
 
         .form-input:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
@@ -667,7 +667,7 @@ const ResetPassword = () => {
 
         .strength-text.weak { color: #e74c3c; }
         .strength-text.fair { color: #f39c12; }
-        .strength-text.good { color: rgb(17 24 39); }
+        .strength-text.good { color: #3498db; }
         .strength-text.strong { color: #27ae60; }
 
         .strength-bar {
@@ -685,7 +685,7 @@ const ResetPassword = () => {
 
         .strength-fill.weak { background: #e74c3c; }
         .strength-fill.fair { background: #f39c12; }
-        .strength-fill.good { background: rgb(17 24 39); }
+        .strength-fill.good { background: #3498db; }
         .strength-fill.strong { background: #27ae60; }
 
         .strength-requirements {
@@ -744,7 +744,7 @@ const ResetPassword = () => {
         }
 
         .btn-primary {
-          background: linear-gradient(135deg, rgb(17 24 39), #2980b9);
+          background: linear-gradient(135deg, #3498db, #2980b9);
           color: white;
         }
 
@@ -769,7 +769,7 @@ const ResetPassword = () => {
         }
 
         .auth-link {
-          color: rgb(17 24 39);
+          color: #3498db;
           text-decoration: none;
           font-weight: 500;
           display: flex;

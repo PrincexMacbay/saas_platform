@@ -10,7 +10,7 @@ const CreateSpace = () => {
     url: '',
     joinPolicy: 1,
     visibility: 1,
-    color: 'rgb(17 24 39)',
+    color: '#3498db',
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);

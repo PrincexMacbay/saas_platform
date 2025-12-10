@@ -68,7 +68,7 @@ const MembershipDashboard = () => {
       {/* KPI Cards */}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-icon" style={{ backgroundColor: 'rgb(17 24 39)' }}>
+          <div className="kpi-icon" style={{ backgroundColor: '#3498db' }}>
             <i className="fas fa-users"></i>
           </div>
           <div className="kpi-content">
@@ -138,7 +138,7 @@ const MembershipDashboard = () => {
               <Line 
                 type="monotone" 
                 dataKey="subscriptions" 
-                stroke="rgb(17 24 39)" 
+                stroke="#3498db" 
                 strokeWidth={2}
                 name={t('membership.dashboard.new.subscriptions')}
               />
@@ -231,7 +231,7 @@ const MembershipDashboard = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid rgb(17 24 39);
+          border-top: 4px solid #3498db;
           border-radius: 50%;
           width: 40px;
           height: 40px;
@@ -245,7 +245,7 @@ const MembershipDashboard = () => {
         }
 
         .retry-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
           padding: 10px 20px;

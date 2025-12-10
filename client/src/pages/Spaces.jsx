@@ -182,7 +182,7 @@ const Spaces = () => {
                       width: '30px',
                       height: '30px',
                       borderRadius: '5px',
-                      backgroundColor: space.color || 'rgb(17 24 39)',
+                      backgroundColor: space.color || '#3498db',
                       marginRight: '10px'
                     }}></div>
                     <div>

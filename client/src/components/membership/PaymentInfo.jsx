@@ -606,7 +606,7 @@ const PaymentInfo = () => {
 
         .form-section h3 i {
           margin-right: 10px;
-          color: rgb(17 24 39);
+          color: #3498db;
         }
 
         /* Form Grid Layout */
@@ -663,7 +663,7 @@ const PaymentInfo = () => {
         }
 
         .form-control:focus {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
           outline: none;
         }
@@ -677,7 +677,7 @@ const PaymentInfo = () => {
         .badge {
           font-size: 10px;
           padding: 4px 8px;
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border-radius: 4px;
         }
@@ -732,8 +732,8 @@ const PaymentInfo = () => {
         }
 
         .btn-primary {
-          background: rgb(17 24 39);
-          border-color: rgb(17 24 39);
+          background: #3498db;
+          border-color: #3498db;
           color: white;
         }
 
@@ -743,13 +743,13 @@ const PaymentInfo = () => {
         }
 
         .btn-outline-primary {
-          color: rgb(17 24 39);
-          border-color: rgb(17 24 39);
+          color: #3498db;
+          border-color: #3498db;
           background: transparent;
         }
 
         .btn-outline-primary:hover {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -778,7 +778,7 @@ const PaymentInfo = () => {
 
         .loading-spinner {
           border: 3px solid #f3f3f3;
-          border-top: 3px solid rgb(17 24 39);
+          border-top: 3px solid #3498db;
           border-radius: 50%;
           width: 40px;
           height: 40px;

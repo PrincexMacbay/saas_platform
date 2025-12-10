@@ -890,12 +890,12 @@ const CompanyDashboard = () => {
         }
 
         .nav-link:hover {
-          color: rgb(17 24 39);
+          color: #3498db;
           background: rgba(52, 152, 219, 0.1);
         }
 
         .nav-link.active {
-          color: rgb(17 24 39);
+          color: #3498db;
           background: white;
           border: 2px solid #e9ecef;
           border-bottom: 2px solid white;
@@ -937,14 +937,14 @@ const CompanyDashboard = () => {
         }
 
         .mobile-dropdown-button:hover {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
           transform: translateY(-1px);
         }
 
         .mobile-dropdown-button:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
@@ -955,7 +955,7 @@ const CompanyDashboard = () => {
         }
 
         .dropdown-button-content i {
-          color: rgb(17 24 39);
+          color: #3498db;
           font-size: 1.1rem;
         }
 
@@ -1033,7 +1033,7 @@ const CompanyDashboard = () => {
         }
 
         .mobile-dropdown-item i {
-          color: rgb(17 24 39);
+          color: #3498db;
           font-size: 1rem;
           width: 20px;
           text-align: center;

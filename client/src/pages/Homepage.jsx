@@ -9,7 +9,7 @@ const Homepage = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-20 pb-16 md:pt-32 md:pb-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,7 +35,7 @@ const Homepage = () => {
                     <>
                       <Link
                         to="/register"
-                        className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
+                        className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-105"
                       >
                         {t('homepage.cta.get.started') || 'Get Started Free'}
                         <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@ const Homepage = () => {
                       </Link>
                       <Link
                         to="/browse-memberships"
-                        className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-200"
+                        className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-800 font-semibold rounded-lg border-2 border-gray-800 hover:bg-gray-50 transition-all duration-200"
                       >
                         {t('homepage.cta.browse.memberships') || 'Browse Memberships'}
                       </Link>
@@ -52,7 +52,7 @@ const Homepage = () => {
                   ) : (
                     <Link
                       to="/dashboard"
-                      className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
+                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-105"
                     >
                       {t('homepage.cta.go.to.dashboard') || 'Go to Dashboard'}
                       <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,8 +67,8 @@ const Homepage = () => {
               <div className="relative">
                 <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 transform rotate-2 hover:rotate-0 transition-transform duration-300">
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                      <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -103,7 +103,7 @@ const Homepage = () => {
                   </div>
                 </div>
                 {/* Decorative background elements */}
-                <div className="absolute -top-4 -right-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+                <div className="absolute -top-4 -right-4 w-72 h-72 bg-gray-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
                 <div className="absolute -bottom-8 -left-4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
               </div>
             </div>
@@ -126,8 +126,8 @@ const Homepage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Feature 1 - Membership Management */}
-              <div className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-blue-100">
-                <div className="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
+              <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200">
+                <div className="w-14 h-14 bg-gray-800 rounded-lg flex items-center justify-center mb-6">
                   <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
@@ -340,25 +340,25 @@ const Homepage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="py-16 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="text-4xl md:text-5xl font-bold mb-2">100%</div>
-                <div className="text-blue-100">{t('homepage.stats.uptime') || 'Uptime'}</div>
+                <div className="text-gray-100">{t('homepage.stats.uptime') || 'Uptime'}</div>
               </div>
               <div>
                 <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
-                <div className="text-blue-100">{t('homepage.stats.support') || 'Support'}</div>
+                <div className="text-gray-100">{t('homepage.stats.support') || 'Support'}</div>
               </div>
               <div>
                 <div className="text-4xl md:text-5xl font-bold mb-2">1000+</div>
-                <div className="text-blue-100">{t('homepage.stats.users') || 'Active Users'}</div>
+                <div className="text-gray-100">{t('homepage.stats.users') || 'Active Users'}</div>
               </div>
               <div>
                 <div className="text-4xl md:text-5xl font-bold mb-2">50+</div>
-                <div className="text-blue-100">{t('homepage.stats.organizations') || 'Organizations'}</div>
+                <div className="text-gray-100">{t('homepage.stats.organizations') || 'Organizations'}</div>
               </div>
             </div>
           </div>
@@ -380,13 +380,13 @@ const Homepage = () => {
                 <>
                   <Link
                     to="/register"
-                    className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-105"
                   >
                     {t('homepage.cta.create.account') || 'Create Free Account'}
                   </Link>
                   <Link
                     to="/browse-memberships"
-                    className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-200"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-800 font-semibold rounded-lg border-2 border-gray-800 hover:bg-gray-50 transition-all duration-200"
                   >
                     {t('homepage.cta.explore') || 'Explore Memberships'}
                   </Link>
@@ -394,7 +394,7 @@ const Homepage = () => {
               ) : (
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 text-white font-semibold rounded-lg shadow-lg hover:bg-gray-900 transition-all duration-200 transform hover:scale-105"
                 >
                   {t('homepage.cta.go.to.dashboard') || 'Go to Dashboard'}
                 </Link>

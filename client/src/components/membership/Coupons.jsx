@@ -415,7 +415,7 @@ const Coupons = () => {
         }
 
         .add-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
           padding: 12px 24px;
@@ -495,7 +495,7 @@ const Coupons = () => {
         .coupon-code {
           font-family: 'Courier New', monospace;
           font-weight: 600;
-          color: rgb(17 24 39);
+          color: #3498db;
           font-size: 16px;
           background: #ecf0f1;
           padding: 4px 8px;
@@ -623,7 +623,7 @@ const Coupons = () => {
 
         .form-control:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
@@ -664,7 +664,7 @@ const Coupons = () => {
         }
 
         .btn-primary {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 

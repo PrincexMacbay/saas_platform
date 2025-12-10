@@ -176,7 +176,7 @@ const SpaceDetail = () => {
               width: '60px',
               height: '60px',
               borderRadius: '10px',
-              backgroundColor: space.color || 'rgb(17 24 39)',
+              backgroundColor: space.color || '#3498db',
               marginRight: '20px'
             }}></div>
             <div style={{ flex: 1 }}>

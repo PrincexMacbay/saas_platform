@@ -115,7 +115,7 @@
 }
 
 .nav-link.active {
-  background-color: rgb(17 24 39);
+  background-color: #3498db;
 }
 
 /* Admin navigation styling */
@@ -129,7 +129,7 @@
 }
 
 .admin-nav-text {
-  color: rgb(17 24 39);
+  color: #3498db;
   font-weight: 600;
   font-size: 0.95rem;
   display: flex;
@@ -174,7 +174,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: rgb(17 24 39);
+  background-color: #3498db;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -340,7 +340,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: rgb(17 24 39);
+  background-color: #3498db;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -509,7 +509,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: rgb(17 24 39);
+  background-color: #3498db;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -562,7 +562,7 @@
 }
 
 .auth-link a {
-  color: rgb(17 24 39);
+  color: #3498db;
   text-decoration: none;
 }
 

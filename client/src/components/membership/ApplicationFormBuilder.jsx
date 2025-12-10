@@ -343,7 +343,7 @@ const ApplicationFormBuilder = () => {
 
           .selector-header i {
             font-size: 3rem;
-            color: rgb(17 24 39);
+            color: #3498db;
             margin-bottom: 20px;
           }
 
@@ -375,7 +375,7 @@ const ApplicationFormBuilder = () => {
           }
 
           .organization-card:hover {
-            border-color: rgb(17 24 39);
+            border-color: #3498db;
           }
 
           .org-info h3 {
@@ -391,7 +391,7 @@ const ApplicationFormBuilder = () => {
           }
 
           .org-info a {
-            color: rgb(17 24 39);
+            color: #3498db;
             text-decoration: none;
             font-size: 0.9rem;
           }
@@ -433,7 +433,7 @@ const ApplicationFormBuilder = () => {
 
           .loading-container i {
             font-size: 3rem;
-            color: rgb(17 24 39);
+            color: #3498db;
             margin-bottom: 20px;
           }
 
@@ -706,7 +706,7 @@ const ApplicationFormBuilder = () => {
         }
 
         .save-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -895,7 +895,7 @@ const ApplicationFormBuilder = () => {
 
         .preview-submit {
           width: 100%;
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
           padding: 15px;
@@ -1072,7 +1072,7 @@ const ApplicationFormBuilder = () => {
           padding: 20px;
           background: #f8f9fa;
           border-radius: 8px;
-          border-left: 4px solid rgb(17 24 39);
+          border-left: 4px solid #3498db;
         }
 
         .section-title {
@@ -1086,7 +1086,7 @@ const ApplicationFormBuilder = () => {
         }
 
         .section-title i {
-          color: rgb(17 24 39);
+          color: #3498db;
         }
 
         .form-input,
@@ -1105,7 +1105,7 @@ const ApplicationFormBuilder = () => {
         .form-textarea:focus,
         .form-select:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
@@ -1155,7 +1155,7 @@ const ApplicationFormBuilder = () => {
         .form-checkbox {
           width: 18px;
           height: 18px;
-          accent-color: rgb(17 24 39);
+          accent-color: #3498db;
         }
 
         .radio-group {
@@ -1177,14 +1177,14 @@ const ApplicationFormBuilder = () => {
         }
 
         .radio-item:hover {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           background-color: #f8f9fa;
         }
 
         .radio-item input[type="radio"] {
           width: 18px;
           height: 18px;
-          accent-color: rgb(17 24 39);
+          accent-color: #3498db;
         }
 
         .radio-label {
@@ -1212,7 +1212,7 @@ const ApplicationFormBuilder = () => {
         }
 
         .option-item:hover {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
         }
 
@@ -1285,7 +1285,7 @@ const ApplicationFormBuilder = () => {
         }
 
         .btn-primary {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -1312,7 +1312,7 @@ const ApplicationFormBuilder = () => {
         }
 
         .modal-header h3 i {
-          color: rgb(17 24 39);
+          color: #3498db;
         }
 
         .close-button {

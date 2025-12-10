@@ -152,7 +152,7 @@ const Profile = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 mb-4"></div>
           <p className="text-gray-600">{t('profile.loading') || 'Loading profile...'}</p>
         </div>
       </div>
@@ -187,14 +187,14 @@ const Profile = () => {
                       className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white shadow-lg"
                     />
                   ) : (
-                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl md:text-5xl font-bold border-4 border-white shadow-lg">
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-gray-500 to-indigo-600 flex items-center justify-center text-white text-4xl md:text-5xl font-bold border-4 border-white shadow-lg">
                       {getInitials(profileUser)}
                     </div>
                   )}
                   {isOwnProfile && (
                     <button
                       onClick={() => setShowImageUpload(!showImageUpload)}
-                      className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-all transform hover:scale-110"
+                      className="absolute bottom-0 right-0 bg-gray-800 hover:bg-gray-900 text-white rounded-full p-2 shadow-lg transition-all transform hover:scale-110"
                       title={t('profile.change.photo') || 'Change profile picture'}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,7 +338,7 @@ const Profile = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     value={editData.firstName}
                     onChange={(e) => setEditData({...editData, firstName: e.target.value})}
                     disabled={actionLoading}
@@ -350,7 +350,7 @@ const Profile = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     value={editData.lastName}
                     onChange={(e) => setEditData({...editData, lastName: e.target.value})}
                     disabled={actionLoading}
@@ -363,7 +363,7 @@ const Profile = () => {
                   {t('profile.about')}
                 </label>
                 <textarea
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                   rows="4"
                   value={editData.about}
                   onChange={(e) => setEditData({...editData, about: e.target.value})}
@@ -377,7 +377,7 @@ const Profile = () => {
                   {t('profile.visibility') || 'Profile Visibility'}
                 </label>
                 <select
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                   value={editData.visibility}
                   onChange={(e) => setEditData({...editData, visibility: parseInt(e.target.value)})}
                   disabled={actionLoading}

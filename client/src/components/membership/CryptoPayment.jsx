@@ -343,11 +343,11 @@ const CryptoPayment = ({ amount, planId, subscriptionId, description, onSuccess,
         }
 
         .currency-option:hover {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
         }
 
         .currency-option.selected {
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           background: #ebf3fd;
         }
 
@@ -460,7 +460,7 @@ const CryptoPayment = ({ amount, planId, subscriptionId, description, onSuccess,
         }
 
         .btn-primary {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 

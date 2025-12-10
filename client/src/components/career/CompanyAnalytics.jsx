@@ -84,7 +84,7 @@ const CompanyAnalytics = () => {
       title: 'Total Users',
       value: analytics.totalUsers || 0,
       icon: 'fas fa-users',
-      color: 'rgb(17 24 39)',
+      color: '#3498db',
       bgColor: '#e3f2fd',
       change: '+12%',
       changeType: 'positive'
@@ -285,7 +285,7 @@ const getStyles = () => `
   }
 
   .analytics-page-title-icon {
-    color: rgb(17 24 39);
+    color: #3498db;
     font-size: 1.8rem;
   }
 
@@ -296,7 +296,7 @@ const getStyles = () => `
   }
 
   .analytics-refresh-button {
-    background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -471,7 +471,7 @@ const getStyles = () => `
   }
 
   .analytics-info-card-icon {
-    color: rgb(17 24 39);
+    color: #3498db;
   }
 
   .analytics-activity-list {
@@ -490,7 +490,7 @@ const getStyles = () => `
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgb(17 24 39);
+    background: #3498db;
     margin-top: 6px;
     flex-shrink: 0;
   }
@@ -527,7 +527,7 @@ const getStyles = () => `
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -557,7 +557,7 @@ const getStyles = () => `
 
   .analytics-performer-progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, rgb(17 24 39) 0%, #2ecc71 100%);
+    background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
     border-radius: 3px;
     transition: width 0.3s ease;
   }
@@ -583,7 +583,7 @@ const getStyles = () => `
     width: 60px;
     height: 60px;
     border: 4px solid #ecf0f1;
-    border-top: 4px solid rgb(17 24 39);
+    border-top: 4px solid #3498db;
     border-radius: 50%;
     animation: analytics-spin 1s linear infinite;
   }

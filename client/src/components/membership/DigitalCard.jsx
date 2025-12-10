@@ -11,7 +11,7 @@ const DigitalCard = () => {
     enableBarcode: true,
     barcodeType: 'qr',
     barcodeData: 'member_number',
-    primaryColor: 'rgb(17 24 39)',
+    primaryColor: '#3498db',
     secondaryColor: '#2c3e50',
     textColor: '#ffffff'
   });
@@ -349,7 +349,7 @@ const DigitalCard = () => {
         }
 
         .upload-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           padding: 10px 20px;
           border-radius: 6px;

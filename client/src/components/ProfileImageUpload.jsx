@@ -111,7 +111,7 @@ const ProfileImageUpload = ({ onUploadComplete }) => {
         maxSize={5242880} // 5MB for profile images
       >
         <div>
-          <i className="fas fa-camera" style={{ fontSize: '24px', color: 'rgb(17 24 39)', marginBottom: '10px' }}></i>
+          <i className="fas fa-camera" style={{ fontSize: '24px', color: '#3498db', marginBottom: '10px' }}></i>
           <p style={{ margin: 0, color: '#2c3e50', fontWeight: '500' }}>
             {isUploading ? `Uploading... ${uploadProgress}%` : 'Change Profile Picture'}
           </p>

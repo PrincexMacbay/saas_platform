@@ -337,7 +337,7 @@ const Payments = () => {
         }
 
         .add-button {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
           padding: 12px 24px;
@@ -476,11 +476,11 @@ const Payments = () => {
 
         .edit-button {
           background: #f8f9fa;
-          color: rgb(17 24 39);
+          color: #3498db;
         }
 
         .edit-button:hover {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -515,7 +515,7 @@ const Payments = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid rgb(17 24 39);
+          border-top: 4px solid #3498db;
           border-radius: 50%;
           width: 40px;
           height: 40px;
@@ -545,9 +545,9 @@ const Payments = () => {
         }
 
         .pagination-button:hover:not(:disabled) {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
         }
 
         .pagination-button:disabled {
@@ -874,7 +874,7 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
           }
 
           .save-button {
-            background: rgb(17 24 39);
+            background: #3498db;
             color: white;
           }
 

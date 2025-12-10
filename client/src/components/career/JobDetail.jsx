@@ -370,7 +370,7 @@ const JobDetail = () => {
 
         /* Header Section */
         .job-header {
-          background: linear-gradient(135deg, #2c3e50 0%, rgb(17 24 39) 100%);
+          background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
           border-radius: 12px;
           padding: 32px;
           margin-bottom: 32px;
@@ -539,7 +539,7 @@ const JobDetail = () => {
 
         .badge.remote {
           background: rgba(255, 255, 255, 0.2);
-          color: rgb(17 24 39);
+          color: #3498db;
           border-color: rgba(52, 152, 219, 0.3);
         }
 
@@ -597,7 +597,7 @@ const JobDetail = () => {
         }
 
         .job-section h3 i {
-          color: rgb(17 24 39);
+          color: #3498db;
           font-size: 1.2rem;
         }
 
@@ -674,7 +674,7 @@ const JobDetail = () => {
         }
 
         .detail-item i {
-          color: rgb(17 24 39);
+          color: #3498db;
           width: 16px;
           text-align: center;
         }
@@ -696,7 +696,7 @@ const JobDetail = () => {
         }
 
         .action-btn.primary {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
           border: none;
         }
@@ -708,12 +708,12 @@ const JobDetail = () => {
 
         .action-btn.outline {
           background: transparent;
-          color: rgb(17 24 39);
-          border: 2px solid rgb(17 24 39);
+          color: #3498db;
+          border: 2px solid #3498db;
         }
 
         .action-btn.outline:hover {
-          background: rgb(17 24 39);
+          background: #3498db;
           color: white;
         }
 
@@ -772,7 +772,7 @@ const JobDetail = () => {
 
         .form-control:focus {
           outline: none;
-          border-color: rgb(17 24 39);
+          border-color: #3498db;
           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
 
