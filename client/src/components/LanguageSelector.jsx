@@ -32,24 +32,30 @@ const LanguageSelector = () => {
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      {/* Language Selector Button - Simple Design: Flag + Arrow */}
+      {/* Language Selector Button - Simple Design: Flag + Arrow (No Background) */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
         aria-label={t('language.selector')}
         className="
           flex items-center gap-1.5
-          px-2 py-1.5
-          bg-white hover:bg-gray-50
-          border border-gray-300 hover:border-gray-400
-          rounded-lg
-          shadow-sm hover:shadow-md
+          px-1 py-1
+          bg-transparent
+          border-none
           transition-all duration-200 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-          active:scale-95
+          focus:outline-none
+          hover:opacity-80
         "
+        style={{ background: 'transparent' }}
       >
-        {/* Flag Emoji */}
-        <span className="text-lg leading-none select-none">
+        {/* Flag Emoji - Larger size for better visibility */}
+        <span 
+          className="text-xl leading-none select-none"
+          style={{ 
+            fontSize: '20px',
+            lineHeight: '1',
+            display: 'inline-block'
+          }}
+        >
           {language === 'en' ? '🇺🇸' : '🇹🇷'}
         </span>
         
@@ -57,7 +63,6 @@ const LanguageSelector = () => {
         <svg 
           className={`
             w-3 h-3
-            text-gray-500
             transition-transform duration-200 ease-in-out
             ${isOpen ? 'rotate-180' : ''}
           `}
@@ -65,6 +70,7 @@ const LanguageSelector = () => {
           stroke="currentColor" 
           viewBox="0 0 24 24"
           aria-hidden="true"
+          style={{ color: 'inherit' }}
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
