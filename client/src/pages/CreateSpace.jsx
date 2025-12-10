@@ -10,7 +10,7 @@ const CreateSpace = () => {
     url: '',
     joinPolicy: 1,
     visibility: 1,
-    color: '#3498db',
+    color: 'rgb(17 24 39)',
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -224,7 +224,7 @@ const CreateSpace = () => {
                 className="form-control"
                 disabled={isLoading}
                 pattern="^#[0-9A-Fa-f]{6}$"
-                title="Must be a valid hex color (e.g., #3498db)"
+                title="Must be a valid hex color (e.g., #111827)"
               />
             </div>
           </div>

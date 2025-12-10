@@ -416,7 +416,7 @@ const ApplicationPayment = () => {
         }
 
         .method-option:hover {
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
         }
 
         .method-option input[type="radio"] {
@@ -464,7 +464,7 @@ const ApplicationPayment = () => {
         .form-group input:focus,
         .form-group select:focus {
           outline: none;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
         }
 
         .crypto-info {
@@ -498,7 +498,7 @@ const ApplicationPayment = () => {
         }
 
         .btn-primary {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -528,7 +528,7 @@ const ApplicationPayment = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 40px;
           height: 40px;

@@ -166,7 +166,7 @@ const PlanDetail = () => {
         }
         
         .apply-now-button {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+          background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%) !important;
           color: white !important;
           padding: 16px 32px !important;
           border-radius: 12px !important;
@@ -215,7 +215,7 @@ const PlanDetail = () => {
         }
         
         .login-prompt .btn {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+          background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%) !important;
           color: white !important;
           padding: 12px 24px !important;
           border-radius: 8px !important;

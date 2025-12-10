@@ -346,7 +346,7 @@ const Reminders = () => {
         }
 
         .add-button {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
           border: none;
           padding: 12px 24px;
@@ -376,7 +376,7 @@ const Reminders = () => {
         .no-data i {
           font-size: 4rem;
           margin-bottom: 20px;
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .reminders-list {
@@ -535,7 +535,7 @@ const Reminders = () => {
 
         .form-control:focus {
           outline: none;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
           box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
@@ -556,7 +556,7 @@ const Reminders = () => {
         }
 
         .btn-primary {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -631,7 +631,7 @@ const Reminders = () => {
         }
 
         .badge-info {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 

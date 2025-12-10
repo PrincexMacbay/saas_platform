@@ -241,7 +241,7 @@ const Applications = () => {
 
           .selector-header i {
             font-size: 3rem;
-            color: #3498db;
+            color: rgb(17 24 39);
             margin-bottom: 20px;
           }
 
@@ -273,7 +273,7 @@ const Applications = () => {
           }
 
           .organization-card:hover {
-            border-color: #3498db;
+            border-color: rgb(17 24 39);
           }
 
           .org-info h3 {
@@ -289,7 +289,7 @@ const Applications = () => {
           }
 
           .org-info a {
-            color: #3498db;
+            color: rgb(17 24 39);
             text-decoration: none;
             font-size: 0.9rem;
           }
@@ -787,11 +787,11 @@ const Applications = () => {
 
         .view-button {
           background: #f8f9fa;
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .view-button:hover {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -852,7 +852,7 @@ const Applications = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 40px;
           height: 40px;
@@ -882,9 +882,9 @@ const Applications = () => {
         }
 
         .pagination-button:hover:not(:disabled) {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
         }
 
         .pagination-button:disabled {

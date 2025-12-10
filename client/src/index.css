@@ -81,7 +81,7 @@ body {
 }
 
 .btn-primary {
-  background-color: #3498db;
+  background-color: rgb(17 24 39);
   color: white;
 }
 
@@ -118,12 +118,12 @@ body {
 
 .btn-outline {
   background-color: transparent;
-  border: 2px solid #3498db;
-  color: #3498db;
+  border: 2px solid rgb(17 24 39);
+  color: rgb(17 24 39);
 }
 
 .btn-outline:hover {
-  background-color: #3498db;
+  background-color: rgb(17 24 39);
   color: white;
 }
 
@@ -160,7 +160,7 @@ body {
 
 .form-control:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: rgb(17 24 39);
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
@@ -790,7 +790,7 @@ body {
 /* Loading spinner */
 .spinner {
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid rgb(17 24 39);
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -847,7 +847,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #3498db;
+  background-color: rgb(17 24 39);
   color: white;
   display: flex;
   align-items: center;
@@ -860,7 +860,7 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #3498db;
+  background-color: rgb(17 24 39);
   color: white;
   display: flex;
   align-items: center;
@@ -889,7 +889,7 @@ body {
   color: #495057;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid rgb(17 24 39);
 }
 
 .card-header-tabs {
@@ -917,7 +917,7 @@ body {
   color: #495057;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid rgb(17 24 39);
 }
 
 ul {
@@ -938,7 +938,7 @@ li a {
 }
 
 li a.acive {
-  background-color: #3498db;
+  background-color: rgb(17 24 39);
   
 }
 
@@ -1385,7 +1385,7 @@ li a.acive {
 }
 
 .plan-detail-header .breadcrumb a {
-  color: #3498db;
+  color: rgb(17 24 39);
   text-decoration: none;
   font-weight: 500;
 }
@@ -1616,7 +1616,7 @@ li a.acive {
 .org-website {
   display: inline-flex;
   align-items: center;
-  color: #3498db;
+  color: rgb(17 24 39);
   text-decoration: none;
   font-weight: 500;
 }

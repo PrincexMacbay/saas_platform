@@ -179,12 +179,12 @@ const IndividualDashboard = () => {
         }
 
         .nav-link:hover {
-          color: #3498db;
+          color: rgb(17 24 39);
           background: rgba(52, 152, 219, 0.1);
         }
 
         .nav-link.active {
-          color: #3498db;
+          color: rgb(17 24 39);
           background: white;
           border: 2px solid #e9ecef;
           border-bottom: 2px solid white;
@@ -226,14 +226,14 @@ const IndividualDashboard = () => {
         }
 
         .mobile-dropdown-button:hover {
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
           box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
           transform: translateY(-1px);
         }
 
         .mobile-dropdown-button:focus {
           outline: none;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
@@ -244,7 +244,7 @@ const IndividualDashboard = () => {
         }
 
         .dropdown-button-content i {
-          color: #3498db;
+          color: rgb(17 24 39);
           font-size: 1.1rem;
         }
 
@@ -322,7 +322,7 @@ const IndividualDashboard = () => {
         }
 
         .mobile-dropdown-item i {
-          color: #3498db;
+          color: rgb(17 24 39);
           font-size: 1rem;
           width: 20px;
           text-align: center;

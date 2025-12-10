@@ -521,7 +521,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           }
 
           .add-benefit {
-            background: #3498db;
+            background: rgb(17 24 39);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -593,7 +593,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           }
 
           .radio-label:hover {
-            border-color: #3498db;
+            border-color: rgb(17 24 39);
             background: #f8f9fa;
           }
 
@@ -601,16 +601,16 @@ const PlanModal = ({ plan, onClose, onSave }) => {
             margin: 0;
             width: 16px;
             height: 16px;
-            accent-color: #3498db;
+            accent-color: rgb(17 24 39);
           }
 
           .radio-label input[type="radio"]:checked + span {
-            color: #3498db;
+            color: rgb(17 24 39);
             font-weight: 500;
           }
 
           .radio-label input[type="radio"]:checked {
-            border-color: #3498db;
+            border-color: rgb(17 24 39);
           }
 
           .modal-footer {
@@ -636,7 +636,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           }
 
           .save-button {
-            background: #3498db;
+            background: rgb(17 24 39);
             color: white;
           }
 
@@ -666,7 +666,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
           }
 
           .create-form-button {
-            background: #3498db;
+            background: rgb(17 24 39);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -1102,7 +1102,7 @@ const Plans = () => {
         }
 
         .add-button {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
           border: none;
           padding: 12px 24px;
@@ -1283,11 +1283,11 @@ const Plans = () => {
 
         .edit-button {
           background: #f8f9fa;
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .edit-button:hover {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -1351,7 +1351,7 @@ const Plans = () => {
         }
 
         .stat i {
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .plan-benefits h4 {
@@ -1392,7 +1392,7 @@ const Plans = () => {
         }
 
         .add-first-button {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
           border: none;
           padding: 15px 30px;
@@ -1412,7 +1412,7 @@ const Plans = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 40px;
           height: 40px;
@@ -1442,9 +1442,9 @@ const Plans = () => {
         }
 
         .pagination-button:hover:not(:disabled) {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
         }
 
         .pagination-button:disabled {

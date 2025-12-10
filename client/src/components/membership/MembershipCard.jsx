@@ -25,7 +25,7 @@ const MembershipCard = ({ membership, onViewCard }) => {
         cardTitle: 'Membership Card',
         headerText: `Member Since ${new Date(membership.startDate).getFullYear()}`,
         footerText: 'Thank you for being a member',
-        primaryColor: '#3498db',
+        primaryColor: 'rgb(17 24 39)',
         secondaryColor: '#2c3e50',
         textColor: '#ffffff'
       });

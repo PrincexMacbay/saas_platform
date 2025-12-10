@@ -512,7 +512,7 @@ const ApplicationForms = () => {
         }
 
         .add-button {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
           border: none;
           padding: 12px 24px;
@@ -590,11 +590,11 @@ const ApplicationForms = () => {
 
         .view-button {
           background: #f8f9fa;
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .view-button:hover {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -664,7 +664,7 @@ const ApplicationForms = () => {
         }
 
         .stat i {
-          color: #3498db;
+          color: rgb(17 24 39);
         }
 
         .form-fields-preview h4 {
@@ -688,7 +688,7 @@ const ApplicationForms = () => {
         }
 
         .field-tag.more {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -721,7 +721,7 @@ const ApplicationForms = () => {
         }
 
         .add-first-button {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
           border: none;
           padding: 15px 30px;
@@ -741,7 +741,7 @@ const ApplicationForms = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 40px;
           height: 40px;
@@ -953,7 +953,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           }
 
           .save-button {
-            background: #3498db;
+            background: rgb(17 24 39);
             color: white;
           }
 
@@ -994,7 +994,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
             color: #2c3e50;
             font-size: 1.2rem;
             font-weight: 600;
-            border-bottom: 3px solid #3498db;
+            border-bottom: 3px solid rgb(17 24 39);
             padding-bottom: 12px;
             display: flex;
             align-items: center;
@@ -1008,7 +1008,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
             content: '';
             width: 4px;
             height: 20px;
-            background: #3498db;
+            background: rgb(17 24 39);
             border-radius: 2px;
           }
 
@@ -1036,7 +1036,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           }
 
           .field-item:hover {
-            border-color: #3498db;
+            border-color: rgb(17 24 39);
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
             transform: translateY(-2px);
           }
@@ -1058,7 +1058,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           }
 
           .field-type {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, rgb(17 24 39), #2980b9);
             color: white;
             padding: 6px 12px;
             border-radius: 20px;
@@ -1083,7 +1083,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
             padding: 10px;
             background: #f8f9fa;
             border-radius: 8px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid rgb(17 24 39);
           }
 
           .field-placeholder small,
@@ -1123,7 +1123,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           }
 
           .meta-item:hover {
-            border-color: #3498db;
+            border-color: rgb(17 24 39);
             box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
           }
 

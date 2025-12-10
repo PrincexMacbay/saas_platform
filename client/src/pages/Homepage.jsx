@@ -25,7 +25,7 @@ const Homepage = () => {
                   />
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                  {t('homepage.hero.title') || 'Your All-in-One Platform for'} <span className="text-blue-600">Membership Management</span> {t('homepage.hero.title.and') || '&'} <span className="text-blue-600">Social Networking</span>
+                  {t('homepage.hero.title') || 'Your All-in-One Platform for'} <span className="text-gray-800">Membership Management</span> {t('homepage.hero.title.and') || '&'} <span className="text-gray-800">Social Networking</span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
                   {t('homepage.hero.subtitle') || 'Connect, collaborate, and grow with our comprehensive platform featuring membership management, career opportunities, and vibrant community spaces.'}

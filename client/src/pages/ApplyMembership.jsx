@@ -571,7 +571,7 @@ const ApplyMembership = () => {
         }
 
         .plan-info h2 {
-          color: #3498db;
+          color: rgb(17 24 39);
           margin-bottom: 10px;
         }
 
@@ -621,7 +621,7 @@ const ApplyMembership = () => {
 
         .form-control:focus {
           outline: none;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
           box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }
 
@@ -677,7 +677,7 @@ const ApplyMembership = () => {
         }
 
         .btn-primary {
-          background: #3498db;
+          background: rgb(17 24 39);
           color: white;
         }
 
@@ -714,7 +714,7 @@ const ApplyMembership = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 40px;
           height: 40px;

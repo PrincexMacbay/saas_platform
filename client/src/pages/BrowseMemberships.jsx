@@ -109,7 +109,7 @@ const BrowseMemberships = () => {
         }
         
         .apply-button {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%);
           color: white;
           box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
@@ -368,7 +368,7 @@ const BrowseMemberships = () => {
 
         .search-box input:focus {
           outline: none;
-          border-color: #3498db;
+          border-color: rgb(17 24 39);
         }
 
         .org-filter {
@@ -436,7 +436,7 @@ const BrowseMemberships = () => {
         }
 
         .org-website {
-          color: #3498db;
+          color: rgb(17 24 39);
           text-decoration: none;
           font-size: 0.9rem;
           display: flex;
@@ -554,7 +554,7 @@ const BrowseMemberships = () => {
         }
 
         .apply-button {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          background: linear-gradient(135deg, rgb(17 24 39) 0%, #2980b9 100%);
           color: white;
           box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
@@ -629,7 +629,7 @@ const BrowseMemberships = () => {
 
         .loading-spinner {
           border: 4px solid #f3f3f3;
-          border-top: 4px solid #3498db;
+          border-top: 4px solid rgb(17 24 39);
           border-radius: 50%;
           width: 50px;
           height: 50px;
