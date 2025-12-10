@@ -173,9 +173,9 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 pt-20 pb-8 md:pt-24 md:pb-12">
+      <div className="bg-white border-b border-gray-200 pt-20 pb-8 md:pt-24 md:pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mt-8">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8 mt-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Profile Image */}
               <div className="relative flex-shrink-0">
@@ -214,7 +214,12 @@ const Profile = () => {
                     : profileUser.username}
                 </h1>
                 <p className="text-gray-600 text-lg mb-1">@{profileUser.username}</p>
-                <p className="text-blue-600 font-medium mb-4">{getProfession(profileUser)}</p>
+                <p className="text-gray-600 font-medium mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {getProfession(profileUser)}
+                </p>
                 
                 {profileUser.about && (
                   <p className="text-gray-700 mb-6 max-w-2xl mx-auto md:mx-0">
@@ -228,7 +233,7 @@ const Profile = () => {
                     <>
                       <button
                         onClick={() => setIsEditing(!isEditing)}
-                        className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all transform hover:scale-105"
+                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-gray-700"
                       >
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -237,7 +242,7 @@ const Profile = () => {
                       </button>
                       <button
                         onClick={() => setShowImageUpload(!showImageUpload)}
-                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md transition-all"
+                        className="inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg shadow-sm transition-all border border-gray-300"
                       >
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -250,10 +255,10 @@ const Profile = () => {
                     <button
                       onClick={handleFollow}
                       disabled={actionLoading}
-                      className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg shadow-md transition-all transform hover:scale-105 ${
+                      className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border ${
                         profileUser.isFollowing
-                          ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          ? 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                          : 'bg-gray-800 hover:bg-gray-900 text-white border-gray-700'
                       }`}
                     >
                       {actionLoading ? (
@@ -284,21 +289,21 @@ const Profile = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-200">
-              <div className="text-center">
+              <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{followers.length}</div>
-                <div className="text-sm text-gray-600 mt-1">{t('nav.followers')}</div>
+                <div className="text-sm text-gray-600 mt-1 font-medium">{t('nav.followers')}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{following.length}</div>
-                <div className="text-sm text-gray-600 mt-1">{t('nav.following')}</div>
+                <div className="text-sm text-gray-600 mt-1 font-medium">{t('nav.following')}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{userMemberships.length}</div>
-                <div className="text-sm text-gray-600 mt-1">{t('nav.memberships')}</div>
+                <div className="text-sm text-gray-600 mt-1 font-medium">{t('nav.memberships')}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{posts.length}</div>
-                <div className="text-sm text-gray-600 mt-1">{t('profile.posts') || 'Posts'}</div>
+                <div className="text-sm text-gray-600 mt-1 font-medium">{t('profile.posts') || 'Posts'}</div>
               </div>
             </div>
           </div>
@@ -395,7 +400,7 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+                  className="px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
                 >
                   {actionLoading ? t('common.saving') || 'Saving...' : t('profile.save')}
                 </button>
@@ -415,7 +420,7 @@ const Profile = () => {
                 onClick={() => setActiveTab('posts')}
                 className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'posts'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-gray-800 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -428,7 +433,7 @@ const Profile = () => {
                 onClick={() => setActiveTab('memberships')}
                 className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'memberships'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-gray-800 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -441,7 +446,7 @@ const Profile = () => {
                 onClick={() => setActiveTab('followers')}
                 className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'followers'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-gray-800 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -454,7 +459,7 @@ const Profile = () => {
                 onClick={() => setActiveTab('following')}
                 className={`flex-1 sm:flex-none px-4 py-4 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'following'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-gray-800 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -509,7 +514,7 @@ const Profile = () => {
                     </svg>
                     <p className="text-gray-600 mb-4">{isOwnProfile ? t('profile.no.memberships.own') || "You haven't joined any memberships yet." : t('profile.no.memberships') || 'No memberships to show.'}</p>
                     {isOwnProfile && (
-                      <Link to="/membership" className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all">
+                      <Link to="/membership" className="inline-flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg transition-all shadow-sm">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
@@ -558,7 +563,7 @@ const Profile = () => {
                               className="w-12 h-12 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold">
                               {getInitials(follower)}
                             </div>
                           )}
@@ -606,7 +611,7 @@ const Profile = () => {
                               className="w-12 h-12 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold">
                               {getInitials(followed)}
                             </div>
                           )}
