@@ -19,6 +19,7 @@ import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
 import JobDetail from './components/career/JobDetail';
 import AdminDashboard from './pages/AdminDashboard';
+import Homepage from './pages/Homepage';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import SmartRedirect from './components/SmartRedirect';
@@ -42,13 +43,9 @@ function App() {
               <Route path="/debug" element={<DebugRegistration />} />
               <Route path="/browse-memberships" element={<BrowseMemberships />} />
               <Route path="/plan/:id" element={<PlanDetail />} />
-                              <Route path="/apply/:planId" element={<ApplyMembership />} />
-                <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
-                <Route path="/" element={
-                  <ProtectedRoute>
-                    <SmartRedirect />
-                  </ProtectedRoute>
-                } />
+              <Route path="/apply/:planId" element={<ApplyMembership />} />
+              <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
+              <Route path="/" element={<SmartRedirect />} />
               <Route
                 path="/dashboard"
                 element={
