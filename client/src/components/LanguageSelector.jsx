@@ -30,47 +30,34 @@ const LanguageSelector = () => {
     setIsOpen(false);
   };
 
-  const currentLanguage = availableLanguages.find(lang => lang.code === language);
-
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      {/* Language Selector Button - Responsive Design */}
+      {/* Language Selector Button - Simple Design: Flag + Arrow */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
         aria-label={t('language.selector')}
         className="
-          flex items-center gap-1.5 sm:gap-2
-          px-2 sm:px-3 py-1.5 sm:py-2
+          flex items-center gap-1.5
+          px-2 py-1.5
           bg-white hover:bg-gray-50
           border border-gray-300 hover:border-gray-400
-          rounded-lg sm:rounded-xl
+          rounded-lg
           shadow-sm hover:shadow-md
           transition-all duration-200 ease-in-out
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
           active:scale-95
-          min-w-[60px] sm:min-w-[70px]
-          group
         "
       >
         {/* Flag Emoji */}
-        <span className="text-base sm:text-lg leading-none select-none">
+        <span className="text-lg leading-none select-none">
           {language === 'en' ? '🇺🇸' : '🇹🇷'}
-        </span>
-        
-        {/* Language Code - Hidden on very small screens, shown on mobile+ */}
-        <span className="
-          font-semibold text-xs sm:text-sm
-          text-gray-700 group-hover:text-gray-900
-          hidden xs:inline
-        ">
-          {language === 'en' ? 'EN' : 'TR'}
         </span>
         
         {/* Dropdown Arrow Icon */}
         <svg 
           className={`
-            w-3 h-3 sm:w-3.5 sm:h-3.5
-            text-gray-500 group-hover:text-gray-700
+            w-3 h-3
+            text-gray-500
             transition-transform duration-200 ease-in-out
             ${isOpen ? 'rotate-180' : ''}
           `}

@@ -183,20 +183,7 @@ const Navbar = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                <div className="profile-avatar" style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: '#3498db',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '14px'
-                }}>
-                  {getInitials(user)}
-                </div>
+                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
               </button>
               
               {isProfileDropdownOpen && (
@@ -290,20 +277,7 @@ const Navbar = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                <div className="profile-avatar" style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: '#3498db',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  fontSize: '14px'
-                }}>
-                  {getInitials(user)}
-                </div>
+                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
               </button>
               
               {isProfileDropdownOpen && (
