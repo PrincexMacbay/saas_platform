@@ -611,18 +611,25 @@ const Navbar = () => {
                   </h3>
                   
                   {/* Language Selector */}
-                  <div className="mobile-language-selector" style={{ 
-                    padding: '12px 16px', 
-                    borderBottom: '1px solid #eee',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    borderRadius: '6px',
-                    marginBottom: '8px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <i className="fas fa-globe" style={{ marginRight: '12px', width: '16px', color: '#666' }}></i>
-                      <span style={{ color: '#333', fontSize: '14px' }}>{t('nav.language')}</span>
+                  <div className="
+                    flex items-center justify-between
+                    px-4 py-3
+                    border-b border-gray-200
+                    rounded-lg
+                    mb-2
+                    bg-gray-50/50
+                  ">
+                    <div className="flex items-center gap-3">
+                      <svg 
+                        className="w-4 h-4 text-gray-600" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 002 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
                     </div>
                     <LanguageSelector />
                   </div>
@@ -801,16 +808,23 @@ const Navbar = () => {
                 </Link>
                 
                 {/* Language Selector */}
-                <div className="mobile-language-selector" style={{ 
-                  padding: '12px 16px', 
-                  borderBottom: '1px solid #eee',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <i className="fas fa-globe" style={{ marginRight: '12px', width: '16px', color: '#666' }}></i>
-                    <span style={{ color: '#333', fontSize: '14px' }}>{t('nav.language')}</span>
+                <div className="
+                  flex items-center justify-between
+                  px-4 py-3
+                  border-b border-gray-200
+                  bg-gray-50/50
+                ">
+                  <div className="flex items-center gap-3">
+                    <svg 
+                      className="w-4 h-4 text-gray-600" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 002 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
                   </div>
                   <LanguageSelector />
                 </div>
