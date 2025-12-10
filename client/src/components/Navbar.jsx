@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { buildImageUrl } from '../utils/imageUtils';
 import LanguageSelector from './LanguageSelector';
-import logoImage from '../Logo/Near_East_University.svg.png';
+import logoImage from '../Logo/neu2.png';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();

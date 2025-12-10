@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import logoImage from '../../Logo/Near_East_University.svg.png';
+import logoImage from '../../Logo/neu2.png';
 import './AdminSidebar.css';
 
 const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobileClose }) => {
