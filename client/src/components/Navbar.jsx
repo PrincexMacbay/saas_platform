@@ -202,6 +202,32 @@ const Navbar = () => {
                     </div>
                   </div>
                   
+                  <Link
+                    to={`/profile/${user.username}`}
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#3498db',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s',
+                      textDecoration: 'none',
+                      borderBottom: '1px solid #eee'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f8ff'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-user"></i>
+                    {t('nav.view.profile')}
+                  </Link>
+                  
                   <button
                     onClick={() => {
                       handleLogout();
@@ -295,6 +321,32 @@ const Navbar = () => {
                       @{user.username}
                     </div>
                   </div>
+                  
+                  <Link
+                    to={`/profile/${user.username}`}
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#3498db',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s',
+                      textDecoration: 'none',
+                      borderBottom: '1px solid #eee'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f8ff'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-user"></i>
+                    {t('nav.view.profile')}
+                  </Link>
                   
                   <button
                     onClick={() => {
