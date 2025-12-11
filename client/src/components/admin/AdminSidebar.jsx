@@ -158,22 +158,6 @@ const AdminSidebar = ({ activeSection, onSectionChange, onSidebarToggle, onMobil
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="admin-sidebar-header">
-        <div className="admin-logo">
-          <img 
-            src={logoImage} 
-            alt="Near East University" 
-            className="w-auto object-contain transition-all duration-300 ease-in-out"
-            style={{
-              height: isExpanded ? '100px' : '60px'
-            }}
-          />
-          <span className={`logo-text ${isExpanded ? 'visible' : 'hidden'}`}>
-            {t('admin.sidebar.version')}
-          </span>
-        </div>
-      </div>
-
       <nav className="admin-sidebar-nav">
         {menuItems.map((item) => (
           <button

@@ -109,63 +109,106 @@ const FinancialManagement = () => {
 
   return (
     <div className="financial-management">
-
-      {/* Period Selector */}
-      <div className="admin-filters">
-        <div className="filter-group">
-          <label className="filter-label">{t('admin.financial.time.period')}</label>
-          <select
-            className="filter-select"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            <option value="week">{t('admin.financial.last.7.days')}</option>
-            <option value="month">{t('admin.financial.last.30.days')}</option>
-            <option value="year">{t('admin.financial.last.year')}</option>
-          </select>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {t('admin.financial.title') || 'Financial Management'}
+            </h1>
+            <p className="text-gray-600">
+              {t('admin.financial.description') || 'Monitor revenue, transactions, and payment analytics'}
+            </p>
+          </div>
+          
+          {/* Period Selector */}
+          <div className="flex items-center gap-3">
+            <label htmlFor="period-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              {t('admin.financial.time.period') || 'Time Period:'}
+            </label>
+            <select
+              id="period-select"
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:border-transparent transition-all cursor-pointer"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+            >
+              <option value="week">{t('admin.financial.last.7.days') || 'Last 7 Days'}</option>
+              <option value="month">{t('admin.financial.last.30.days') || 'Last 30 Days'}</option>
+              <option value="year">{t('admin.financial.last.year') || 'Last Year'}</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Revenue Analytics */}
-      <div className="chart-container">
-        <h3 className="chart-title">{t('admin.financial.revenue.analytics')}</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-emerald-100 p-2 rounded-lg">
+            <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            {t('admin.financial.revenue.analytics') || 'Revenue Analytics'}
+          </h3>
+        </div>
         
         {/* Stats Cards */}
-        <div className="financial-stats">
-          <div className="stat-card">
-            <div className="stat-icon">💰</div>
-            <div className="stat-content">
-              <div className="stat-label">Total Revenue</div>
-              <div className="stat-value">{formatCurrency(stats.totalAmount)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalAmount)}</p>
+              </div>
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-3 rounded-xl text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">📊</div>
-            <div className="stat-content">
-              <div className="stat-label">Transactions</div>
-              <div className="stat-value">{stats.totalCount || 0}</div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Transactions</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.totalCount || 0}</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">📈</div>
-            <div className="stat-content">
-              <div className="stat-label">Average Transaction</div>
-              <div className="stat-value">{formatCurrency(stats.averageAmount)}</div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Average Transaction</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.averageAmount)}</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Revenue Trend Chart */}
-        <div className="revenue-chart">
-          <h4>Revenue Trend</h4>
-          <div className="chart-bars">
+        <div className="mt-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h4>
+          <div className="flex items-end justify-between gap-2 h-64">
             {chartData.map(({ label, heightPercentage }, idx) => (
-              <div key={idx} className="chart-bar">
-                <div 
-                  className="bar" 
-                  style={{ height: `${heightPercentage}%` }}
-                ></div>
-                <span className="bar-label">{label}</span>
+              <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                <div className="w-full flex items-end justify-center" style={{ height: '200px' }}>
+                  <div 
+                    className="w-full bg-gradient-to-t from-[#3498db] to-[#2980b9] rounded-t-lg transition-all hover:opacity-80"
+                    style={{ height: `${heightPercentage}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs text-gray-600 font-medium">{label}</span>
               </div>
             ))}
           </div>
@@ -173,85 +216,120 @@ const FinancialManagement = () => {
       </div>
 
       {/* Payment Methods */}
-      <div className="chart-container">
-        <h3 className="chart-title">{t('admin.financial.payment.methods')}</h3>
-        <div className="payment-methods-list">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-indigo-100 p-2 rounded-lg">
+            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            {t('admin.financial.payment.methods') || 'Payment Methods'}
+          </h3>
+        </div>
+        <div className="space-y-3">
           {financialData.paymentMethods && financialData.paymentMethods.length > 0 ? (
             financialData.paymentMethods.map((method, idx) => (
-              <div key={idx} className="payment-method-item">
-                <div className="method-info">
-                  <div className="method-name">{method.paymentMethod}</div>
-                  <div className="method-stats">
+              <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900 mb-1">{method.paymentMethod}</div>
+                  <div className="text-sm text-gray-600">
                     {method.count} transactions · {formatCurrency(method.total)}
                   </div>
                 </div>
-                <div className="method-percentage">
+                <div className="text-lg font-bold text-[#3498db]">
                   {getPercentage(method.total, stats.totalAmount)}%
                 </div>
               </div>
             ))
           ) : (
-            <div className="empty-state">No payment method data available</div>
+            <div className="text-center py-8 text-gray-500">No payment method data available</div>
           )}
         </div>
       </div>
 
       {/* Transaction History */}
-      <div className="chart-container">
-        <h3 className="chart-title">{t('admin.financial.transaction.history')}</h3>
-        <div className="transactions-list">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-teal-100 p-2 rounded-lg">
+            <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            {t('admin.financial.transaction.history') || 'Transaction History'}
+          </h3>
+        </div>
+        <div className="overflow-x-auto">
           {financialData.recentTransactions && financialData.recentTransactions.length > 0 ? (
             <>
-              <div className="table-header">
-                <div className="col-date">Date</div>
-                <div className="col-user">User</div>
-                <div className="col-amount">Amount</div>
-                <div className="col-method">Method</div>
-                <div className="col-status">Status</div>
+              <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg border-b-2 border-gray-200 font-semibold text-gray-700 text-sm">
+                <div>Date</div>
+                <div>User</div>
+                <div>Amount</div>
+                <div>Method</div>
+                <div>Status</div>
               </div>
-              {financialData.recentTransactions.map(transaction => (
-                <div key={transaction.id} className="transaction-row">
-                  <div className="col-date">{formatDate(transaction.createdAt)}</div>
-                  <div className="col-user">
-                    {transaction.user.firstName || transaction.user.username}
+              <div className="divide-y divide-gray-200">
+                {financialData.recentTransactions.map(transaction => (
+                  <div key={transaction.id} className="grid grid-cols-5 gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    <div className="text-sm text-gray-600">{formatDate(transaction.createdAt)}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {transaction.user.firstName || transaction.user.username}
+                    </div>
+                    <div className="text-sm font-semibold text-gray-900">{formatCurrency(transaction.amount)}</div>
+                    <div className="text-sm text-gray-600">{transaction.paymentMethod}</div>
+                    <div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        transaction.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {transaction.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="col-amount">{formatCurrency(transaction.amount)}</div>
-                  <div className="col-method">{transaction.paymentMethod}</div>
-                  <div className="col-status">
-                    <span className={`status-badge ${transaction.status}`}>
-                      {transaction.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </>
           ) : (
-            <div className="empty-state">No recent transactions</div>
+            <div className="text-center py-8 text-gray-500">No recent transactions</div>
           )}
         </div>
       </div>
 
       {/* Revenue by Plan */}
-      <div className="chart-container">
-        <h3 className="chart-title">{t('admin.financial.revenue.by.plan')}</h3>
-        <div className="revenue-by-plan">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-orange-100 p-2 rounded-lg">
+            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">
+            {t('admin.financial.revenue.by.plan') || 'Revenue by Plan'}
+          </h3>
+        </div>
+        <div className="space-y-4">
           {financialData.revenueByPlan && financialData.revenueByPlan.length > 0 ? (
             financialData.revenueByPlan.map((plan, idx) => (
-              <div key={idx} className="plan-revenue-item">
-                <div className="plan-name">{plan.planName}</div>
-                <div className="plan-revenue-bar">
+              <div key={idx} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-gray-900">{plan.planName}</div>
+                  <div className="text-sm text-gray-600">
+                    {formatCurrency(plan.total)} ({plan.count} transactions)
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                   <div 
-                    className="revenue-fill"
+                    className="bg-gradient-to-r from-[#3498db] to-[#2980b9] h-full rounded-full transition-all"
                     style={{ width: `${getPercentage(plan.total, stats.totalAmount)}%` }}
                   ></div>
-                </div>
-                <div className="plan-revenue-amount">
-                  {formatCurrency(plan.total)} ({plan.count} transactions)
                 </div>
               </div>
             ))
           ) : (
-            <div className="empty-state">No plan revenue data available</div>
+            <div className="text-center py-8 text-gray-500">No plan revenue data available</div>
           )}
         </div>
       </div>
