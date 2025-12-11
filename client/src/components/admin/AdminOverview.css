@@ -4,11 +4,8 @@
   padding: 0;
 }
 
-/* Ensure Tailwind classes work properly */
-@layer utilities {
-  .admin-overview * {
-    box-sizing: border-box;
-  }
+.admin-overview * {
+  box-sizing: border-box;
 }
 
 /* Loading and Error States - Enhanced */
