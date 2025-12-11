@@ -565,15 +565,18 @@ const JobBoard = () => {
           border: none;
           padding: 16px 32px;
           font-weight: 600;
-          background: #0073b1;
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
           color: #fff;
           border-radius: 12px;
-          transition: background-color 0.2s ease;
+          transition: all 0.3s ease;
           white-space: nowrap;
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
         }
 
         .search-button:hover {
-          background: #005885;
+          background: linear-gradient(135deg, #2980b9 0%, #1f6aa5 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
         }
 
         .filters-section {
@@ -643,8 +646,8 @@ const JobBoard = () => {
 
         .filter-item .form-control:focus,
         .filter-item .form-select:focus {
-          border-color: #0073b1;
-          box-shadow: 0 0 0 3px rgba(0, 115, 177, 0.1);
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
           outline: none;
         }
 
@@ -730,7 +733,7 @@ const JobBoard = () => {
 
         .pagination .page-link {
           border: 1px solid #e0e0e0;
-          color: #0073b1;
+          color: #3498db;
           padding: 8px 16px;
           margin: 0 2px;
           border-radius: 6px;
@@ -738,14 +741,15 @@ const JobBoard = () => {
         }
 
         .pagination .page-link:hover {
-          background: #0073b1;
+          background: #3498db;
           color: #fff;
-          border-color: #0073b1;
+          border-color: #3498db;
         }
 
         .pagination .page-item.active .page-link {
-          background: #0073b1;
-          border-color: #0073b1;
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          border-color: #3498db;
+          color: #fff;
         }
 
         .pagination .page-item.disabled .page-link {

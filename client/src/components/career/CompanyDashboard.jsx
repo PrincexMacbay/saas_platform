@@ -613,23 +613,41 @@ const CompanyDashboard = () => {
         <>
           <div className="applications-list">
             {applications.map(application => (
-              <div key={application.id} className="card mb-3">
+              <div key={application.id} className="card mb-3 modern-application-card">
                 <div className="card-body">
                   <div className="row">
                     <div className="col-md-8">
-                      <h5 className="card-title">
-                        {application.applicant.firstName} {application.applicant.lastName}
-                      </h5>
-                      <h6 className="card-subtitle mb-2 text-muted">
-                        {t('career.company.applied.for')}: {application.job.title}
-                      </h6>
-                      <p className="card-text">
-                        <strong>{t('career.company.email')}:</strong> {application.applicant.email}<br/>
-                        <strong>{t('career.company')}:</strong> {application.job.employer?.companyProfile?.companyName || 'N/A'}<br/>
-                        <strong>{t('career.location')}:</strong> {application.job.location}<br/>
-                        <strong>{t('career.type')}:</strong> {application.job.jobType}<br/>
-                        <strong>{t('career.company.applied')}:</strong> {new Date(application.createdAt).toLocaleDateString()}
-                      </p>
+                      <div className="application-header-info">
+                        <h5 className="card-title application-name">
+                          {application.applicant.firstName} {application.applicant.lastName}
+                        </h5>
+                        <h6 className="card-subtitle mb-3 text-muted job-applied-for">
+                          <i className="fas fa-briefcase"></i>
+                          {t('career.company.applied.for')}: {application.job.title}
+                        </h6>
+                      </div>
+                      <div className="application-details-grid">
+                        <div className="application-detail-item">
+                          <i className="fas fa-envelope"></i>
+                          <span><strong>{t('career.company.email')}:</strong> {application.applicant.email}</span>
+                        </div>
+                        <div className="application-detail-item">
+                          <i className="fas fa-building"></i>
+                          <span><strong>{t('career.company')}:</strong> {application.job.employer?.companyProfile?.companyName || 'N/A'}</span>
+                        </div>
+                        <div className="application-detail-item">
+                          <i className="fas fa-map-marker-alt"></i>
+                          <span><strong>{t('career.location')}:</strong> {application.job.location}</span>
+                        </div>
+                        <div className="application-detail-item">
+                          <i className="fas fa-clock"></i>
+                          <span><strong>{t('career.type')}:</strong> {application.job.jobType}</span>
+                        </div>
+                        <div className="application-detail-item">
+                          <i className="fas fa-calendar"></i>
+                          <span><strong>{t('career.company.applied')}:</strong> {new Date(application.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
                       
                       {application.coverLetter && (
                         <div className="mt-3">
@@ -1067,12 +1085,31 @@ const CompanyDashboard = () => {
 
         /* Content area */
         .tab-content {
-          background: white;
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-          border: 1px solid #e2e8f0;
+          background: transparent;
+          border-radius: 0;
+          padding: 0;
+          box-shadow: none;
+          border: none;
           min-height: 400px;
+        }
+
+        .jobs-tab,
+        .applications-tab {
+          width: 100%;
+        }
+
+        .jobs-tab .card,
+        .applications-tab .card {
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+          transition: all 0.3s ease;
+        }
+
+        .jobs-tab .card:hover,
+        .applications-tab .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
         /* Responsive breakpoints */
@@ -1154,14 +1191,14 @@ const styles = `
   }
 
   .enhanced-job-item:hover:not(:disabled) {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%) !important;
     transform: translateX(4px);
-    border-left: 4px solid #007bff;
+    border-left: 4px solid #3498db;
   }
 
   .enhanced-job-item.active {
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
-    border-left: 4px solid #2196f3;
+    border-left: 4px solid #3498db;
   }
 
   .enhanced-job-item:not(:disabled):active {
@@ -1188,14 +1225,17 @@ const styles = `
   }
 
   .job-posting-card {
-    border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
   }
 
   .job-posting-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border-color: #3498db;
   }
 
   .job-posting-header {
@@ -1251,6 +1291,57 @@ const styles = `
   .job-tags .badge {
     font-size: 0.8rem;
     padding: 6px 12px;
+    border-radius: 8px;
+  }
+
+  .modern-application-card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+  }
+
+  .application-header-info {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .application-name {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+
+  .job-applied-for {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+  }
+
+  .application-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .application-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+
+  .application-detail-item i {
+    color: #3498db;
+    width: 18px;
+    margin-top: 2px;
+  }
+
+  .application-detail-item strong {
+    color: #2c3e50;
   }
 
   @media (max-width: 768px) {

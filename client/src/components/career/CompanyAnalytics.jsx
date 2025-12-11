@@ -244,9 +244,9 @@ const getStyles = () => `
   }
 
   .analytics-container {
-    padding: 30px;
-    background: #f8f9fa;
-    min-height: 100vh;
+    padding: 0;
+    background: transparent;
+    min-height: auto;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
@@ -311,15 +311,16 @@ const getStyles = () => `
     background: white;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    border: 1px solid #ecf0f1;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e2e8f0;
     cursor: pointer;
   }
 
   .analytics-stat-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: #3498db;
   }
 
   .analytics-stat-card-header {
@@ -368,8 +369,13 @@ const getStyles = () => `
     background: white;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ecf0f1;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+
+  .analytics-chart-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   .analytics-chart-card-header {
@@ -435,14 +441,19 @@ const getStyles = () => `
     background: white;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ecf0f1;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+
+  .analytics-info-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   .analytics-info-card-header {
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 2px solid #ecf0f1;
+    border-bottom: 2px solid #e2e8f0;
   }
 
   .analytics-info-card-title {
@@ -535,7 +546,7 @@ const getStyles = () => `
 
   .analytics-performer-progress {
     height: 6px;
-    background: #ecf0f1;
+    background: #e2e8f0;
     border-radius: 3px;
     overflow: hidden;
   }
@@ -567,7 +578,7 @@ const getStyles = () => `
   .analytics-spinner {
     width: 60px;
     height: 60px;
-    border: 4px solid #ecf0f1;
+    border: 4px solid #e2e8f0;
     border-top: 4px solid #3498db;
     border-radius: 50%;
     animation: analytics-spin 1s linear infinite;
