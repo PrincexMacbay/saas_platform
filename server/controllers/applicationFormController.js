@@ -104,10 +104,17 @@ const getApplicationFormById = async (req, res) => {
 // Get application form (public endpoint)
 const getApplicationForm = async (req, res) => {
   try {
+    const { organizationId } = req.params;
     let whereCondition = { isPublished: true };
     
+    // If organizationId is provided and not 'null', filter by organization
+    if (organizationId && organizationId !== 'null') {
+      whereCondition.organizationId = parseInt(organizationId);
+    }
+    
     const form = await ApplicationForm.findOne({
-      where: whereCondition
+      where: whereCondition,
+      order: [['createdAt', 'DESC']] // Get the most recent published form
     });
 
     if (!form) {

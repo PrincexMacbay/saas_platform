@@ -510,18 +510,33 @@ router.post('/application-payment', async (req, res) => {
   }
 });
 
-// Get public application form for an organization
-router.get('/application-form/:organizationId', applicationFormController.getApplicationForm);
-
-// Get application form by plan-specific form ID
+// Get application form by plan-specific form ID (must come before other application-form routes)
 router.get('/application-form/plan/:formId', applicationFormController.getApplicationFormByPlan);
 
-// Get default application form (when no organization is specified)
+// Get default application form (when no organization is specified) - must come before parameterized route
 router.get('/application-form', async (req, res) => {
   try {
-    // Create a mock request with null organizationId
-    const mockReq = { params: { organizationId: 'null' } };
-    await applicationFormController.getApplicationForm(mockReq, res);
+    // Get any published application form
+    const { ApplicationForm } = require('../models');
+    const form = await ApplicationForm.findOne({
+      where: { isPublished: true },
+      order: [['createdAt', 'DESC']] // Get the most recent published form
+    });
+
+    if (!form) {
+      return res.status(404).json({
+        success: false,
+        message: 'No published application form found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...form.toJSON(),
+        fields: form.fields ? JSON.parse(form.fields) : []
+      }
+    });
   } catch (error) {
     console.error('Get default application form error:', error);
     res.status(500).json({
@@ -531,6 +546,9 @@ router.get('/application-form', async (req, res) => {
     });
   }
 });
+
+// Get public application form for an organization (must come after non-parameterized routes)
+router.get('/application-form/:organizationId', applicationFormController.getApplicationForm);
 
 // Get organizations with public plans (now returns users who are organizations)
 router.get('/organizations', async (req, res) => {

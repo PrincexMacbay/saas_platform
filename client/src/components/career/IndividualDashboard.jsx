@@ -153,47 +153,57 @@ const IndividualDashboard = () => {
         .desktop-tabs {
           display: flex;
           margin-bottom: 2rem;
-          border-bottom: 2px solid #e9ecef;
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+          border-radius: 12px;
+          padding: 8px;
           list-style: none;
-          padding: 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          gap: 4px;
         }
 
         .nav-item {
-          margin-right: 5px;
+          flex: 1;
         }
 
         .nav-link {
-          background: none;
+          background: transparent;
           border: none;
-          padding: 12px 24px;
-          color: #6c757d;
+          padding: 14px 20px;
+          color: #64748b;
           text-decoration: none;
-          border-radius: 8px 8px 0 0;
-          font-size: 1rem;
+          border-radius: 8px;
+          font-size: 0.95rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           align-items: center;
+          justify-content: center;
           position: relative;
+          white-space: nowrap;
         }
 
         .nav-link:hover {
           color: #3498db;
-          background: rgba(52, 152, 219, 0.1);
+          background: rgba(52, 152, 219, 0.08);
+          transform: translateY(-1px);
         }
 
         .nav-link.active {
-          color: #3498db;
-          background: white;
-          border: 2px solid #e9ecef;
-          border-bottom: 2px solid white;
-          margin-bottom: -2px;
+          color: #ffffff;
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
           font-weight: 600;
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+          transform: translateY(-2px);
         }
 
         .nav-link i {
           margin-right: 8px;
+          font-size: 1rem;
+        }
+
+        .nav-link.active i {
+          color: #ffffff;
         }
 
         /* Mobile Navigation */
@@ -211,7 +221,7 @@ const IndividualDashboard = () => {
         .mobile-dropdown-button {
           width: 100%;
           background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-          border: 2px solid #e9ecef;
+          border: 2px solid #e2e8f0;
           border-radius: 12px;
           padding: 16px 20px;
           display: flex;
@@ -221,14 +231,15 @@ const IndividualDashboard = () => {
           font-size: 1rem;
           font-weight: 600;
           color: #2c3e50;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .mobile-dropdown-button:hover {
           border-color: #3498db;
-          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
-          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(52, 152, 219, 0.25);
+          transform: translateY(-2px);
+          background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
         }
 
         .mobile-dropdown-button:focus {
@@ -256,18 +267,18 @@ const IndividualDashboard = () => {
 
         .mobile-dropdown-menu {
           position: absolute;
-          top: calc(100% + 4px);
+          top: calc(100% + 8px);
           left: 0;
           right: 0;
           background: white;
-          border: 2px solid #e9ecef;
+          border: 2px solid #e2e8f0;
           border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
           z-index: 1000;
-          max-height: 300px;
+          max-height: 320px;
           overflow-y: auto;
-          animation: dropdownSlideDown 0.3s ease-out;
-          padding: 8px 0;
+          animation: dropdownSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 8px;
         }
 
         @keyframes dropdownSlideDown {
@@ -311,14 +322,15 @@ const IndividualDashboard = () => {
         }
 
         .mobile-dropdown-item.active {
-          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-          color: #1565c0;
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+          color: #ffffff;
           font-weight: 600;
-          box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
         }
 
         .mobile-dropdown-item.active:hover {
-          background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+          background: linear-gradient(135deg, #2980b9 0%, #1f6aa5 100%);
+          transform: translateX(4px) scale(1.02);
         }
 
         .mobile-dropdown-item i {
@@ -329,7 +341,7 @@ const IndividualDashboard = () => {
         }
 
         .mobile-dropdown-item.active i {
-          color: #1565c0;
+          color: #ffffff;
         }
 
         .mobile-dropdown-item span {
@@ -337,17 +349,19 @@ const IndividualDashboard = () => {
         }
 
         .dropdown-check {
-          color: #1565c0 !important;
+          color: #ffffff !important;
           font-size: 0.9rem;
-          opacity: 0.8;
+          opacity: 1;
         }
 
         /* Content area */
         .tab-content {
           background: white;
-          border-radius: 8px;
-          padding: 20px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+          border: 1px solid #e2e8f0;
+          min-height: 400px;
         }
 
         /* Responsive breakpoints */
