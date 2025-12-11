@@ -76,16 +76,30 @@ const FinancialManagement = () => {
 
   if (loading) {
     return (
-      <div className="financial-management">
-        <div className="loading">Loading financial data...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#3498db] mb-4"></div>
+          <p className="text-gray-600">Loading financial data...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="financial-management">
-        <div className="error">{error}</div>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div className="text-red-600 mb-4">
+          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p className="text-red-800 font-medium mb-4">{error}</p>
+        <button 
+          onClick={fetchFinancialData} 
+          className="bg-[#3498db] hover:bg-[#2980b9] text-white px-6 py-2 rounded-lg font-medium transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }

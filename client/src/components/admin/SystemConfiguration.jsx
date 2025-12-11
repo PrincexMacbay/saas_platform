@@ -159,8 +159,11 @@ const SystemConfiguration = () => {
 
   if (loading) {
     return (
-      <div className="system-configuration">
-        <div className="loading">Loading system configuration...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#3498db] mb-4"></div>
+          <p className="text-gray-600">Loading system configuration...</p>
+        </div>
       </div>
     );
   }
