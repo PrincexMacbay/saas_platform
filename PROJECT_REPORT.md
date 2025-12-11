@@ -1078,29 +1078,71 @@ api.interceptors.request.use((config) => {
 
 #### 3.3.3 Email Notification System
 
-**Automated Notifications:**
+The platform implements a comprehensive email notification system built on Nodemailer, providing automated communication capabilities that enhance user engagement and streamline administrative processes. The email service is architected as a singleton service class that supports multiple email providers, including Gmail SMTP, SendGrid API, and custom SMTP configurations, ensuring flexibility and reliability across different deployment environments.
 
-- Nodemailer integration
-- Email templates for various events
-- Automated reminders for payments
-- Welcome emails for new members
+**Nodemailer Integration and Provider Support:**
+
+The email service (`EmailService`) is initialized with environment-based configuration that automatically selects the appropriate email delivery method. In development environments, the system can utilize Nodemailer's test account feature, which provides preview URLs for email content without actually sending messages. For production deployments, the service supports Gmail SMTP with app-specific passwords, SendGrid's HTTP API for improved deliverability and scalability, or any custom SMTP server configuration. The service implements graceful error handling that prevents email failures from disrupting core application functionality, logging errors in development while silently handling failures in production to maintain system stability.
+
+**Email Templates and Styling:**
+
+The platform includes a comprehensive set of professionally designed HTML email templates that are responsive and accessible across different email clients. Each template follows a consistent design system with branded styling, including gradient buttons, structured layouts, and mobile-responsive design. The templates are dynamically generated with personalized content, including user names, contextual information, and action-oriented call-to-action buttons that link directly to relevant platform pages. All HTML emails include plain text fallbacks to ensure compatibility with email clients that do not support HTML rendering, maintaining accessibility and deliverability standards.
+
+**Automated Notification Types:**
+
+The system sends automated notifications for a wide range of platform events. User engagement notifications include comment notifications that alert post authors when their content receives new comments, follower notifications that inform users when someone follows their profile, and space-related notifications for join requests, approvals, and rejections. Authentication-related emails include email verification messages with secure token-based links that expire after 24 hours, password reset emails with time-limited reset tokens, and password reset confirmation emails that provide security feedback to users.
+
+**Payment and Membership Reminders:**
+
+The platform implements an intelligent reminder system that sends automated emails for payment-related events. Payment due reminders are sent before subscription renewal dates, using color-coded templates (orange for upcoming payments) to draw attention to time-sensitive actions. Overdue payment notifications use red color schemes and urgent messaging to encourage immediate action, while renewal reminders provide advance notice of upcoming subscription renewals. The reminder system supports multiple reminder types through a flexible `sendReminderEmail` method that accepts reminder data objects, allowing for extensible reminder categories beyond payment events.
+
+**Welcome and Onboarding Emails:**
+
+New member welcome emails are automatically triggered upon user registration, providing an introduction to the platform's features and guiding users through initial setup steps. These emails include personalized greetings, platform overviews, getting started checklists, and direct links to key platform sections such as profile completion, space exploration, and dashboard access. The welcome email template emphasizes community engagement and provides clear pathways for new users to become active platform participants.
+
+**Email Service Architecture:**
+
+The email service is implemented as a singleton instance exported from the service module, ensuring a single point of configuration and consistent email delivery across the entire application. The service includes helper methods for color manipulation (for dynamic template styling), error handling with detailed logging, and support for both HTML and plain text content. Email sending operations are asynchronous and non-blocking, with return values that indicate success or failure status, message IDs, and preview URLs (in development mode) without throwing exceptions that could interrupt application flow.
 
 ### 3.4 Multi-Tenant Architecture
 
+The platform implements a sophisticated multi-tenant architecture that enables multiple organizations to operate independently within a single application instance, with complete data isolation and organization-specific customization capabilities. This architecture is fundamental to the platform's ability to serve diverse organizations while maintaining security, data privacy, and operational independence.
+
 #### 3.4.1 Organization-Based Isolation
 
-The platform supports multiple organizations with data isolation:
+The multi-tenant system is built around the `organizations` table, which serves as the primary tenant identifier for all organization-scoped data. Each organization operates as an independent entity with its own configuration, membership structure, and user base, while sharing the same underlying application infrastructure and codebase.
 
-- Each organization has its own membership plans
-- Application forms are organization-specific
-- Digital cards use organization templates
-- Admin access restricted to organization data
+**Organization-Specific Membership Plans:**
+
+Each organization maintains its own set of membership plans that are completely isolated from plans belonging to other organizations. When administrators create membership plans, the system automatically associates the plan with the administrator's organization through the `organizationId` foreign key relationship. This ensures that plan management, pricing, benefits, and eligibility criteria are organization-specific. Users can only view and subscribe to plans that belong to their organization, preventing cross-organization plan visibility and maintaining business logic separation between different tenant organizations.
+
+**Organization-Specific Application Forms:**
+
+The application form system is fully organization-scoped, allowing each organization to create and customize membership application forms that reflect their specific requirements and data collection needs. Application forms are stored with an `organizationId` foreign key, and the system enforces strict validation that prevents users from submitting applications using forms from different organizations. When users create membership applications, the system validates that the selected application form belongs to their organization, ensuring data integrity and preventing unauthorized form usage. This isolation extends to form configuration data, which is stored as JSON in the `application_forms` table, allowing organizations to define custom fields and validation rules without affecting other tenants.
+
+**Organization-Templated Digital Cards:**
+
+Digital membership cards are generated using organization-specific templates and branding, ensuring that each organization's digital cards reflect their unique identity and design preferences. When digital cards are created for approved membership applications, the system retrieves the organization's template configuration and applies organization-specific styling, logos, and formatting. This templating system allows organizations to maintain brand consistency across their membership materials while operating within the shared platform infrastructure.
+
+**Organization-Restricted Admin Access:**
+
+Administrative access is scoped to organization boundaries, ensuring that administrators can only manage data, users, and configurations that belong to their organization. When administrators perform operations such as viewing membership applications, managing plans, or accessing user data, the system automatically filters results based on the administrator's `organizationId`. This filtering occurs at the database query level and in application logic, providing defense-in-depth security that prevents both accidental and intentional cross-organization data access. Role-based access control is implemented per organization, meaning that an administrator role in one organization does not grant access to another organization's data, even if the user account is associated with multiple organizations.
 
 #### 3.4.2 Data Segregation
 
-- `organizationId` foreign key in relevant tables
-- Middleware-based organization filtering
-- Role-based access control per organization
+Data segregation is achieved through a combination of database schema design, application-level filtering, and middleware-based access control that ensures complete tenant isolation at every layer of the application stack.
+
+**Foreign Key-Based Data Relationships:**
+
+The database schema implements organization-based data segregation through `organizationId` foreign key columns in all tenant-scoped tables, including `plans`, `application_forms`, `subscriptions`, `applications`, `digital_cards`, and user profile tables. These foreign keys create explicit relationships between data records and their parent organizations, enabling efficient querying and ensuring referential integrity. Database-level constraints prevent orphaned records and ensure that all organization-scoped data maintains a valid relationship to an organization entity. The foreign key relationships also enable cascading operations where appropriate, such as organization deletion scenarios, while maintaining data consistency across related tables.
+
+**Middleware-Based Organization Filtering:**
+
+Application-level data filtering is implemented through middleware and controller logic that automatically appends organization-based WHERE clauses to database queries. When users or administrators request data, the system extracts the user's `organizationId` from their profile or session context and applies it as a filter condition to all relevant queries. This filtering occurs transparently, ensuring that users only receive data that belongs to their organization without requiring explicit organization filtering in every query. The filtering logic is centralized in service layer methods and controller functions, reducing code duplication and ensuring consistent application of organization boundaries across all data access operations.
+
+**Role-Based Access Control Per Organization:**
+
+The platform implements granular role-based access control that operates within organization boundaries. Users can have different roles in different organizations, and their permissions are evaluated in the context of their current organization association. For example, a user might be a regular member in one organization while serving as an administrator in another organization, with their access rights dynamically determined based on their role within the specific organization context of each operation. This multi-organization role support enables users to participate in multiple organizations while maintaining appropriate access levels for each, and the system ensures that role-based permissions are always evaluated within the correct organizational context to prevent privilege escalation across organization boundaries.
 
 ---
 
