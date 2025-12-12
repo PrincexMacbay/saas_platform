@@ -102,352 +102,332 @@ const JobBoard = () => {
 
   if (loading && jobs.length === 0) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-3">Loading jobs...</p>
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3498db] mb-4"></div>
+        <p className="text-gray-600 text-lg">Loading jobs...</p>
       </div>
     );
   }
 
+  const hasActiveFilters = Object.keys(filters).some(key => filters[key] && filters[key] !== '');
+
   return (
-    <div className="job-board-linkedin-style">
+    <div className="w-full bg-[#f3f2ef] min-h-screen py-5">
       {/* Search and Filters Section */}
-      <div className="search-filters-section mb-4">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
         {/* Search Bar */}
-        <div className="search-section">
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <div className="search-container">
-              <div className="search-input-group">
-                <span className="search-icon">
-                  <i className="fas fa-search"></i>
-                </span>
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Search for jobs, companies, or keywords..."
-                  value={filters.search || ''}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                />
-              </div>
-              <button type="submit" className="search-button">
-                Search
-              </button>
+        <form onSubmit={handleSearchSubmit} className="mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative flex items-center bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden focus-within:border-[#3498db] focus-within:ring-2 focus-within:ring-[#3498db]/20 transition-all">
+              <span className="px-5 text-gray-500 flex items-center">
+                <i className="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                className="flex-1 py-4 px-2 border-none outline-none text-base bg-transparent placeholder-gray-400"
+                placeholder="Search for jobs, companies, or keywords..."
+                value={filters.search || ''}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+              />
             </div>
-          </form>
-        </div>
+            <button 
+              type="submit" 
+              className="px-8 py-4 font-semibold text-white bg-gradient-to-r from-[#3498db] to-[#2980b9] rounded-xl transition-all duration-300 hover:from-[#2980b9] hover:to-[#1f6aa5] hover:-translate-y-0.5 shadow-lg shadow-[#3498db]/30 hover:shadow-xl hover:shadow-[#3498db]/40 whitespace-nowrap"
+            >
+              Search
+            </button>
+          </div>
+        </form>
 
         {/* Mobile Filter Toggle */}
-        <div className="mobile-filter-toggle d-lg-none">
+        <div className="lg:hidden mb-4">
           <button 
-            className="btn btn-outline-primary w-100"
+            className="w-full px-4 py-3 bg-white border-2 border-[#3498db] text-[#3498db] rounded-lg font-medium hover:bg-[#3498db]/5 transition-all flex items-center justify-center gap-2"
             onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
           >
-            <i className="fas fa-filter me-2"></i>
+            <i className="fas fa-filter"></i>
             {isMobileFiltersOpen ? 'Hide Filters' : 'Show Filters'}
-            <i className={`fas fa-chevron-${isMobileFiltersOpen ? 'up' : 'down'} ms-2`}></i>
+            <i className={`fas fa-chevron-${isMobileFiltersOpen ? 'up' : 'down'}`}></i>
           </button>
         </div>
 
         {/* Desktop Filters */}
-        <div className="filters-section d-none d-lg-block">
-          <div className="filters-container">
-            <div className="row g-4">
+        <div className="hidden lg:block mt-6 pt-6 border-t border-gray-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
             {/* Location Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Location</label>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Location</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
+                placeholder="City, state..."
+                value={filters.location || ''}
+                onChange={(e) => handleFilterChange('location', e.target.value)}
+              />
+            </div>
+
+            {/* Job Type Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Job Type</label>
+              <select
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                value={filters.jobType || ''}
+                onChange={(e) => handleFilterChange('jobType', e.target.value)}
+              >
+                <option value="">All Types</option>
+                {jobTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Category</label>
+              <select
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                value={filters.category || ''}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Experience Level Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Experience</label>
+              <select
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                value={filters.experienceLevel || ''}
+                onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
+              >
+                <option value="">All Levels</option>
+                {experienceLevels.map(level => (
+                  <option key={level.value} value={level.value}>
+                    {level.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Remote Work Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Remote</label>
+              <select
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                value={filters.remoteWork || ''}
+                onChange={(e) => handleFilterChange('remoteWork', e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="true">Remote Only</option>
+                <option value="false">On-site Only</option>
+              </select>
+            </div>
+
+            {/* Salary Min Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Min Salary</label>
+              <input
+                type="number"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
+                placeholder="Min $"
+                value={filters.salaryMin || ''}
+                onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
+              />
+            </div>
+
+            {/* Salary Max Filter */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">Max Salary</label>
+              <input
+                type="number"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
+                placeholder="Max $"
+                value={filters.salaryMax || ''}
+                onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            <div className="flex flex-col justify-end">
+              <button
+                type="button"
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 ${
+                  hasActiveFilters 
+                    ? 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200 hover:-translate-y-0.5' 
+                    : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                }`}
+                onClick={handleClearFilters}
+                disabled={!hasActiveFilters}
+              >
+                <i className="fas fa-times"></i>
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Filters Dropdown */}
+        {isMobileFiltersOpen && (
+          <div className="lg:hidden mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div className="bg-white rounded-lg p-4 shadow-sm space-y-4">
+              {/* Location Filter */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
                 <input
                   type="text"
-                  className="form-control form-control-sm"
+                  className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
                   placeholder="City, state, or remote"
                   value={filters.location || ''}
                   onChange={(e) => handleFilterChange('location', e.target.value)}
                 />
               </div>
-            </div>
 
-            {/* Job Type Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Job Type</label>
-                <select
-                  className="form-select form-select-sm"
-                  value={filters.jobType || ''}
-                  onChange={(e) => handleFilterChange('jobType', e.target.value)}
-                >
-                  <option value="">All Types</option>
-                  {jobTypes.map(type => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Category</label>
-                <select
-                  className="form-select form-select-sm"
-                  value={filters.category || ''}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                >
-                  <option value="">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Experience Level Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Experience</label>
-                <select
-                  className="form-select form-select-sm"
-                  value={filters.experienceLevel || ''}
-                  onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
-                >
-                  <option value="">All Levels</option>
-                  {experienceLevels.map(level => (
-                    <option key={level.value} value={level.value}>
-                      {level.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Remote Work Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Remote</label>
-                <select
-                  className="form-select form-select-sm"
-                  value={filters.remoteWork || ''}
-                  onChange={(e) => handleFilterChange('remoteWork', e.target.value)}
-                >
-                  <option value="">All</option>
-                  <option value="true">Remote Only</option>
-                  <option value="false">On-site Only</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Salary Min Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Min Salary</label>
-                <input
-                  type="number"
-                  className="form-control form-control-sm"
-                  placeholder="Min $"
-                  value={filters.salaryMin || ''}
-                  onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Salary Max Filter */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">Max Salary</label>
-                <input
-                  type="number"
-                  className="form-control form-control-sm"
-                  placeholder="Max $"
-                  value={filters.salaryMax || ''}
-                  onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Clear Filters Button */}
-            <div className="col-lg-2 col-md-3 col-sm-6">
-              <div className="filter-item">
-                <label className="form-label small text-muted">&nbsp;</label>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-sm w-100 clear-button"
-                  onClick={handleClearFilters}
-                >
-                  <i className="fas fa-times me-1"></i>
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
-
-        {/* Mobile Filters Dropdown */}
-        {isMobileFiltersOpen && (
-          <div className="mobile-filters-dropdown d-lg-none">
-            <div className="mobile-filters-content">
-              <div className="row g-3">
-                {/* Location Filter */}
-                <div className="col-12">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Location</label>
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      placeholder="City, state, or remote"
-                      value={filters.location || ''}
-                      onChange={(e) => handleFilterChange('location', e.target.value)}
-                    />
-                  </div>
-                </div>
-
+              <div className="grid grid-cols-2 gap-4">
                 {/* Job Type Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Job Type</label>
-                    <select
-                      className="form-select form-select-sm"
-                      value={filters.jobType || ''}
-                      onChange={(e) => handleFilterChange('jobType', e.target.value)}
-                    >
-                      <option value="">All Types</option>
-                      {jobTypes.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Job Type</label>
+                  <select
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                    value={filters.jobType || ''}
+                    onChange={(e) => handleFilterChange('jobType', e.target.value)}
+                  >
+                    <option value="">All Types</option>
+                    {jobTypes.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Category Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Category</label>
-                    <select
-                      className="form-select form-select-sm"
-                      value={filters.category || ''}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                    >
-                      <option value="">All Categories</option>
-                      {categories.map(category => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                  <select
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                    value={filters.category || ''}
+                    onChange={(e) => handleFilterChange('category', e.target.value)}
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Experience Level Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Experience</label>
-                    <select
-                      className="form-select form-select-sm"
-                      value={filters.experienceLevel || ''}
-                      onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
-                    >
-                      <option value="">All Levels</option>
-                      {experienceLevels.map(level => (
-                        <option key={level.value} value={level.value}>
-                          {level.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Experience</label>
+                  <select
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                    value={filters.experienceLevel || ''}
+                    onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
+                  >
+                    <option value="">All Levels</option>
+                    {experienceLevels.map(level => (
+                      <option key={level.value} value={level.value}>
+                        {level.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Remote Work Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Remote</label>
-                    <select
-                      className="form-select form-select-sm"
-                      value={filters.remoteWork || ''}
-                      onChange={(e) => handleFilterChange('remoteWork', e.target.value)}
-                    >
-                      <option value="">All</option>
-                      <option value="true">Remote Only</option>
-                      <option value="false">On-site Only</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Remote</label>
+                  <select
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all cursor-pointer"
+                    value={filters.remoteWork || ''}
+                    onChange={(e) => handleFilterChange('remoteWork', e.target.value)}
+                  >
+                    <option value="">All</option>
+                    <option value="true">Remote Only</option>
+                    <option value="false">On-site Only</option>
+                  </select>
                 </div>
 
                 {/* Salary Min Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Min Salary</label>
-                    <input
-                      type="number"
-                      className="form-control form-control-sm"
-                      placeholder="Min $"
-                      value={filters.salaryMin || ''}
-                      onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Min Salary</label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
+                    placeholder="Min $"
+                    value={filters.salaryMin || ''}
+                    onChange={(e) => handleFilterChange('salaryMin', e.target.value)}
+                  />
                 </div>
 
                 {/* Salary Max Filter */}
-                <div className="col-6">
-                  <div className="filter-item">
-                    <label className="form-label small text-muted">Max Salary</label>
-                    <input
-                      type="number"
-                      className="form-control form-control-sm"
-                      placeholder="Max $"
-                      value={filters.salaryMax || ''}
-                      onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Max Salary</label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg bg-white focus:border-[#3498db] focus:ring-2 focus:ring-[#3498db]/20 outline-none transition-all"
+                    placeholder="Max $"
+                    value={filters.salaryMax || ''}
+                    onChange={(e) => handleFilterChange('salaryMax', e.target.value)}
+                  />
                 </div>
+              </div>
 
-                {/* Clear Filters Button */}
-                <div className="col-12">
-                  <div className="filter-item">
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary btn-sm w-100 clear-button"
-                      onClick={handleClearFilters}
-                    >
-                      <i className="fas fa-times me-1"></i>
-                      Clear All Filters
-                    </button>
-                  </div>
-                </div>
+              {/* Clear Filters Button */}
+              <div>
+                <button
+                  type="button"
+                  className={`w-full px-4 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 ${
+                    hasActiveFilters 
+                      ? 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200' 
+                      : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                  }`}
+                  onClick={handleClearFilters}
+                  disabled={!hasActiveFilters}
+                >
+                  <i className="fas fa-times"></i>
+                  Clear All Filters
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Jobs List - Center */}
-      <div className="jobs-section">
+      {/* Jobs List Section */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         {error && (
-          <div className="alert alert-danger" role="alert">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
             {error}
           </div>
         )}
 
         {jobs.length === 0 ? (
-          <div className="text-center py-5">
-            <i className="fas fa-search fa-3x text-muted mb-3"></i>
-            <h5>No jobs found</h5>
-            <p className="text-muted">Try adjusting your filters or search terms.</p>
+          <div className="flex flex-col items-center justify-center py-12">
+            <i className="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h5 className="text-xl font-semibold text-gray-700 mb-2">No jobs found</h5>
+            <p className="text-gray-500">Try adjusting your filters or search terms.</p>
           </div>
         ) : (
           <>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="mb-0">Found {pagination.totalJobs} jobs</h5>
-              {loading && <div className="spinner-border spinner-border-sm"></div>}
+            <div className="flex justify-between items-center mb-6">
+              <h5 className="text-lg font-semibold text-gray-800">
+                Found <span className="text-[#3498db]">{pagination.totalJobs}</span> jobs
+              </h5>
+              {loading && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#3498db]"></div>
+              )}
             </div>
 
-            <div className="jobs-list">
+            <div className="space-y-4">
               {jobs.map(job => (
                 <JobCard
                   key={job.id}
@@ -459,11 +439,15 @@ const JobBoard = () => {
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <nav aria-label="Jobs pagination" className="mt-4">
-                <ul className="pagination justify-content-center">
-                  <li className={`page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`}>
+              <nav aria-label="Jobs pagination" className="mt-8">
+                <ul className="flex justify-center items-center gap-2 flex-wrap">
+                  <li>
                     <button
-                      className="page-link"
+                      className={`px-4 py-2 rounded-lg border transition-all ${
+                        pagination.currentPage === 1
+                          ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
+                          : 'border-gray-300 text-[#3498db] bg-white hover:bg-[#3498db] hover:text-white hover:border-[#3498db]'
+                      }`}
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                       disabled={pagination.currentPage === 1}
                     >
@@ -472,9 +456,13 @@ const JobBoard = () => {
                   </li>
                   
                   {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
-                    <li key={page} className={`page-item ${page === pagination.currentPage ? 'active' : ''}`}>
+                    <li key={page}>
                       <button
-                        className="page-link"
+                        className={`px-4 py-2 rounded-lg border transition-all ${
+                          page === pagination.currentPage
+                            ? 'bg-gradient-to-r from-[#3498db] to-[#2980b9] text-white border-[#3498db] shadow-lg shadow-[#3498db]/30'
+                            : 'border-gray-300 text-[#3498db] bg-white hover:bg-[#3498db] hover:text-white hover:border-[#3498db]'
+                        }`}
                         onClick={() => handlePageChange(page)}
                       >
                         {page}
@@ -482,9 +470,13 @@ const JobBoard = () => {
                     </li>
                   ))}
                   
-                  <li className={`page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`}>
+                  <li>
                     <button
-                      className="page-link"
+                      className={`px-4 py-2 rounded-lg border transition-all ${
+                        pagination.currentPage === pagination.totalPages
+                          ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
+                          : 'border-gray-300 text-[#3498db] bg-white hover:bg-[#3498db] hover:text-white hover:border-[#3498db]'
+                      }`}
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                       disabled={pagination.currentPage === pagination.totalPages}
                     >
@@ -497,327 +489,6 @@ const JobBoard = () => {
           </>
         )}
       </div>
-
-      <style jsx>{`
-        .job-board-linkedin-style {
-          max-width: 100%;
-          background: #f3f2ef;
-          min-height: 100vh;
-          padding: 20px 0;
-        }
-
-        .search-filters-section {
-          background: #fff;
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-          border: 1px solid #e0e0e0;
-          margin-bottom: 24px;
-        }
-
-        .search-section {
-          margin-bottom: 20px;
-        }
-
-        .search-container {
-          display: flex;
-          gap: 12px;
-          align-items: stretch;
-        }
-
-        .search-input-group {
-          flex: 1;
-          position: relative;
-          display: flex;
-          align-items: center;
-          background: #fff;
-          border: 1px solid #e0e0e0;
-          border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-          overflow: hidden;
-        }
-
-        .search-icon {
-          padding: 16px 20px;
-          color: #666;
-          background: #fff;
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .search-input {
-          flex: 1;
-          border: none;
-          padding: 16px 20px;
-          font-size: 16px;
-          background: #fff;
-          outline: none;
-        }
-
-        .search-input:focus {
-          box-shadow: none;
-          border: none;
-        }
-
-        .search-button {
-          border: none;
-          padding: 16px 32px;
-          font-weight: 600;
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-          color: #fff;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-          white-space: nowrap;
-          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-        }
-
-        .search-button:hover {
-          background: linear-gradient(135deg, #2980b9 0%, #1f6aa5 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
-        }
-
-        .filters-section {
-          margin-top: 20px;
-          padding: 20px;
-          background: white;
-          border-radius: 8px;
-          border: 1px solid #e0e0e0;
-          border-top: 1px solid #e0e0e0;
-        }
-
-        /* Ensure mobile filter toggle is hidden on desktop */
-        .mobile-filter-toggle.d-lg-none {
-          display: none;
-        }
-
-        /* Ensure desktop filters are hidden on mobile */
-        .filters-section.d-none.d-lg-block {
-          display: none;
-        }
-
-        /* Responsive overrides */
-        @media (max-width: 991px) {
-          .mobile-filter-toggle.d-lg-none {
-            display: block !important;
-          }
-          
-          .filters-section.d-none.d-lg-block {
-            display: none !important;
-          }
-        }
-
-        @media (min-width: 992px) {
-          .mobile-filter-toggle.d-lg-none {
-            display: none !important;
-          }
-          
-          .filters-section.d-none.d-lg-block {
-            display: block !important;
-          }
-        }
-
-        .filters-container {
-          width: 100%;
-        }
-
-        .filter-item {
-          height: 100%;
-        }
-
-        .filter-item .form-label {
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: #333;
-          font-size: 14px;
-        }
-
-                 .filter-item .form-control,
-         .filter-item .form-select {
-           border: 1px solid #ddd;
-           border-radius: 8px;
-           font-size: 14px;
-           padding: 8px 12px;
-           background: #fff;
-           transition: border-color 0.2s ease, box-shadow 0.2s ease;
-         }
-
-        .filter-item .form-control:focus,
-        .filter-item .form-select:focus {
-          border-color: #3498db;
-          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-          outline: none;
-        }
-
-        .filter-item .btn {
-          border-radius: 8px;
-          font-size: 14px;
-          padding: 8px 16px;
-          transition: all 0.2s ease;
-        }
-
-        .filter-item .btn:hover {
-          transform: translateY(-1px);
-        }
-
-        .clear-button {
-          height: 38px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        /* Mobile Filter Styles */
-        .mobile-filter-toggle {
-          margin-bottom: 15px;
-        }
-
-        .mobile-filters-dropdown {
-          background: #f8f9fa;
-          border-radius: 8px;
-          padding: 20px;
-          margin-top: 15px;
-          border: 1px solid #e9ecef;
-        }
-
-        .mobile-filters-content {
-          background: white;
-          border-radius: 8px;
-          padding: 15px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .mobile-filters-content .filter-item {
-          margin-bottom: 15px;
-        }
-
-        .mobile-filters-content .filter-item:last-child {
-          margin-bottom: 0;
-        }
-
-        /* Add spacing between filter items */
-        .filter-item {
-          margin-bottom: 8px;
-        }
-
-        .filter-item:last-child {
-          margin-bottom: 0;
-        }
-
-        .jobs-section {
-          background: #fff;
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-          border: 1px solid #e0e0e0;
-        }
-
-        .jobs-section h5 {
-          color: #333;
-          font-weight: 600;
-          font-size: 18px;
-        }
-
-        .jobs-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .pagination {
-          margin-top: 32px;
-        }
-
-        .pagination .page-link {
-          border: 1px solid #e0e0e0;
-          color: #3498db;
-          padding: 8px 16px;
-          margin: 0 2px;
-          border-radius: 6px;
-          transition: all 0.2s ease;
-        }
-
-        .pagination .page-link:hover {
-          background: #3498db;
-          color: #fff;
-          border-color: #3498db;
-        }
-
-        .pagination .page-item.active .page-link {
-          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-          border-color: #3498db;
-          color: #fff;
-        }
-
-        .pagination .page-item.disabled .page-link {
-          color: #6c757d;
-          background: #f8f9fa;
-          border-color: #e0e0e0;
-        }
-
-        
-
-         /* Responsive Design */
-         @media (max-width: 992px) {
-           .filters-section .row > div {
-             margin-bottom: 16px;
-           }
-         }
-
-                 @media (max-width: 768px) {
-           .job-board-linkedin-style {
-             padding: 16px 0;
-           }
-
-           .search-section,
-           .filters-section,
-           .jobs-section {
-             padding: 20px;
-             margin-bottom: 16px;
-           }
-
-           .search-form .form-control,
-           .search-form .input-group-text {
-             padding: 12px 16px;
-           }
-
-           .search-form .btn {
-             padding: 12px 24px;
-           }
-
-           .filters-section .row {
-             row-gap: 1rem !important;
-           }
-           
-           .filter-item {
-             margin-bottom: 0;
-           }
-
-           .filter-item .form-control,
-           .filter-item .form-select {
-             font-size: 16px; /* Prevent zoom on iOS */
-           }
-         }
-
-        @media (max-width: 576px) {
-          .search-container {
-            flex-direction: column;
-            gap: 8px;
-          }
-
-          .search-input-group {
-            border-radius: 8px;
-          }
-
-          .search-button {
-            width: 100%;
-            border-radius: 8px;
-          }
-        }
-      `}</style>
     </div>
   );
 };
