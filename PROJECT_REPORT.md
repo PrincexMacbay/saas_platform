@@ -1784,63 +1784,77 @@ This section provides visual documentation of the platform's key features and us
 ### 5.3 Code Architecture Diagrams
 
 **System Architecture Diagram**
-- **Screenshot**: `./screenshots/system-architecture.png`
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 1
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 7-58)
 - **Description**: High-level architecture diagram showing:
-  - Frontend (React) layer
-  - Backend (Node.js/Express) layer
-  - Database (PostgreSQL) layer
-  - API communication flow
-  - Authentication flow
+  - Frontend (React) layer on port 5173
+  - Backend (Node.js/Express) layer on port 5000
+  - Database (PostgreSQL) layer with all table categories
+  - API communication flow with HTTP/REST
+  - Authentication flow with JWT tokens
+  - External services (File Storage, Email, Payment Gateway)
 
 **Component Hierarchy**
-- **Screenshot**: `./screenshots/component-hierarchy.png`
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 2
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 63-108)
 - **Description**: React component tree showing:
-  - Main App component
-  - Context providers
-  - Route components
-  - Feature components
-  - Reusable UI components
+  - Main App component with providers
+  - Context providers (Language, Auth)
+  - Route components (Public and Protected)
+  - Feature components (Membership, Career, Admin)
+  - Reusable UI components (PostCard, FileUpload, etc.)
 
 **API Endpoint Map**
-- **Screenshot**: `./screenshots/api-endpoints.png`
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 3
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 113-180)
 - **Description**: Visual map of all API endpoints organized by feature:
-  - Authentication endpoints
-  - Membership endpoints
-  - Social networking endpoints
-  - Career center endpoints
-  - Admin endpoints
+  - Authentication endpoints (register, login, password reset)
+  - Membership endpoints (plans, subscriptions, payments, applications)
+  - Social networking endpoints (spaces, posts, comments, likes)
+  - Career center endpoints (jobs, applications, saved jobs)
+  - Admin endpoints (dashboard, user management, financial)
+  - Public endpoints (browse plans, apply)
+  - Upload endpoints (profile images, attachments)
 
 ### 5.4 Workflow Diagrams
 
 **Membership Application Workflow**
-- **Screenshot**: `./screenshots/application-workflow.png`
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 4
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 185-230)
 - **Description**: Flowchart showing the complete membership application process:
-  1. User browses plans
-  2. User applies for membership
-  3. Admin reviews application
-  4. Application approved/rejected
-  5. Subscription created (if approved)
-  6. Payment processed
-  7. Digital card generated
+  1. User browses plans and selects one
+  2. User fills and submits application form
+  3. Admin receives notification and reviews application
+  4. Application approved/rejected/needs more info
+  5. User account created (if approved)
+  6. Application fee payment processed
+  7. Subscription created upon successful payment
+  8. Digital membership card generated
+  9. Welcome email sent to new member
 
 **Payment Processing Workflow**
-- **Screenshot**: `./screenshots/payment-workflow.png`
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 5
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 235-310)
 - **Description**: Payment lifecycle diagram showing:
-  - Payment initiation
-  - Payment processing
+  - Payment initiation and validation
+  - Multiple payment methods (Cash, Bank Transfer, Card, Mobile, Crypto)
+  - Payment gateway integration
   - Success/failure handling
-  - Debt creation (if failed)
-  - Reminder generation
-  - Subscription status updates
+  - Debt creation for failed payments
+  - Reminder generation for overdue payments
+  - Subscription status updates based on payment results
+  - Invoice creation and receipt sending
 
 **Subscription Lifecycle**
-- **Screenshot**: `./screenshots/subscription-lifecycle.png`
-- **Description**: State diagram showing subscription states:
-  - Pending → Active
-  - Active → Past Due
-  - Past Due → Cancelled/Expired
-  - Renewal process
-  - Status transitions
+- **Mermaid Diagram**: See `PROJECT_DIAGRAMS.md` section 6
+- **Code Location**: `PROJECT_DIAGRAMS.md` (lines 315-360)
+- **Description**: State diagram showing subscription states and transitions:
+  - **Pending**: Initial state after application approval
+  - **Active**: Subscription is active and user has access
+  - **Past Due**: Payment overdue, reminders generated
+  - **Cancelled**: Subscription cancelled by user or admin
+  - **Expired**: Subscription period has ended
+  - State transitions with conditions (payment received, grace period expired, etc.)
 
 ### 5.5 Mobile Responsive Views
 

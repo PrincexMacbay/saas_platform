@@ -1,7 +1,8 @@
 // =====================================================
-// HumHub Clone Database Schema - DBML Format
+// SaaS Platform Database Schema - DBML Format
 // Comprehensive database schema for multi-tenant SaaS platform
 // with membership management, career center, and social features
+// Generated based on current project models
 // =====================================================
 
 // =====================================================
@@ -24,13 +25,28 @@ Table users {
   language varchar(10) [default: 'en']
   timezone varchar(50) [default: 'UTC']
   lastLogin timestamp
+  emailVerified boolean [default: false]
+  emailVerifiedAt timestamp
+  role varchar(20) [default: 'user'] // 'user', 'admin', 'moderator'
+  
+  // Organization fields (for users representing organizations)
+  organizationName varchar(255)
+  organizationDescription text
+  organizationLogo varchar(500)
+  organizationWebsite varchar(255)
+  organizationPhone varchar(20)
+  organizationAddress text
+  isOrganization boolean [default: false]
+  organizationSettings text // JSON string
+  
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
   
   indexes {
-    username
-    email
+    username [unique]
+    email [unique]
     status
+    role
   }
 }
 
@@ -107,6 +123,57 @@ Table organizations {
 }
 
 // =====================================================
+// AUTHENTICATION & SECURITY TABLES
+// =====================================================
+
+Table password_reset_tokens {
+  id integer [primary key, increment]
+  token varchar(255) [unique, not null]
+  userId integer [not null]
+  expiresAt timestamp [not null]
+  used boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    token [unique]
+    userId
+    expiresAt
+  }
+}
+
+Table email_verification_tokens {
+  id integer [primary key, increment]
+  token varchar(255) [unique, not null]
+  userId integer [not null]
+  expiresAt timestamp [not null]
+  used boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    token [unique]
+    userId
+    expiresAt
+  }
+}
+
+Table system_settings {
+  id integer [primary key, increment]
+  key varchar(255) [unique, not null]
+  value text
+  description text
+  category varchar(100)
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    key [unique]
+    category
+  }
+}
+
+// =====================================================
 // MEMBERSHIP SYSTEM TABLES
 // =====================================================
 
@@ -120,14 +187,20 @@ Table plans {
   isActive boolean [default: true]
   maxMembers integer
   isPublic boolean [default: true]
-  organizationId integer
+  createdBy integer [not null] // User who created the plan
+  applicationFormId integer // Direct link to application form
+  useDefaultForm boolean [default: true]
+  digitalCardTemplateId integer // Direct link to digital card template
+  useDefaultCardTemplate boolean [default: true]
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
   
   indexes {
-    organizationId
+    createdBy
     isActive
     isPublic
+    applicationFormId
+    digitalCardTemplateId
   }
 }
 
@@ -367,6 +440,11 @@ Table application_forms {
   organizationId integer [not null]
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    organizationId
+    isPublished
+  }
 }
 
 Table membership_settings {
@@ -389,6 +467,21 @@ Table membership_settings {
   
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
+}
+
+Table user_payment_info {
+  id integer [primary key, increment]
+  userId integer [not null]
+  paymentMethod varchar(50) // 'credit_card', 'bank_account', etc.
+  paymentDetails text // JSON string for encrypted payment details
+  isDefault boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+  
+  indexes {
+    userId
+    isDefault
+  }
 }
 
 // =====================================================
@@ -584,56 +677,63 @@ Table saved_jobs {
 // =====================================================
 
 // User Profile relationships
-Ref: user_profiles.userId > users.id
+Ref: user_profiles.userId > users.id [delete: cascade]
 Ref: user_profiles.organizationId > organizations.id
-Ref: individual_profiles.userId > users.id
-Ref: company_profiles.userId > users.id
+Ref: individual_profiles.userId > users.id [delete: cascade]
+Ref: company_profiles.userId > users.id [delete: cascade]
 
 // Organization relationships
 Ref: organizations.ownerId > users.id
 
+// Authentication relationships
+Ref: password_reset_tokens.userId > users.id [delete: cascade]
+Ref: email_verification_tokens.userId > users.id [delete: cascade]
+
 // Membership System relationships
-Ref: plans.organizationId > organizations.id
-Ref: subscriptions.userId > users.id
-Ref: subscriptions.planId > plans.id
+Ref: plans.createdBy > users.id
+Ref: plans.applicationFormId > application_forms.id
+Ref: plans.digitalCardTemplateId > digital_cards.id
+Ref: subscriptions.userId > users.id [delete: cascade]
+Ref: subscriptions.planId > plans.id [delete: cascade]
 Ref: applications.planId > plans.id
 Ref: applications.userId > users.id
-Ref: payments.userId > users.id
+Ref: payments.userId > users.id [delete: cascade]
 Ref: payments.planId > plans.id
 Ref: payments.subscriptionId > subscriptions.id
-Ref: invoices.userId > users.id
+Ref: invoices.userId > users.id [delete: cascade]
 Ref: invoices.planId > plans.id
 Ref: invoices.paymentId > payments.id
-Ref: scheduled_payments.userId > users.id
+Ref: scheduled_payments.userId > users.id [delete: cascade]
 Ref: scheduled_payments.planId > plans.id
 Ref: scheduled_payments.subscriptionId > subscriptions.id
-Ref: debts.userId > users.id
+Ref: debts.userId > users.id [delete: cascade]
 Ref: debts.planId > plans.id
 Ref: debts.subscriptionId > subscriptions.id
-Ref: reminders.userId > users.id
+Ref: reminders.userId > users.id [delete: cascade]
 Ref: reminders.planId > plans.id
 Ref: reminders.subscriptionId > subscriptions.id
 Ref: digital_cards.userId > users.id
 Ref: digital_cards.subscriptionId > subscriptions.id
 Ref: application_forms.organizationId > organizations.id
+Ref: user_payment_info.userId > users.id [delete: cascade]
 
 // Social Features relationships
-Ref: spaces.ownerId > users.id
-Ref: posts.userId > users.id
-Ref: posts.spaceId > spaces.id
-Ref: comments.userId > users.id
-Ref: comments.postId > posts.id
-Ref: memberships.userId > users.id
-Ref: memberships.spaceId > spaces.id
-Ref: follows.userId > users.id
-Ref: likes.userId > users.id
+Ref: spaces.ownerId > users.id [delete: cascade]
+Ref: posts.userId > users.id [delete: cascade]
+Ref: posts.spaceId > spaces.id [delete: cascade]
+Ref: comments.userId > users.id [delete: cascade]
+Ref: comments.postId > posts.id [delete: cascade]
+Ref: memberships.userId > users.id [delete: cascade]
+Ref: memberships.spaceId > spaces.id [delete: cascade]
+Ref: follows.userId > users.id [delete: cascade]
+Ref: likes.userId > users.id [delete: cascade]
 
 // Career Center relationships
-Ref: jobs.userId > users.id
-Ref: job_applications.jobId > jobs.id
-Ref: job_applications.applicantId > users.id
-Ref: saved_jobs.userId > users.id
-Ref: saved_jobs.jobId > jobs.id
+Ref: jobs.userId > users.id [delete: cascade]
+Ref: job_applications.jobId > jobs.id [delete: cascade]
+Ref: job_applications.applicantId > users.id [delete: cascade]
+Ref: saved_jobs.userId > users.id [delete: cascade]
+Ref: saved_jobs.jobId > jobs.id [delete: cascade]
 
 // =====================================================
 // NOTES
@@ -652,12 +752,14 @@ Key Features:
 7. Application forms and workflow
 8. Debt tracking and reminders
 9. Coupon system
+10. Authentication and security (password reset, email verification)
+11. System settings management
 
 Database: humhub_clone
-Total Tables: 27
+Total Tables: 30+
 
 Core Tables:
-- users (core personal information only)
+- users (core personal information with organization support)
 - user_profiles (profile type and organization membership)
 - individual_profiles (job seeker specific information)
 - company_profiles (employer specific information)
@@ -674,6 +776,12 @@ Core Tables:
 - digital_cards (membership cards)
 - application_forms (custom forms)
 - membership_settings (organization settings)
+- user_payment_info (stored payment methods)
+
+Authentication Tables:
+- password_reset_tokens
+- email_verification_tokens
+- system_settings
 
 Social Tables:
 - spaces (communities/groups)
@@ -695,6 +803,8 @@ Database Design Benefits:
 - Easy to extend with new user types
 - Better performance with focused tables
 - Maintainable and scalable architecture
+- Proper cascade delete relationships
+- Comprehensive indexing for performance
 
 All tables include proper foreign key relationships, indexes for performance,
 and comprehensive data types with constraints.
