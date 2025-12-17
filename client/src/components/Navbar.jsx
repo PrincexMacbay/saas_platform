@@ -43,621 +43,831 @@ const Navbar = () => {
     return user.username[0].toUpperCase();
   };
 
-  const getUserDisplayName = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-    return user?.username || '';
-  };
-
   // Show limited navbar for public pages
   if (!isAuthenticated) {
     return (
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#2c3e50] shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center h-16 overflow-visible">
-              <img 
-                src={logoImage} 
-                alt="Near East University - Faculty of AI and Informatics"
-                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
-              />
-            </Link>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4">
-              <Link 
-                to="/browse-memberships" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  isActive('/browse-memberships') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-search text-sm"></i>
-                <span>{t('nav.browse.memberships')}</span>
-              </Link>
-              
-              <Link 
-                to="/login" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  isActive('/login') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-sign-in-alt text-sm"></i>
-                <span>{t('nav.login')}</span>
-              </Link>
-              
-              <Link 
-                to="/register" 
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#3498db] to-[#2980b9] text-white font-medium hover:from-[#2980b9] hover:to-[#1f6aa5] transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <i className="fas fa-user-plus text-sm"></i>
-                <span>{t('nav.register')}</span>
-              </Link>
-              
-              <div className="ml-2">
-                <LanguageSelector />
-              </div>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
-              aria-label="Toggle menu"
-            >
-              <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
-            </button>
+      <nav className="navbar">
+        <div className="navbar-container">
+          <Link to="/" className="navbar-brand">
+            <img 
+              src={logoImage} 
+              alt="Near East University - Faculty of AI and Informatics" 
+            />
+          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link 
+                  to="/browse-memberships" 
+                  className={`nav-link ${isActive('/browse-memberships') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-search"></i> {t('nav.browse.memberships')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/login" 
+                  className={`nav-link ${isActive('/login') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-sign-in-alt"></i> {t('nav.login')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/register" 
+                  className={`nav-link ${isActive('/register') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-user-plus"></i> {t('nav.register')}
+                </Link>
+              </li>
+            </ul>
+            <LanguageSelector />
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 shadow-xl">
-            <div className="px-4 py-3 space-y-1">
-              <Link
-                to="/browse-memberships"
-                onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive('/browse-memberships')
-                    ? 'bg-[#3498db] text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <i className="fas fa-search w-5"></i>
-                <span className="font-medium">{t('nav.browse.memberships')}</span>
-              </Link>
-              
-              <Link
-                to="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive('/login')
-                    ? 'bg-[#3498db] text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <i className="fas fa-sign-in-alt w-5"></i>
-                <span className="font-medium">{t('nav.login')}</span>
-              </Link>
-              
-              <Link
-                to="/register"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-[#3498db] to-[#2980b9] text-white font-medium"
-              >
-                <i className="fas fa-user-plus w-5"></i>
-                <span>{t('nav.register')}</span>
-              </Link>
-              
-              <div className="pt-2 border-t border-gray-200">
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
-                  <LanguageSelector />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </nav>
     );
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#2c3e50] shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/dashboard" className="flex items-center h-16 overflow-visible">
-            <img 
-              src={logoImage} 
-              alt="Near East University - Faculty of AI and Informatics"
-              className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
-            />
-          </Link>
-          
-          {/* Desktop Navigation - Regular User */}
-          {!location.pathname.startsWith('/admin') && (
-            <div className="hidden md:flex items-center gap-2">
-              <Link 
-                to="/dashboard" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  isActive('/dashboard') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-home text-sm"></i>
-                <span>{t('nav.dashboard')}</span>
-              </Link>
-              
-              <Link 
-                to="/membership" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  location.pathname.startsWith('/membership') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-users text-sm"></i>
-                <span>{t('nav.membership')}</span>
-              </Link>
-              
-              <Link 
-                to="/users" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  isActive('/users') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-user-friends text-sm"></i>
-                <span>{t('nav.people')}</span>
-              </Link>
-              
-              <Link 
-                to="/career" 
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                  isActive('/career') 
-                    ? 'bg-[#3498db] shadow-md' 
-                    : 'hover:bg-white/10'
-                }`}
-              >
-                <i className="fas fa-briefcase text-sm"></i>
-                <span>{t('nav.career.center')}</span>
-              </Link>
-              
-              {user?.role === 'admin' && (
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/dashboard" className="navbar-brand">
+          <img 
+            src={logoImage} 
+            alt="Near East University - Faculty of AI and Informatics" 
+          />
+        </Link>
+        
+        {/* Hide regular navigation when on admin dashboard */}
+        {!location.pathname.startsWith('/admin') && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <ul className={`navbar-nav ${isMenuOpen ? 'show' : ''}`}>
+              <li className="nav-item">
                 <Link 
-                  to="/admin" 
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-all duration-200 ${
-                    isActive('/admin') 
-                      ? 'bg-[#3498db] shadow-md' 
-                      : 'hover:bg-white/10'
-                  }`}
+                  to="/dashboard" 
+                  className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`}
                 >
-                  <i className="fas fa-cog text-sm"></i>
-                  <span>{t('nav.admin')}</span>
+                  <i className="fas fa-home"></i> {t('nav.dashboard')}
                 </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/membership" 
+                  className={`nav-link ${location.pathname.startsWith('/membership') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-users"></i> {t('nav.membership')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/users" 
+                  className={`nav-link ${isActive('/users') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-user-friends"></i> {t('nav.people')}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  to="/career" 
+                  className={`nav-link ${isActive('/career') ? 'active' : ''}`}
+                >
+                  <i className="fas fa-briefcase"></i> {t('nav.career.center')}
+                </Link>
+              </li>
+              {user?.role === 'admin' && (
+                <li className="nav-item">
+                  <Link 
+                    to="/admin" 
+                    className={`nav-link ${isActive('/admin') ? 'active' : ''}`}
+                  >
+                    <i className="fas fa-cog"></i> {t('nav.admin')}
+                  </Link>
+                </li>
               )}
+            </ul>
+            {/* Language selector only visible on desktop */}
+            <div className="desktop-language-selector">
+              <LanguageSelector />
+            </div>
+            
+            {/* Profile Dropdown */}
+            <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>
+              <button
+                className="profile-icon-button"
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
+              </button>
               
-              {/* Language Selector - Desktop */}
-              <div className="ml-2">
-                <LanguageSelector />
-              </div>
-              
-              {/* Profile Dropdown */}
-              <div className="relative ml-2" ref={profileDropdownRef}>
-                <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full text-white hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:ring-offset-2 focus:ring-offset-[#2c3e50]"
-                  aria-label="User menu"
-                >
-                  {user?.profileImage ? (
-                    <img 
-                      src={buildImageUrl(user.profileImage)} 
-                      alt={getUserDisplayName()}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3498db] to-[#2980b9] flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                      {getInitials(user)}
+              {isProfileDropdownOpen && (
+                <div className="profile-dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  minWidth: '200px',
+                  marginTop: '8px'
+                }}>
+                  <div className="dropdown-header" style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #eee',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
                     </div>
-                  )}
-                </button>
-                
-                {/* Profile Dropdown Menu */}
-                {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* User Info Header */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-[#3498db] to-[#2980b9] text-white">
-                      <div className="flex items-center gap-3">
-                        {user?.profileImage ? (
-                          <img 
-                            src={buildImageUrl(user.profileImage)} 
-                            alt={getUserDisplayName()}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-lg border-2 border-white/30">
-                            {getInitials(user)}
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm truncate">
-                            {getUserDisplayName()}
-                          </div>
-                          <div className="text-xs text-white/80 truncate">
-                            @{user?.username}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Menu Items */}
-                    <div className="py-2">
-                      <Link
-                        to={`/profile/${user?.username}`}
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors group"
-                      >
-                        <i className="fas fa-user w-5 text-gray-400 group-hover:text-[#3498db] transition-colors"></i>
-                        <span className="font-medium">{t('nav.view.profile')}</span>
-                      </Link>
-                      
-                      {user?.role === 'admin' && (
-                        <Link
-                          to="/admin"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors group"
-                        >
-                          <i className="fas fa-cog w-5 text-gray-400 group-hover:text-[#3498db] transition-colors"></i>
-                          <span className="font-medium">{t('nav.admin')}</span>
-                        </Link>
-                      )}
-                      
-                      <div className="border-t border-gray-200 my-2"></div>
-                      
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsProfileDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors group"
-                      >
-                        <i className="fas fa-sign-out-alt w-5 group-hover:text-red-700 transition-colors"></i>
-                        <span className="font-medium">{t('nav.logout')}</span>
-                      </button>
+                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                      @{user.username}
                     </div>
                   </div>
-                )}
-              </div>
+                  
+                  <Link
+                    to={`/profile/${user.username}`}
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#3498db',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s',
+                      textDecoration: 'none',
+                      borderBottom: '1px solid #eee'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f8ff'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-user"></i>
+                    {t('nav.view.profile')}
+                  </Link>
+                  
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="dropdown-logout-button"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#e74c3c',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('nav.logout')}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Desktop Navigation - Admin Panel */}
-          {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
-            <div className="hidden md:flex items-center gap-4">
-              <div className="px-4 py-2 bg-[#3498db]/20 border border-[#3498db]/30 rounded-lg">
-                <span className="text-[#3498db] font-semibold text-sm flex items-center gap-2">
-                  <i className="fas fa-shield-alt"></i>
-                  Admin Panel
-                </span>
-              </div>
+        {/* Admin navigation - only show when on admin dashboard */}
+        {location.pathname.startsWith('/admin') && user?.role === 'admin' && (
+          <div className="" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span className="admin-nav-text">
+              {/* <i className="fas fa-cog"></i> Admin Panel */}
+            </span>
+            {/* Language selector only visible on desktop */}
+            <div className="desktop-language-selector">
+              <LanguageSelector />
+            </div>
+            
+            {/* Profile Dropdown for Admin */}
+            <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>
+              <button
+                className="profile-icon-button"
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  height: '40px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
+              </button>
               
-              <div className="ml-2">
-                <LanguageSelector />
-              </div>
-              
-              {/* Profile Dropdown for Admin */}
-              <div className="relative ml-2" ref={profileDropdownRef}>
-                <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full text-white hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#3498db] focus:ring-offset-2 focus:ring-offset-[#2c3e50]"
-                  aria-label="User menu"
-                >
-                  {user?.profileImage ? (
-                    <img 
-                      src={buildImageUrl(user.profileImage)} 
-                      alt={getUserDisplayName()}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3498db] to-[#2980b9] flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                      {getInitials(user)}
+              {isProfileDropdownOpen && (
+                <div className="profile-dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  backgroundColor: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  minWidth: '200px',
+                  marginTop: '8px'
+                }}>
+                  <div className="dropdown-header" style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #eee',
+                    backgroundColor: '#f8f9fa'
+                  }}>
+                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
                     </div>
-                  )}
-                </button>
-                
-                {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-3 bg-gradient-to-r from-[#3498db] to-[#2980b9] text-white">
-                      <div className="flex items-center gap-3">
-                        {user?.profileImage ? (
-                          <img 
-                            src={buildImageUrl(user.profileImage)} 
-                            alt={getUserDisplayName()}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-lg border-2 border-white/30">
-                            {getInitials(user)}
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm truncate">
-                            {getUserDisplayName()}
-                          </div>
-                          <div className="text-xs text-white/80 truncate">
-                            @{user?.username}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="py-2">
-                      <Link
-                        to={`/profile/${user?.username}`}
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors group"
-                      >
-                        <i className="fas fa-user w-5 text-gray-400 group-hover:text-[#3498db] transition-colors"></i>
-                        <span className="font-medium">{t('nav.view.profile')}</span>
-                      </Link>
-                      
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors group"
-                      >
-                        <i className="fas fa-eye w-5 text-gray-400 group-hover:text-[#3498db] transition-colors"></i>
-                        <span className="font-medium">{t('admin.sidebar.view.as.user')}</span>
-                      </Link>
-                      
-                      <div className="border-t border-gray-200 my-2"></div>
-                      
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsProfileDropdownOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors group"
-                      >
-                        <i className="fas fa-sign-out-alt w-5 group-hover:text-red-700 transition-colors"></i>
-                        <span className="font-medium">{t('nav.logout')}</span>
-                      </button>
+                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                      @{user.username}
                     </div>
                   </div>
-                )}
-              </div>
+                  
+                  <Link
+                    to={`/profile/${user.username}`}
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#3498db',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s',
+                      textDecoration: 'none',
+                      borderBottom: '1px solid #eee'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f8ff'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-user"></i>
+                    {t('nav.view.profile')}
+                  </Link>
+                  
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="dropdown-logout-button"
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#e74c3c',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('nav.logout')}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
-            aria-label="Toggle menu"
-          >
-            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
-          </button>
-        </div>
+
+        <button 
+          className="navbar-toggle"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          style={{ 
+            display: 'none',
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            fontSize: '1.2rem',
+            cursor: 'pointer',
+            padding: '8px'
+          }}
+        >
+          <i className="fas fa-bars"></i>
+        </button>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="p-4 space-y-1">
-            {/* Admin Navigation */}
+        <div className="mobile-menu" style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          border: '1px solid #ddd',
+          borderTop: 'none',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 1000
+        }}>
+          <div style={{ padding: '16px' }}>
+            {/* Show admin navigation when on admin dashboard */}
             {location.pathname.startsWith('/admin') && user?.role === 'admin' ? (
               <>
                 {/* Admin Navigation Section */}
-                <div className="mb-4">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                <div style={{ marginBottom: '16px' }}>
+                  <h3 style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: '#64748b', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.05em',
+                    marginBottom: '8px',
+                    padding: '0 4px'
+                  }}>
                     {t('admin.mobile.navigation')}
                   </h3>
                   
-                  <div className="space-y-1">
-                    {[
-                      { path: '/admin?section=overview', icon: 'fa-chart-pie', label: t('admin.sidebar.overview') },
-                      { path: '/admin?section=users', icon: 'fa-users', label: t('admin.sidebar.users') },
-                      { path: '/admin?section=memberships', icon: 'fa-credit-card', label: t('admin.sidebar.memberships') },
-                      { path: '/admin?section=financial', icon: 'fa-dollar-sign', label: t('admin.sidebar.financial') },
-                      { path: '/admin?section=jobs', icon: 'fa-briefcase', label: t('admin.sidebar.jobs') },
-                      { path: '/admin?section=coupons', icon: 'fa-ticket-alt', label: t('admin.sidebar.coupons') },
-                      { path: '/admin?section=system', icon: 'fa-cog', label: t('admin.sidebar.system') },
-                    ].map((item) => (
-                      <button
-                        key={item.path}
-                        onClick={() => {
-                          navigate(item.path);
-                          setIsMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                      >
-                        <i className={`fas ${item.icon} w-5 text-gray-400`}></i>
-                        <span className="font-medium">{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=overview');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-chart-pie" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.overview')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=users');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-users" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.users')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=memberships');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-credit-card" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.memberships')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=financial');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-dollar-sign" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.financial')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=jobs');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-briefcase" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.jobs')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=coupons');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-ticket-alt" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.coupons')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      navigate('/admin?section=system');
+                      setIsMenuOpen(false);
+                    }}
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderBottom: '1px solid #eee',
+                      borderRadius: '6px',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <i className="fas fa-cog" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.system')}
+                  </button>
                 </div>
 
                 {/* Admin Actions Section */}
-                <div className="mb-4 pt-4 border-t border-gray-200">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+                <div style={{ marginBottom: '16px' }}>
+                  <h3 style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: '#64748b', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.05em',
+                    marginBottom: '8px',
+                    padding: '0 4px'
+                  }}>
                     {t('admin.mobile.actions')}
                   </h3>
                   
                   {/* Language Selector */}
-                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg mb-2">
+                  <div className="
+                    flex items-center justify-between
+                    px-4 py-3
+                    border-b border-gray-200
+                    rounded-lg
+                    mb-2
+                    bg-gray-50/50
+                  ">
                     <div className="flex items-center gap-3">
-                      <i className="fas fa-globe w-5 text-gray-400"></i>
+                      <svg 
+                        className="w-4 h-4 text-gray-600" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 002 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
                     </div>
                     <LanguageSelector />
                   </div>
                   
                   {/* View as User Button */}
-                  <button
+                  <button 
                     onClick={() => {
-                      navigate('/dashboard');
+                      window.open('/dashboard', '_blank');
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#16a34a',
+                      textDecoration: 'none',
+                      background: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid rgba(34, 197, 94, 0.2)',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderRadius: '6px',
+                      marginBottom: '8px'
+                    }}
                   >
-                    <i className="fas fa-eye w-5"></i>
-                    <span className="font-medium">{t('admin.sidebar.view.as.user')}</span>
+                    <i className="fas fa-eye" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('admin.sidebar.view.as.user')}
                   </button>
                   
                   {/* Logout Button */}
-                  <button
+                  <button 
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors mt-2"
+                    className="mobile-nav-link"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      color: '#e74c3c',
+                      textDecoration: 'none',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      borderRadius: '6px'
+                    }}
                   >
-                    <i className="fas fa-sign-out-alt w-5"></i>
-                    <span className="font-medium">{t('nav.logout')}</span>
+                    <i className="fas fa-sign-out-alt" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('nav.logout')}
                   </button>
                 </div>
               </>
             ) : (
               <>
                 {/* Regular User Navigation */}
-                <Link
-                  to="/dashboard"
+                <Link 
+                  to="/dashboard" 
+                  className="mobile-nav-link"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/dashboard')
-                      ? 'bg-[#3498db] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
                 >
-                  <i className="fas fa-home w-5"></i>
-                  <span className="font-medium">{t('nav.dashboard')}</span>
+                  <i className="fas fa-home" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.dashboard')}
                 </Link>
-                
-                <Link
-                  to="/membership"
+                <Link 
+                  to="/membership" 
+                  className="mobile-nav-link"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    location.pathname.startsWith('/membership')
-                      ? 'bg-[#3498db] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
                 >
-                  <i className="fas fa-users w-5"></i>
-                  <span className="font-medium">{t('nav.membership')}</span>
+                  <i className="fas fa-users" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.membership')}
                 </Link>
-                
-                <Link
-                  to="/users"
+                <Link 
+                  to="/users" 
+                  className="mobile-nav-link"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/users')
-                      ? 'bg-[#3498db] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
                 >
-                  <i className="fas fa-user-friends w-5"></i>
-                  <span className="font-medium">{t('nav.people')}</span>
+                  <i className="fas fa-user-friends" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.people')}
                 </Link>
-                
-                <Link
-                  to="/career"
+                <Link 
+                  to="/career" 
+                  className="mobile-nav-link"
                   onClick={() => setIsMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/career')
-                      ? 'bg-[#3498db] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
                 >
-                  <i className="fas fa-briefcase w-5"></i>
-                  <span className="font-medium">{t('nav.career.center')}</span>
+                  <i className="fas fa-briefcase" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.career.center')}
                 </Link>
-                
                 {user?.role === 'admin' && (
-                  <Link
-                    to="/admin"
+                  <Link 
+                    to="/admin" 
+                    className="mobile-nav-link"
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive('/admin')
-                        ? 'bg-[#3498db] text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    style={{
+                      display: 'block',
+                      padding: '12px 16px',
+                      color: '#333',
+                      textDecoration: 'none',
+                      borderBottom: '1px solid #eee',
+                      transition: 'background-color 0.2s'
+                    }}
                   >
-                    <i className="fas fa-cog w-5"></i>
-                    <span className="font-medium">{t('nav.admin')}</span>
+                    <i className="fas fa-cog" style={{ marginRight: '12px', width: '16px' }}></i>
+                    {t('nav.admin')}
                   </Link>
                 )}
                 
                 {/* Profile Section */}
-                <div className="pt-4 mt-4 border-t border-gray-200">
-                  <div className="px-4 py-2 mb-2">
-                    <div className="flex items-center gap-3">
-                      {user?.profileImage ? (
-                        <img 
-                          src={buildImageUrl(user.profileImage)} 
-                          alt={getUserDisplayName()}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#3498db] to-[#2980b9] flex items-center justify-center text-white font-semibold text-sm">
-                          {getInitials(user)}
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-semibold text-sm text-gray-900">{getUserDisplayName()}</div>
-                        <div className="text-xs text-gray-500">@{user?.username}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Link
-                    to={`/profile/${user?.username}`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <i className="fas fa-user w-5 text-gray-400"></i>
-                    <span className="font-medium">{t('nav.view.profile')}</span>
-                  </Link>
-                  
-                  <Link
-                    to={`/profile/${user?.username}?edit=true`}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <i className="fas fa-edit w-5 text-gray-400"></i>
-                    <span className="font-medium">{t('nav.edit.profile')}</span>
-                  </Link>
-                </div>
+                <Link 
+                  to={`/profile/${user?.username}`}
+                  className="mobile-nav-link"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
+                >
+                  <i className="fas fa-user" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.view.profile')}
+                </Link>
+                
+                <Link 
+                  to={`/profile/${user.username}?edit=true`}
+                  className="mobile-nav-link"
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    display: 'block',
+                    padding: '12px 16px',
+                    color: '#333',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid #eee',
+                    transition: 'background-color 0.2s'
+                  }}
+                >
+                  <i className="fas fa-edit" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.edit.profile')}
+                </Link>
                 
                 {/* Language Selector */}
-                <div className="pt-4 mt-4 border-t border-gray-200">
-                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <i className="fas fa-globe w-5 text-gray-400"></i>
-                      <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
-                    </div>
-                    <LanguageSelector />
+                <div className="
+                  flex items-center justify-between
+                  px-4 py-3
+                  border-b border-gray-200
+                  bg-gray-50/50
+                ">
+                  <div className="flex items-center gap-3">
+                    <svg 
+                      className="w-4 h-4 text-gray-600" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 002 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">{t('nav.language')}</span>
                   </div>
+                  <LanguageSelector />
                 </div>
                 
                 {/* Logout Button */}
-                <button
+                <button 
                   onClick={() => {
                     handleLogout();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors mt-4"
+                  className="mobile-nav-link"
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '12px 16px',
+                    color: '#e74c3c',
+                    textDecoration: 'none',
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    borderBottom: '1px solid #eee'
+                  }}
                 >
-                  <i className="fas fa-sign-out-alt w-5"></i>
-                  <span className="font-medium">{t('nav.logout')}</span>
+                  <i className="fas fa-sign-out-alt" style={{ marginRight: '12px', width: '16px' }}></i>
+                  {t('nav.logout')}
                 </button>
               </>
             )}
@@ -668,7 +878,14 @@ const Navbar = () => {
       {/* Overlay to close mobile menu when clicking outside */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 999
+          }}
           onClick={() => setIsMenuOpen(false)}
         />
       )}
