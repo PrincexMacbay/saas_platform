@@ -483,14 +483,44 @@ router.post('/application-payment', async (req, res) => {
     // If application has a coupon, recalculate the discount
     if (application.couponId || application.couponCode) {
       const { Coupon } = require('../models');
-      const coupon = await Coupon.findOne({
-        where: {
-          [Op.or]: [
-            { id: application.couponId },
-            { couponId: application.couponCode }
-          ],
-          isActive: true
-        }
+      
+      // Build coupon lookup - handle both couponId (numeric ID) and couponCode (string code)
+      let coupon = null;
+      
+      if (application.couponId) {
+        // Try to find by numeric ID first
+        coupon = await Coupon.findOne({
+          where: {
+            id: application.couponId,
+            isActive: true
+          }
+        });
+        console.log('🔍 Looking up coupon by ID:', {
+          couponId: application.couponId,
+          found: !!coupon
+        });
+      }
+      
+      // If not found by ID, try by coupon code
+      if (!coupon && application.couponCode) {
+        coupon = await Coupon.findOne({
+          where: {
+            couponId: application.couponCode,
+            isActive: true
+          }
+        });
+        console.log('🔍 Looking up coupon by code:', {
+          couponCode: application.couponCode,
+          found: !!coupon
+        });
+      }
+
+      console.log('🔍 Coupon lookup result:', {
+        found: !!coupon,
+        couponId: coupon?.id,
+        couponCode: coupon?.couponId,
+        discount: coupon?.discount,
+        discountType: coupon?.discountType
       });
 
       if (coupon) {
@@ -531,9 +561,50 @@ router.post('/application-payment', async (req, res) => {
               discountType: coupon.discountType,
               discount: coupon.discount
             });
+          } else {
+            console.log('⚠️ Coupon not applicable to this plan');
           }
+        } else {
+          console.log('⚠️ Coupon expired or max redemptions reached');
+        }
+      } else {
+        console.log('⚠️ Coupon not found in database');
+        // Coupon not found, but if we have a stored finalAmount that differs from plan fee, use it
+        // This handles cases where coupon was deleted but application still has discount
+        if (application.finalAmount !== null && application.finalAmount !== undefined) {
+          const storedFinalAmount = parseFloat(application.finalAmount);
+          const planFee = parseFloat(plan.fee);
+          // If stored amount is different from plan fee, it likely had a discount
+          if (Math.abs(storedFinalAmount - planFee) > 0.01) {
+            expectedAmount = storedFinalAmount;
+            console.log('💰 Using stored finalAmount (likely had discount):', {
+              storedFinalAmount,
+              planFee,
+              expectedAmount
+            });
+          } else {
+            console.log('💰 Stored finalAmount matches plan fee, no discount applied');
+          }
+        } else {
+          console.log('⚠️ No stored finalAmount, using plan fee');
         }
       }
+    } else {
+      // No coupon code/ID in application, but check if stored finalAmount differs from plan fee
+      // This handles edge cases where coupon info wasn't saved but discount was applied
+      if (application.finalAmount !== null && application.finalAmount !== undefined) {
+        const storedFinalAmount = parseFloat(application.finalAmount);
+        const planFee = parseFloat(plan.fee);
+        if (Math.abs(storedFinalAmount - planFee) > 0.01) {
+          expectedAmount = storedFinalAmount;
+          console.log('💰 No coupon info but stored finalAmount differs, using it:', {
+            storedFinalAmount,
+            planFee,
+            expectedAmount
+          });
+        }
+      }
+    }
     } else {
       // No coupon - use stored finalAmount or plan fee
       expectedAmount = application.finalAmount !== null && application.finalAmount !== undefined 
