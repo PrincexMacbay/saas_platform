@@ -411,8 +411,24 @@ router.post('/application-payment', async (req, res) => {
       paymentDetails 
     } = req.body;
 
+    console.log('🔍 Application Payment Request:', {
+      applicationId,
+      planId,
+      amount,
+      paymentMethod,
+      hasPaymentDetails: !!paymentDetails
+    });
+
     // Validate required fields
-    if (!applicationId || !planId || !amount || !paymentMethod) {
+    // Allow amount to be 0 (free plans), but not undefined or null
+    if (!applicationId || !planId || amount === undefined || amount === null || !paymentMethod) {
+      console.log('❌ Missing required fields:', {
+        hasApplicationId: !!applicationId,
+        hasPlanId: !!planId,
+        hasAmount: amount !== undefined && amount !== null,
+        amountValue: amount,
+        hasPaymentMethod: !!paymentMethod
+      });
       return res.status(400).json({
         success: false,
         message: 'Application ID, plan ID, amount, and payment method are required'
@@ -422,6 +438,7 @@ router.post('/application-payment', async (req, res) => {
     // Find the application
     const application = await Application.findByPk(applicationId);
     if (!application) {
+      console.log('❌ Application not found:', applicationId);
       return res.status(404).json({
         success: false,
         message: 'Application not found'
@@ -431,18 +448,49 @@ router.post('/application-payment', async (req, res) => {
     // Find the plan
     const plan = await Plan.findByPk(planId);
     if (!plan) {
+      console.log('❌ Plan not found:', planId);
       return res.status(404).json({
         success: false,
         message: 'Plan not found'
       });
     }
 
-    // Validate amount matches the final amount (after coupon discount)
-    const expectedAmount = application.finalAmount || parseFloat(plan.fee);
-    if (parseFloat(amount) !== parseFloat(expectedAmount)) {
+    // Validate amount is a valid number
+    const receivedAmount = parseFloat(amount);
+    if (isNaN(receivedAmount) || receivedAmount < 0) {
+      console.log('❌ Invalid amount:', amount);
       return res.status(400).json({
         success: false,
-        message: `Payment amount does not match expected amount. Expected: $${expectedAmount}, Received: $${amount}`
+        message: 'Invalid payment amount. Amount must be a valid number greater than or equal to 0.'
+      });
+    }
+
+    // Validate amount matches the final amount (after coupon discount)
+    // Use tolerance-based comparison to handle floating point precision issues
+    // Handle case where finalAmount might be 0 (free plan) - use nullish coalescing
+    const expectedAmount = application.finalAmount !== null && application.finalAmount !== undefined 
+      ? parseFloat(application.finalAmount) 
+      : parseFloat(plan.fee);
+    const tolerance = 0.01; // Allow 1 cent difference due to floating point precision
+    
+    console.log('💰 Amount validation:', {
+      expectedAmount,
+      receivedAmount,
+      applicationFinalAmount: application.finalAmount,
+      planFee: plan.fee,
+      difference: Math.abs(expectedAmount - receivedAmount),
+      tolerance
+    });
+
+    if (Math.abs(expectedAmount - receivedAmount) > tolerance) {
+      console.log('❌ Amount mismatch:', {
+        expected: expectedAmount,
+        received: receivedAmount,
+        difference: Math.abs(expectedAmount - receivedAmount)
+      });
+      return res.status(400).json({
+        success: false,
+        message: `Payment amount does not match expected amount. Expected: $${expectedAmount.toFixed(2)}, Received: $${receivedAmount.toFixed(2)}`
       });
     }
 
