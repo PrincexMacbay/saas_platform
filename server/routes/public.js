@@ -379,6 +379,17 @@ router.post('/apply', async (req, res) => {
       finalAmount: finalAmount
     });
 
+    console.log('✅ Application created:', {
+      applicationId: application.id,
+      planId: planId,
+      originalAmount: originalAmount,
+      discountAmount: discountAmount,
+      finalAmount: finalAmount,
+      couponId: validatedCoupon ? validatedCoupon.id : null,
+      couponCode: validatedCoupon ? validatedCoupon.couponId : null,
+      hasCoupon: !!validatedCoupon
+    });
+
     // TODO: Send notification email to organization admins
 
     res.status(201).json({
@@ -465,18 +476,79 @@ router.post('/application-payment', async (req, res) => {
       });
     }
 
-    // Validate amount matches the final amount (after coupon discount)
-    // Use tolerance-based comparison to handle floating point precision issues
-    // Handle case where finalAmount might be 0 (free plan) - use nullish coalescing
-    const expectedAmount = application.finalAmount !== null && application.finalAmount !== undefined 
-      ? parseFloat(application.finalAmount) 
-      : parseFloat(plan.fee);
+    // Recalculate expected amount based on application's coupon to ensure consistency
+    // This handles cases where the application was created with a coupon but the stored finalAmount might differ
+    let expectedAmount = parseFloat(plan.fee);
+    
+    // If application has a coupon, recalculate the discount
+    if (application.couponId || application.couponCode) {
+      const { Coupon } = require('../models');
+      const coupon = await Coupon.findOne({
+        where: {
+          [Op.or]: [
+            { id: application.couponId },
+            { couponId: application.couponCode }
+          ],
+          isActive: true
+        }
+      });
+
+      if (coupon) {
+        // Check if coupon is still valid
+        const isExpired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
+        const isMaxRedemptionsReached = coupon.maxRedemptions && coupon.currentRedemptions >= coupon.maxRedemptions;
+        
+        if (!isExpired && !isMaxRedemptionsReached) {
+          // Check if coupon is applicable to this plan
+          let isApplicable = true;
+          if (coupon.applicablePlans) {
+            try {
+              const applicablePlans = JSON.parse(coupon.applicablePlans);
+              if (Array.isArray(applicablePlans) && applicablePlans.length > 0) {
+                isApplicable = applicablePlans.includes(parseInt(planId));
+              }
+            } catch (parseError) {
+              console.error('Error parsing applicablePlans:', parseError);
+            }
+          }
+
+          if (isApplicable) {
+            const originalAmount = parseFloat(plan.fee);
+            let discountAmount = 0;
+            
+            if (coupon.discountType === 'percentage') {
+              discountAmount = (originalAmount * parseFloat(coupon.discount)) / 100;
+            } else if (coupon.discountType === 'fixed') {
+              discountAmount = parseFloat(coupon.discount);
+            }
+            
+            expectedAmount = Math.max(0, originalAmount - discountAmount);
+            console.log('💰 Recalculated amount with coupon:', {
+              originalAmount,
+              discountAmount,
+              expectedAmount,
+              couponCode: coupon.couponId,
+              discountType: coupon.discountType,
+              discount: coupon.discount
+            });
+          }
+        }
+      }
+    } else {
+      // No coupon - use stored finalAmount or plan fee
+      expectedAmount = application.finalAmount !== null && application.finalAmount !== undefined 
+        ? parseFloat(application.finalAmount) 
+        : parseFloat(plan.fee);
+    }
+    
     const tolerance = 0.01; // Allow 1 cent difference due to floating point precision
     
     console.log('💰 Amount validation:', {
       expectedAmount,
       receivedAmount,
       applicationFinalAmount: application.finalAmount,
+      applicationCouponId: application.couponId,
+      applicationCouponCode: application.couponCode,
       planFee: plan.fee,
       difference: Math.abs(expectedAmount - receivedAmount),
       tolerance
@@ -526,15 +598,24 @@ router.post('/application-payment', async (req, res) => {
     }
 
     // Update application with payment information
+    // Also update finalAmount to match what was actually paid (in case there was a mismatch)
     await application.update({
       paymentInfo: JSON.stringify({
         method: paymentMethod,
-        amount: amount,
+        amount: receivedAmount, // Use the validated amount
         transactionId: paymentResult.transactionId,
         paymentDetails: paymentDetails,
         processedAt: new Date().toISOString()
       }),
+      finalAmount: receivedAmount, // Update to match what was actually paid
       status: 'pending'
+    });
+    
+    console.log('✅ Payment processed successfully:', {
+      applicationId: application.id,
+      transactionId: paymentResult.transactionId,
+      amount: receivedAmount,
+      method: paymentMethod
     });
 
     // TODO: Send notification emails to organization admins and applicant
