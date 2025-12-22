@@ -443,6 +443,11 @@ Plan.belongsTo(DigitalCard, {
   as: 'digitalCardTemplate'
 });
 
+Plan.belongsTo(Coupon, {
+  foreignKey: 'couponId',
+  as: 'coupon'
+});
+
 // DigitalCard relationships
 DigitalCard.belongsTo(User, { 
   foreignKey: 'userId', 

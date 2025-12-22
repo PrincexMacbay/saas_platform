@@ -86,6 +86,15 @@ const Plan = sequelize.define('Plan', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
     comment: 'Use user organization default card template if true, plan-specific template if false'
+  },
+  couponId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'coupons',
+      key: 'id',
+    },
+    comment: 'Optional coupon associated with this plan. Users can enter this coupon code to get a discount.'
   }
 }, {
   tableName: 'plans',

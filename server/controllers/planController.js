@@ -121,6 +121,12 @@ const getPlan = async (req, res) => {
               attributes: ['firstName', 'lastName', 'username', 'email']
             }
           ]
+        },
+        {
+          model: require('../models').Coupon,
+          as: 'coupon',
+          attributes: ['id', 'name', 'couponId', 'discount', 'discountType', 'expiryDate', 'isActive'],
+          required: false
         }
       ]
     });
@@ -157,7 +163,7 @@ const getPlan = async (req, res) => {
 // Create plan
 const createPlan = async (req, res) => {
   try {
-    const { name, description, fee, renewalInterval, benefits, maxMembers, applicationFormId, useDefaultForm } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, applicationFormId, useDefaultForm, couponId } = req.body;
     
     console.log('Creating plan with data:', {
       name,
@@ -219,6 +225,25 @@ const createPlan = async (req, res) => {
       }
     }
 
+    // Validate coupon if provided
+    if (couponId) {
+      const { Coupon } = require('../models');
+      const coupon = await Coupon.findOne({
+        where: {
+          id: couponId,
+          createdBy: req.user.id, // User can only use coupons they created
+          isActive: true
+        }
+      });
+
+      if (!coupon) {
+        return res.status(400).json({
+          success: false,
+          message: 'Selected coupon not found or you do not have permission to use it'
+        });
+      }
+    }
+
     const plan = await Plan.create({
       name,
       description,
@@ -229,7 +254,8 @@ const createPlan = async (req, res) => {
       isActive: true,
       createdBy: req.user.id,
       applicationFormId: useDefaultForm ? null : applicationFormId,
-      useDefaultForm: useDefaultForm || false
+      useDefaultForm: useDefaultForm || false,
+      couponId: couponId || null
     });
 
     res.status(201).json({
@@ -251,7 +277,7 @@ const createPlan = async (req, res) => {
 const updatePlan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive, applicationFormId, useDefaultForm } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive, applicationFormId, useDefaultForm, couponId } = req.body;
 
     // Get user's organization from UserProfile
     const userProfile = await UserProfile.findOne({
@@ -272,6 +298,30 @@ const updatePlan = async (req, res) => {
         success: false,
         message: 'You can only update plans you created'
       });
+    }
+
+    // Validate coupon if provided
+    if (couponId !== undefined) {
+      if (couponId === null || couponId === '') {
+        // Removing coupon is allowed
+        plan.couponId = null;
+      } else {
+        const { Coupon } = require('../models');
+        const coupon = await Coupon.findOne({
+          where: {
+            id: couponId,
+            createdBy: req.user.id, // User can only use coupons they created
+            isActive: true
+          }
+        });
+
+        if (!coupon) {
+          return res.status(400).json({
+            success: false,
+            message: 'Selected coupon not found or you do not have permission to use it'
+          });
+        }
+      }
     }
 
     // Validate form selection if provided
@@ -343,6 +393,10 @@ const updatePlan = async (req, res) => {
     }
     if (useDefaultForm !== undefined) {
       updateData.useDefaultForm = useDefaultForm;
+    }
+    // Add coupon if provided
+    if (couponId !== undefined) {
+      updateData.couponId = couponId || null;
     }
 
     await plan.update(updateData);

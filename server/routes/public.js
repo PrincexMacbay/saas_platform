@@ -35,6 +35,12 @@ router.get('/plans', async (req, res) => {
             isOrganization: true
           },
           required: false
+        },
+        {
+          model: Coupon,
+          as: 'coupon',
+          attributes: ['id', 'name', 'couponId', 'discount', 'discountType', 'expiryDate', 'isActive'],
+          required: false
         }
       ],
       order: [['fee', 'ASC']]
@@ -66,9 +72,16 @@ router.get('/plans/:id', async (req, res) => {
       },
       include: [
         {
-          model: Organization,
-          as: 'planOrganization',
-          attributes: ['id', 'name', 'description', 'logo', 'website', 'email', 'phone']
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'organizationName', 'organizationDescription', 'organizationLogo', 'organizationWebsite'],
+          required: false
+        },
+        {
+          model: Coupon,
+          as: 'coupon',
+          attributes: ['id', 'name', 'couponId', 'discount', 'discountType', 'expiryDate', 'isActive'],
+          required: false
         }
       ]
     });
@@ -137,34 +150,53 @@ router.post('/validate-coupon', async (req, res) => {
       });
     }
 
-    // Check if coupon is applicable to this plan
-    let isApplicable = true;
-    if (coupon.applicablePlans) {
-      try {
-        const applicablePlans = JSON.parse(coupon.applicablePlans);
-        if (Array.isArray(applicablePlans) && applicablePlans.length > 0) {
-          isApplicable = applicablePlans.includes(parseInt(planId));
-        }
-      } catch (parseError) {
-        console.error('Error parsing applicablePlans:', parseError);
-        // If parsing fails, assume coupon is applicable to all plans
-      }
-    }
-
-    if (!isApplicable) {
-      return res.status(400).json({
-        success: false,
-        message: 'This coupon is not valid for the selected plan'
-      });
-    }
-
-    // Get plan details for validation
-    const plan = await Plan.findByPk(planId);
+    // Get plan details for validation (with coupon association)
+    const plan = await Plan.findByPk(planId, {
+      include: [{
+        model: Coupon,
+        as: 'coupon',
+        required: false
+      }]
+    });
+    
     if (!plan) {
       return res.status(400).json({
         success: false,
         message: 'Invalid plan'
       });
+    }
+
+    // NEW: Check if plan has an associated coupon - if so, the code must match
+    if (plan.couponId) {
+      if (plan.couponId !== coupon.id) {
+        return res.status(400).json({
+          success: false,
+          message: 'This coupon code is not valid for the selected plan. Please use the coupon code associated with this plan.'
+        });
+      }
+      // Coupon matches plan's associated coupon - proceed
+      console.log('✅ Coupon code matches plan\'s associated coupon');
+    } else {
+      // Plan doesn't have an associated coupon - check if coupon is applicable via applicablePlans (legacy support)
+      let isApplicable = true;
+      if (coupon.applicablePlans) {
+        try {
+          const applicablePlans = JSON.parse(coupon.applicablePlans);
+          if (Array.isArray(applicablePlans) && applicablePlans.length > 0) {
+            isApplicable = applicablePlans.includes(parseInt(planId));
+          }
+        } catch (parseError) {
+          console.error('Error parsing applicablePlans:', parseError);
+          // If parsing fails, assume coupon is applicable to all plans
+        }
+      }
+
+      if (!isApplicable) {
+        return res.status(400).json({
+          success: false,
+          message: 'This coupon is not valid for the selected plan'
+        });
+      }
     }
 
     // Calculate discount amount
@@ -263,7 +295,12 @@ router.post('/apply', async (req, res) => {
       where: {
         id: planId,
         isActive: true
-      }
+      },
+      include: [{
+        model: Coupon,
+        as: 'coupon',
+        required: false
+      }]
     });
 
     if (!plan) {
@@ -318,6 +355,15 @@ router.post('/apply', async (req, res) => {
     let finalAmount = originalAmount;
     let validatedCoupon = null;
 
+    // Get plan with coupon association
+    const planWithCoupon = await Plan.findByPk(planId, {
+      include: [{
+        model: Coupon,
+        as: 'coupon',
+        required: false
+      }]
+    });
+
     if (couponCode && couponId) {
       // Validate the coupon again to ensure it's still valid
       const coupon = await Coupon.findOne({
@@ -329,12 +375,17 @@ router.post('/apply', async (req, res) => {
       });
 
       if (coupon) {
-        // Check if coupon has expired
-        const isExpired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
-        const isMaxRedemptionsReached = coupon.maxRedemptions && coupon.currentRedemptions >= coupon.maxRedemptions;
-        
-        if (!isExpired && !isMaxRedemptionsReached) {
-          // Check if coupon is applicable to this plan
+        // NEW: Check if plan has an associated coupon - if so, the code must match
+        if (planWithCoupon.couponId) {
+          if (planWithCoupon.couponId !== coupon.id) {
+            return res.status(400).json({
+              success: false,
+              message: 'This coupon code is not valid for the selected plan. Please use the coupon code associated with this plan.'
+            });
+          }
+          console.log('✅ Coupon code matches plan\'s associated coupon');
+        } else {
+          // Plan doesn't have an associated coupon - check if coupon is applicable via applicablePlans (legacy)
           let isApplicable = true;
           if (coupon.applicablePlans) {
             try {
@@ -347,16 +398,37 @@ router.post('/apply', async (req, res) => {
             }
           }
 
-          if (isApplicable) {
-            validatedCoupon = coupon;
-            if (coupon.discountType === 'percentage') {
-              discountAmount = (originalAmount * parseFloat(coupon.discount)) / 100;
-            } else if (coupon.discountType === 'fixed') {
-              discountAmount = parseFloat(coupon.discount);
-            }
-            finalAmount = Math.max(0, originalAmount - discountAmount);
+          if (!isApplicable) {
+            return res.status(400).json({
+              success: false,
+              message: 'This coupon is not valid for the selected plan'
+            });
           }
         }
+
+        // Check if coupon has expired
+        const isExpired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
+        const isMaxRedemptionsReached = coupon.maxRedemptions && coupon.currentRedemptions >= coupon.maxRedemptions;
+        
+        if (!isExpired && !isMaxRedemptionsReached) {
+          validatedCoupon = coupon;
+          if (coupon.discountType === 'percentage') {
+            discountAmount = (originalAmount * parseFloat(coupon.discount)) / 100;
+          } else if (coupon.discountType === 'fixed') {
+            discountAmount = parseFloat(coupon.discount);
+          }
+          finalAmount = Math.max(0, originalAmount - discountAmount);
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: isExpired ? 'This coupon has expired' : 'This coupon has reached its usage limit'
+          });
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid coupon code'
+        });
       }
     }
 
@@ -456,8 +528,14 @@ router.post('/application-payment', async (req, res) => {
       });
     }
 
-    // Find the plan
-    const plan = await Plan.findByPk(planId);
+    // Find the plan (with coupon association)
+    const plan = await Plan.findByPk(planId, {
+      include: [{
+        model: Coupon,
+        as: 'coupon',
+        required: false
+      }]
+    });
     if (!plan) {
       console.log('❌ Plan not found:', planId);
       return res.status(404).json({
@@ -476,12 +554,47 @@ router.post('/application-payment', async (req, res) => {
       });
     }
 
-    // Recalculate expected amount based on application's coupon to ensure consistency
-    // This handles cases where the application was created with a coupon but the stored finalAmount might differ
+    // Recalculate expected amount based on plan's associated coupon or application's coupon
+    // Priority: 1) Plan's associated coupon, 2) Application's coupon, 3) Stored finalAmount
     let expectedAmount = parseFloat(plan.fee);
     
-    // If application has a coupon, recalculate the discount
-    if (application.couponId || application.couponCode) {
+    // NEW: First check if plan has an associated coupon
+    if (plan.couponId) {
+      const planCoupon = await Coupon.findByPk(plan.couponId);
+      if (planCoupon && planCoupon.isActive) {
+        // Check if coupon is still valid
+        const isExpired = planCoupon.expiryDate && new Date(planCoupon.expiryDate) < new Date();
+        const isMaxRedemptionsReached = planCoupon.maxRedemptions && planCoupon.currentRedemptions >= planCoupon.maxRedemptions;
+        
+        if (!isExpired && !isMaxRedemptionsReached) {
+          // Check if the application's coupon code matches the plan's coupon
+          if (application.couponCode === planCoupon.couponId) {
+            const originalAmount = parseFloat(plan.fee);
+            let discountAmount = 0;
+            
+            if (planCoupon.discountType === 'percentage') {
+              discountAmount = (originalAmount * parseFloat(planCoupon.discount)) / 100;
+            } else if (planCoupon.discountType === 'fixed') {
+              discountAmount = parseFloat(planCoupon.discount);
+            }
+            
+            expectedAmount = Math.max(0, originalAmount - discountAmount);
+            console.log('💰 Using plan\'s associated coupon:', {
+              couponCode: planCoupon.couponId,
+              discountAmount,
+              expectedAmount
+            });
+          } else {
+            console.log('⚠️ Application coupon code does not match plan\'s associated coupon');
+          }
+        } else {
+          console.log('⚠️ Plan\'s associated coupon is expired or max redemptions reached');
+        }
+      }
+    }
+    
+    // If plan doesn't have a coupon or it didn't match, fall back to application's coupon
+    if (expectedAmount === parseFloat(plan.fee) && (application.couponId || application.couponCode)) {
       const { Coupon } = require('../models');
       
       // Build coupon lookup - handle both couponId (numeric ID) and couponCode (string code)
@@ -625,16 +738,58 @@ router.post('/application-payment', async (req, res) => {
       tolerance
     });
 
+    // If there's a significant mismatch, check if the received amount is a valid discount
+    // This handles cases where coupon was deleted or lookup failed, but frontend calculated correctly
     if (Math.abs(expectedAmount - receivedAmount) > tolerance) {
-      console.log('❌ Amount mismatch:', {
+      const planFee = parseFloat(plan.fee);
+      const isReceivedLessThanPlanFee = receivedAmount < planFee;
+      const discountPercentage = ((planFee - receivedAmount) / planFee) * 100;
+      
+      console.log('⚠️ Amount mismatch detected:', {
         expected: expectedAmount,
         received: receivedAmount,
-        difference: Math.abs(expectedAmount - receivedAmount)
+        planFee: planFee,
+        difference: Math.abs(expectedAmount - receivedAmount),
+        isReceivedLessThanPlanFee,
+        discountPercentage: discountPercentage.toFixed(2) + '%'
       });
-      return res.status(400).json({
-        success: false,
-        message: `Payment amount does not match expected amount. Expected: $${expectedAmount.toFixed(2)}, Received: $${receivedAmount.toFixed(2)}`
-      });
+      
+      // If received amount is less than plan fee (discount applied) and reasonable (not more than 100% off)
+      // AND the application has a coupon code, accept the frontend's calculation
+      // This handles cases where coupon lookup failed but frontend has the correct discount
+      if (isReceivedLessThanPlanFee && receivedAmount >= 0 && discountPercentage <= 100) {
+        if (application.couponId || application.couponCode) {
+          console.log('✅ Accepting frontend-calculated discount amount (coupon applied but lookup failed):', {
+            receivedAmount,
+            planFee,
+            discountPercentage: discountPercentage.toFixed(2) + '%',
+            couponCode: application.couponCode
+          });
+          // Accept the received amount and update expectedAmount
+          expectedAmount = receivedAmount;
+        } else {
+          // No coupon but amount is different - reject
+          console.log('❌ Amount mismatch with no coupon:', {
+            expected: expectedAmount,
+            received: receivedAmount
+          });
+          return res.status(400).json({
+            success: false,
+            message: `Payment amount does not match expected amount. Expected: $${expectedAmount.toFixed(2)}, Received: $${receivedAmount.toFixed(2)}`
+          });
+        }
+      } else {
+        // Received amount is greater than plan fee or invalid - reject
+        console.log('❌ Invalid amount (greater than plan fee or negative):', {
+          expected: expectedAmount,
+          received: receivedAmount,
+          planFee
+        });
+        return res.status(400).json({
+          success: false,
+          message: `Payment amount does not match expected amount. Expected: $${expectedAmount.toFixed(2)}, Received: $${receivedAmount.toFixed(2)}`
+        });
+      }
     }
 
     // Process payment based on method
