@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 const {
   getNotifications,
   markAsRead,
@@ -9,10 +9,10 @@ const {
   getUnreadCount
 } = require('../controllers/notificationController');
 
-router.get('/', authenticate, getNotifications);
-router.get('/unread-count', authenticate, getUnreadCount);
-router.put('/:id/read', authenticate, markAsRead);
-router.put('/read-all', authenticate, markAllAsRead);
-router.delete('/:id', authenticate, deleteNotification);
+router.get('/', authenticateToken, getNotifications);
+router.get('/unread-count', authenticateToken, getUnreadCount);
+router.put('/:id/read', authenticateToken, markAsRead);
+router.put('/read-all', authenticateToken, markAllAsRead);
+router.delete('/:id', authenticateToken, deleteNotification);
 
 module.exports = router;
