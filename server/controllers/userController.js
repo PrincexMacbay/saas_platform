@@ -3,6 +3,7 @@ const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Mem
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
+const notificationService = require('../services/notificationService');
 
 // Validation rules
 const updateProfileValidation = [
@@ -303,6 +304,11 @@ const toggleFollow = async (req, res) => {
       if (emailService && emailService.sendFollowerNotification) {
         emailService.sendFollowerNotification(req.user, targetUser).catch(error => {
           console.error('Failed to send follower notification:', error);
+        });
+        
+        // Send real-time notification
+        notificationService.notifyNewFollower(req.user.id, userid).catch(error => {
+          console.error('Failed to send real-time follower notification:', error);
         });
       }
 

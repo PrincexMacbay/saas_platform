@@ -3,6 +3,7 @@ const { Post, User, Space, Comment, Like, Membership } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
+const notificationService = require('../services/notificationService');
 
 // Validation rules
 const createPostValidation = [
@@ -453,6 +454,11 @@ const createComment = async (req, res) => {
           console.error('Failed to send comment notification:', error);
         });
       }
+      
+      // Send real-time notification
+      notificationService.notifyNewComment(postid, comment.id, req.user.id).catch(error => {
+        console.error('Failed to send real-time notification:', error);
+      });
     }
 
     res.status(201).json({
@@ -517,6 +523,14 @@ const toggleLike = async (req, res) => {
         objectModel: objectmodel,
         objectId: objectid,
       });
+      
+      // Send notification if it's a post (not a comment)
+      if (objectmodel === 'Post' && object.userId !== req.user.id) {
+        notificationService.notifyPostLiked(objectid, req.user.id).catch(error => {
+          console.error('Failed to send like notification:', error);
+        });
+      }
+      
       res.json({
         success: true,
         message: `${objectmodel} liked successfully`,

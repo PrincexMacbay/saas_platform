@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { buildImageUrl } from '../utils/imageUtils';
 import LanguageSelector from './LanguageSelector';
+import NotificationBell from './NotificationBell';
 import logoImage from '../Logo/neu2.png';
 
 const Navbar = () => {
@@ -151,6 +152,9 @@ const Navbar = () => {
               <LanguageSelector />
             </div>
             
+            {/* Notification Bell */}
+            <NotificationBell />
+            
             {/* Profile Dropdown */}
             <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>
               <button
@@ -270,6 +274,9 @@ const Navbar = () => {
             <div className="desktop-language-selector">
               <LanguageSelector />
             </div>
+            
+            {/* Notification Bell */}
+            <NotificationBell />
             
             {/* Profile Dropdown for Admin */}
             <div className="profile-dropdown-container" ref={profileDropdownRef} style={{ position: 'relative' }}>

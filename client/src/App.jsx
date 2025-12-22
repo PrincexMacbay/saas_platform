@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -30,7 +31,8 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <Router>
+        <NotificationProvider>
+          <Router>
           <div className="App">
             <Navbar />
             <main className="main-content">
@@ -107,6 +109,7 @@ function App() {
             {/* <SimpleErrorLogger /> */}
           </div>
         </Router>
+        </NotificationProvider>
       </AuthProvider>
     </LanguageProvider>
   );

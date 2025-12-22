@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { Application, Plan, User, Subscription } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 const bcrypt = require('bcryptjs');
+const notificationService = require('../services/notificationService');
 
 // Get all applications
 const getApplications = async (req, res) => {
@@ -230,6 +231,11 @@ const createApplication = async (req, res) => {
       include: [{ model: Plan, as: 'plan', attributes: ['name', 'fee'] }]
     });
 
+    // Send notification to plan creator
+    notificationService.notifyApplicationSubmitted(application.id).catch(error => {
+      console.error('Failed to send application notification:', error);
+    });
+
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully',
@@ -326,6 +332,13 @@ const approveApplication = async (req, res) => {
         ]
       });
 
+      // Send notification to applicant
+      if (user) {
+        notificationService.notifyApplicationApproved(id).catch(error => {
+          console.error('Failed to send approval notification:', error);
+        });
+      }
+
       res.json({
         success: true,
         message: 'Application approved successfully',
@@ -378,6 +391,13 @@ const rejectApplication = async (req, res) => {
     }
 
     await application.update({ status: 'rejected' });
+
+    // Send notification to applicant if they have a user account
+    if (application.userId) {
+      notificationService.notifyApplicationRejected(id).catch(error => {
+        console.error('Failed to send rejection notification:', error);
+      });
+    }
 
     res.json({
       success: true,

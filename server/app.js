@@ -1,10 +1,12 @@
 require("dotenv").config();
 
 const express = require("express");
+const http = require("http");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
+const { initializeSocket } = require("./socket/socketServer");
 
 // Validate required environment variables
 const requiredEnvVars = ['JWT_SECRET'];
@@ -265,7 +267,15 @@ const startServer = async () => {
     }
 
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    
+    // Create HTTP server for Socket.io
+    const server = http.createServer(app);
+    
+    // Initialize Socket.io
+    initializeSocket(server);
+    console.log("✅ Socket.io initialized");
+    
+    server.listen(PORT, () => {
       console.log("🚀 Server running on port " + PORT);
       console.log("🌍 Environment: " + (process.env.NODE_ENV || "development"));
       console.log("📁 Static files served from: " + path.join(__dirname, "uploads"));

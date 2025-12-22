@@ -31,6 +31,7 @@ const Organization = require('./Organization');
 const PasswordResetToken = require('./PasswordResetToken');
 const EmailVerificationToken = require('./EmailVerificationToken');
 const SystemSettings = require('./SystemSettings');
+const Notification = require('./Notification');
 
 // Define associations
 User.hasMany(Space, { 
@@ -240,6 +241,11 @@ User.hasMany(Application, {
 User.hasMany(DigitalCard, { 
   foreignKey: 'userId', 
   as: 'digitalCards',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Notification, { 
+  foreignKey: 'userId', 
+  as: 'notifications',
   onDelete: 'CASCADE'
 });
 
@@ -546,4 +552,5 @@ module.exports = {
   PasswordResetToken,
   EmailVerificationToken,
   SystemSettings,
+  Notification,
 };
