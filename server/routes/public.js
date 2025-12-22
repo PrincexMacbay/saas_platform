@@ -602,14 +602,14 @@ router.post('/application-payment', async (req, res) => {
             planFee,
             expectedAmount
           });
+        } else {
+          // Stored amount matches plan fee, use it
+          expectedAmount = storedFinalAmount;
         }
+      } else {
+        // No coupon and no stored finalAmount - use plan fee
+        expectedAmount = parseFloat(plan.fee);
       }
-    }
-    } else {
-      // No coupon - use stored finalAmount or plan fee
-      expectedAmount = application.finalAmount !== null && application.finalAmount !== undefined 
-        ? parseFloat(application.finalAmount) 
-        : parseFloat(plan.fee);
     }
     
     const tolerance = 0.01; // Allow 1 cent difference due to floating point precision
