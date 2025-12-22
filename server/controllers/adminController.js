@@ -124,7 +124,7 @@ const getDashboardStats = async (req, res) => {
       }
     });
 
-    // Total Membership Plans
+    // Total Membership Plans (all users' plans for admin dashboard)
     const totalPlans = await Plan.count();
     const totalPlansCurrent = await Plan.count({
       where: {
@@ -959,6 +959,7 @@ const getMembershipPlans = async (req, res) => {
   try {
     console.log('🔍 AdminController: Fetching membership plans...');
 
+    // Admin dashboard: Show ALL plans from ALL users (for admin oversight)
     const plans = await Plan.findAll({
       include: [{
         model: Subscription,

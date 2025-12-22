@@ -76,15 +76,6 @@ const BrowseMemberships = () => {
     return intervals[interval] || interval;
   };
 
-  if (loading && plans.length === 0) {
-    return (
-      <div className="browse-loading">
-        <div className="loading-spinner"></div>
-        {/* <p>Loading membership plans...</p> */}
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <style>{`
@@ -187,8 +178,13 @@ const BrowseMemberships = () => {
         </div>
       )}
 
-      <div className="plans-grid">
-                        {Array.isArray(plans) && plans.map(plan => (
+      {loading && plans.length === 0 ? (
+        <div className="browse-loading">
+          <div className="loading-spinner"></div>
+        </div>
+      ) : (
+        <div className="plans-grid">
+          {Array.isArray(plans) && plans.map(plan => (
           <div key={plan.id} className="plan-card">
             <div className="plan-header">
               {plan.organization?.logo && (
@@ -301,7 +297,8 @@ const BrowseMemberships = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {plans.length === 0 && !loading && (
         <div className="no-plans">
@@ -624,7 +621,8 @@ const BrowseMemberships = () => {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 80px;
+          min-height: 60vh;
+          width: 100%;
         }
 
         .loading-spinner {
@@ -634,7 +632,6 @@ const BrowseMemberships = () => {
           width: 50px;
           height: 50px;
           animation: spin 1s linear infinite;
-          margin-bottom: 25px;
         }
 
         @keyframes spin {

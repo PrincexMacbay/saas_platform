@@ -7,24 +7,48 @@ const getPlans = async (req, res) => {
     const { page = 1, limit = 10, search, isActive } = req.query;
     const offset = (page - 1) * limit;
     
-    const whereClause = {};
-    
-    // USER-ONLY ACCESS: Only show plans created by the current user
-    whereClause.createdBy = req.user.id;
-    
-    if (search) {
-      whereClause[Op.and] = whereClause[Op.and] || [];
-      whereClause[Op.and].push({
-        [Op.or]: [
-          { name: { [Op.iLike]: `%${search}%` } },
-          { description: { [Op.iLike]: `%${search}%` } }
-        ]
+    // SECURITY: Ensure user is authenticated and get their ID
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
       });
     }
     
-    if (isActive !== undefined) {
-      whereClause.isActive = isActive === 'true';
+    // Build where clause - ALWAYS filter by createdBy
+    // CRITICAL: Only show plans created by current user (applies to ALL users including admins)
+    const whereClause = {
+      createdBy: req.user.id // This MUST always be present
+    };
+    
+    // Add search filter if provided
+    if (search) {
+      whereClause[Op.and] = [
+        { createdBy: req.user.id }, // Re-assert createdBy in AND clause
+        {
+          [Op.or]: [
+            { name: { [Op.iLike]: `%${search}%` } },
+            { description: { [Op.iLike]: `%${search}%` } }
+          ]
+        }
+      ];
+      // Remove createdBy from top level since it's now in Op.and
+      delete whereClause.createdBy;
     }
+    
+    // Add active filter if provided
+    if (isActive !== undefined) {
+      if (whereClause[Op.and]) {
+        // If we already have Op.and, add isActive to it
+        whereClause[Op.and].push({ isActive: isActive === 'true' });
+      } else {
+        // Otherwise add it at top level
+        whereClause.isActive = isActive === 'true';
+      }
+    }
+    
+    console.log('🔍 PlanController.getPlans: User ID:', req.user.id, 'Role:', req.user?.role);
+    console.log('🔍 PlanController.getPlans: Final where clause:', JSON.stringify(whereClause, null, 2));
 
     const { count, rows } = await Plan.findAndCountAll({
       where: whereClause,
@@ -40,6 +64,8 @@ const getPlans = async (req, res) => {
         }
       ]
     });
+    
+    console.log('🔍 PlanController.getPlans: Found', count, 'plans for user', req.user.id);
 
     // Add subscription counts
     const plansWithCounts = rows.map(plan => {
