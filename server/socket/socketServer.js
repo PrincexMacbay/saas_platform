@@ -41,10 +41,18 @@ const initializeSocket = (server) => {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findByPk(decoded.id);
+      // JWT uses userId, not id
+      const userId = decoded.userId || decoded.id; // Support both for compatibility
+      const user = await User.findByPk(userId);
       
       if (!user) {
+        console.error('Socket auth: User not found', { userId, decoded });
         return next(new Error('User not found'));
+      }
+      
+      if (user.status !== 1) {
+        console.error('Socket auth: User not active', { userId });
+        return next(new Error('User account not active'));
       }
 
       socket.userId = user.id;
@@ -101,6 +109,13 @@ const initializeSocket = (server) => {
 // Helper function to send notification
 const sendNotification = async (userId, type, title, message, link = null, metadata = null) => {
   try {
+    console.log('📬 sendNotification called:', { userId, type, title });
+    
+    if (!userId) {
+      console.error('❌ sendNotification: userId is required');
+      return null;
+    }
+
     // Create notification in database
     const notification = await Notification.create({
       userId,
@@ -111,6 +126,8 @@ const sendNotification = async (userId, type, title, message, link = null, metad
       metadata,
       read: false
     });
+
+    console.log('✅ Notification created in DB:', notification.id);
 
     // Load notification with user association for full data
     const fullNotification = await Notification.findByPk(notification.id, {
@@ -123,12 +140,24 @@ const sendNotification = async (userId, type, title, message, link = null, metad
 
     // Emit to user's room
     if (io) {
-      io.to(`user_${userId}`).emit('new_notification', fullNotification);
+      const roomName = `user_${userId}`;
+      const socketsInRoom = io.sockets.adapter.rooms.get(roomName);
+      const userCount = socketsInRoom ? socketsInRoom.size : 0;
+      
+      console.log(`📡 Emitting notification to room ${roomName} (${userCount} user(s) connected)`);
+      
+      io.to(roomName).emit('new_notification', fullNotification);
+      
+      if (userCount === 0) {
+        console.log('⚠️ No users connected to receive notification, but saved to DB');
+      }
+    } else {
+      console.log('⚠️ Socket.io not initialized, notification saved to DB only');
     }
 
     return fullNotification;
   } catch (error) {
-    console.error('Error sending notification:', error);
+    console.error('❌ Error sending notification:', error);
     throw error;
   }
 };

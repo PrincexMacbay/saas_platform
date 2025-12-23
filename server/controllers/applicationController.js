@@ -332,12 +332,10 @@ const approveApplication = async (req, res) => {
         ]
       });
 
-      // Send notification to applicant
-      if (user) {
-        notificationService.notifyApplicationApproved(id).catch(error => {
-          console.error('Failed to send approval notification:', error);
-        });
-      }
+      // Send notification to applicant (after userId is set)
+      notificationService.notifyApplicationApproved(id).catch(error => {
+        console.error('Failed to send approval notification:', error);
+      });
 
       res.json({
         success: true,

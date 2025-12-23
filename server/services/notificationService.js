@@ -9,11 +9,26 @@ class NotificationService {
         include: [{ model: Plan, as: 'plan' }]
       });
       
-      if (!application || !application.plan) return;
+      if (!application || !application.plan) {
+        console.log('⚠️ notifyApplicationSubmitted: Application or plan not found', { applicationId });
+        return;
+      }
+
+      const planCreatorId = application.plan.createdBy;
+      if (!planCreatorId) {
+        console.log('⚠️ notifyApplicationSubmitted: Plan has no creator', { planId: application.planId });
+        return;
+      }
+
+      console.log('📬 Sending application submitted notification:', {
+        toUserId: planCreatorId,
+        applicationId,
+        planId: application.planId
+      });
 
       // Notify plan creator
       await sendNotification(
-        application.plan.createdBy,
+        planCreatorId,
         'application_submitted',
         'New Membership Application',
         `A new application has been submitted for ${application.plan.name}`,
@@ -21,7 +36,7 @@ class NotificationService {
         { applicationId, planId: application.planId }
       );
     } catch (error) {
-      console.error('Error notifying application submitted:', error);
+      console.error('❌ Error notifying application submitted:', error);
     }
   }
 
@@ -31,18 +46,48 @@ class NotificationService {
         include: [{ model: Plan, as: 'plan' }]
       });
       
-      if (!application) return;
+      if (!application) {
+        console.log('⚠️ notifyApplicationApproved: Application not found', { applicationId });
+        return;
+      }
+
+      // Application should have userId after approval, but reload to ensure we have latest data
+      if (!application.userId) {
+        console.log('⚠️ notifyApplicationApproved: Application has no userId, trying to find by email', { applicationId, email: application.email });
+        // Try to find user by email
+        const { User } = require('../models');
+        const user = await User.findOne({ where: { email: application.email } });
+        if (!user) {
+          console.log('❌ notifyApplicationApproved: User not found by email, cannot send notification', { email: application.email });
+          return;
+        }
+        // Update application with userId for future reference
+        await application.update({ userId: user.id });
+        application.userId = user.id; // Update local reference
+      }
+
+      if (!application.userId) {
+        console.log('❌ notifyApplicationApproved: Still no userId after lookup, cannot send notification');
+        return;
+      }
+
+      console.log('📬 Sending application approved notification:', {
+        toUserId: application.userId,
+        applicationId,
+        planId: application.planId,
+        planName: application.plan?.name
+      });
       
       await sendNotification(
         application.userId,
         'application_approved',
         'Application Approved!',
-        `Your application for ${application.plan.name} has been approved`,
+        `Your application for ${application.plan?.name || 'membership'} has been approved`,
         `/membership`,
         { applicationId, planId: application.planId }
       );
     } catch (error) {
-      console.error('Error notifying application approved:', error);
+      console.error('❌ Error notifying application approved:', error);
     }
   }
 
@@ -70,18 +115,29 @@ class NotificationService {
   // Social notifications
   async notifyNewComment(postId, commentId, commenterId) {
     try {
-      const post = await Post.findByPk(postId, {
-        include: [{ model: User, as: 'author' }]
-      });
+      const post = await Post.findByPk(postId);
       const commenter = await User.findByPk(commenterId);
 
-      if (!post || !commenter) return;
+      if (!post || !commenter) {
+        console.log('⚠️ notifyNewComment: Post or commenter not found', { postId, commenterId });
+        return;
+      }
 
       // Don't notify if user commented on their own post
-      if (post.authorId === commenterId) return;
+      if (post.userId === commenterId) {
+        console.log('⚠️ notifyNewComment: User commented on their own post, skipping notification');
+        return;
+      }
+
+      console.log('📬 Sending comment notification:', {
+        toUserId: post.userId,
+        postId,
+        commentId,
+        commenterId
+      });
 
       await sendNotification(
-        post.authorId,
+        post.userId, // Use userId instead of authorId
         'new_comment',
         'New Comment',
         `${commenter.firstName || commenter.username} commented on your post`,
@@ -89,7 +145,7 @@ class NotificationService {
         { postId, commentId, commenterId }
       );
     } catch (error) {
-      console.error('Error notifying new comment:', error);
+      console.error('❌ Error notifying new comment:', error);
     }
   }
 
@@ -114,17 +170,28 @@ class NotificationService {
 
   async notifyPostLiked(postId, likerId) {
     try {
-      const post = await Post.findByPk(postId, { 
-        include: [{ model: User, as: 'author' }] 
-      });
+      const post = await Post.findByPk(postId);
       const liker = await User.findByPk(likerId);
 
-      if (!post || !liker) return;
+      if (!post || !liker) {
+        console.log('⚠️ notifyPostLiked: Post or liker not found', { postId, likerId });
+        return;
+      }
 
-      if (post.authorId === likerId) return;
+      // Don't notify if user liked their own post
+      if (post.userId === likerId) {
+        console.log('⚠️ notifyPostLiked: User liked their own post, skipping notification');
+        return;
+      }
+
+      console.log('📬 Sending like notification:', {
+        toUserId: post.userId,
+        postId,
+        likerId
+      });
 
       await sendNotification(
-        post.authorId,
+        post.userId, // Use userId instead of authorId
         'post_liked',
         'Post Liked',
         `${liker.firstName || liker.username} liked your post`,
@@ -132,7 +199,7 @@ class NotificationService {
         { postId, likerId }
       );
     } catch (error) {
-      console.error('Error notifying post liked:', error);
+      console.error('❌ Error notifying post liked:', error);
     }
   }
 

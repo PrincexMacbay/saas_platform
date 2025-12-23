@@ -98,8 +98,15 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       // Token expired or invalid
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Don't redirect here - let the AuthContext handle it
+      // This prevents full page reloads and logout/login cycles
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Only clear token if it exists (avoid clearing on public endpoints)
+        localStorage.removeItem('token');
+      }
+      // Don't use window.location.href - let React Router handle navigation
+      // The AuthContext will detect the missing token and update state accordingly
     }
     return Promise.reject(error);
   }
