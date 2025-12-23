@@ -72,8 +72,18 @@ class NotificationService {
         return;
       }
 
+      if (!application.plan) {
+        console.log('⚠️ notifyApplicationApproved: Plan not found for application', { 
+          applicationId, 
+          planId: application.planId 
+        });
+        return;
+      }
+
       // Application should have userId after approval
-      if (!application.userId) {
+      let targetUserId = application.userId;
+      
+      if (!targetUserId) {
         console.log('⚠️ notifyApplicationApproved: Application has no userId, trying to find by email', { 
           applicationId, 
           email: application.email 
@@ -89,16 +99,20 @@ class NotificationService {
         }
         // Update application with userId for future reference
         await application.update({ userId: user.id });
-        application.userId = user.id; // Update local reference
+        targetUserId = user.id;
+        console.log('✅ notifyApplicationApproved: Found user by email and updated application', {
+          userId: targetUserId,
+          email: application.email
+        });
       }
 
-      if (!application.userId) {
+      if (!targetUserId) {
         console.log('❌ notifyApplicationApproved: Still no userId after lookup, cannot send notification');
         return;
       }
 
       console.log('📬 Sending application approved notification:', {
-        toUserId: application.userId,
+        toUserId: targetUserId,
         applicationId,
         planId: application.planId,
         planName: application.plan?.name,
@@ -106,7 +120,7 @@ class NotificationService {
       });
       
       await sendNotification(
-        application.userId,
+        targetUserId,
         'application_approved',
         'Application Approved!',
         `Your application for ${application.plan?.name || 'membership'} has been approved`,
@@ -114,7 +128,7 @@ class NotificationService {
         { applicationId, planId: application.planId }
       );
       
-      console.log('✅ notifyApplicationApproved: Notification sent successfully');
+      console.log('✅ notifyApplicationApproved: Notification sent successfully to user', targetUserId);
     } catch (error) {
       console.error('❌ Error notifying application approved:', error);
       console.error('Error stack:', error.stack);

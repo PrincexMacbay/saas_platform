@@ -339,12 +339,26 @@ const approveApplication = async (req, res) => {
       });
 
       // Send notification to applicant (after userId is set and database is updated)
-      // Use a small delay to ensure database transaction is committed
-      setTimeout(() => {
-        notificationService.notifyApplicationApproved(id).catch(error => {
-          console.error('Failed to send approval notification:', error);
-        });
-      }, 100);
+      // Reload application to ensure we have the latest data
+      const applicationForNotification = await Application.findByPk(id, {
+        include: [{ model: Plan, as: 'plan' }]
+      });
+      
+      console.log('📧 Preparing to send approval notification:', {
+        applicationId: id,
+        userId: applicationForNotification.userId,
+        userEmail: applicationForNotification.email,
+        planName: applicationForNotification.plan?.name
+      });
+      
+      // Send notification - use await to ensure it completes before response
+      try {
+        await notificationService.notifyApplicationApproved(id);
+        console.log('✅ Approval notification sent successfully');
+      } catch (error) {
+        console.error('❌ Failed to send approval notification:', error);
+        // Don't fail the request if notification fails
+      }
 
       res.json({
         success: true,
@@ -362,11 +376,50 @@ const approveApplication = async (req, res) => {
       });
     } else {
       // Just approve without creating user
-      await application.update({ status: 'approved' });
+      // Try to find existing user by email
+      const existingUser = await User.findOne({
+        where: { email: application.email }
+      });
+
+      if (existingUser) {
+        // Update application with user reference if user exists
+        await application.update({ 
+          status: 'approved',
+          userId: existingUser.id
+        });
+      } else {
+        // No user exists, just approve
+        await application.update({ status: 'approved' });
+      }
 
       const updatedApplication = await Application.findByPk(id, {
         include: [{ model: Plan, as: 'plan' }]
       });
+
+      // Send notification if user exists
+      if (existingUser) {
+        // Reload application to ensure we have the latest data with userId
+        const applicationForNotification = await Application.findByPk(id, {
+          include: [{ model: Plan, as: 'plan' }]
+        });
+        
+        console.log('📧 Sending approval notification for existing user:', {
+          applicationId: id,
+          userId: applicationForNotification.userId,
+          userEmail: existingUser.email,
+          planName: applicationForNotification.plan?.name
+        });
+        
+        try {
+          await notificationService.notifyApplicationApproved(id);
+          console.log('✅ Approval notification sent successfully for existing user');
+        } catch (error) {
+          console.error('❌ Failed to send approval notification:', error);
+          // Don't fail the request if notification fails
+        }
+      } else {
+        console.log('⚠️ Cannot send notification: No user found for application email:', application.email);
+      }
 
       res.json({
         success: true,
