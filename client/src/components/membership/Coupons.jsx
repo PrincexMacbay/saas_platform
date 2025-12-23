@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createCoupon, getCoupons, deleteCoupon, updateCoupon } from '../../services/membershipService';
+import { createCoupon, getCoupons, deleteCoupon, updateCoupon, getPlans } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -22,6 +22,8 @@ const Coupons = () => {
     expiryDate: '',
     applicablePlans: []
   });
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
 
   useEffect(() => {
     // Use preloaded data if available
@@ -33,6 +35,30 @@ const Coupons = () => {
       loadCoupons();
     }
   }, [data.coupons, contextLoading.coupons, isLoadingAll]);
+
+  useEffect(() => {
+    // Load plans for selection
+    loadPlans();
+  }, []);
+
+  const loadPlans = async () => {
+    try {
+      setLoadingPlans(true);
+      // Use plans from context if available
+      if (data.plans && Array.isArray(data.plans) && data.plans.length > 0) {
+        setAvailablePlans(data.plans);
+      } else {
+        // Fetch plans if not in context
+        const response = await getPlans();
+        const plans = response.data?.data?.plans || [];
+        setAvailablePlans(plans);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const loadCoupons = async () => {
     // Only set loading if we don't have preloaded data
@@ -73,7 +99,12 @@ const Coupons = () => {
     setError('');
 
     try {
-      await createCoupon(formData);
+      // Ensure applicablePlans is an array of numbers
+      const submitData = {
+        ...formData,
+        applicablePlans: formData.applicablePlans || []
+      };
+      await createCoupon(submitData);
       setShowAddModal(false);
       setFormData({
         name: '',
@@ -367,6 +398,41 @@ const Coupons = () => {
                 </small>
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Applicable Membership Plans</label>
+                <div className="plan-selection-container">
+                  {loadingPlans ? (
+                    <p className="text-muted">Loading plans...</p>
+                  ) : availablePlans.length === 0 ? (
+                    <p className="text-muted">No plans available. Create a plan first.</p>
+                  ) : (
+                    <div className="plan-checkboxes">
+                      {availablePlans.map(plan => (
+                        <label key={plan.id} className="plan-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={formData.applicablePlans?.includes(plan.id) || false}
+                            onChange={() => handlePlanSelection(plan.id)}
+                            className="plan-checkbox"
+                          />
+                          <span className="plan-checkbox-text">
+                            <strong>{plan.name}</strong>
+                            <span className="plan-fee">
+                              {plan.fee === 0 || plan.fee === '0' || !plan.fee 
+                                ? 'Free' 
+                                : `$${parseFloat(plan.fee).toFixed(2)}`}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <small className="form-text text-muted">
+                  Select which membership plans this coupon code will apply to. Leave empty to apply to all plans.
+                </small>
+              </div>
+
               <div className="modal-actions">
                 <button
                   type="button"
@@ -645,6 +711,60 @@ const Coupons = () => {
           font-size: 12px;
           color: #666;
           margin-top: 4px;
+        }
+
+        .plan-selection-container {
+          max-height: 200px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          padding: 12px;
+          background: #f8f9fa;
+        }
+
+        .plan-checkboxes {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .plan-checkbox-label {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 4px;
+          transition: background 0.2s ease;
+        }
+
+        .plan-checkbox-label:hover {
+          background: #e9ecef;
+        }
+
+        .plan-checkbox {
+          margin-right: 12px;
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+
+        .plan-checkbox-text {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex: 1;
+          font-size: 14px;
+        }
+
+        .plan-checkbox-text strong {
+          color: #2c3e50;
+          font-weight: 500;
+        }
+
+        .plan-fee {
+          color: #27ae60;
+          font-weight: 600;
+          margin-left: 12px;
         }
 
         .modal-actions {

@@ -324,6 +324,12 @@ const approveApplication = async (req, res) => {
         userId: user.id
       });
 
+      console.log('✅ Application approved and updated with userId:', {
+        applicationId: id,
+        userId: user.id,
+        userEmail: user.email
+      });
+
       // Fetch updated application with relations
       const updatedApplication = await Application.findByPk(id, {
         include: [
@@ -332,10 +338,13 @@ const approveApplication = async (req, res) => {
         ]
       });
 
-      // Send notification to applicant (after userId is set)
-      notificationService.notifyApplicationApproved(id).catch(error => {
-        console.error('Failed to send approval notification:', error);
-      });
+      // Send notification to applicant (after userId is set and database is updated)
+      // Use a small delay to ensure database transaction is committed
+      setTimeout(() => {
+        notificationService.notifyApplicationApproved(id).catch(error => {
+          console.error('Failed to send approval notification:', error);
+        });
+      }, 100);
 
       res.json({
         success: true,

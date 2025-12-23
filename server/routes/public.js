@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Plan, User, Application, Coupon, Subscription } = require('../models');
 const applicationFormController = require('../controllers/applicationFormController');
+const notificationService = require('../services/notificationService');
 const { Op } = require('sequelize');
 const { optionalAuth } = require('../middleware/auth');
 
@@ -521,7 +522,10 @@ router.post('/apply', optionalAuth, async (req, res) => {
       hasCoupon: !!validatedCoupon
     });
 
-    // TODO: Send notification email to organization admins
+    // Send notification to plan creator
+    notificationService.notifyApplicationSubmitted(application.id).catch(error => {
+      console.error('Failed to send application notification:', error);
+    });
 
     res.status(201).json({
       success: true,

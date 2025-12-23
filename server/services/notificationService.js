@@ -5,25 +5,40 @@ class NotificationService {
   // Application notifications
   async notifyApplicationSubmitted(applicationId) {
     try {
+      console.log('🔍 notifyApplicationSubmitted: Starting', { applicationId });
+      
       const application = await Application.findByPk(applicationId, {
         include: [{ model: Plan, as: 'plan' }]
       });
       
-      if (!application || !application.plan) {
-        console.log('⚠️ notifyApplicationSubmitted: Application or plan not found', { applicationId });
+      if (!application) {
+        console.log('⚠️ notifyApplicationSubmitted: Application not found', { applicationId });
+        return;
+      }
+
+      if (!application.plan) {
+        console.log('⚠️ notifyApplicationSubmitted: Plan not found for application', { 
+          applicationId, 
+          planId: application.planId 
+        });
         return;
       }
 
       const planCreatorId = application.plan.createdBy;
       if (!planCreatorId) {
-        console.log('⚠️ notifyApplicationSubmitted: Plan has no creator', { planId: application.planId });
+        console.log('⚠️ notifyApplicationSubmitted: Plan has no creator', { 
+          planId: application.planId,
+          planName: application.plan.name 
+        });
         return;
       }
 
       console.log('📬 Sending application submitted notification:', {
         toUserId: planCreatorId,
         applicationId,
-        planId: application.planId
+        planId: application.planId,
+        planName: application.plan.name,
+        applicantEmail: application.email
       });
 
       // Notify plan creator
@@ -35,13 +50,19 @@ class NotificationService {
         `/admin?section=memberships&applicationId=${applicationId}`,
         { applicationId, planId: application.planId }
       );
+      
+      console.log('✅ notifyApplicationSubmitted: Notification sent successfully');
     } catch (error) {
       console.error('❌ Error notifying application submitted:', error);
+      console.error('Error stack:', error.stack);
     }
   }
 
   async notifyApplicationApproved(applicationId) {
     try {
+      console.log('🔍 notifyApplicationApproved: Starting', { applicationId });
+      
+      // Reload application to get latest data (userId should be set by now)
       const application = await Application.findByPk(applicationId, {
         include: [{ model: Plan, as: 'plan' }]
       });
@@ -51,14 +72,19 @@ class NotificationService {
         return;
       }
 
-      // Application should have userId after approval, but reload to ensure we have latest data
+      // Application should have userId after approval
       if (!application.userId) {
-        console.log('⚠️ notifyApplicationApproved: Application has no userId, trying to find by email', { applicationId, email: application.email });
+        console.log('⚠️ notifyApplicationApproved: Application has no userId, trying to find by email', { 
+          applicationId, 
+          email: application.email 
+        });
         // Try to find user by email
         const { User } = require('../models');
         const user = await User.findOne({ where: { email: application.email } });
         if (!user) {
-          console.log('❌ notifyApplicationApproved: User not found by email, cannot send notification', { email: application.email });
+          console.log('❌ notifyApplicationApproved: User not found by email, cannot send notification', { 
+            email: application.email 
+          });
           return;
         }
         // Update application with userId for future reference
@@ -75,7 +101,8 @@ class NotificationService {
         toUserId: application.userId,
         applicationId,
         planId: application.planId,
-        planName: application.plan?.name
+        planName: application.plan?.name,
+        applicantEmail: application.email
       });
       
       await sendNotification(
@@ -86,8 +113,11 @@ class NotificationService {
         `/membership`,
         { applicationId, planId: application.planId }
       );
+      
+      console.log('✅ notifyApplicationApproved: Notification sent successfully');
     } catch (error) {
       console.error('❌ Error notifying application approved:', error);
+      console.error('Error stack:', error.stack);
     }
   }
 
