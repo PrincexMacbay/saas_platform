@@ -1315,7 +1315,10 @@ const approveMembershipApplication = async (req, res) => {
     const { applicationId } = req.params;
     console.log('🔍 AdminController: Approving membership application:', applicationId);
 
-    const application = await Application.findByPk(applicationId);
+    const application = await Application.findByPk(applicationId, {
+      include: [{ model: Plan, as: 'plan' }]
+    });
+    
     if (!application) {
       return res.status(404).json({
         success: false,
@@ -1326,6 +1329,37 @@ const approveMembershipApplication = async (req, res) => {
     await application.update({
       status: 'approved'
     });
+
+    // Reload to get updated data
+    const updatedApplication = await Application.findByPk(applicationId, {
+      include: [{ model: Plan, as: 'plan' }]
+    });
+
+    // Send notification to applicant
+    try {
+      const notificationService = require('../services/notificationService');
+      
+      // If application has userId, send notification
+      if (updatedApplication.userId) {
+        await notificationService.notifyApplicationApproved(applicationId);
+        console.log('✅ Approval notification sent successfully via adminController');
+      } else {
+        // Try to find user by email
+        const { User } = require('../models');
+        const user = await User.findOne({ where: { email: updatedApplication.email } });
+        if (user) {
+          // Update application with userId
+          await updatedApplication.update({ userId: user.id });
+          await notificationService.notifyApplicationApproved(applicationId);
+          console.log('✅ Approval notification sent successfully after finding user by email');
+        } else {
+          console.log('⚠️ Cannot send notification: No user found for application email:', updatedApplication.email);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Failed to send approval notification via adminController:', error);
+      // Don't fail the request if notification fails
+    }
 
     res.json({
       success: true,

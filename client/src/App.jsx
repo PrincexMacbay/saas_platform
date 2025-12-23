@@ -20,6 +20,7 @@ import Users from './pages/Users';
 import CareerCenter from './pages/CareerCenter';
 import JobDetail from './components/career/JobDetail';
 import AdminDashboard from './pages/AdminDashboard';
+import Notifications from './pages/Notifications';
 import Homepage from './pages/Homepage';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -101,6 +102,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <Notifications />
                   </ProtectedRoute>
                 }
               />

@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 // Get user's notifications
 const getNotifications = async (req, res) => {
   try {
-    const { page = 1, limit = 20, unreadOnly = false } = req.query;
+    const { page = 1, limit = 20, unreadOnly = false, type, startDate, endDate } = req.query;
     const offset = (page - 1) * limit;
 
     const whereClause = {
@@ -13,6 +13,20 @@ const getNotifications = async (req, res) => {
 
     if (unreadOnly === 'true') {
       whereClause.read = false;
+    }
+
+    if (type) {
+      whereClause.type = type;
+    }
+
+    if (startDate || endDate) {
+      whereClause.createdAt = {};
+      if (startDate) {
+        whereClause.createdAt[Op.gte] = new Date(startDate);
+      }
+      if (endDate) {
+        whereClause.createdAt[Op.lte] = new Date(endDate);
+      }
     }
 
     const { count, rows } = await Notification.findAndCountAll({

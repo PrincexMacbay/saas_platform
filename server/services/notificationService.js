@@ -185,7 +185,7 @@ class NotificationService {
         'new_comment',
         'New Comment',
         `${commenter.firstName || commenter.username} commented on your post`,
-        `/posts/${postId}`,
+        `/dashboard?postId=${postId}`,
         { postId, commentId, commenterId }
       );
     } catch (error) {
@@ -239,7 +239,7 @@ class NotificationService {
         'post_liked',
         'Post Liked',
         `${liker.firstName || liker.username} liked your post`,
-        `/posts/${postId}`,
+        `/dashboard?postId=${postId}`,
         { postId, likerId }
       );
     } catch (error) {
@@ -297,7 +297,7 @@ class NotificationService {
         'job_application_status',
         'Job Application Update',
         `${statusMessages[status] || 'Status updated'} for ${jobApplication.job.title}`,
-        `/career/applications/${jobApplicationId}`,
+        `/career`,
         { jobApplicationId, status }
       );
     } catch (error) {

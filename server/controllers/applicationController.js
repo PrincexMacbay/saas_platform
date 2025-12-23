@@ -572,7 +572,10 @@ const updateApplicationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const application = await Application.findByPk(id);
+    const application = await Application.findByPk(id, {
+      include: [{ model: Plan, as: 'plan' }]
+    });
+    
     if (!application) {
       return res.status(404).json({
         success: false,
@@ -580,11 +583,52 @@ const updateApplicationStatus = async (req, res) => {
       });
     }
 
+    const previousStatus = application.status;
     await application.update({ status });
 
     const updatedApplication = await Application.findByPk(id, {
       include: [{ model: Plan, as: 'plan' }]
     });
+
+    // Send notification if status changed to 'approved'
+    if (status === 'approved' && previousStatus !== 'approved') {
+      console.log('📧 Status updated to approved via updateApplicationStatus, sending notification:', {
+        applicationId: id,
+        userId: updatedApplication.userId,
+        email: updatedApplication.email
+      });
+      
+      try {
+        // If application has userId, send notification
+        if (updatedApplication.userId) {
+          await notificationService.notifyApplicationApproved(id);
+          console.log('✅ Approval notification sent successfully via updateApplicationStatus');
+        } else {
+          // Try to find user by email
+          const user = await User.findOne({ where: { email: updatedApplication.email } });
+          if (user) {
+            // Update application with userId
+            await updatedApplication.update({ userId: user.id });
+            await notificationService.notifyApplicationApproved(id);
+            console.log('✅ Approval notification sent successfully after finding user by email');
+          } else {
+            console.log('⚠️ Cannot send notification: No user found for application email:', updatedApplication.email);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Failed to send approval notification via updateApplicationStatus:', error);
+        // Don't fail the request if notification fails
+      }
+    }
+
+    // Send notification if status changed to 'rejected'
+    if (status === 'rejected' && previousStatus !== 'rejected') {
+      if (updatedApplication.userId) {
+        notificationService.notifyApplicationRejected(id).catch(error => {
+          console.error('Failed to send rejection notification:', error);
+        });
+      }
+    }
 
     res.json({
       success: true,
