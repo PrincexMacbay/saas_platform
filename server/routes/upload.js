@@ -22,6 +22,15 @@ router.post(
   uploadController.uploadPostAttachment
 );
 
+// General file upload (for logos, etc.)
+router.post(
+  '/',
+  authenticateToken,
+  upload.single('file'),
+  processImage,
+  uploadController.uploadFile
+);
+
 // Delete file
 router.delete(
   '/:filename',

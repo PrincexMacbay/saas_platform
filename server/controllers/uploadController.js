@@ -93,6 +93,50 @@ const uploadPostAttachment = async (req, res) => {
   }
 };
 
+// General file upload (for logos, etc.)
+const uploadFile = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    // Generate public URL for the uploaded file
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `/uploads/${req.file.filename}`;
+    const fullFileUrl = baseUrl + fileUrl;
+
+    res.json({
+      success: true,
+      message: 'File uploaded successfully',
+      data: {
+        url: fileUrl,
+        fullUrl: fullFileUrl,
+        fileName: req.file.originalname,
+        fileSize: req.file.size
+      }
+    });
+  } catch (error) {
+    console.error('Upload file error:', error);
+    
+    // Clean up uploaded file
+    if (req.file && req.file.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting file:', unlinkError);
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload file'
+    });
+  }
+};
+
 // Delete uploaded file
 const deleteFile = async (req, res) => {
   try {
@@ -120,5 +164,6 @@ const deleteFile = async (req, res) => {
 module.exports = {
   uploadProfileImage,
   uploadPostAttachment,
+  uploadFile,
   deleteFile,
 };
