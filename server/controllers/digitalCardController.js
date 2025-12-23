@@ -1,4 +1,5 @@
 const { DigitalCard, Subscription, User, Organization, Plan, UserProfile } = require('../models');
+const { Op } = require('sequelize');
 
 // Get digital card template for a specific plan
 const getDigitalCardTemplateByPlan = async (req, res) => {
@@ -105,7 +106,8 @@ const getDigitalCard = async (req, res) => {
     const { subscriptionId } = req.params;
     const userId = req.user.id;
     
-    const digitalCard = await DigitalCard.findOne({
+    // First, try to get the user's card for this subscription
+    let digitalCard = await DigitalCard.findOne({
       where: { 
         subscriptionId,
         userId 
@@ -119,11 +121,66 @@ const getDigitalCard = async (req, res) => {
               model: User,
               as: 'user',
               attributes: ['id', 'firstName', 'lastName', 'username', 'email']
+            },
+            {
+              model: Plan,
+              as: 'plan'
             }
           ]
         }
       ]
     });
+
+    // If card doesn't exist, try to get it from subscription's plan template
+    if (!digitalCard) {
+      const subscription = await Subscription.findByPk(subscriptionId, {
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstName', 'lastName', 'username', 'email']
+          },
+          {
+            model: Plan,
+            as: 'plan'
+          }
+        ]
+      });
+
+      if (subscription && subscription.userId === userId) {
+        // Get the plan's template
+        let template = null;
+        
+        if (subscription.plan.digitalCardTemplateId) {
+          template = await DigitalCard.findOne({
+            where: {
+              id: subscription.plan.digitalCardTemplateId,
+              isTemplate: true
+            }
+          });
+        }
+        
+        // Fall back to general template
+        if (!template) {
+          template = await DigitalCard.findOne({
+            where: {
+              userId: subscription.plan.createdBy,
+              isTemplate: true,
+              planId: null
+            }
+          });
+        }
+
+        if (template) {
+          // Return template data as if it were a card (for display purposes)
+          digitalCard = {
+            ...template.toJSON(),
+            subscription: subscription,
+            isFromTemplate: true
+          };
+        }
+      }
+    }
 
     if (!digitalCard) {
       return res.status(404).json({
@@ -275,14 +332,33 @@ const saveDigitalCardTemplate = async (req, res) => {
       barcodeData,
       primaryColor,
       secondaryColor,
-      textColor
+      textColor,
+      planId
     } = req.body;
 
-    // Check if user already has a template
+    // If planId is provided, check if plan exists and belongs to user
+    if (planId) {
+      const plan = await Plan.findOne({
+        where: {
+          id: planId,
+          createdBy: userId
+        }
+      });
+
+      if (!plan) {
+        return res.status(404).json({
+          success: false,
+          message: 'Plan not found or you do not have permission to associate template with this plan'
+        });
+      }
+    }
+
+    // Check if user already has a template for this plan (or general template if no planId)
     const existingTemplate = await DigitalCard.findOne({
       where: {
         userId,
-        isTemplate: true
+        isTemplate: true,
+        ...(planId ? { planId } : { planId: { [Op.is]: null } })
       }
     });
 
@@ -301,7 +377,8 @@ const saveDigitalCardTemplate = async (req, res) => {
         barcodeData,
         primaryColor,
         secondaryColor,
-        textColor
+        textColor,
+        planId: planId || null
       });
       template = existingTemplate;
     } else {
@@ -320,8 +397,17 @@ const saveDigitalCardTemplate = async (req, res) => {
         secondaryColor: secondaryColor || '#2c3e50',
         textColor: textColor || '#ffffff',
         isTemplate: true,
-        isGenerated: false
+        isGenerated: false,
+        planId: planId || null
       });
+    }
+
+    // If planId is provided, update the plan's digitalCardTemplateId
+    if (planId) {
+      await Plan.update(
+        { digitalCardTemplateId: template.id, useDefaultCardTemplate: false },
+        { where: { id: planId, createdBy: userId } }
+      );
     }
 
     res.json({

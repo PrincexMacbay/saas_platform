@@ -324,16 +324,31 @@ const approveApplication = async (req, res) => {
         userId: user.id
       });
 
-      // Create digital card for the new member using the plan creator's template
+      // Create digital card for the new member using the plan's template
       try {
-        // Get the plan creator's template
-        const planCreatorId = application.plan.createdBy;
-        const template = await DigitalCard.findOne({
-          where: {
-            userId: planCreatorId,
-            isTemplate: true
-          }
-        });
+        // First, try to get plan-specific template
+        let template = null;
+        
+        if (application.plan.digitalCardTemplateId) {
+          template = await DigitalCard.findOne({
+            where: {
+              id: application.plan.digitalCardTemplateId,
+              isTemplate: true
+            }
+          });
+        }
+        
+        // If no plan-specific template, fall back to plan creator's general template
+        if (!template) {
+          const planCreatorId = application.plan.createdBy;
+          template = await DigitalCard.findOne({
+            where: {
+              userId: planCreatorId,
+              isTemplate: true,
+              planId: null // General template (not plan-specific)
+            }
+          });
+        }
 
         if (template) {
           // Create user-specific card based on template

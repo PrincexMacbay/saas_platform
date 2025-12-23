@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
+import api from '../services/api';
 import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import MembershipCard from '../components/membership/MembershipCard';
@@ -42,8 +43,21 @@ const Profile = () => {
 
   const fetchUserMemberships = async (userId) => {
     try {
-      const response = await getUserMemberships();
-      return response.data.data || [];
+      // If viewing own profile, use regular endpoint
+      // If viewing another user's profile, need to get their userId first
+      if (isOwnProfile && user?.id) {
+        const response = await getUserMemberships();
+        return response.data.data || [];
+      } else {
+        // For other users, we need to fetch by userId
+        // First get the user to find their ID
+        const userResponse = await getUser(identifier);
+        const profileUserId = userResponse.data.user.id;
+        
+        // Fetch subscriptions for that user
+        const response = await api.get(`/membership/subscriptions/user?userId=${profileUserId}`);
+        return response.data.data || [];
+      }
     } catch (error) {
       console.error('Error fetching user memberships:', error);
       return [];
@@ -53,30 +67,33 @@ const Profile = () => {
   const loadProfileData = async () => {
     setIsLoading(true);
     try {
-      const [userResponse, postsResponse, membershipsResponse] = await Promise.all([
-        getUser(identifier),
+      const userResponse = await getUser(identifier);
+      const profileUserData = userResponse.data.user;
+      const profileUserId = profileUserData.id;
+      
+      const [postsResponse, membershipsResponse] = await Promise.all([
         getPosts({ userId: identifier, limit: 20 }),
-        fetchUserMemberships(identifier)
+        fetchUserMemberships(profileUserId)
       ]);
       
-      setProfileUser(userResponse.data.user);
+      setProfileUser(profileUserData);
       setPosts(postsResponse.data.posts);
       setUserMemberships(membershipsResponse);
       
-      if (userResponse.data.user.id === user?.id) {
+      if (profileUserData.id === user?.id) {
         setEditData({
-          firstName: userResponse.data.user.firstName || '',
-          lastName: userResponse.data.user.lastName || '',
-          about: userResponse.data.user.about || '',
-          visibility: userResponse.data.user.visibility || 1,
+          firstName: profileUserData.firstName || '',
+          lastName: profileUserData.lastName || '',
+          about: profileUserData.about || '',
+          visibility: profileUserData.visibility || 1,
         });
       }
 
-      if (userResponse.data.user) {
+      if (profileUserData) {
         try {
           const [followersResponse, followingResponse] = await Promise.all([
-            getFollowers(userResponse.data.user.id),
-            getFollowing(userResponse.data.user.id)
+            getFollowers(profileUserData.id),
+            getFollowing(profileUserData.id)
           ]);
           setFollowers(followersResponse.data.followers || []);
           setFollowing(followingResponse.data.following || []);

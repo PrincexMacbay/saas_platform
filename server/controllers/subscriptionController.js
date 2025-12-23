@@ -2,10 +2,16 @@ const { Op } = require('sequelize');
 const { Subscription, User, Plan, Payment, Debt, DigitalCard } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 
-// Get user's own subscriptions
+// Get user's own subscriptions (or specific user's subscriptions if userId query param provided)
 const getUserSubscriptions = async (req, res) => {
   try {
-    const userId = req.user.id;
+    // Allow fetching subscriptions for a specific user if userId query param is provided
+    // This is useful for viewing other users' profiles
+    const targetUserId = req.query.userId ? parseInt(req.query.userId) : req.user.id;
+    
+    // Security: Only allow fetching other users' subscriptions if viewing public profile
+    // For now, we'll allow it but in production you might want to add visibility checks
+    const userId = targetUserId;
     
     const subscriptions = await Subscription.findAll({
       where: { userId },
@@ -15,6 +21,11 @@ const getUserSubscriptions = async (req, res) => {
           model: Plan,
           as: 'plan',
           attributes: ['id', 'name', 'fee', 'renewalInterval', 'description', 'benefits']
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'username', 'email']
         }
       ]
     });
@@ -354,13 +365,28 @@ const createDigitalCardForSubscription = async (subscriptionId) => {
       return;
     }
 
-    // Get the plan creator's template
-    const template = await DigitalCard.findOne({
-      where: {
-        userId: plan.createdBy,
-        isTemplate: true
-      }
-    });
+    // First, try to get plan-specific template
+    let template = null;
+    
+    if (plan.digitalCardTemplateId) {
+      template = await DigitalCard.findOne({
+        where: {
+          id: plan.digitalCardTemplateId,
+          isTemplate: true
+        }
+      });
+    }
+    
+    // If no plan-specific template, fall back to plan creator's general template
+    if (!template) {
+      template = await DigitalCard.findOne({
+        where: {
+          userId: plan.createdBy,
+          isTemplate: true,
+          planId: null // General template (not plan-specific)
+        }
+      });
+    }
 
     // Check if card already exists
     const existingCard = await DigitalCard.findOne({

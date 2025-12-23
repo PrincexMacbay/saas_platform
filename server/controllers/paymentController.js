@@ -409,15 +409,31 @@ const updateSubscriptionOnPayment = async (subscriptionId) => {
         });
 
         if (!existingCard) {
-          // Get the plan creator's template
+          // Get the plan's template (plan-specific or general)
           const plan = await Plan.findByPk(subscription.planId);
           if (plan) {
-            const template = await DigitalCard.findOne({
-              where: {
-                userId: plan.createdBy,
-                isTemplate: true
-              }
-            });
+            let template = null;
+            
+            // First, try plan-specific template
+            if (plan.digitalCardTemplateId) {
+              template = await DigitalCard.findOne({
+                where: {
+                  id: plan.digitalCardTemplateId,
+                  isTemplate: true
+                }
+              });
+            }
+            
+            // Fall back to general template
+            if (!template) {
+              template = await DigitalCard.findOne({
+                where: {
+                  userId: plan.createdBy,
+                  isTemplate: true,
+                  planId: null
+                }
+              });
+            }
 
             if (template) {
               // Create user-specific card based on template
@@ -633,12 +649,28 @@ const cryptoPaymentWebhook = async (req, res) => {
             try {
               const plan = await Plan.findByPk(payment.planId);
               if (plan) {
-                const template = await DigitalCard.findOne({
-                  where: {
-                    userId: plan.createdBy,
-                    isTemplate: true
-                  }
-                });
+                let template = null;
+                
+                // First, try plan-specific template
+                if (plan.digitalCardTemplateId) {
+                  template = await DigitalCard.findOne({
+                    where: {
+                      id: plan.digitalCardTemplateId,
+                      isTemplate: true
+                    }
+                  });
+                }
+                
+                // Fall back to general template
+                if (!template) {
+                  template = await DigitalCard.findOne({
+                    where: {
+                      userId: plan.createdBy,
+                      isTemplate: true,
+                      planId: null
+                    }
+                  });
+                }
 
                 if (template) {
                   await DigitalCard.create({

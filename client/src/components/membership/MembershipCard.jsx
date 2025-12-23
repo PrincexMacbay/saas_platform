@@ -127,24 +127,31 @@ const MembershipCard = ({ membership, onViewCard }) => {
                 }}
               >
                 <div className="card-header">
+                  {digitalCard.logo && (
+                    <img 
+                      src={digitalCard.logo.startsWith('http') ? digitalCard.logo : `${import.meta.env.VITE_API_URL}${digitalCard.logo}`}
+                      alt="Logo"
+                      style={{ maxWidth: '80px', maxHeight: '80px', marginBottom: '10px' }}
+                    />
+                  )}
                   <h4 style={{ margin: 0, fontSize: '18px' }}>
-                    {digitalCard.organizationName}
+                    {digitalCard.organizationName || 'Organization'}
                   </h4>
                   <p style={{ margin: '5px 0', fontSize: '14px', opacity: 0.9 }}>
-                    {digitalCard.cardTitle}
+                    {digitalCard.cardTitle || 'Membership Card'}
                   </p>
                 </div>
                 
                 <div className="card-body" style={{ marginTop: '20px' }}>
                   <div className="member-info">
                     <h5 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>
-                      {membership.user?.firstName} {membership.user?.lastName}
+                      {membership.user?.firstName || membership.subscription?.user?.firstName} {membership.user?.lastName || membership.subscription?.user?.lastName}
                     </h5>
                     <p style={{ margin: '5px 0', fontSize: '12px', opacity: 0.8 }}>
                       Member #{membership.memberNumber}
                     </p>
                     <p style={{ margin: '5px 0', fontSize: '12px', opacity: 0.8 }}>
-                      {digitalCard.headerText}
+                      {digitalCard.headerText || `Member Since ${membership.startDate ? new Date(membership.startDate).getFullYear() : new Date().getFullYear()}`}
                     </p>
                   </div>
                 </div>
@@ -156,7 +163,7 @@ const MembershipCard = ({ membership, onViewCard }) => {
                   right: '20px' 
                 }}>
                   <p style={{ margin: 0, fontSize: '12px', opacity: 0.8, textAlign: 'center' }}>
-                    {digitalCard.footerText}
+                    {digitalCard.footerText || 'Thank you for being a member'}
                   </p>
                 </div>
               </div>

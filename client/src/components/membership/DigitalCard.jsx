@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getDigitalCardTemplate, saveDigitalCardTemplate } from '../../services/membershipService';
+import { getDigitalCardTemplate, saveDigitalCardTemplate, getPlans } from '../../services/membershipService';
 import api from '../../services/api';
 
 const DigitalCard = () => {
@@ -20,15 +20,35 @@ const DigitalCard = () => {
 
   const [logoFile, setLogoFile] = useState(null);
   const [logoUrl, setLogoUrl] = useState(null);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Load existing template on mount
+  // Load existing template and plans on mount
   useEffect(() => {
+    loadPlans();
     loadTemplate();
   }, []);
+
+  const loadPlans = async () => {
+    try {
+      setLoadingPlans(true);
+      const response = await getPlans();
+      if (response.data?.data?.plans) {
+        setAvailablePlans(response.data.data.plans);
+      } else if (Array.isArray(response.data?.data)) {
+        setAvailablePlans(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const loadTemplate = async () => {
     try {
@@ -50,6 +70,9 @@ const DigitalCard = () => {
         });
         if (template.logo) {
           setLogoUrl(template.logo);
+        }
+        if (template.planId) {
+          setSelectedPlanId(template.planId.toString());
         }
       }
     } catch (error) {
@@ -108,7 +131,8 @@ const DigitalCard = () => {
         barcodeData: cardConfig.barcodeData,
         primaryColor: cardConfig.primaryColor,
         secondaryColor: cardConfig.secondaryColor,
-        textColor: cardConfig.textColor
+        textColor: cardConfig.textColor,
+        planId: selectedPlanId ? parseInt(selectedPlanId) : null
       };
 
       await saveDigitalCardTemplate(templateData);
@@ -161,6 +185,30 @@ const DigitalCard = () => {
         <div className="card-config">
           <div className="config-section">
             <h3>{t('digital.card.information')}</h3>
+            
+            <div className="form-group">
+              <label>Associate with Membership Plan (Optional)</label>
+              <select
+                value={selectedPlanId}
+                onChange={(e) => setSelectedPlanId(e.target.value)}
+                className="form-control"
+                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              >
+                <option value="">General Template (for all plans)</option>
+                {loadingPlans ? (
+                  <option disabled>Loading plans...</option>
+                ) : (
+                  availablePlans.map(plan => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.name} - ${plan.fee || 'Free'}
+                    </option>
+                  ))
+                )}
+              </select>
+              <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '5px' }}>
+                Select a specific plan to create a plan-specific template. Leave empty for a general template that applies to all your plans.
+              </small>
+            </div>
             
             <div className="form-group">
               <label>{t('digital.card.organization.logo')}</label>

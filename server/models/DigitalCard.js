@@ -97,6 +97,16 @@ const DigitalCard = sequelize.define('DigitalCard', {
     defaultValue: false,
     comment: 'True for card template, false for user-specific cards',
   },
+  // Plan association for templates
+  planId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'plans',
+      key: 'id',
+    },
+    comment: 'Plan this template is associated with (for templates only)',
+  },
 }, {
   tableName: 'digital_cards',
   timestamps: true,
