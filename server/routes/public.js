@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { Plan, User, Application, Coupon } = require('../models');
+const { Plan, User, Application, Coupon, Subscription } = require('../models');
 const applicationFormController = require('../controllers/applicationFormController');
 const { Op } = require('sequelize');
+const { optionalAuth } = require('../middleware/auth');
 
 // Get public membership plans
 router.get('/plans', async (req, res) => {
@@ -235,7 +236,8 @@ router.post('/validate-coupon', async (req, res) => {
 });
 
 // Submit membership application (public endpoint)
-router.post('/apply', async (req, res) => {
+// Use optionalAuth to get user if logged in, but don't require authentication
+router.post('/apply', optionalAuth, async (req, res) => {
   try {
     const { 
       email, 
@@ -310,20 +312,77 @@ router.post('/apply', async (req, res) => {
       });
     }
 
-    // Check if email already has a pending/approved application for this plan
+    // Check for existing applications - prevent duplicate applications
+    // First, try to identify the user (either logged in or by email)
+    let userToCheck = null;
+    if (req.user && req.user.id) {
+      userToCheck = await User.findByPk(req.user.id);
+    } else {
+      // Try to find user by email
+      userToCheck = await User.findOne({ where: { email: extractedEmail } });
+    }
+
+    // Build query to check for existing applications
+    const applicationWhereClause = {
+      planId,
+      status: { [Op.in]: ['pending', 'approved', 'rejected'] } // Check all statuses except 'incomplete'
+    };
+
+    // If we found a user, check by userId (more reliable)
+    if (userToCheck) {
+      applicationWhereClause[Op.or] = [
+        { userId: userToCheck.id },
+        { email: extractedEmail }
+      ];
+    } else {
+      // No user found, check by email only
+      applicationWhereClause.email = extractedEmail;
+    }
+
     const existingApplication = await Application.findOne({
-      where: { 
-        email: extractedEmail, 
-        planId, 
-        status: ['pending', 'approved'] 
-      }
+      where: applicationWhereClause
     });
 
     if (existingApplication) {
+      let message = 'You have already applied for this membership plan.';
+      if (existingApplication.status === 'approved') {
+        message = 'You already have an approved application for this plan.';
+      } else if (existingApplication.status === 'pending') {
+        message = 'You already have a pending application for this plan.';
+      } else if (existingApplication.status === 'rejected') {
+        message = 'You have already applied for this plan previously. Please contact support if you wish to reapply.';
+      }
+      
       return res.status(400).json({
         success: false,
-        message: 'An application for this plan already exists with this email'
+        message: message,
+        data: {
+          existingApplicationId: existingApplication.id,
+          status: existingApplication.status
+        }
       });
+    }
+
+    // Also check if user already has an active subscription for this plan
+    if (userToCheck) {
+      const existingSubscription = await Subscription.findOne({
+        where: {
+          userId: userToCheck.id,
+          planId,
+          status: { [Op.in]: ['active', 'past_due', 'pending'] }
+        }
+      });
+
+      if (existingSubscription) {
+        return res.status(400).json({
+          success: false,
+          message: 'You already have an active subscription for this plan.',
+          data: {
+            subscriptionId: existingSubscription.id,
+            status: existingSubscription.status
+          }
+        });
+      }
     }
 
     // Check if there's an incomplete application for this email and plan
