@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
-const { Payment, User, Plan, Subscription, Invoice } = require('../models');
+const { Payment, User, Plan, Subscription, Invoice, DigitalCard } = require('../models');
 const cryptoPaymentService = require('../services/cryptoPaymentService');
+const { generateMemberNumber } = require('../utils/memberUtils');
 
 // Helper function to check if user has access to a payment
 const checkPaymentAccess = async (paymentId, userId) => {
@@ -396,6 +397,58 @@ const updateSubscriptionOnPayment = async (subscriptionId) => {
         endDate,
         renewalDate: endDate
       });
+
+      // Create digital card for the member when subscription becomes active
+      try {
+        // Check if card already exists
+        const existingCard = await DigitalCard.findOne({
+          where: {
+            userId: subscription.userId,
+            subscriptionId: subscription.id
+          }
+        });
+
+        if (!existingCard) {
+          // Get the plan creator's template
+          const plan = await Plan.findByPk(subscription.planId);
+          if (plan) {
+            const template = await DigitalCard.findOne({
+              where: {
+                userId: plan.createdBy,
+                isTemplate: true
+              }
+            });
+
+            if (template) {
+              // Create user-specific card based on template
+              await DigitalCard.create({
+                userId: subscription.userId,
+                subscriptionId: subscription.id,
+                logo: template.logo,
+                organizationName: template.organizationName,
+                cardTitle: template.cardTitle || 'Membership Card',
+                headerText: template.headerText,
+                footerText: template.footerText,
+                enableBarcode: template.enableBarcode !== false,
+                barcodeType: template.barcodeType || 'qr',
+                barcodeData: 'member_number',
+                primaryColor: template.primaryColor || '#3498db',
+                secondaryColor: template.secondaryColor || '#2c3e50',
+                textColor: template.textColor || '#ffffff',
+                isTemplate: false,
+                isGenerated: false
+              });
+              console.log('✅ Digital card created when subscription activated:', {
+                subscriptionId: subscription.id,
+                userId: subscription.userId
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error creating digital card on payment:', error);
+        // Don't fail payment processing if card creation fails
+      }
     }
   } catch (error) {
     console.error('Error updating subscription on payment:', error);
@@ -575,6 +628,45 @@ const cryptoPaymentWebhook = async (req, res) => {
             });
 
             await payment.update({ subscriptionId: subscription.id });
+
+            // Create digital card for the new subscription
+            try {
+              const plan = await Plan.findByPk(payment.planId);
+              if (plan) {
+                const template = await DigitalCard.findOne({
+                  where: {
+                    userId: plan.createdBy,
+                    isTemplate: true
+                  }
+                });
+
+                if (template) {
+                  await DigitalCard.create({
+                    userId: payment.userId,
+                    subscriptionId: subscription.id,
+                    logo: template.logo,
+                    organizationName: template.organizationName,
+                    cardTitle: template.cardTitle || 'Membership Card',
+                    headerText: template.headerText,
+                    footerText: template.footerText,
+                    enableBarcode: template.enableBarcode !== false,
+                    barcodeType: template.barcodeType || 'qr',
+                    barcodeData: 'member_number',
+                    primaryColor: template.primaryColor || '#3498db',
+                    secondaryColor: template.secondaryColor || '#2c3e50',
+                    textColor: template.textColor || '#ffffff',
+                    isTemplate: false,
+                    isGenerated: false
+                  });
+                  console.log('✅ Digital card created from webhook payment:', {
+                    subscriptionId: subscription.id,
+                    userId: payment.userId
+                  });
+                }
+              }
+            } catch (error) {
+              console.error('❌ Error creating digital card from webhook:', error);
+            }
           }
         } else if (payment.subscriptionId) {
           await updateSubscriptionOnPayment(payment.subscriptionId);

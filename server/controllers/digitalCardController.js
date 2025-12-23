@@ -260,11 +260,125 @@ const deleteDigitalCard = async (req, res) => {
   }
 };
 
+// Save or update digital card template
+const saveDigitalCardTemplate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      logo,
+      organizationName,
+      cardTitle,
+      headerText,
+      footerText,
+      enableBarcode,
+      barcodeType,
+      barcodeData,
+      primaryColor,
+      secondaryColor,
+      textColor
+    } = req.body;
+
+    // Check if user already has a template
+    const existingTemplate = await DigitalCard.findOne({
+      where: {
+        userId,
+        isTemplate: true
+      }
+    });
+
+    let template;
+
+    if (existingTemplate) {
+      // Update existing template
+      await existingTemplate.update({
+        logo,
+        organizationName,
+        cardTitle,
+        headerText,
+        footerText,
+        enableBarcode,
+        barcodeType,
+        barcodeData,
+        primaryColor,
+        secondaryColor,
+        textColor
+      });
+      template = existingTemplate;
+    } else {
+      // Create new template
+      template = await DigitalCard.create({
+        userId,
+        logo,
+        organizationName,
+        cardTitle,
+        headerText,
+        footerText,
+        enableBarcode: enableBarcode !== false,
+        barcodeType: barcodeType || 'qr',
+        barcodeData: barcodeData || 'member_number',
+        primaryColor: primaryColor || '#3498db',
+        secondaryColor: secondaryColor || '#2c3e50',
+        textColor: textColor || '#ffffff',
+        isTemplate: true,
+        isGenerated: false
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Digital card template saved successfully',
+      data: template
+    });
+  } catch (error) {
+    console.error('Save digital card template error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save digital card template',
+      error: error.message
+    });
+  }
+};
+
+// Get digital card template for current user
+const getDigitalCardTemplate = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const template = await DigitalCard.findOne({
+      where: {
+        userId,
+        isTemplate: true
+      }
+    });
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Digital card template not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: template
+    });
+  } catch (error) {
+    console.error('Get digital card template error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch digital card template',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getDigitalCards,
   getDigitalCard,
   createDigitalCard,
   updateDigitalCard,
   deleteDigitalCard,
-  getDigitalCardTemplateByPlan
+  getDigitalCardTemplateByPlan,
+  saveDigitalCardTemplate,
+  getDigitalCardTemplate
 };

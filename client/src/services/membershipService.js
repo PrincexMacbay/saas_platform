@@ -125,6 +125,16 @@ export const getDigitalCard = async (subscriptionId) => {
   return response;
 };
 
+export const getDigitalCardTemplate = async () => {
+  const response = await api.get('/membership/digital-card/template');
+  return response;
+};
+
+export const saveDigitalCardTemplate = async (templateData) => {
+  const response = await api.post('/membership/digital-card/template', templateData);
+  return response;
+};
+
 // Dashboard
 export const getDashboard = async () => {
   const response = await api.get('/membership/dashboard');

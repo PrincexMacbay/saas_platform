@@ -126,7 +126,9 @@ router.get('/coupons/stats', couponController.getCouponStats);
 router.get('/digital-cards', digitalCardController.getDigitalCards);
 router.get('/digital-cards/:subscriptionId', digitalCardController.getDigitalCard);
 router.get('/digital-cards/plan/:planId/template', digitalCardController.getDigitalCardTemplateByPlan);
+router.get('/digital-card/template', digitalCardController.getDigitalCardTemplate);
 router.post('/digital-cards', digitalCardController.createDigitalCard);
+router.post('/digital-card/template', digitalCardController.saveDigitalCardTemplate);
 router.put('/digital-cards/:id', digitalCardController.updateDigitalCard);
 router.delete('/digital-cards/:id', digitalCardController.deleteDigitalCard);
 

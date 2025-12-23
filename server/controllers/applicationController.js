@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Application, Plan, User, Subscription } = require('../models');
+const { Application, Plan, User, Subscription, DigitalCard } = require('../models');
 const { generateMemberNumber } = require('../utils/memberUtils');
 const bcrypt = require('bcryptjs');
 const notificationService = require('../services/notificationService');
@@ -323,6 +323,49 @@ const approveApplication = async (req, res) => {
         status: 'approved',
         userId: user.id
       });
+
+      // Create digital card for the new member using the plan creator's template
+      try {
+        // Get the plan creator's template
+        const planCreatorId = application.plan.createdBy;
+        const template = await DigitalCard.findOne({
+          where: {
+            userId: planCreatorId,
+            isTemplate: true
+          }
+        });
+
+        if (template) {
+          // Create user-specific card based on template
+          await DigitalCard.create({
+            userId: user.id,
+            subscriptionId: subscription.id,
+            logo: template.logo,
+            organizationName: template.organizationName,
+            cardTitle: template.cardTitle || 'Membership Card',
+            headerText: template.headerText,
+            footerText: template.footerText,
+            enableBarcode: template.enableBarcode !== false,
+            barcodeType: template.barcodeType || 'qr',
+            barcodeData: 'member_number',
+            primaryColor: template.primaryColor || '#3498db',
+            secondaryColor: template.secondaryColor || '#2c3e50',
+            textColor: template.textColor || '#ffffff',
+            isTemplate: false,
+            isGenerated: false
+          });
+          console.log('✅ Digital card created for new member:', {
+            userId: user.id,
+            subscriptionId: subscription.id,
+            memberNumber
+          });
+        } else {
+          console.log('⚠️ No digital card template found for plan creator:', planCreatorId);
+        }
+      } catch (error) {
+        console.error('❌ Error creating digital card during approval:', error);
+        // Don't fail the approval if card creation fails
+      }
 
       console.log('✅ Application approved and updated with userId:', {
         applicationId: id,

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getDigitalCardTemplate, saveDigitalCardTemplate } from '../../services/membershipService';
+import api from '../../services/api';
 
 const DigitalCard = () => {
   const { t } = useLanguage();
@@ -17,23 +19,143 @@ const DigitalCard = () => {
   });
 
   const [logoFile, setLogoFile] = useState(null);
+  const [logoUrl, setLogoUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Load existing template on mount
+  useEffect(() => {
+    loadTemplate();
+  }, []);
+
+  const loadTemplate = async () => {
+    try {
+      setLoading(true);
+      const response = await getDigitalCardTemplate();
+      if (response.data.success && response.data.data) {
+        const template = response.data.data;
+        setCardConfig({
+          organizationName: template.organizationName || t('digital.card.organization.name.placeholder'),
+          cardTitle: template.cardTitle || t('digital.card.title.placeholder'),
+          headerText: template.headerText || t('digital.card.member.since') + ' 2024',
+          footerText: template.footerText || t('digital.card.thank.you'),
+          enableBarcode: template.enableBarcode !== false,
+          barcodeType: template.barcodeType || 'qr',
+          barcodeData: template.barcodeData || 'member_number',
+          primaryColor: template.primaryColor || '#3498db',
+          secondaryColor: template.secondaryColor || '#2c3e50',
+          textColor: template.textColor || '#ffffff'
+        });
+        if (template.logo) {
+          setLogoUrl(template.logo);
+        }
+      }
+    } catch (error) {
+      // Template doesn't exist yet, that's okay
+      console.log('No existing template found, using defaults');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setLogoFile(file);
+    
+    // Upload logo to server
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await api.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      if (response.data.success) {
+        setLogoUrl(response.data.data.url);
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      setError('Failed to upload logo');
+    }
+  };
 
   const handleColorChange = (field, color) => {
     setCardConfig(prev => ({ ...prev, [field]: color }));
   };
 
-  const handleSave = () => {
-    alert(t('digital.card.saved'));
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError('');
+      setSuccess('');
+
+      // Prepare template data
+      const templateData = {
+        logo: logoUrl,
+        organizationName: cardConfig.organizationName,
+        cardTitle: cardConfig.cardTitle,
+        headerText: cardConfig.headerText,
+        footerText: cardConfig.footerText,
+        enableBarcode: cardConfig.enableBarcode,
+        barcodeType: cardConfig.barcodeType,
+        barcodeData: cardConfig.barcodeData,
+        primaryColor: cardConfig.primaryColor,
+        secondaryColor: cardConfig.secondaryColor,
+        textColor: cardConfig.textColor
+      };
+
+      await saveDigitalCardTemplate(templateData);
+      setSuccess(t('digital.card.saved'));
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      setError(error.response?.data?.message || 'Failed to save template');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="digital-card-container">
       <div className="digital-card-header">
         <h2>{t('digital.card.title')}</h2>
-        <button onClick={handleSave} className="save-button">
-          <i className="fas fa-save"></i> {t('digital.card.save.template')}
+        <button 
+          onClick={handleSave} 
+          className="save-button"
+          disabled={saving || loading}
+        >
+          {saving ? (
+            <>
+              <span className="spinner"></span> Saving...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-save"></i> {t('digital.card.save.template')}
+            </>
+          )}
         </button>
       </div>
+
+      {error && (
+        <div className="alert alert-error" style={{ marginBottom: '20px', padding: '12px', background: '#fee', color: '#c33', borderRadius: '6px' }}>
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success" style={{ marginBottom: '20px', padding: '12px', background: '#efe', color: '#3c3', borderRadius: '6px' }}>
+          {success}
+        </div>
+      )}
 
       <div className="digital-card-content">
         <div className="card-config">
@@ -46,7 +168,7 @@ const DigitalCard = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setLogoFile(e.target.files[0])}
+                  onChange={handleLogoUpload}
                   style={{ display: 'none' }}
                   id="logo-upload"
                 />
@@ -54,6 +176,7 @@ const DigitalCard = () => {
                   <i className="fas fa-upload"></i> {t('digital.card.upload.logo')}
                 </label>
                 {logoFile && <span className="file-name">{logoFile.name}</span>}
+                {logoUrl && !logoFile && <span className="file-name">Logo uploaded</span>}
               </div>
             </div>
             
@@ -216,6 +339,8 @@ const DigitalCard = () => {
                 <div className="logo-section">
                   {logoFile ? (
                     <img src={URL.createObjectURL(logoFile)} alt="Logo" className="logo" />
+                  ) : logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="logo" />
                   ) : (
                     <div className="logo-placeholder">
                       <i className="fas fa-image"></i>
@@ -289,8 +414,28 @@ const DigitalCard = () => {
           transition: background 0.3s ease;
         }
 
-        .save-button:hover {
+        .save-button:hover:not(:disabled) {
           background: #219a52;
+        }
+
+        .save-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .spinner {
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          margin-right: 8px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
 
         .digital-card-content {

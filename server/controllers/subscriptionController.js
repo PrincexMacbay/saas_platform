@@ -347,12 +347,35 @@ const createDigitalCardForSubscription = async (subscriptionId) => {
 
     if (!subscription) return;
 
-    // Get card template
+    // Get card template from the plan creator
+    const plan = await Plan.findByPk(subscription.planId);
+    if (!plan) {
+      console.error('Plan not found for subscription:', subscription.id);
+      return;
+    }
+
+    // Get the plan creator's template
     const template = await DigitalCard.findOne({
-      where: { isTemplate: true }
+      where: {
+        userId: plan.createdBy,
+        isTemplate: true
+      }
     });
 
-    // Create user-specific card
+    // Check if card already exists
+    const existingCard = await DigitalCard.findOne({
+      where: {
+        userId: subscription.userId,
+        subscriptionId: subscription.id
+      }
+    });
+
+    if (existingCard) {
+      console.log('Digital card already exists for subscription:', subscription.id);
+      return;
+    }
+
+    // Create user-specific card based on template
     await DigitalCard.create({
       userId: subscription.userId,
       subscriptionId: subscription.id,
@@ -369,6 +392,12 @@ const createDigitalCardForSubscription = async (subscriptionId) => {
       textColor: template?.textColor || '#ffffff',
       isTemplate: false,
       isGenerated: false
+    });
+    
+    console.log('✅ Digital card created for subscription:', {
+      subscriptionId: subscription.id,
+      userId: subscription.userId,
+      hasTemplate: !!template
     });
   } catch (error) {
     console.error('Error creating digital card:', error);
