@@ -19,7 +19,7 @@
   align-items: center;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e5e5e5;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   color: white;
 }
 
@@ -110,7 +110,7 @@
 
 .notification-item.unread {
   background-color: #f0f4ff;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #2c3e50;
 }
 
 .notification-item.unread:hover {
@@ -121,7 +121,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,7 +131,7 @@
 }
 
 .notification-item.unread .notification-icon {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2c3e50;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
@@ -216,7 +216,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #667eea;
+  background: #2c3e50;
   flex-shrink: 0;
   margin-top: 0.5rem;
 }
@@ -259,7 +259,7 @@
 .error-container button {
   margin-top: 1rem;
   padding: 0.5rem 1.5rem;
-  background: #667eea;
+  background: #2c3e50;
   color: white;
   border: none;
   border-radius: 6px;
@@ -268,7 +268,7 @@
 }
 
 .error-container button:hover {
-  background: #5568d3;
+  background: #1a252f;
 }
 
 .notifications-pagination {
@@ -295,9 +295,9 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: #667eea;
+  background: #2c3e50;
   color: white;
-  border-color: #667eea;
+  border-color: #2c3e50;
 }
 
 .pagination-btn:disabled {
