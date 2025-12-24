@@ -21,6 +21,13 @@ const NotificationBell = () => {
   }, []);
 
   const handleNotificationClick = (notification) => {
+    console.log('🔔 NotificationBell: Notification clicked', {
+      id: notification.id,
+      type: notification.type,
+      link: notification.link,
+      read: notification.read
+    });
+    
     if (!notification.read) {
       markAsRead(notification.id);
     }
@@ -28,7 +35,11 @@ const NotificationBell = () => {
     
     // Navigate to the link if provided
     if (notification.link) {
-      navigate(notification.link);
+      console.log('🧭 NotificationBell: Navigating to:', notification.link);
+      // Use replace: false to allow back button, but ensure navigation happens
+      navigate(notification.link, { replace: false });
+    } else {
+      console.warn('⚠️ NotificationBell: No link provided for notification:', notification.type);
     }
   };
 

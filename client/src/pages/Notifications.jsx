@@ -85,6 +85,13 @@ const Notifications = () => {
   };
 
   const handleNotificationClick = async (notification) => {
+    console.log('🔔 Notification clicked:', {
+      id: notification.id,
+      type: notification.type,
+      link: notification.link,
+      read: notification.read
+    });
+    
     if (!notification.read) {
       await markAsRead(notification.id);
       setNotifications(prev =>
@@ -95,7 +102,11 @@ const Notifications = () => {
     
     // Navigate to the link if provided
     if (notification.link) {
-      navigate(notification.link);
+      console.log('🧭 Navigating to:', notification.link);
+      // Use replace: false to allow back button, but ensure navigation happens
+      navigate(notification.link, { replace: false });
+    } else {
+      console.warn('⚠️ No link provided for notification:', notification.type);
     }
   };
 
@@ -158,18 +169,18 @@ const Notifications = () => {
 
   const getNotificationTypeLabel = (type) => {
     const labels = {
-      'application_submitted': 'Application',
-      'application_approved': 'Application',
-      'application_rejected': 'Application',
+      'application_submitted': 'Application Submitted',
+      'application_approved': 'Application Approved',
+      'application_rejected': 'Application Rejected',
       'new_comment': 'Comment',
       'new_follower': 'Follower',
-      'payment_received': 'Payment',
-      'payment_due': 'Payment',
-      'job_application_status': 'Job',
-      'space_invitation': 'Space',
+      'payment_received': 'Payment Received',
+      'payment_due': 'Payment Due',
+      'job_application_status': 'Job Application',
+      'space_invitation': 'Space Invitation',
       'mention': 'Mention',
-      'post_liked': 'Like',
-      'comment_liked': 'Like'
+      'post_liked': 'Post Liked',
+      'comment_liked': 'Comment Liked'
     };
     return labels[type] || 'Other';
   };

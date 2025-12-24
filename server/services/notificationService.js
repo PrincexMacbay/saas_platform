@@ -124,7 +124,7 @@ class NotificationService {
         'application_approved',
         'Application Approved!',
         `Your application for ${application.plan?.name || 'membership'} has been approved`,
-        `/membership`,
+        `/membership/applications?applicationId=${applicationId}`,
         { applicationId, planId: application.planId }
       );
       
@@ -148,7 +148,7 @@ class NotificationService {
         'application_rejected',
         'Application Update',
         `Your application for ${application.plan.name} was not approved`,
-        `/membership`,
+        `/membership/applications?applicationId=${applicationId}`,
         { applicationId, planId: application.planId }
       );
     } catch (error) {

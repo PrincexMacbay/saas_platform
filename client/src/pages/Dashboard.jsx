@@ -19,16 +19,22 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
 
+  // Load data when component mounts or when searchParams change
   useEffect(() => {
     const postId = searchParams.get('postId');
+    const commentId = searchParams.get('commentId');
+    console.log('🔍 Dashboard: searchParams changed', { postId, commentId });
+    
     // If we have a postId in URL, load that specific post first, then load feed
     if (postId) {
+      console.log('📬 Loading specific post from notification:', postId);
       loadSpecificPost(postId);
-    } else {
+    } else if (posts.length === 0) {
+      // Only load regular data if we don't have posts yet and no postId
       loadData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   // Load specific post when navigating from notification
   const loadSpecificPost = async (postId) => {
@@ -77,21 +83,24 @@ const Dashboard = () => {
     }
   };
 
-  // Handle postId and commentId from URL query params
+  // Handle postId and commentId from URL query params for scrolling/highlighting
   useEffect(() => {
     const postId = searchParams.get('postId');
     const commentId = searchParams.get('commentId');
     
     if (postId && posts.length > 0) {
+      console.log('📍 Dashboard: Scrolling to post and highlighting', { postId, commentId, postsCount: posts.length });
       // Wait a bit for posts to render, then scroll
       setTimeout(() => {
         const postElement = postRefs.current[`post-${postId}`];
         if (postElement) {
+          console.log('✅ Found post element, scrolling...');
           postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setHighlightedPostId(postId);
           
           // If commentId is provided, highlight the comment
           if (commentId) {
+            console.log('💬 Highlighting comment:', commentId);
             setHighlightedCommentId(commentId);
             // Remove highlight after 3 seconds
             setTimeout(() => {
@@ -106,10 +115,10 @@ const Dashboard = () => {
           }
         } else {
           // Post not found in current feed, try to load it
-          console.log('Post not found in feed, loading specific post...');
+          console.log('⚠️ Post not found in feed, loading specific post...', postId);
           loadSpecificPost(postId);
         }
-      }, 500);
+      }, 800); // Increased timeout to ensure posts are rendered
     }
   }, [searchParams, posts]);
 

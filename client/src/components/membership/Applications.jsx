@@ -22,16 +22,26 @@ const Applications = () => {
   const applicationRefs = useRef({});
 
   useEffect(() => {
-    // Use preloaded data if available
-    if (data.applications && Array.isArray(data.applications)) {
-      console.log('🚀 Applications: Using preloaded data', data.applications.length, 'applications');
-      setApplications(data.applications);
-      setLoading(false);
-    } else if (!contextLoading.applications) {
-      console.log('🚀 Applications: Fetching data (not preloaded)');
-      fetchApplications();
+    const applicationId = searchParams.get('applicationId');
+    
+    // If we have applicationId in URL, ensure we load applications
+    if (applicationId) {
+      // Always fetch to ensure we have the application
+      if (!loading && (!data.applications || data.applications.length === 0)) {
+        fetchApplications();
+      }
+    } else {
+      // Use preloaded data if available
+      if (data.applications && Array.isArray(data.applications)) {
+        console.log('🚀 Applications: Using preloaded data', data.applications.length, 'applications');
+        setApplications(data.applications);
+        setLoading(false);
+      } else if (!contextLoading.applications) {
+        console.log('🚀 Applications: Fetching data (not preloaded)');
+        fetchApplications();
+      }
     }
-  }, [data.applications, contextLoading.applications]);
+  }, [data.applications, contextLoading.applications, searchParams]);
 
   useEffect(() => {
     // Only fetch when filters change, not on initial load
@@ -45,19 +55,29 @@ const Applications = () => {
   useEffect(() => {
     const applicationId = searchParams.get('applicationId');
     
-    if (applicationId && applications.length > 0) {
-      // Wait a bit for applications to render, then scroll
-      setTimeout(() => {
-        const applicationElement = applicationRefs.current[`application-${applicationId}`];
-        if (applicationElement) {
-          applicationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setHighlightedApplicationId(applicationId);
-          // Remove highlight after 3 seconds
-          setTimeout(() => {
-            setHighlightedApplicationId(null);
-          }, 3000);
-        }
-      }, 500);
+    if (applicationId) {
+      console.log('📋 Applications: applicationId in URL', applicationId, 'applications count:', applications.length);
+      
+      if (applications.length > 0) {
+        // Wait a bit for applications to render, then scroll
+        setTimeout(() => {
+          const applicationElement = applicationRefs.current[`application-${applicationId}`];
+          if (applicationElement) {
+            console.log('✅ Found application element, scrolling...');
+            applicationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setHighlightedApplicationId(applicationId);
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+              setHighlightedApplicationId(null);
+            }, 3000);
+          } else {
+            console.log('⚠️ Application not found in current list, might be on another page');
+          }
+        }, 800);
+      } else {
+        // Applications not loaded yet, wait for them to load
+        console.log('⏳ Waiting for applications to load...');
+      }
     }
   }, [searchParams, applications]);
 
