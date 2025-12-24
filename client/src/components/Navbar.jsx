@@ -161,23 +161,49 @@ const Navbar = () => {
                 className="profile-icon-button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 style={{
-                  background: 'none',
+                  background: user?.profileImage ? 'none' : 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
                   color: 'white',
                   cursor: 'pointer',
-                  padding: '8px',
+                  padding: '0',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: '40px',
                   height: '40px',
-                  transition: 'background-color 0.2s'
+                  overflow: 'hidden',
+                  transition: 'background-color 0.2s, transform 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                onMouseEnter={(e) => {
+                  if (!user?.profileImage) {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                  }
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!user?.profileImage) {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                  }
+                  e.target.style.transform = 'scale(1)';
+                }}
               >
-                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
+                {user?.profileImage ? (
+                  <img 
+                    src={buildImageUrl(user.profileImage)}
+                    alt={user.username}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '18px', fontWeight: '600' }}>
+                    {getInitials(user)}
+                  </span>
+                )}
               </button>
               
               {isProfileDropdownOpen && (
@@ -196,13 +222,46 @@ const Navbar = () => {
                   <div className="dropdown-header" style={{
                     padding: '12px 16px',
                     borderBottom: '1px solid #eee',
-                    backgroundColor: '#f8f9fa'
+                    backgroundColor: '#f8f9fa',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
                   }}>
-                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
-                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      backgroundColor: '#e0e0e0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#666',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}>
+                      {user.profileImage ? (
+                        <img 
+                          src={buildImageUrl(user.profileImage)}
+                          alt={user.username}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        getInitials(user)
+                      )}
                     </div>
-                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
-                      @{user.username}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                        {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                      </div>
+                      <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                        @{user.username}
+                      </div>
                     </div>
                   </div>
                   
@@ -284,23 +343,49 @@ const Navbar = () => {
                 className="profile-icon-button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 style={{
-                  background: 'none',
+                  background: user?.profileImage ? 'none' : 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
                   color: 'white',
                   cursor: 'pointer',
-                  padding: '8px',
+                  padding: '0',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: '40px',
                   height: '40px',
-                  transition: 'background-color 0.2s'
+                  overflow: 'hidden',
+                  transition: 'background-color 0.2s, transform 0.2s'
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                onMouseEnter={(e) => {
+                  if (!user?.profileImage) {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                  }
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!user?.profileImage) {
+                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                  }
+                  e.target.style.transform = 'scale(1)';
+                }}
               >
-                <i className="fas fa-user" style={{ fontSize: '18px' }}></i>
+                {user?.profileImage ? (
+                  <img 
+                    src={buildImageUrl(user.profileImage)}
+                    alt={user.username}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '18px', fontWeight: '600' }}>
+                    {getInitials(user)}
+                  </span>
+                )}
               </button>
               
               {isProfileDropdownOpen && (
@@ -319,13 +404,46 @@ const Navbar = () => {
                   <div className="dropdown-header" style={{
                     padding: '12px 16px',
                     borderBottom: '1px solid #eee',
-                    backgroundColor: '#f8f9fa'
+                    backgroundColor: '#f8f9fa',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
                   }}>
-                    <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
-                      {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      backgroundColor: '#e0e0e0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#666',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}>
+                      {user.profileImage ? (
+                        <img 
+                          src={buildImageUrl(user.profileImage)}
+                          alt={user.username}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        getInitials(user)
+                      )}
                     </div>
-                    <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
-                      @{user.username}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: '600', color: '#2c3e50', fontSize: '14px' }}>
+                        {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                      </div>
+                      <div style={{ color: '#7f8c8d', fontSize: '12px', marginTop: '2px' }}>
+                        @{user.username}
+                      </div>
                     </div>
                   </div>
                   

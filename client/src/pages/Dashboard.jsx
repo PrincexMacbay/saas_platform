@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getPosts } from '../services/postService';
+import { getPosts, getPost } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
 import PostCard from '../components/PostCard';
 import PostWithAttachment from '../components/PostWithAttachment';
@@ -20,8 +20,62 @@ const Dashboard = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    loadData();
+    const postId = searchParams.get('postId');
+    // If we have a postId in URL, load that specific post first, then load feed
+    if (postId) {
+      loadSpecificPost(postId);
+    } else {
+      loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load specific post when navigating from notification
+  const loadSpecificPost = async (postId) => {
+    setIsLoading(true);
+    try {
+      // Load the specific post with all comments
+      const postResponse = await getPost(postId);
+      const specificPost = postResponse.data.post;
+      
+      if (!specificPost) {
+        console.error('Post not found:', postId);
+        loadData();
+        return;
+      }
+      
+      // Load regular feed
+      const [postsResponse, membershipsResponse] = await Promise.all([
+        getPosts({ limit: 20 }),
+        getUserMemberships().catch(() => ({ data: [] }))
+      ]);
+      
+      let allPosts = postsResponse.data.posts || [];
+      
+      // Check if the specific post is already in the feed
+      const postExists = allPosts.find(p => p.id.toString() === postId);
+      if (!postExists && specificPost) {
+        // Add the specific post at the beginning so it's visible
+        allPosts = [specificPost, ...allPosts];
+      } else if (postExists) {
+        // Replace the existing post with the full post (which has all comments)
+        const index = allPosts.findIndex(p => p.id.toString() === postId);
+        if (index !== -1) {
+          allPosts[index] = specificPost;
+        }
+      }
+      
+      setPosts(allPosts);
+      const membershipsData = membershipsResponse?.data;
+      setMemberships(Array.isArray(membershipsData) ? membershipsData : []);
+    } catch (error) {
+      console.error('Error loading post:', error);
+      // Fallback to regular load
+      loadData();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle postId and commentId from URL query params
   useEffect(() => {
@@ -50,6 +104,10 @@ const Dashboard = () => {
               setHighlightedPostId(null);
             }, 2000);
           }
+        } else {
+          // Post not found in current feed, try to load it
+          console.log('Post not found in feed, loading specific post...');
+          loadSpecificPost(postId);
         }
       }, 500);
     }
@@ -146,6 +204,7 @@ const Dashboard = () => {
                       post={post}
                       onUpdate={loadData}
                       highlightCommentId={highlightedPostId === post.id.toString() ? highlightedCommentId : null}
+                      key={post.id} // Force re-render when post changes
                     />
                   </div>
                 ))

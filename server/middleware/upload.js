@@ -92,9 +92,14 @@ const processImage = async (req, res, next) => {
     await fs.unlink(inputPath);
 
     // Upload to cloud storage (or keep local)
-    console.log('📤 Processing image for post attachment, uploading to cloud...');
+    // Determine folder based on request context (post attachment vs logo)
+    const folder = req.originalUrl?.includes('logo') || req.body?.type === 'logo' 
+      ? 'logos' 
+      : 'post-attachments';
+    
+    console.log('📤 Processing image, uploading to cloud...', { folder });
     const cloudResult = await uploadToCloud(outputPath, {
-      folder: 'post-attachments',
+      folder,
       resource_type: 'image',
       transformation: {
         quality: 'auto',

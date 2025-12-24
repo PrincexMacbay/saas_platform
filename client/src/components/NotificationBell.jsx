@@ -110,11 +110,13 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {notifications.length > 10 && (
-            <Link to="/notifications" className="view-all-notifications">
-              View all notifications
-            </Link>
-          )}
+          <Link 
+            to="/notifications" 
+            className="view-all-notifications"
+            onClick={() => setIsOpen(false)}
+          >
+            <i className="fas fa-arrow-right"></i> View all notifications
+          </Link>
         </div>
       )}
     </div>

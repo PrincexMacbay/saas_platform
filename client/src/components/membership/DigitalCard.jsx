@@ -69,7 +69,11 @@ const DigitalCard = () => {
           textColor: template.textColor || '#ffffff'
         });
         if (template.logo) {
-          setLogoUrl(template.logo);
+          // Handle both Cloudinary URLs (full URL) and local paths (relative)
+          const logoUrlToSet = template.logo.startsWith('http') 
+            ? template.logo 
+            : `${import.meta.env.VITE_API_URL}${template.logo}`;
+          setLogoUrl(logoUrlToSet);
         }
         if (template.planId) {
           setSelectedPlanId(template.planId.toString());
@@ -97,11 +101,20 @@ const DigitalCard = () => {
       const response = await api.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        params: {
+          type: 'logo' // Indicate this is a logo upload for proper folder organization
         }
       });
       
       if (response.data.success) {
-        setLogoUrl(response.data.data.url);
+        // Use fullUrl if available (for Cloudinary), otherwise construct full URL from relative path
+        let logoUrlToSet = response.data.data.fullUrl || response.data.data.url;
+        // If it's a relative path (starts with /), prepend API URL
+        if (logoUrlToSet && !logoUrlToSet.startsWith('http')) {
+          logoUrlToSet = `${import.meta.env.VITE_API_URL}${logoUrlToSet}`;
+        }
+        setLogoUrl(logoUrlToSet);
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
@@ -388,7 +401,11 @@ const DigitalCard = () => {
                   {logoFile ? (
                     <img src={URL.createObjectURL(logoFile)} alt="Logo" className="logo" />
                   ) : logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="logo" />
+                    <img 
+                      src={logoUrl.startsWith('http') ? logoUrl : `${import.meta.env.VITE_API_URL}${logoUrl}`} 
+                      alt="Logo" 
+                      className="logo" 
+                    />
                   ) : (
                     <div className="logo-placeholder">
                       <i className="fas fa-image"></i>

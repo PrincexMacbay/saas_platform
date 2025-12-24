@@ -36,7 +36,9 @@ const PostCard = ({ post, onUpdate, highlightCommentId }) => {
       
       // Wait for comments to render, then scroll to the highlighted comment
       setTimeout(() => {
-        const commentElement = commentRefs.current[`comment-${highlightCommentId}`];
+        // Try both string and number formats for commentId
+        const commentElement = commentRefs.current[`comment-${highlightCommentId}`] || 
+                              commentRefs.current[`comment-${parseInt(highlightCommentId)}`];
         if (commentElement) {
           commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           // Add highlight effect
@@ -44,8 +46,10 @@ const PostCard = ({ post, onUpdate, highlightCommentId }) => {
           setTimeout(() => {
             commentElement.style.backgroundColor = '';
           }, 3000);
+        } else {
+          console.log('Comment element not found:', highlightCommentId, 'Available comments:', post.comments?.map(c => c.id));
         }
-      }, 300);
+      }, 500); // Increased timeout to ensure comments are rendered
     }
   }, [highlightCommentId, showComments, post.comments]);
 
@@ -365,8 +369,8 @@ const PostCard = ({ post, onUpdate, highlightCommentId }) => {
                 <div 
                   key={comment.id} 
                   ref={el => commentRefs.current[`comment-${comment.id}`] = el}
-                  className={`comment ${highlightCommentId && highlightCommentId === comment.id.toString() ? 'highlighted-comment' : ''}`}
-                  style={highlightCommentId && highlightCommentId === comment.id.toString() ? {
+                  className={`comment ${highlightCommentId && (highlightCommentId === comment.id.toString() || highlightCommentId === String(comment.id)) ? 'highlighted-comment' : ''}`}
+                  style={highlightCommentId && (highlightCommentId === comment.id.toString() || highlightCommentId === String(comment.id)) ? {
                     backgroundColor: '#fef3c7',
                     padding: '10px',
                     borderRadius: '8px',
