@@ -92,6 +92,7 @@ const processImage = async (req, res, next) => {
     await fs.unlink(inputPath);
 
     // Upload to cloud storage (or keep local)
+    console.log('📤 Processing image for post attachment, uploading to cloud...');
     const cloudResult = await uploadToCloud(outputPath, {
       folder: 'post-attachments',
       resource_type: 'image',
@@ -99,6 +100,11 @@ const processImage = async (req, res, next) => {
         quality: 'auto',
         fetch_format: 'auto',
       },
+    });
+
+    console.log('📤 Cloud upload result:', {
+      isCloud: cloudResult.isCloud,
+      url: cloudResult.url?.substring(0, 50) + '...',
     });
 
     // Update req.file with cloud URL or local path
@@ -142,6 +148,7 @@ const processProfileImage = async (req, res, next) => {
     await fs.unlink(inputPath);
 
     // Upload to cloud storage (or keep local)
+    console.log('📤 Processing profile image, uploading to cloud...');
     const cloudResult = await uploadToCloud(outputPath, {
       folder: 'profile-images',
       resource_type: 'image',
@@ -152,6 +159,11 @@ const processProfileImage = async (req, res, next) => {
         quality: 'auto',
         fetch_format: 'auto',
       },
+    });
+
+    console.log('📤 Profile image cloud upload result:', {
+      isCloud: cloudResult.isCloud,
+      url: cloudResult.url?.substring(0, 50) + '...',
     });
 
     // Update req.file with cloud URL or local path

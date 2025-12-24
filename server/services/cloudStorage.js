@@ -49,6 +49,8 @@ const uploadFile = async (filePath, options = {}) => {
   }
 
   try {
+    console.log('☁️ Uploading to Cloudinary:', { filePath, folder, resource_type });
+    
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(filePath, {
       folder,
@@ -59,11 +61,18 @@ const uploadFile = async (filePath, options = {}) => {
       overwrite: false,
     });
 
+    console.log('✅ Cloudinary upload successful:', {
+      url: result.secure_url,
+      publicId: result.public_id,
+      size: result.bytes
+    });
+
     // Delete local file after successful upload
     try {
       await fs.unlink(filePath);
+      console.log('🗑️ Local file deleted after cloud upload');
     } catch (error) {
-      console.warn('Failed to delete local file after cloud upload:', error.message);
+      console.warn('⚠️ Failed to delete local file after cloud upload:', error.message);
     }
 
     return {
@@ -72,13 +81,18 @@ const uploadFile = async (filePath, options = {}) => {
       isCloud: true,
     };
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
+    console.error('❌ Cloudinary upload error:', error.message);
+    console.error('Error details:', {
+      name: error.name,
+      http_code: error.http_code,
+      message: error.message
+    });
     
     // Fallback to local storage if cloud upload fails
     const filename = path.basename(filePath);
-    const baseUrl = process.env.API_URL || process.env.BACKEND_URL || 'http://localhost:5000';
+    console.log('📁 Falling back to local storage:', filename);
     return {
-      url: `${baseUrl}/uploads/${filename}`,
+      url: `/uploads/${filename}`, // Relative path - controllers will add base URL
       publicId: null,
       isCloud: false,
     };

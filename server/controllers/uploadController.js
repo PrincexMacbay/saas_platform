@@ -68,10 +68,18 @@ const uploadPostAttachment = async (req, res) => {
       });
     }
 
-    // Generate public URL for the uploaded file
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const imageUrl = `/uploads/${req.file.filename}`;
-    const fullImageUrl = baseUrl + imageUrl;
+    // Use cloud URL if available, otherwise use local URL
+    let imageUrl, fullImageUrl;
+    if (req.file.cloudUrl) {
+      // File is in cloud storage
+      imageUrl = req.file.cloudUrl;
+      fullImageUrl = req.file.cloudUrl;
+    } else {
+      // File is local
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      imageUrl = `/uploads/${req.file.filename}`;
+      fullImageUrl = baseUrl + imageUrl;
+    }
 
     res.json({
       success: true,
@@ -87,7 +95,7 @@ const uploadPostAttachment = async (req, res) => {
     console.error('Upload post attachment error:', error);
     
     // Clean up uploaded file
-    if (req.file && req.file.path) {
+    if (req.file && req.file.path && !req.file.isCloud) {
       try {
         await fs.unlink(req.file.path);
       } catch (unlinkError) {
