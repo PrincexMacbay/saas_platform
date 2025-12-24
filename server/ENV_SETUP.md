@@ -32,6 +32,17 @@ FRONTEND_URL=http://localhost:3000
 # EMAIL_USER=your-email@gmail.com
 # EMAIL_PASSWORD=your_app_password
 # EMAIL_FROM="Social Network" <noreply@yourdomain.com>
+
+# Cloud Storage (Optional - Recommended for Production)
+# Without these, files will be stored locally and lost on server restart/redeploy
+# Sign up at https://cloudinary.com (free tier available)
+# CLOUDINARY_CLOUD_NAME=your_cloud_name
+# CLOUDINARY_API_KEY=your_api_key
+# CLOUDINARY_API_SECRET=your_api_secret
+
+# API URL (for local file URLs when Cloudinary is not configured)
+# API_URL=http://localhost:5000
+# BACKEND_URL=https://your-backend-url.onrender.com
 ```
 
 ## Quick Setup

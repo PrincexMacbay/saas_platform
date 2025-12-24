@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const sharp = require('sharp');
 const fs = require('fs').promises;
+const { uploadFile: uploadToCloud } = require('../services/cloudStorage');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -90,7 +91,20 @@ const processImage = async (req, res, next) => {
     // Delete original file
     await fs.unlink(inputPath);
 
-    // Update req.file with processed file info
+    // Upload to cloud storage (or keep local)
+    const cloudResult = await uploadToCloud(outputPath, {
+      folder: 'post-attachments',
+      resource_type: 'image',
+      transformation: {
+        quality: 'auto',
+        fetch_format: 'auto',
+      },
+    });
+
+    // Update req.file with cloud URL or local path
+    req.file.cloudUrl = cloudResult.url;
+    req.file.isCloud = cloudResult.isCloud;
+    req.file.publicId = cloudResult.publicId;
     req.file.path = outputPath;
     req.file.filename = 'processed-' + req.file.filename;
 
@@ -127,7 +141,23 @@ const processProfileImage = async (req, res, next) => {
     // Delete original file
     await fs.unlink(inputPath);
 
-    // Update req.file with processed file info
+    // Upload to cloud storage (or keep local)
+    const cloudResult = await uploadToCloud(outputPath, {
+      folder: 'profile-images',
+      resource_type: 'image',
+      transformation: {
+        width: 200,
+        height: 200,
+        crop: 'fill',
+        quality: 'auto',
+        fetch_format: 'auto',
+      },
+    });
+
+    // Update req.file with cloud URL or local path
+    req.file.cloudUrl = cloudResult.url;
+    req.file.isCloud = cloudResult.isCloud;
+    req.file.publicId = cloudResult.publicId;
     req.file.path = outputPath;
     req.file.filename = 'profile-' + req.file.filename;
 

@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs').promises;
 const { User } = require('../models');
+const { uploadFile: uploadToCloud } = require('../services/cloudStorage');
 
 // Upload profile image
 const uploadProfileImage = async (req, res) => {
@@ -12,10 +13,18 @@ const uploadProfileImage = async (req, res) => {
       });
     }
 
-    // Generate public URL for the uploaded file
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const imageUrl = `/uploads/${req.file.filename}`;
-    const fullImageUrl = baseUrl + imageUrl;
+    // Use cloud URL if available, otherwise use local URL
+    let imageUrl, fullImageUrl;
+    if (req.file.cloudUrl) {
+      // File is in cloud storage
+      imageUrl = req.file.cloudUrl;
+      fullImageUrl = req.file.cloudUrl;
+    } else {
+      // File is local
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      imageUrl = `/uploads/${req.file.filename}`;
+      fullImageUrl = baseUrl + imageUrl;
+    }
 
     // Update user's profile image in database
     await req.user.update({
@@ -34,7 +43,7 @@ const uploadProfileImage = async (req, res) => {
     console.error('Upload profile image error:', error);
     
     // Clean up uploaded file if database update fails
-    if (req.file && req.file.path) {
+    if (req.file && req.file.path && !req.file.isCloud) {
       try {
         await fs.unlink(req.file.path);
       } catch (unlinkError) {
@@ -103,10 +112,29 @@ const uploadFile = async (req, res) => {
       });
     }
 
-    // Generate public URL for the uploaded file
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `/uploads/${req.file.filename}`;
-    const fullFileUrl = baseUrl + fileUrl;
+    // Upload to cloud storage if not already done by middleware
+    let fileUrl, fullFileUrl;
+    if (req.file.cloudUrl) {
+      // Already uploaded to cloud by middleware
+      fileUrl = req.file.cloudUrl;
+      fullFileUrl = req.file.cloudUrl;
+    } else {
+      // Upload to cloud (or keep local)
+      const cloudResult = await uploadToCloud(req.file.path, {
+        folder: 'general-uploads',
+        resource_type: 'auto',
+      });
+      
+      if (cloudResult.isCloud) {
+        fileUrl = cloudResult.url;
+        fullFileUrl = cloudResult.url;
+      } else {
+        // Local storage fallback
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        fileUrl = `/uploads/${req.file.filename}`;
+        fullFileUrl = baseUrl + fileUrl;
+      }
+    }
 
     res.json({
       success: true,
@@ -122,7 +150,7 @@ const uploadFile = async (req, res) => {
     console.error('Upload file error:', error);
     
     // Clean up uploaded file
-    if (req.file && req.file.path) {
+    if (req.file && req.file.path && !req.file.isCloud) {
       try {
         await fs.unlink(req.file.path);
       } catch (unlinkError) {
