@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const Applications = () => {
+  const [searchParams] = useSearchParams();
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const { t } = useLanguage();
   const [applications, setApplications] = useState([]);
@@ -16,6 +18,8 @@ const Applications = () => {
   const [showOrganizationSelector, setShowOrganizationSelector] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const [joiningOrganization, setJoiningOrganization] = useState(false);
+  const [highlightedApplicationId, setHighlightedApplicationId] = useState(null);
+  const applicationRefs = useRef({});
 
   useEffect(() => {
     // Use preloaded data if available
@@ -36,6 +40,26 @@ const Applications = () => {
       fetchApplications();
     }
   }, [currentPage, searchTerm, statusFilter, isInitialized]);
+
+  // Handle applicationId from URL query params
+  useEffect(() => {
+    const applicationId = searchParams.get('applicationId');
+    
+    if (applicationId && applications.length > 0) {
+      // Wait a bit for applications to render, then scroll
+      setTimeout(() => {
+        const applicationElement = applicationRefs.current[`application-${applicationId}`];
+        if (applicationElement) {
+          applicationElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedApplicationId(applicationId);
+          // Remove highlight after 3 seconds
+          setTimeout(() => {
+            setHighlightedApplicationId(null);
+          }, 3000);
+        }
+      }, 500);
+    }
+  }, [searchParams, applications]);
 
   const fetchApplications = async () => {
     try {
@@ -385,7 +409,15 @@ const Applications = () => {
           </thead>
           <tbody>
             {applications.map(application => (
-              <tr key={application.id}>
+              <tr 
+                key={application.id}
+                ref={el => applicationRefs.current[`application-${application.id}`] = el}
+                className={highlightedApplicationId === application.id.toString() ? 'highlighted-application' : ''}
+                style={highlightedApplicationId === application.id.toString() ? {
+                  backgroundColor: '#fef3c7',
+                  transition: 'background-color 0.3s'
+                } : {}}
+              >
                 <td>{formatDate(application.createdAt)}</td>
                 <td>
                   {`${application.firstName} ${application.lastName || ''}`.trim()}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
 import PostCard from '../components/PostCard';
@@ -8,15 +9,51 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
+  const [searchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [highlightedPostId, setHighlightedPostId] = useState(null);
+  const [highlightedCommentId, setHighlightedCommentId] = useState(null);
+  const postRefs = useRef({});
   const { user } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Handle postId and commentId from URL query params
+  useEffect(() => {
+    const postId = searchParams.get('postId');
+    const commentId = searchParams.get('commentId');
+    
+    if (postId && posts.length > 0) {
+      // Wait a bit for posts to render, then scroll
+      setTimeout(() => {
+        const postElement = postRefs.current[`post-${postId}`];
+        if (postElement) {
+          postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedPostId(postId);
+          
+          // If commentId is provided, highlight the comment
+          if (commentId) {
+            setHighlightedCommentId(commentId);
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+              setHighlightedPostId(null);
+              setHighlightedCommentId(null);
+            }, 3000);
+          } else {
+            // Remove highlight after 2 seconds
+            setTimeout(() => {
+              setHighlightedPostId(null);
+            }, 2000);
+          }
+        }
+      }, 500);
+    }
+  }, [searchParams, posts]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -96,10 +133,19 @@ const Dashboard = () => {
                 </div>
               ) : (
                 (Array.isArray(posts) ? posts : []).map((post) => (
-                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div 
+                    key={post.id} 
+                    ref={el => postRefs.current[`post-${post.id}`] = el}
+                    className={`bg-white rounded-xl shadow-sm border overflow-hidden transition-all ${
+                      highlightedPostId === post.id.toString() 
+                        ? 'border-blue-500 shadow-lg ring-2 ring-blue-200' 
+                        : 'border-gray-200'
+                    }`}
+                  >
                     <PostCard
                       post={post}
                       onUpdate={loadData}
+                      highlightCommentId={highlightedPostId === post.id.toString() ? highlightedCommentId : null}
                     />
                   </div>
                 ))

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toggleLike, createComment, updatePost, deletePost } from '../services/postService';
 import { useAuth } from '../contexts/AuthContext';
 import ConfirmDialog from './ConfirmDialog';
 import { buildImageUrl } from '../utils/imageUtils';
 
-const PostCard = ({ post, onUpdate }) => {
+const PostCard = ({ post, onUpdate, highlightCommentId }) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
@@ -16,6 +16,7 @@ const PostCard = ({ post, onUpdate }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
+  const commentRefs = useRef({});
   const { user } = useAuth();
 
   // Close dropdown when editing starts
@@ -24,6 +25,29 @@ const PostCard = ({ post, onUpdate }) => {
       setShowDropdown(false);
     }
   }, [isEditing]);
+
+  // Handle comment highlighting from notification
+  useEffect(() => {
+    if (highlightCommentId && post.comments && post.comments.length > 0) {
+      // Expand comments if not already shown
+      if (!showComments) {
+        setShowComments(true);
+      }
+      
+      // Wait for comments to render, then scroll to the highlighted comment
+      setTimeout(() => {
+        const commentElement = commentRefs.current[`comment-${highlightCommentId}`];
+        if (commentElement) {
+          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Add highlight effect
+          commentElement.style.backgroundColor = '#fef3c7';
+          setTimeout(() => {
+            commentElement.style.backgroundColor = '';
+          }, 3000);
+        }
+      }, 300);
+    }
+  }, [highlightCommentId, showComments, post.comments]);
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -338,7 +362,18 @@ const PostCard = ({ post, onUpdate }) => {
           {post.comments && post.comments.length > 0 && (
             <>
               {post.comments.map((comment) => (
-                <div key={comment.id} className="comment">
+                <div 
+                  key={comment.id} 
+                  ref={el => commentRefs.current[`comment-${comment.id}`] = el}
+                  className={`comment ${highlightCommentId && highlightCommentId === comment.id.toString() ? 'highlighted-comment' : ''}`}
+                  style={highlightCommentId && highlightCommentId === comment.id.toString() ? {
+                    backgroundColor: '#fef3c7',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    marginBottom: '10px',
+                    transition: 'background-color 0.3s'
+                  } : {}}
+                >
                   <div className="comment-header">
                                       <div className="comment-avatar">
                     {comment.author.profileImage ? (

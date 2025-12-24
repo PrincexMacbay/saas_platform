@@ -47,7 +47,7 @@ class NotificationService {
         'application_submitted',
         'New Membership Application',
         `A new application has been submitted for ${application.plan.name}`,
-        `/admin?section=memberships&applicationId=${applicationId}`,
+        `/membership/applications?applicationId=${applicationId}`,
         { applicationId, planId: application.planId }
       );
       
@@ -185,7 +185,7 @@ class NotificationService {
         'new_comment',
         'New Comment',
         `${commenter.firstName || commenter.username} commented on your post`,
-        `/dashboard?postId=${postId}`,
+        `/dashboard?postId=${postId}&commentId=${commentId}`,
         { postId, commentId, commenterId }
       );
     } catch (error) {
