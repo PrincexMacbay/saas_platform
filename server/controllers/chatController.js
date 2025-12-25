@@ -8,7 +8,7 @@ const { Conversation, Message, GroupConversation, GroupMessage, GroupMember, Gro
 // Get or create conversation between two users
 const getOrCreateConversation = async (req, res) => {
   try {
-    const { userId: currentUserId } = req.user;
+    const currentUserId = req.user.id; // req.user is the User model instance
     const { otherUserId } = req.params;
 
     if (currentUserId === parseInt(otherUserId)) {
@@ -80,7 +80,7 @@ const getOrCreateConversation = async (req, res) => {
 // Get all conversations for current user
 const getConversations = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
 
     const conversations = await Conversation.findAll({
       where: {
@@ -156,7 +156,7 @@ const getConversations = async (req, res) => {
 // Get messages for a conversation
 const getMessages = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
     const { conversationId } = req.params;
     const { page = 1, limit = 50 } = req.query;
 
@@ -219,7 +219,7 @@ const getMessages = async (req, res) => {
 // Create group conversation (for plan members)
 const createGroupConversation = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
     const { name, description, planId, userIds } = req.body;
 
     // If planId is provided, create group for plan members
@@ -392,7 +392,7 @@ const createGroupConversation = async (req, res) => {
 // Get all group conversations for current user
 const getGroupConversations = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
 
     const memberships = await GroupMember.findAll({
       where: { userId },
@@ -496,7 +496,7 @@ const getGroupConversations = async (req, res) => {
 // Get messages for a group conversation
 const getGroupMessages = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
     const { groupConversationId } = req.params;
     const { page = 1, limit = 50 } = req.query;
 
@@ -554,7 +554,7 @@ const getGroupMessages = async (req, res) => {
 // Get unread message count
 const getUnreadCount = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id; // req.user is the User model instance
 
     // Count unread 1-on-1 messages
     const unreadConversations = await Message.count({
