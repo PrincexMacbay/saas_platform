@@ -27,8 +27,7 @@ const GroupMember = sequelize.define('GroupMember', {
   },
   role: {
     type: DataTypes.ENUM('admin', 'member'),
-    defaultValue: 'member',
-    comment: 'Role in the group (admin can manage group)'
+    defaultValue: 'member'
   },
   joinedAt: {
     type: DataTypes.DATE,
