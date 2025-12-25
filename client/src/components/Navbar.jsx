@@ -152,6 +152,9 @@ const Navbar = () => {
               <LanguageSelector />
             </div>
             
+            {/* Chat Icon */}
+            {isAuthenticated && <ChatIcon />}
+            
             {/* Notification Bell */}
             <NotificationBell />
             
@@ -333,6 +336,9 @@ const Navbar = () => {
             <div className="desktop-language-selector">
               <LanguageSelector />
             </div>
+            
+            {/* Chat Icon */}
+            {isAuthenticated && <ChatIcon />}
             
             {/* Notification Bell */}
             <NotificationBell />

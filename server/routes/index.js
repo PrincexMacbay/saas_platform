@@ -13,6 +13,7 @@ const publicRoutes = require('./public');
 const userPaymentInfoRoutes = require('./userPaymentInfo');
 const adminRoutes = require('./adminRoutes');
 const notificationRoutes = require('./notifications');
+const chatRoutes = require('./chat');
 
 // Mount routes
 router.use('/auth', authRoutes);
@@ -26,6 +27,7 @@ router.use('/public', publicRoutes);
 router.use('/user-payment-info', userPaymentInfoRoutes);
 router.use('/admin', adminRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/chat', chatRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getUsers, toggleFollowUser } from '../services/userService';
+import { getOrCreateConversation } from '../services/chatService';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useChat } from '../contexts/ChatContext';
 
 const Users = () => {
   const { user: currentUser } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { loadConversations } = useChat();
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,10 +75,31 @@ const Users = () => {
     setFilteredUsers(filtered);
   };
 
+  const handleMessageUser = async (userId) => {
+    if (actionLoading[userId]) return;
+    
+    setActionLoading(prev => ({ ...prev, [userId]: true }));
+    try {
+      const response = await getOrCreateConversation(userId);
+      
+      if (response.success && response.data) {
+        // Reload conversations to get the new one
+        await loadConversations();
+        // Navigate to the conversation
+        navigate(`/messages?conversation=${response.data.id}`);
+      }
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      alert('Failed to start conversation. Please try again.');
+    } finally {
+      setActionLoading(prev => ({ ...prev, [userId]: false }));
+    }
+  };
+
   const handleFollowUser = async (userId) => {
     if (actionLoading[userId]) return;
     
-    setActionLoading({ ...actionLoading, [userId]: true });
+    setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
       console.log(`Following/unfollowing user ${userId}`);
       const response = await toggleFollowUser(userId);
@@ -95,7 +120,7 @@ const Users = () => {
     } catch (error) {
       console.error('Error following user:', error);
     }
-    setActionLoading({ ...actionLoading, [userId]: false });
+    setActionLoading(prev => ({ ...prev, [userId]: false }));
   };
 
   const getInitials = (user) => {
@@ -193,22 +218,40 @@ const Users = () => {
                   </div>
                 )}
 
-                <div style={{ marginTop: '15px' }}>
+                <div style={{ marginTop: '15px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <Link
                     to={`/profile/${user.username}`}
                     className="btn btn-outline btn-sm"
-                    style={{ marginRight: '8px' }}
                   >
                     View Profile
                   </Link>
+                  
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => handleMessageUser(user.id)}
+                    disabled={actionLoading[user.id]}
+                    title="Send a message"
+                  >
+                    {actionLoading[user.id] ? (
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    ) : (
+                      <>
+                        <i className="fas fa-comments" style={{ marginRight: '5px' }}></i>
+                        Message
+                      </>
+                    )}
+                  </button>
                   
                   <button
                     className={`btn btn-sm ${user.isFollowing ? 'btn-secondary' : 'btn-primary'}`}
                     onClick={() => handleFollowUser(user.id)}
                     disabled={actionLoading[user.id]}
                   >
-                    {actionLoading[user.id] ? 'Loading...' : 
-                     user.isFollowing ? 'Unfollow' : 'Follow'}
+                    {actionLoading[user.id] ? (
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    ) : (
+                      user.isFollowing ? 'Unfollow' : 'Follow'
+                    )}
                   </button>
                 </div>
 

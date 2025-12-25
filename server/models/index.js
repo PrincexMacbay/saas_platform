@@ -32,6 +32,13 @@ const PasswordResetToken = require('./PasswordResetToken');
 const EmailVerificationToken = require('./EmailVerificationToken');
 const SystemSettings = require('./SystemSettings');
 const Notification = require('./Notification');
+// Chat System Models
+const Conversation = require('./Conversation');
+const Message = require('./Message');
+const GroupConversation = require('./GroupConversation');
+const GroupMessage = require('./GroupMessage');
+const GroupMember = require('./GroupMember');
+const GroupMessageRead = require('./GroupMessageRead');
 
 // Define associations
 User.hasMany(Space, { 
@@ -247,6 +254,53 @@ User.hasMany(Notification, {
   foreignKey: 'userId', 
   as: 'notifications',
   onDelete: 'CASCADE'
+});
+
+// Chat System Associations
+// 1-on-1 Conversations
+User.hasMany(Conversation, {
+  foreignKey: 'participant1Id',
+  as: 'conversationsAsParticipant1',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Conversation, {
+  foreignKey: 'participant2Id',
+  as: 'conversationsAsParticipant2',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Message, {
+  foreignKey: 'senderId',
+  as: 'sentMessages',
+  onDelete: 'CASCADE'
+});
+
+// Group Conversations
+User.hasMany(GroupConversation, {
+  foreignKey: 'createdBy',
+  as: 'createdGroups',
+  onDelete: 'SET NULL'
+});
+User.hasMany(GroupMember, {
+  foreignKey: 'userId',
+  as: 'groupMemberships',
+  onDelete: 'CASCADE'
+});
+User.hasMany(GroupMessage, {
+  foreignKey: 'senderId',
+  as: 'sentGroupMessages',
+  onDelete: 'CASCADE'
+});
+User.hasMany(GroupMessageRead, {
+  foreignKey: 'userId',
+  as: 'readGroupMessages',
+  onDelete: 'CASCADE'
+});
+
+// Plan associations for group chats
+Plan.hasMany(GroupConversation, {
+  foreignKey: 'planId',
+  as: 'groupConversations',
+  onDelete: 'SET NULL'
 });
 
 // Plan relationships
@@ -558,4 +612,11 @@ module.exports = {
   EmailVerificationToken,
   SystemSettings,
   Notification,
+  // Chat System
+  Conversation,
+  Message,
+  GroupConversation,
+  GroupMessage,
+  GroupMember,
+  GroupMessageRead,
 };

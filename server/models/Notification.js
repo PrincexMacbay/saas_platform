@@ -29,7 +29,9 @@ const Notification = sequelize.define('Notification', {
       'space_invitation',
       'mention',
       'post_liked',
-      'comment_liked'
+      'comment_liked',
+      'new_message',
+      'new_group_message'
     ),
     allowNull: false
   },

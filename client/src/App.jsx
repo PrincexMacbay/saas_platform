@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { ChatProvider } from './contexts/ChatContext';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -113,11 +114,20 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/messages"
+                element={
+                  <ProtectedRoute>
+                    <Messages />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </main>
             {/* <SimpleErrorLogger /> */}
           </div>
         </Router>
+          </ChatProvider>
         </NotificationProvider>
       </AuthProvider>
     </LanguageProvider>

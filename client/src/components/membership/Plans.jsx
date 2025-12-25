@@ -877,6 +877,25 @@ const Plans = () => {
     }
   };
 
+  const handleCreateGroupChat = async (plan) => {
+    try {
+      const response = await api.post('/chat/groups', {
+        planId: plan.id,
+        name: `${plan.name} Members`,
+        description: `Group chat for ${plan.name} members`
+      });
+
+      if (response.data.success) {
+        // Navigate to the group chat
+        window.location.href = `/messages?group=${response.data.data.id}`;
+      }
+    } catch (error) {
+      console.error('Error creating group chat:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create group chat';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
   // Use preloaded data if available, show minimal loading only if no data at all
   if (!plans.length && isLoading && !data.plans) {
     return (
@@ -944,6 +963,13 @@ const Plans = () => {
                 </div>
               </div>
               <div className="plan-actions">
+                <button
+                  onClick={() => handleCreateGroupChat(plan)}
+                  className="group-chat-button"
+                  title="Create Group Chat for Plan Members"
+                >
+                  <i className="fas fa-comments"></i>
+                </button>
                 <button
                   onClick={() => handleEditPlan(plan)}
                   className="edit-button"
@@ -1272,6 +1298,7 @@ const Plans = () => {
           gap: 8px;
         }
 
+        .group-chat-button,
         .edit-button,
         .delete-button {
           padding: 8px;
@@ -1279,6 +1306,16 @@ const Plans = () => {
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.3s ease;
+        }
+
+        .group-chat-button {
+          background: #f8f9fa;
+          color: #2c3e50;
+        }
+
+        .group-chat-button:hover {
+          background: #2c3e50;
+          color: white;
         }
 
         .edit-button {

@@ -3,17 +3,21 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
+import { getOrCreateConversation } from '../services/chatService';
+import { useChat } from '../contexts/ChatContext';
 import api from '../services/api';
 import PostCard from '../components/PostCard';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import MembershipCard from '../components/membership/MembershipCard';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { buildImageUrl } from '../utils/imageUtils';
 
 const Profile = () => {
   const { identifier } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [profileUser, setProfileUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -27,6 +31,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
   const { user, updateUser } = useAuth();
   const { t } = useLanguage();
+  const { loadConversations } = useChat();
 
   const isOwnProfile = user && profileUser && user.id === profileUser.id;
 
@@ -105,6 +110,27 @@ const Profile = () => {
       console.error('Error loading profile data:', error);
     }
     setIsLoading(false);
+  };
+
+  const handleMessage = async () => {
+    if (!profileUser || !user) return;
+    
+    try {
+      setActionLoading(true);
+      const response = await getOrCreateConversation(profileUser.id);
+      
+      if (response.success && response.data) {
+        // Reload conversations to get the new one
+        await loadConversations();
+        // Navigate to the conversation
+        navigate(`/messages?conversation=${response.data.id}`);
+      }
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      alert('Failed to start conversation. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleFollow = async () => {
@@ -269,36 +295,48 @@ const Profile = () => {
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={handleFollow}
-                      disabled={actionLoading}
-                      className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border ${
-                        profileUser.isFollowing
-                          ? 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
-                          : 'bg-gray-800 hover:bg-gray-900 text-white border-gray-700'
-                      }`}
-                    >
-                      {actionLoading ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          {t('common.loading')}
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {profileUser.isFollowing ? (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            ) : (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            )}
-                          </svg>
-                          {profileUser.isFollowing ? t('users.unfollow') : t('users.follow')}
-                        </>
-                      )}
-                    </button>
+                    <>
+                      <button
+                        onClick={handleMessage}
+                        disabled={actionLoading}
+                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-gray-700"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Message
+                      </button>
+                      <button
+                        onClick={handleFollow}
+                        disabled={actionLoading}
+                        className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border ${
+                          profileUser.isFollowing
+                            ? 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                            : 'bg-gray-800 hover:bg-gray-900 text-white border-gray-700'
+                        }`}
+                      >
+                        {actionLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {t('common.loading')}
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              {profileUser.isFollowing ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                              ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                              )}
+                            </svg>
+                            {profileUser.isFollowing ? t('users.unfollow') : t('users.follow')}
+                          </>
+                        )}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

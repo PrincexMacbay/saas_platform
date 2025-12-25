@@ -856,7 +856,7 @@ import NotificationBell from './NotificationBell';
 
 ---
 
-### **1.2 Real-Time Chat/Messaging System** ⭐
+### **1.2 Real-Time Chat/Messaging System** ⭐ 
 
 #### **Step 1: Database Models**
 
