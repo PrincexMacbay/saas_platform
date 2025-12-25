@@ -5,6 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { buildImageUrl } from '../utils/imageUtils';
 import LanguageSelector from './LanguageSelector';
 import NotificationBell from './NotificationBell';
+import ChatIcon from './ChatIcon';
 import logoImage from '../Logo/neu2.png';
 
 const Navbar = () => {
