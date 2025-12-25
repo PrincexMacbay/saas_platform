@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getPosts } from '../services/postService';
@@ -34,6 +34,14 @@ const Profile = () => {
   const { loadConversations } = useChat();
 
   const isOwnProfile = user && profileUser && user.id === profileUser.id;
+  
+  // Check if users are following each other (mutual follow)
+  const isMutualFollow = React.useMemo(() => {
+    if (!user || !profileUser || isOwnProfile) return false;
+    const currentUserFollowing = following.some(f => f.id === profileUser.id);
+    const profileUserFollowing = followers.some(f => f.id === user.id);
+    return currentUserFollowing && profileUserFollowing;
+  }, [user, profileUser, following, followers, isOwnProfile]);
 
   useEffect(() => {
     loadProfileData();
@@ -143,6 +151,20 @@ const Profile = () => {
         ...prev,
         isFollowing: response.data.isFollowing
       }));
+      
+      // Reload followers/following to update mutual follow status
+      if (profileUser) {
+        try {
+          const [followersResponse, followingResponse] = await Promise.all([
+            getFollowers(profileUser.id),
+            getFollowing(profileUser.id)
+          ]);
+          setFollowers(followersResponse.data.followers || []);
+          setFollowing(followingResponse.data.following || []);
+        } catch (error) {
+          console.error('Error reloading followers/following:', error);
+        }
+      }
     } catch (error) {
       console.error('Error following user:', error);
     }

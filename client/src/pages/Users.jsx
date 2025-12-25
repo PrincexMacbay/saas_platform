@@ -1,66 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getUsers, toggleFollowUser } from '../services/userService';
+import { getUsers, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
 import { getOrCreateConversation } from '../services/chatService';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useChat } from '../contexts/ChatContext';
+import { buildImageUrl } from '../utils/imageUtils';
+import './Users.css';
 
 const Users = () => {
   const { user: currentUser } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { loadConversations } = useChat();
+  
   const [allUsers, setAllUsers] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [actionLoading, setActionLoading] = useState({});
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'followers-not-followed', 'suggested'
 
-  // Debounce search input for local filtering
+  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 300); // Wait 300ms after user stops typing
-
+    }, 300);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Load all users once when component mounts
+  // Load data when component mounts
   useEffect(() => {
     if (currentUser) {
-      loadAllUsers();
+      loadAllData();
     }
   }, [currentUser]);
 
-  // Filter users locally when debounced search changes
+  // Filter users when search or tab changes
   useEffect(() => {
     filterUsers();
-  }, [debouncedSearch, allUsers]);
+  }, [debouncedSearch, allUsers, followers, following, activeTab]);
 
-  const loadAllUsers = async () => {
+  const loadAllData = async () => {
     setIsLoading(true);
     try {
-      const response = await getUsers({ limit: 1000 }); // Load more users, no search parameter
-      // Filter out the current user from the list
-      const otherUsers = response.data.users.filter(user => user.id !== currentUser?.id);
-      console.log('Loaded users with follow status:', otherUsers.map(u => ({ id: u.id, username: u.username, isFollowing: u.isFollowing })));
+      const [usersResponse, followersResponse, followingResponse] = await Promise.all([
+        getUsers({ limit: 1000 }),
+        getFollowers(currentUser.id),
+        getFollowing(currentUser.id)
+      ]);
+
+      // Filter out current user
+      const otherUsers = usersResponse.data.users.filter(user => user.id !== currentUser?.id);
       setAllUsers(otherUsers);
+      setFollowers(followersResponse.data.followers || []);
+      setFollowing(followingResponse.data.following || []);
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('Error loading users data:', error);
     }
     setIsLoading(false);
   };
 
+  // Get followers who haven't been followed back
+  const getFollowersNotFollowedBack = () => {
+    const followingIds = new Set(following.map(u => u.id));
+    return followers.filter(follower => !followingIds.has(follower.id));
+  };
+
+  // Get suggested users (users you don't follow and who don't follow you)
+  const getSuggestedUsers = () => {
+    const followingIds = new Set(following.map(u => u.id));
+    const followerIds = new Set(followers.map(u => u.id));
+    return allUsers.filter(user => 
+      !followingIds.has(user.id) && 
+      !followerIds.has(user.id)
+    ).slice(0, 12); // Limit to 12 suggestions
+  };
+
   const filterUsers = () => {
+    let usersToFilter = [];
+
+    switch (activeTab) {
+      case 'followers-not-followed':
+        usersToFilter = getFollowersNotFollowedBack();
+        break;
+      case 'suggested':
+        usersToFilter = getSuggestedUsers();
+        break;
+      case 'all':
+      default:
+        usersToFilter = allUsers;
+        break;
+    }
+
     if (!debouncedSearch.trim()) {
-      setFilteredUsers(allUsers);
+      setFilteredUsers(usersToFilter);
       return;
     }
 
     const searchTerm = debouncedSearch.toLowerCase();
-    const filtered = allUsers.filter(user => {
+    const filtered = usersToFilter.filter(user => {
       const firstName = (user.firstName || '').toLowerCase();
       const lastName = (user.lastName || '').toLowerCase();
       const username = (user.username || '').toLowerCase();
@@ -83,9 +125,7 @@ const Users = () => {
       const response = await getOrCreateConversation(userId);
       
       if (response.success && response.data) {
-        // Reload conversations to get the new one
         await loadConversations();
-        // Navigate to the conversation
         navigate(`/messages?conversation=${response.data.id}`);
       }
     } catch (error) {
@@ -101,26 +141,28 @@ const Users = () => {
     
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
-      console.log(`Following/unfollowing user ${userId}`);
       const response = await toggleFollowUser(userId);
-      console.log('Follow response:', response.data);
       
-      // Update both allUsers and filteredUsers to keep them in sync
       const updateUser = (user) => 
         user.id === userId 
           ? { ...user, isFollowing: response.data.isFollowing }
           : user;
 
-      setAllUsers(prevUsers => {
-        const updated = prevUsers.map(updateUser);
-        console.log('Updated allUsers:', updated.map(u => ({ id: u.id, username: u.username, isFollowing: u.isFollowing })));
-        return updated;
-      });
+      setAllUsers(prevUsers => prevUsers.map(updateUser));
       setFilteredUsers(prevUsers => prevUsers.map(updateUser));
+      
+      // Reload followers/following to update counts
+      const [followersResponse, followingResponse] = await Promise.all([
+        getFollowers(currentUser.id),
+        getFollowing(currentUser.id)
+      ]);
+      setFollowers(followersResponse.data.followers || []);
+      setFollowing(followingResponse.data.following || []);
     } catch (error) {
       console.error('Error following user:', error);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [userId]: false }));
     }
-    setActionLoading(prev => ({ ...prev, [userId]: false }));
   };
 
   const getInitials = (user) => {
@@ -139,9 +181,12 @@ const Users = () => {
     }
   };
 
+  const followersNotFollowedBack = getFollowersNotFollowedBack();
+  const suggestedUsers = getSuggestedUsers();
+
   if (isLoading) {
     return (
-      <div className="container text-center" style={{ paddingTop: '100px' }}>
+      <div className="users-page-loading">
         <div className="spinner"></div>
         <p>{t('common.loading')}</p>
       </div>
@@ -149,140 +194,288 @@ const Users = () => {
   }
 
   return (
-    <div className="container" style={{ paddingTop: '80px' }}>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>{t('users.title')}</h2>
+    <div className="users-page">
+      <div className="users-page-header">
+        <h1 className="users-page-title">
+          <i className="fas fa-users"></i> {t('users.title') || 'Discover People'}
+        </h1>
+        <p className="users-page-subtitle">
+          Connect with members of the community
+        </p>
       </div>
 
-      <div className="row mb-4">
-        <div className="col">
+      {/* Search Bar */}
+      <div className="users-search-container">
+        <div className="users-search-wrapper">
+          <i className="fas fa-search users-search-icon"></i>
           <input
             type="text"
-            className="form-control"
-            placeholder={t('users.search')}
+            className="users-search-input"
+            placeholder={t('users.search') || 'Search by name, username, or bio...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {search && (
+            <button
+              className="users-search-clear"
+              onClick={() => setSearch('')}
+              title="Clear search"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="row">
-        {filteredUsers.length === 0 ? (
-          <div className="col">
-            <div className="card text-center">
-              <p>No users found. {search ? 'Try a different search term.' : 'No users to display.'}</p>
+      {/* Tabs */}
+      <div className="users-tabs">
+        <button
+          className={`users-tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          <i className="fas fa-globe"></i>
+          All Users
+          <span className="users-tab-badge">{allUsers.length}</span>
+        </button>
+        {followersNotFollowedBack.length > 0 && (
+          <button
+            className={`users-tab ${activeTab === 'followers-not-followed' ? 'active' : ''}`}
+            onClick={() => setActiveTab('followers-not-followed')}
+          >
+            <i className="fas fa-user-plus"></i>
+            Follow Back
+            <span className="users-tab-badge users-tab-badge-highlight">
+              {followersNotFollowedBack.length}
+            </span>
+          </button>
+        )}
+        <button
+          className={`users-tab ${activeTab === 'suggested' ? 'active' : ''}`}
+          onClick={() => setActiveTab('suggested')}
+        >
+          <i className="fas fa-lightbulb"></i>
+          Suggested
+          <span className="users-tab-badge">{suggestedUsers.length}</span>
+        </button>
+      </div>
+
+      {/* Special Section: Followers Not Followed Back */}
+      {activeTab === 'followers-not-followed' && followersNotFollowedBack.length > 0 && (
+        <div className="users-special-section">
+          <div className="users-section-header">
+            <div className="users-section-header-content">
+              <h2>
+                <i className="fas fa-heart" style={{ color: '#e74c3c' }}></i>
+                People Following You
+              </h2>
+              <p>These users are following you. Consider following them back!</p>
             </div>
-          </div>
-        ) : (
-          filteredUsers.map((user) => (
-            <div key={user.id} className="col-4">
-              <div className="user-card">
-                <div className="user-avatar-lg">
-                  {user.profileImage ? (
-                    <img 
-                      src={user.profileImage} 
-                      alt={user.username}
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    getInitials(user)
-                  )}
-                </div>
-                
-                <div className="user-name">
-                  <Link 
-                    to={`/profile/${user.username}`}
-                    style={{ textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {user.firstName && user.lastName
-                      ? `${user.firstName} ${user.lastName}`
-                      : user.username}
-                  </Link>
-                </div>
-                
-                <div className="user-username">
-                  @{user.username} {getVisibilityIcon(user.visibility)}
-                </div>
-
-                {user.about && (
-                  <div style={{ 
-                    fontSize: '14px', 
-                    color: '#7f8c8d', 
-                    marginBottom: '15px',
-                    lineHeight: '1.4',
-                    maxHeight: '60px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {user.about.length > 100 ? `${user.about.substring(0, 100)}...` : user.about}
-                  </div>
-                )}
-
-                <div style={{ marginTop: '15px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <Link
-                    to={`/profile/${user.username}`}
-                    className="btn btn-outline btn-sm"
-                  >
-                    View Profile
-                  </Link>
-                  
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={() => handleMessageUser(user.id)}
-                    disabled={actionLoading[user.id]}
-                    title="Send a message"
-                  >
-                    {actionLoading[user.id] ? (
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    ) : (
-                      <>
-                        <i className="fas fa-comments" style={{ marginRight: '5px' }}></i>
-                        Message
-                      </>
-                    )}
-                  </button>
-                  
-                  <button
-                    className={`btn btn-sm ${user.isFollowing ? 'btn-secondary' : 'btn-primary'}`}
-                    onClick={() => handleFollowUser(user.id)}
-                    disabled={actionLoading[user.id]}
-                  >
-                    {actionLoading[user.id] ? (
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    ) : (
-                      user.isFollowing ? 'Unfollow' : 'Follow'
-                    )}
-                  </button>
-                </div>
-
-                <div style={{ 
-                  marginTop: '10px', 
-                  fontSize: '12px', 
-                  color: '#95a5a6',
-                  borderTop: '1px solid #ecf0f1',
-                  paddingTop: '10px'
-                }}>
-                  Joined {new Date(user.createdAt).toLocaleDateString()}
-                  {user.lastLogin && (
-                    <>
-                      <br />
-                      Last seen {new Date(user.lastLogin).toLocaleDateString()}
-                    </>
-                  )}
-                </div>
+            <div className="users-section-stats">
+              <div className="users-stat-item">
+                <span className="users-stat-number">{followers.length}</span>
+                <span className="users-stat-label">Followers</span>
+              </div>
+              <div className="users-stat-item">
+                <span className="users-stat-number">{following.length}</span>
+                <span className="users-stat-label">Following</span>
               </div>
             </div>
-          ))
-        )}
-      </div>
-
-      {filteredUsers.length > 0 && (
-        <div className="text-center mt-4">
-          <p className="text-muted">
-            Showing {filteredUsers.length} of {allUsers.length} users
-            {search && ` matching "${search}"`}
-          </p>
+          </div>
         </div>
+      )}
+
+      {/* Suggested Users Section Header */}
+      {activeTab === 'suggested' && suggestedUsers.length > 0 && (
+        <div className="users-special-section">
+          <div className="users-section-header">
+            <div className="users-section-header-content">
+              <h2>
+                <i className="fas fa-lightbulb" style={{ color: '#f39c12' }}></i>
+                Suggested for You
+              </h2>
+              <p>Discover new connections based on your activity</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Users Grid */}
+      {filteredUsers.length === 0 ? (
+        <div className="users-empty-state">
+          <div className="users-empty-icon">
+            <i className="fas fa-user-slash"></i>
+          </div>
+          <h3>No users found</h3>
+          <p>
+            {search 
+              ? `No users match "${search}". Try a different search term.`
+              : activeTab === 'followers-not-followed'
+              ? 'All your followers have been followed back! 🎉'
+              : activeTab === 'suggested'
+              ? 'No suggestions available at the moment.'
+              : 'No users to display.'}
+          </p>
+          {search && (
+            <button
+              className="users-clear-search-btn"
+              onClick={() => setSearch('')}
+            >
+              Clear Search
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="users-grid">
+            {filteredUsers.map((user) => {
+              const isFollower = followers.some(f => f.id === user.id);
+              const isFollowingUser = following.some(f => f.id === user.id);
+              const isMutualFollow = isFollower && isFollowingUser; // Both following each other
+              
+              return (
+                <div key={user.id} className="user-card">
+                  <div className="user-card-header">
+                    <Link 
+                      to={`/profile/${user.username}`}
+                      className="user-avatar-link"
+                    >
+                      <div className="user-avatar">
+                        {user.profileImage ? (
+                          <img 
+                            src={buildImageUrl(user.profileImage)} 
+                            alt={user.username}
+                          />
+                        ) : (
+                          <div className="user-avatar-initials">
+                            {getInitials(user)}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    
+                    {isFollower && !isFollowingUser && (
+                      <div className="user-badge user-badge-follower">
+                        <i className="fas fa-heart"></i>
+                        Follows you
+                      </div>
+                    )}
+                    {isFollowingUser && !isFollower && (
+                      <div className="user-badge user-badge-following">
+                        <i className="fas fa-check"></i>
+                        Following
+                      </div>
+                    )}
+                    {isMutualFollow && (
+                      <div className="user-badge user-badge-mutual">
+                        <i className="fas fa-user-friends"></i>
+                        Mutual
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="user-card-body">
+                    <Link 
+                      to={`/profile/${user.username}`}
+                      className="user-name-link"
+                    >
+                      <h3 className="user-name">
+                        {user.firstName && user.lastName
+                          ? `${user.firstName} ${user.lastName}`
+                          : user.username}
+                      </h3>
+                      <p className="user-username">
+                        @{user.username} {getVisibilityIcon(user.visibility)}
+                      </p>
+                    </Link>
+
+                    {user.about && (
+                      <p className="user-bio">
+                        {user.about.length > 120 
+                          ? `${user.about.substring(0, 120)}...` 
+                          : user.about}
+                      </p>
+                    )}
+
+                    <div className="user-meta">
+                      <span className="user-meta-item">
+                        <i className="fas fa-calendar"></i>
+                        Joined {new Date(user.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          year: 'numeric' 
+                        })}
+                      </span>
+                      {user.lastLogin && (
+                        <span className="user-meta-item">
+                          <i className="fas fa-clock"></i>
+                          Active {new Date(user.lastLogin).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="user-card-actions">
+                    <Link
+                      to={`/profile/${user.username}`}
+                      className="user-action-btn user-action-btn-secondary"
+                    >
+                      <i className="fas fa-user"></i>
+                      View Profile
+                    </Link>
+                    
+                    {/* Only show Message button if mutual follow */}
+                    {isMutualFollow && (
+                      <button
+                        className="user-action-btn user-action-btn-primary"
+                        onClick={() => handleMessageUser(user.id)}
+                        disabled={actionLoading[user.id]}
+                        title="Send a message"
+                      >
+                        {actionLoading[user.id] ? (
+                          <span className="spinner-border spinner-border-sm"></span>
+                        ) : (
+                          <>
+                            <i className="fas fa-comments"></i>
+                            Message
+                          </>
+                        )}
+                      </button>
+                    )}
+                    
+                    <button
+                      className={`user-action-btn ${
+                        user.isFollowing || isFollowingUser
+                          ? 'user-action-btn-secondary'
+                          : 'user-action-btn-primary'
+                      }`}
+                      onClick={() => handleFollowUser(user.id)}
+                      disabled={actionLoading[user.id]}
+                    >
+                      {actionLoading[user.id] ? (
+                        <span className="spinner-border spinner-border-sm"></span>
+                      ) : (
+                        <>
+                          <i className={`fas ${user.isFollowing || isFollowingUser ? 'fa-user-check' : 'fa-user-plus'}`}></i>
+                          {user.isFollowing || isFollowingUser ? 'Following' : 'Follow'}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Results Summary */}
+          <div className="users-results-summary">
+            <p>
+              Showing <strong>{filteredUsers.length}</strong> of <strong>{allUsers.length}</strong> users
+              {search && ` matching "${search}"`}
+            </p>
+          </div>
+        </>
       )}
     </div>
   );

@@ -268,10 +268,31 @@ User.hasMany(Conversation, {
   as: 'conversationsAsParticipant2',
   onDelete: 'CASCADE'
 });
+Conversation.belongsTo(User, {
+  foreignKey: 'participant1Id',
+  as: 'participant1'
+});
+Conversation.belongsTo(User, {
+  foreignKey: 'participant2Id',
+  as: 'participant2'
+});
+Conversation.hasMany(Message, {
+  foreignKey: 'conversationId',
+  as: 'messages',
+  onDelete: 'CASCADE'
+});
+Message.belongsTo(Conversation, {
+  foreignKey: 'conversationId',
+  as: 'conversation'
+});
 User.hasMany(Message, {
   foreignKey: 'senderId',
   as: 'sentMessages',
   onDelete: 'CASCADE'
+});
+Message.belongsTo(User, {
+  foreignKey: 'senderId',
+  as: 'sender'
 });
 
 // Group Conversations
@@ -280,27 +301,73 @@ User.hasMany(GroupConversation, {
   as: 'createdGroups',
   onDelete: 'SET NULL'
 });
+GroupConversation.belongsTo(User, {
+  foreignKey: 'createdBy',
+  as: 'creator'
+});
+Plan.hasMany(GroupConversation, {
+  foreignKey: 'planId',
+  as: 'groupConversations',
+  onDelete: 'SET NULL'
+});
+GroupConversation.belongsTo(Plan, {
+  foreignKey: 'planId',
+  as: 'plan',
+  required: false
+});
+GroupConversation.hasMany(GroupMessage, {
+  foreignKey: 'groupConversationId',
+  as: 'messages',
+  onDelete: 'CASCADE'
+});
+GroupMessage.belongsTo(GroupConversation, {
+  foreignKey: 'groupConversationId',
+  as: 'groupConversation'
+});
+GroupConversation.hasMany(GroupMember, {
+  foreignKey: 'groupConversationId',
+  as: 'members',
+  onDelete: 'CASCADE'
+});
+GroupMember.belongsTo(GroupConversation, {
+  foreignKey: 'groupConversationId',
+  as: 'groupConversation'
+});
 User.hasMany(GroupMember, {
   foreignKey: 'userId',
   as: 'groupMemberships',
   onDelete: 'CASCADE'
+});
+GroupMember.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user'
 });
 User.hasMany(GroupMessage, {
   foreignKey: 'senderId',
   as: 'sentGroupMessages',
   onDelete: 'CASCADE'
 });
+GroupMessage.belongsTo(User, {
+  foreignKey: 'senderId',
+  as: 'sender'
+});
+GroupMessage.hasMany(GroupMessageRead, {
+  foreignKey: 'messageId',
+  as: 'readBy',
+  onDelete: 'CASCADE'
+});
+GroupMessageRead.belongsTo(GroupMessage, {
+  foreignKey: 'messageId',
+  as: 'message'
+});
 User.hasMany(GroupMessageRead, {
   foreignKey: 'userId',
   as: 'readGroupMessages',
   onDelete: 'CASCADE'
 });
-
-// Plan associations for group chats
-Plan.hasMany(GroupConversation, {
-  foreignKey: 'planId',
-  as: 'groupConversations',
-  onDelete: 'SET NULL'
+GroupMessageRead.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user'
 });
 
 // Plan relationships
