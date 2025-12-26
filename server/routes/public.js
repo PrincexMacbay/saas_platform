@@ -236,9 +236,9 @@ router.post('/validate-coupon', async (req, res) => {
   }
 });
 
-// Submit membership application (public endpoint)
-// Use optionalAuth to get user if logged in, but don't require authentication
-router.post('/apply', optionalAuth, async (req, res) => {
+// Submit membership application (requires authentication)
+// Users must be logged in to apply - this ensures proper duplicate checking by userId
+router.post('/apply', authenticateToken, async (req, res) => {
   try {
     const { 
       email, 
@@ -313,32 +313,27 @@ router.post('/apply', optionalAuth, async (req, res) => {
       });
     }
 
-    // Check for existing applications - prevent duplicate applications
-    // First, try to identify the user (either logged in or by email)
-    let userToCheck = null;
-    if (req.user && req.user.id) {
-      userToCheck = await User.findByPk(req.user.id);
-    } else {
-      // Try to find user by email
-      userToCheck = await User.findOne({ where: { email: extractedEmail } });
+    // Check for existing applications - prevent duplicate applications to THIS SPECIFIC PLAN
+    // Since authentication is required, we always have req.user.id
+    const userId = req.user.id;
+
+    // Verify the email matches the logged-in user's email (prevent email spoofing)
+    if (extractedEmail.toLowerCase() !== req.user.email.toLowerCase()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email must match your account email. Please use the email associated with your account.'
+      });
     }
 
-    // Build query to check for existing applications
+    // Build query to check for existing applications FOR THIS SPECIFIC PLAN
+    // Check by userId (most reliable) for this specific plan
     const applicationWhereClause = {
-      planId,
-      status: { [Op.in]: ['pending', 'approved', 'rejected'] } // Check all statuses except 'incomplete'
+      [Op.and]: [
+        { planId }, // Must be for this specific plan
+        { status: { [Op.in]: ['pending', 'approved', 'rejected'] } },
+        { userId } // Check by userId (most secure - cannot be bypassed)
+      ]
     };
-
-    // If we found a user, check by userId (more reliable)
-    if (userToCheck) {
-      applicationWhereClause[Op.or] = [
-        { userId: userToCheck.id },
-        { email: extractedEmail }
-      ];
-    } else {
-      // No user found, check by email only
-      applicationWhereClause.email = extractedEmail;
-    }
 
     const existingApplication = await Application.findOne({
       where: applicationWhereClause
@@ -386,10 +381,10 @@ router.post('/apply', optionalAuth, async (req, res) => {
       }
     }
 
-    // Check if there's an incomplete application for this email and plan
+    // Check if there's an incomplete application for this user and plan
     const incompleteApplication = await Application.findOne({
       where: { 
-        email: extractedEmail, 
+        userId, // Check by userId (more reliable)
         planId, 
         status: 'incomplete' 
       }
@@ -500,6 +495,7 @@ router.post('/apply', optionalAuth, async (req, res) => {
       referral,
       studentId,
       planId,
+      userId, // Always link to authenticated user
       applicationFee,
       paymentInfo: paymentInfo ? JSON.stringify(paymentInfo) : null,
       formData: parsedFormData ? JSON.stringify(parsedFormData) : null,

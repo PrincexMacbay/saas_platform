@@ -886,6 +886,10 @@ const Plans = () => {
       });
 
       if (response.data.success) {
+        // Show message if group already existed
+        if (response.data.message && response.data.message.includes('already exists')) {
+          alert('Group chat already exists. Members have been updated.');
+        }
         // Navigate to the group chat
         window.location.href = `/messages?group=${response.data.data.id}`;
       }
@@ -966,7 +970,7 @@ const Plans = () => {
                 <button
                   onClick={() => handleCreateGroupChat(plan)}
                   className="group-chat-button"
-                  title="Create Group Chat for Plan Members"
+                  title="Open/Create Group Chat for Plan Members"
                 >
                   <i className="fas fa-comments"></i>
                 </button>

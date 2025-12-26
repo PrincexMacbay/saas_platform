@@ -239,20 +239,147 @@ const createGroupConversation = async (req, res) => {
         });
       }
 
-      // Get all active subscribers for this plan (only 'active' status)
+      // Check if a group already exists for this plan
+      let group = await GroupConversation.findOne({
+        where: {
+          planId,
+          isPlanGroup: true
+        },
+        include: [
+          {
+            model: GroupMember,
+            as: 'members',
+            include: [{
+              model: User,
+              as: 'user',
+              attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
+            }]
+          }
+        ]
+      });
+
+      if (group) {
+        // Group already exists, update members and return existing group
+        console.log(`Group already exists for plan ${planId}, updating members...`);
+        
+        // Get all approved members for this plan
+        // Include active subscriptions
+        const subscriptions = await Subscription.findAll({
+          where: {
+            planId,
+            status: 'active'
+          }
+        });
+
+        // Also get approved applications (they might not have subscriptions yet or have pending subscriptions)
+        const approvedApplications = await Application.findAll({
+          where: {
+            planId,
+            status: 'approved',
+            userId: { [Op.ne]: null }
+          },
+          attributes: ['userId']
+        });
+
+        // Combine subscription user IDs and approved application user IDs
+        const subscriptionUserIds = subscriptions
+          .map(sub => sub.userId)
+          .filter(id => id && id !== userId);
+        
+        const approvedApplicationUserIds = approvedApplications
+          .map(app => app.userId)
+          .filter(id => id && id !== userId);
+
+        // Merge and deduplicate member IDs
+        const allMemberIds = [...new Set([...subscriptionUserIds, ...approvedApplicationUserIds])];
+
+        // Get current members
+        const currentMembers = await GroupMember.findAll({
+          where: { groupConversationId: group.id }
+        });
+        const currentMemberIds = currentMembers.map(m => m.userId);
+
+        // Find members to add (not already in group)
+        const membersToAdd = allMemberIds
+          .filter(memberId => !currentMemberIds.includes(memberId))
+          .map(memberId => ({
+            groupConversationId: group.id,
+            userId: memberId,
+            role: 'member'
+          }));
+
+        // Add new members
+        if (membersToAdd.length > 0) {
+          await GroupMember.bulkCreate(membersToAdd);
+          console.log(`Added ${membersToAdd.length} new members to existing group`);
+        }
+
+        // Reload group with updated members
+        group = await GroupConversation.findByPk(group.id, {
+          include: [
+            {
+              model: User,
+              as: 'creator',
+              attributes: ['id', 'username', 'firstName', 'lastName']
+            },
+            {
+              model: Plan,
+              as: 'plan',
+              attributes: ['id', 'name']
+            },
+            {
+              model: GroupMember,
+              as: 'members',
+              include: [{
+                model: User,
+                as: 'user',
+                attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
+              }]
+            }
+          ]
+        });
+
+        return res.json({
+          success: true,
+          message: 'Group already exists. Members updated.',
+          data: group
+        });
+      }
+
+      // No existing group, create a new one
+      // Get all approved members for this plan
+      // Include active subscriptions
       const subscriptions = await Subscription.findAll({
         where: {
           planId,
-          status: 'active' // Only active subscriptions
+          status: 'active'
         }
       });
 
-      const memberIds = subscriptions
+      // Also get approved applications (they might not have subscriptions yet or have pending subscriptions)
+      const approvedApplications = await Application.findAll({
+        where: {
+          planId,
+          status: 'approved',
+          userId: { [Op.ne]: null }
+        },
+        attributes: ['userId']
+      });
+
+      // Combine subscription user IDs and approved application user IDs
+      const subscriptionUserIds = subscriptions
         .map(sub => sub.userId)
         .filter(id => id && id !== userId);
+      
+      const approvedApplicationUserIds = approvedApplications
+        .map(app => app.userId)
+        .filter(id => id && id !== userId);
+
+      // Merge and deduplicate member IDs
+      const allMemberIds = [...new Set([...subscriptionUserIds, ...approvedApplicationUserIds])];
 
       // Create group
-      const group = await GroupConversation.create({
+      group = await GroupConversation.create({
         name: name || `${plan.name} Members`,
         description: description || `Group chat for ${plan.name} members`,
         planId,
@@ -269,7 +396,7 @@ const createGroupConversation = async (req, res) => {
       });
 
       // Add all plan members
-      const membersToAdd = memberIds.map(memberId => ({
+      const membersToAdd = allMemberIds.map(memberId => ({
         groupConversationId: group.id,
         userId: memberId,
         role: 'member'

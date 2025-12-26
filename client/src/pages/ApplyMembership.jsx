@@ -24,8 +24,19 @@ const ApplyMembership = () => {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!user) {
+      setError('Please log in to apply for membership plans.');
+      setLoading(false);
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login', { state: { from: `/apply/${planId}` } });
+      }, 2000);
+      return;
+    }
+    
     fetchPlanAndForm();
-  }, [planId]);
+  }, [planId, user, navigate]);
 
   const fetchPlanAndForm = async () => {
     try {
@@ -85,11 +96,25 @@ const ApplyMembership = () => {
         applicationFee: selectedPlan.applicationFee || 0
       };
       
+      // Pre-fill user's email if authenticated
+      if (user && user.email) {
+        initialData.email = user.email;
+      }
+      
+      // Pre-fill user's name if available
+      if (user) {
+        if (user.firstName) initialData.firstName = user.firstName;
+        if (user.lastName) initialData.lastName = user.lastName;
+      }
+      
       // Add fields from the custom form
       if (formResponse.data.data.fields) {
         console.log('Form fields:', formResponse.data.data.fields); // Debug log
         formResponse.data.data.fields.forEach(field => {
-          initialData[field.name] = '';
+          // Don't overwrite pre-filled values
+          if (!initialData[field.name]) {
+            initialData[field.name] = '';
+          }
         });
       }
       
@@ -329,6 +354,10 @@ const ApplyMembership = () => {
         );
       
       default:
+        // Make email field read-only if user is logged in (to prevent email spoofing)
+        const isEmailField = name === 'email';
+        const isReadOnly = isEmailField && user && user.email;
+        
         return (
           <input
             type={type || 'text'}
@@ -338,6 +367,10 @@ const ApplyMembership = () => {
             placeholder={placeholder || t('membership.apply.enter.field', { field: label.toLowerCase() })}
             required={required}
             className="form-control"
+            readOnly={isReadOnly}
+            disabled={isReadOnly}
+            style={isReadOnly ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
+            title={isReadOnly ? 'Email is locked to your account email for security' : ''}
           />
         );
     }

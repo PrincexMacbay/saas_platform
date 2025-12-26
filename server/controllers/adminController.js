@@ -1335,12 +1335,16 @@ const approveMembershipApplication = async (req, res) => {
       include: [{ model: Plan, as: 'plan' }]
     });
 
-    // Send notification to applicant
+    // Send notification to applicant and add to group chat
     try {
       const notificationService = require('../services/notificationService');
+      const { GroupConversation, GroupMember } = require('../models');
+      
+      let userIdForGroup = null;
       
       // If application has userId, send notification
       if (updatedApplication.userId) {
+        userIdForGroup = updatedApplication.userId;
         await notificationService.notifyApplicationApproved(applicationId);
         console.log('✅ Approval notification sent successfully via adminController');
       } else {
@@ -1350,10 +1354,46 @@ const approveMembershipApplication = async (req, res) => {
         if (user) {
           // Update application with userId
           await updatedApplication.update({ userId: user.id });
+          userIdForGroup = user.id;
           await notificationService.notifyApplicationApproved(applicationId);
           console.log('✅ Approval notification sent successfully after finding user by email');
         } else {
           console.log('⚠️ Cannot send notification: No user found for application email:', updatedApplication.email);
+        }
+      }
+
+      // Add user to plan's group chat if one exists and user was found
+      if (userIdForGroup && updatedApplication.planId) {
+        try {
+          const existingGroup = await GroupConversation.findOne({
+            where: {
+              planId: updatedApplication.planId,
+              isPlanGroup: true
+            }
+          });
+
+          if (existingGroup) {
+            // Check if user is already a member
+            const existingMember = await GroupMember.findOne({
+              where: {
+                groupConversationId: existingGroup.id,
+                userId: userIdForGroup
+              }
+            });
+
+            if (!existingMember) {
+              // Add user to the group chat
+              await GroupMember.create({
+                groupConversationId: existingGroup.id,
+                userId: userIdForGroup,
+                role: 'member'
+              });
+              console.log(`✅ Added approved user ${userIdForGroup} to group chat ${existingGroup.id} for plan ${updatedApplication.planId}`);
+            }
+          }
+        } catch (error) {
+          console.error('Error adding user to group chat:', error);
+          // Don't fail the approval if group chat addition fails
         }
       }
     } catch (error) {
