@@ -38,6 +38,18 @@ export const getGroupMessages = async (groupConversationId, page = 1, limit = 50
   return response.data;
 };
 
+// ========== GROUP MANAGEMENT ==========
+
+export const updateGroupSettings = async (groupConversationId, settings) => {
+  const response = await api.put(`/chat/groups/${groupConversationId}/settings`, settings);
+  return response.data;
+};
+
+export const removeGroupMember = async (groupConversationId, memberId) => {
+  const response = await api.delete(`/chat/groups/${groupConversationId}/members/${memberId}`);
+  return response.data;
+};
+
 // ========== UNREAD COUNT ==========
 
 export const getUnreadCount = async () => {

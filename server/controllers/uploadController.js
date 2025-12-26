@@ -110,6 +110,68 @@ const uploadPostAttachment = async (req, res) => {
   }
 };
 
+// Upload chat attachment (images, videos, files)
+const uploadChatAttachment = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    // Determine file type
+    let attachmentType = 'file';
+    if (req.file.mimetype.startsWith('image/')) {
+      attachmentType = 'image';
+    } else if (req.file.mimetype.startsWith('video/')) {
+      attachmentType = 'video';
+    } else if (req.file.mimetype.startsWith('audio/')) {
+      attachmentType = 'audio';
+    }
+
+    // Use cloud URL if available, otherwise use local URL
+    let fileUrl, fullFileUrl;
+    if (req.file.cloudUrl) {
+      fileUrl = req.file.cloudUrl;
+      fullFileUrl = req.file.cloudUrl;
+    } else {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      fileUrl = `/uploads/${req.file.filename}`;
+      fullFileUrl = baseUrl + fileUrl;
+    }
+
+    res.json({
+      success: true,
+      message: 'File uploaded successfully',
+      data: {
+        url: fileUrl,
+        fullUrl: fullFileUrl,
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        fileType: req.file.mimetype,
+        attachmentType
+      }
+    });
+  } catch (error) {
+    console.error('Upload chat attachment error:', error);
+    
+    // Clean up uploaded file
+    if (req.file && req.file.path && !req.file.isCloud) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting file:', unlinkError);
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to upload file'
+    });
+  }
+};
+
 // General file upload (for logos, etc.)
 const uploadFile = async (req, res) => {
   try {
@@ -200,6 +262,7 @@ const deleteFile = async (req, res) => {
 module.exports = {
   uploadProfileImage,
   uploadPostAttachment,
+  uploadChatAttachment,
   uploadFile,
   deleteFile,
 };

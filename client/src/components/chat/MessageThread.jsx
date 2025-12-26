@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../contexts/ChatContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildImageUrl } from '../../utils/imageUtils';
-import api from '../../services/api';
+import { uploadChatAttachment } from '../../services/uploadService';
 import './MessageThread.css';
 
 const MessageThread = ({ conversationId, onBack }) => {
@@ -21,8 +21,12 @@ const MessageThread = ({ conversationId, onBack }) => {
   const [messageContent, setMessageContent] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [attachment, setAttachment] = useState(null);
+  const [attachmentType, setAttachmentType] = useState(null);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
   const conversation = conversations.find(c => c.id === conversationId);
@@ -46,20 +50,61 @@ const MessageThread = ({ conversationId, onBack }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleFileSelect = async (file) => {
+    setUploadingAttachment(true);
+    try {
+      const response = await uploadChatAttachment(file);
+      
+      // Determine attachment type
+      let type = 'file';
+      if (file.type.startsWith('image/')) {
+        type = 'image';
+      } else if (file.type.startsWith('video/')) {
+        type = 'video';
+      } else if (file.type.startsWith('audio/')) {
+        type = 'audio';
+      }
+
+      setAttachment(response.data.url);
+      setAttachmentType(type);
+    } catch (error) {
+      console.error('Error uploading attachment:', error);
+      alert('Failed to upload file. Please try again.');
+    } finally {
+      setUploadingAttachment(false);
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachment(null);
+    setAttachmentType(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!messageContent.trim() || sending) return;
+    if ((!messageContent.trim() && !attachment) || sending) return;
 
-    const content = messageContent.trim();
+    const content = messageContent.trim() || '';
+    const att = attachment;
+    const attType = attachmentType;
+
     setMessageContent('');
+    setAttachment(null);
+    setAttachmentType(null);
     setSending(true);
     setTyping(conversationId, false);
 
     try {
-      await sendMessage(conversationId, content, null, null);
+      await sendMessage(conversationId, content, att, attType);
     } catch (error) {
       console.error('Error sending message:', error);
-      setMessageContent(content); // Restore message on error
+      alert('Failed to send message. Please try again.');
+      setMessageContent(content);
+      setAttachment(att);
+      setAttachmentType(attType);
     } finally {
       setSending(false);
       inputRef.current?.focus();
@@ -95,6 +140,35 @@ const MessageThread = ({ conversationId, onBack }) => {
       return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
     }
     return user.username ? user.username.charAt(0).toUpperCase() : 'U';
+  };
+
+  const renderAttachment = (message) => {
+    if (!message.attachment) return null;
+
+    if (message.attachmentType === 'image') {
+      return (
+        <div className="message-attachment">
+          <img src={buildImageUrl(message.attachment)} alt="Attachment" />
+        </div>
+      );
+    } else if (message.attachmentType === 'video') {
+      return (
+        <div className="message-attachment message-video">
+          <video controls src={buildImageUrl(message.attachment)}>
+            Your browser does not support video playback.
+          </video>
+        </div>
+      );
+    } else {
+      return (
+        <div className="message-attachment message-file">
+          <a href={buildImageUrl(message.attachment)} target="_blank" rel="noopener noreferrer" download>
+            <i className="fas fa-file"></i>
+            <span>Download file</span>
+          </a>
+        </div>
+      );
+    }
   };
 
   if (loading) {
@@ -181,12 +255,10 @@ const MessageThread = ({ conversationId, onBack }) => {
                     </div>
                   )}
                   <div className="message-bubble">
-                    {message.attachment && (
-                      <div className="message-attachment">
-                        <img src={buildImageUrl(message.attachment)} alt="Attachment" />
-                      </div>
+                    {renderAttachment(message)}
+                    {message.content && (
+                      <div className="message-text">{message.content}</div>
                     )}
-                    <div className="message-text">{message.content}</div>
                     <div className="message-time">{formatTime(message.createdAt)}</div>
                   </div>
                 </div>
@@ -199,17 +271,67 @@ const MessageThread = ({ conversationId, onBack }) => {
 
       {/* Input */}
       <form className="message-thread-input" onSubmit={handleSend}>
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Type a message..."
-          value={messageContent}
-          onChange={handleTyping}
-          disabled={sending}
-        />
-        <button type="submit" disabled={!messageContent.trim() || sending}>
-          <i className="fas fa-paper-plane"></i>
-        </button>
+        {attachment && (
+          <div className="attachment-preview">
+            {attachmentType === 'image' ? (
+              <div className="attachment-preview-image">
+                <img src={buildImageUrl(attachment)} alt="Preview" />
+                <button type="button" onClick={removeAttachment}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+            ) : (
+              <div className="attachment-preview-file">
+                <i className="fas fa-file"></i>
+                <span>File attached</span>
+                <button type="button" onClick={removeAttachment}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="message-thread-input-wrapper">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+            onChange={(e) => {
+              if (e.target.files[0]) {
+                handleFileSelect(e.target.files[0]);
+              }
+            }}
+            style={{ display: 'none' }}
+          />
+          <button
+            type="button"
+            className="attach-button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAttachment}
+            title="Attach file"
+          >
+            {uploadingAttachment ? (
+              <i className="fas fa-spinner fa-spin"></i>
+            ) : (
+              <i className="fas fa-paperclip"></i>
+            )}
+          </button>
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Type a message..."
+            value={messageContent}
+            onChange={handleTyping}
+            disabled={sending}
+          />
+          <button 
+            type="submit" 
+            disabled={(!messageContent.trim() && !attachment) || sending}
+            title="Send message"
+          >
+            <i className="fas fa-paper-plane"></i>
+          </button>
+        </div>
       </form>
     </div>
   );

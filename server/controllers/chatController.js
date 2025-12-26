@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, User, Plan, Subscription } = require('../models');
+const { Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, User, Plan, Subscription, Application } = require('../models');
 
 // Note: Subscription model uses 'user' as the association alias
 
@@ -239,17 +239,12 @@ const createGroupConversation = async (req, res) => {
         });
       }
 
-      // Get all active subscribers for this plan
+      // Get all active subscribers for this plan (only 'active' status)
       const subscriptions = await Subscription.findAll({
         where: {
           planId,
-          status: 'active'
-        },
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['id']
-        }]
+          status: 'active' // Only active subscriptions
+        }
       });
 
       const memberIds = subscriptions
@@ -262,7 +257,8 @@ const createGroupConversation = async (req, res) => {
         description: description || `Group chat for ${plan.name} members`,
         planId,
         createdBy: userId,
-        isPlanGroup: true
+        isPlanGroup: true,
+        onlyCreatorCanSend: false // Default: all members can send
       });
 
       // Add creator as admin
@@ -397,43 +393,44 @@ const getGroupConversations = async (req, res) => {
     const memberships = await GroupMember.findAll({
       where: { userId },
       include: [
-        {
-          model: GroupConversation,
-          as: 'groupConversation',
-          include: [
             {
-              model: User,
-              as: 'creator',
-              attributes: ['id', 'username', 'firstName', 'lastName']
-            },
-            {
-              model: Plan,
-              as: 'plan',
-              attributes: ['id', 'name'],
-              required: false
-            },
-            {
-              model: GroupMessage,
-              as: 'messages',
-              limit: 1,
-              order: [['createdAt', 'DESC']],
-              include: [{
-                model: User,
-                as: 'sender',
-                attributes: ['id', 'username', 'firstName', 'lastName']
-              }]
-            },
-            {
-              model: GroupMember,
-              as: 'members',
-              include: [{
-                model: User,
-                as: 'user',
-                attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
-              }]
+              model: GroupConversation,
+              as: 'groupConversation',
+              attributes: ['id', 'name', 'description', 'avatar', 'createdBy', 'onlyCreatorCanSend', 'lastMessageAt', 'createdAt', 'updatedAt'],
+              include: [
+                {
+                  model: User,
+                  as: 'creator',
+                  attributes: ['id', 'username', 'firstName', 'lastName']
+                },
+                {
+                  model: Plan,
+                  as: 'plan',
+                  attributes: ['id', 'name'],
+                  required: false
+                },
+                {
+                  model: GroupMessage,
+                  as: 'messages',
+                  limit: 1,
+                  order: [['createdAt', 'DESC']],
+                  include: [{
+                    model: User,
+                    as: 'sender',
+                    attributes: ['id', 'username', 'firstName', 'lastName']
+                  }]
+                },
+                {
+                  model: GroupMember,
+                  as: 'members',
+                  include: [{
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
+                  }]
+                }
+              ]
             }
-          ]
-        }
       ],
       order: [[{ model: GroupConversation, as: 'groupConversation' }, 'lastMessageAt', 'DESC NULLS LAST']]
     });
@@ -468,6 +465,8 @@ const getGroupConversations = async (req, res) => {
           avatar: group.avatar,
           plan: group.plan,
           creator: group.creator,
+          createdBy: group.createdBy,
+          onlyCreatorCanSend: group.onlyCreatorCanSend || false,
           members: group.members,
           lastMessage: group.messages[0] || null,
           unreadCount,
@@ -615,6 +614,126 @@ const getUnreadCount = async (req, res) => {
   }
 };
 
+// Remove member from group
+const removeGroupMember = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { groupConversationId, memberId } = req.params;
+
+    // Verify user is the group creator
+    const group = await GroupConversation.findByPk(groupConversationId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: 'Group not found'
+      });
+    }
+
+    if (group.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the group creator can remove members'
+      });
+    }
+
+    // Cannot remove the creator
+    if (parseInt(memberId) === userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot remove the group creator'
+      });
+    }
+
+    // Remove member
+    const deleted = await GroupMember.destroy({
+      where: {
+        groupConversationId,
+        userId: memberId
+      }
+    });
+
+    if (deleted === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Member not found in group'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Member removed successfully'
+    });
+  } catch (error) {
+    console.error('Error removing group member:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove member',
+      error: error.message
+    });
+  }
+};
+
+// Update group settings
+const updateGroupSettings = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { groupConversationId } = req.params;
+    const { onlyCreatorCanSend } = req.body;
+
+    // Verify user is the group creator
+    const group = await GroupConversation.findByPk(groupConversationId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: 'Group not found'
+      });
+    }
+
+    if (group.createdBy !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the group creator can update settings'
+      });
+    }
+
+    // Update settings
+    await group.update({
+      onlyCreatorCanSend: onlyCreatorCanSend !== undefined ? onlyCreatorCanSend : group.onlyCreatorCanSend
+    });
+
+    const updatedGroup = await GroupConversation.findByPk(groupConversationId, {
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'username', 'firstName', 'lastName']
+        },
+        {
+          model: GroupMember,
+          as: 'members',
+          include: [{
+            model: User,
+            as: 'user',
+            attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
+          }]
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: updatedGroup
+    });
+  } catch (error) {
+    console.error('Error updating group settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update group settings',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getOrCreateConversation,
   getConversations,
@@ -622,5 +741,7 @@ module.exports = {
   createGroupConversation,
   getGroupConversations,
   getGroupMessages,
-  getUnreadCount
+  getUnreadCount,
+  removeGroupMember,
+  updateGroupSettings
 };

@@ -188,13 +188,70 @@
 
 .message-thread-input {
   display: flex;
-  padding: 15px 20px;
+  flex-direction: column;
   border-top: 1px solid #e5e7eb;
-  gap: 10px;
   background: white;
 }
 
-.message-thread-input input {
+.attachment-preview {
+  padding: 10px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.attachment-preview-image {
+  position: relative;
+  display: inline-block;
+  max-width: 200px;
+}
+
+.attachment-preview-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.attachment-preview-image button,
+.attachment-preview-file button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.attachment-preview-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.attachment-preview-file i {
+  font-size: 20px;
+  color: #6b7280;
+}
+
+.message-thread-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  gap: 10px;
+}
+
+.message-thread-input-wrapper input {
   flex: 1;
   padding: 10px 15px;
   border: 1px solid #e5e7eb;
@@ -204,11 +261,34 @@
   transition: border-color 0.2s;
 }
 
-.message-thread-input input:focus {
+.message-thread-input-wrapper input:focus {
   border-color: #2c3e50;
 }
 
-.message-thread-input button {
+.attach-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.attach-button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.attach-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.message-thread-input-wrapper button[type="submit"] {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -222,13 +302,39 @@
   transition: background 0.2s;
 }
 
-.message-thread-input button:hover:not(:disabled) {
+.message-thread-input-wrapper button[type="submit"]:hover:not(:disabled) {
   background: #34495e;
 }
 
-.message-thread-input button:disabled {
+.message-thread-input-wrapper button[type="submit"]:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.message-video video {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+}
+
+.message-file a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2c3e50;
+  text-decoration: none;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.message-file a:hover {
+  background: #e5e7eb;
+}
+
+.message-file i {
+  font-size: 18px;
 }
 
 @media (max-width: 768px) {

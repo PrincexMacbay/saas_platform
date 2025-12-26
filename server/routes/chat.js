@@ -13,6 +13,8 @@ router.get('/conversations/:conversationId/messages', authenticateToken, chatCon
 router.post('/groups', authenticateToken, chatController.createGroupConversation);
 router.get('/groups', authenticateToken, chatController.getGroupConversations);
 router.get('/groups/:groupConversationId/messages', authenticateToken, chatController.getGroupMessages);
+router.put('/groups/:groupConversationId/settings', authenticateToken, chatController.updateGroupSettings);
+router.delete('/groups/:groupConversationId/members/:memberId', authenticateToken, chatController.removeGroupMember);
 
 // Unread count
 router.get('/unread-count', authenticateToken, chatController.getUnreadCount);

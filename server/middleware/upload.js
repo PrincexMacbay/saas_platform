@@ -32,6 +32,28 @@ const imageFilter = (req, file, cb) => {
   }
 };
 
+// File filter function for chat messages (images, videos, files)
+const chatFileFilter = (req, file, cb) => {
+  // Allow images, videos, and common file types
+  const allowedMimeTypes = [
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+    'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo',
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+  ];
+  
+  if (allowedMimeTypes.includes(file.mimetype) || 
+      file.mimetype.startsWith('image/') || 
+      file.mimetype.startsWith('video/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('File type not allowed!'), false);
+  }
+};
+
 // File filter function for documents
 const documentFilter = (req, file, cb) => {
   // Allow PDF, DOC, DOCX files
@@ -185,9 +207,83 @@ const processProfileImage = async (req, res, next) => {
   }
 };
 
+// Configure multer for chat files (images, videos, documents)
+const uploadChatFile = multer({
+  storage: storage,
+  limits: {
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 25 * 1024 * 1024, // 25MB default for chat
+  },
+  fileFilter: chatFileFilter
+});
+
+// Process chat file (images get processed, videos/files are uploaded as-is)
+const processChatFile = async (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
+
+  try {
+    const isImage = req.file.mimetype.startsWith('image/');
+    const isVideo = req.file.mimetype.startsWith('video/');
+
+    if (isImage) {
+      // Process images with sharp
+      const inputPath = req.file.path;
+      const outputPath = path.join(
+        path.dirname(inputPath),
+        'processed-' + req.file.filename
+      );
+
+      await sharp(inputPath)
+        .resize(1200, 1200, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .jpeg({ quality: 85 })
+        .toFile(outputPath);
+
+      await fs.unlink(inputPath);
+
+      // Upload to cloud
+      const cloudResult = await uploadToCloud(outputPath, {
+        folder: 'chat-attachments',
+        resource_type: 'image',
+        transformation: {
+          quality: 'auto',
+          fetch_format: 'auto',
+        },
+      });
+
+      req.file.cloudUrl = cloudResult.url;
+      req.file.isCloud = cloudResult.isCloud;
+      req.file.publicId = cloudResult.publicId;
+      req.file.path = outputPath;
+      req.file.filename = 'processed-' + req.file.filename;
+    } else {
+      // For videos and files, upload directly to cloud
+      const resourceType = isVideo ? 'video' : 'raw';
+      const cloudResult = await uploadToCloud(req.file.path, {
+        folder: 'chat-attachments',
+        resource_type: resourceType,
+      });
+
+      req.file.cloudUrl = cloudResult.url;
+      req.file.isCloud = cloudResult.isCloud;
+      req.file.publicId = cloudResult.publicId;
+    }
+
+    next();
+  } catch (error) {
+    console.error('Chat file processing error:', error);
+    next();
+  }
+};
+
 module.exports = {
   upload,
   uploadDocument,
+  uploadChatFile,
   processImage,
   processProfileImage,
+  processChatFile,
 };

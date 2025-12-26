@@ -179,6 +179,34 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
+  // Update group settings
+  const updateGroupSettings = useCallback(async (groupConversationId, settings) => {
+    try {
+      const response = await chatService.updateGroupSettings(groupConversationId, settings);
+      if (response.success) {
+        await loadGroupConversations();
+      }
+      return response;
+    } catch (error) {
+      console.error('Error updating group settings:', error);
+      throw error;
+    }
+  }, [loadGroupConversations]);
+
+  // Remove group member
+  const removeGroupMember = useCallback(async (groupConversationId, memberId) => {
+    try {
+      const response = await chatService.removeGroupMember(groupConversationId, memberId);
+      if (response.success) {
+        await loadGroupConversations();
+      }
+      return response;
+    } catch (error) {
+      console.error('Error removing group member:', error);
+      throw error;
+    }
+  }, [loadGroupConversations]);
+
   // Update unread count
   const updateUnreadCount = useCallback(async () => {
     try {
@@ -399,6 +427,8 @@ export const ChatProvider = ({ children }) => {
     setTyping,
     setGroupTyping,
     updateUnreadCount,
+    updateGroupSettings,
+    removeGroupMember,
     setActiveConversation,
     setActiveGroupConversation
   };

@@ -49,6 +49,11 @@ const GroupConversation = sequelize.define('GroupConversation', {
     type: DataTypes.STRING(500),
     allowNull: true,
     comment: 'Group avatar image URL'
+  },
+  onlyCreatorCanSend: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: 'If true, only the group creator can send messages'
   }
 }, {
   tableName: 'group_conversations',

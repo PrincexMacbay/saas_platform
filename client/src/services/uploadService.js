@@ -26,6 +26,19 @@ export const uploadPostAttachment = async (file) => {
   return response.data;
 };
 
+export const uploadChatAttachment = async (file) => {
+  const formData = new FormData();
+  formData.append('attachment', file);
+  
+  const response = await api.post('/upload/chat-attachment', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  
+  return response.data;
+};
+
 export const deleteFile = async (filename) => {
   const response = await api.delete(`/upload/${filename}`);
   return response.data;

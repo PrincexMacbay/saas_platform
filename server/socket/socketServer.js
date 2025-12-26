@@ -286,6 +286,12 @@ const initializeSocket = (server) => {
           return socket.emit('message_error', { message: 'Not a member of this group' });
         }
 
+        // Check if only creator can send messages
+        const group = await GroupConversation.findByPk(groupConversationId);
+        if (group && group.onlyCreatorCanSend && group.createdBy !== socket.userId) {
+          return socket.emit('message_error', { message: 'Only the group creator can send messages in this group' });
+        }
+
         // Create message
         const message = await GroupMessage.create({
           groupConversationId,
