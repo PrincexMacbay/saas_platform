@@ -4,7 +4,7 @@ const { Plan, User, Application, Coupon, Subscription } = require('../models');
 const applicationFormController = require('../controllers/applicationFormController');
 const notificationService = require('../services/notificationService');
 const { Op } = require('sequelize');
-const { optionalAuth } = require('../middleware/auth');
+const { optionalAuth, authenticateToken } = require('../middleware/auth');
 
 // Get public membership plans
 router.get('/plans', async (req, res) => {
