@@ -29,6 +29,9 @@ const Profile = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedByMe, setBlockedByMe] = useState(false);
+  const [blockedByThem, setBlockedByThem] = useState(false);
   const { user, updateUser } = useAuth();
   const { t } = useLanguage();
   const { loadConversations, conversations } = useChat();
@@ -43,6 +46,14 @@ const Profile = () => {
     return currentUserFollowing && profileUserFollowing;
   }, [user, profileUser, following, followers, isOwnProfile]);
 
+  // Check if conversation exists with this user
+  const hasExistingConversation = React.useMemo(() => {
+    if (!profileUser || !user || isOwnProfile || !conversations) return false;
+    return conversations.some(conv => 
+      conv.otherUser && conv.otherUser.id === profileUser.id
+    );
+  }, [profileUser, user, conversations, isOwnProfile]);
+
   useEffect(() => {
     loadProfileData();
   }, [identifier]);
@@ -56,10 +67,14 @@ const Profile = () => {
 
   // Load conversations to check for existing ones
   useEffect(() => {
-    if (user && !isOwnProfile) {
-      loadConversations();
+    if (user && profileUser && !isOwnProfile && loadConversations) {
+      try {
+        loadConversations();
+      } catch (error) {
+        console.error('Error loading conversations:', error);
+      }
     }
-  }, [user, isOwnProfile, loadConversations]);
+  }, [user, profileUser, isOwnProfile, loadConversations]);
 
   const fetchUserMemberships = async (userId) => {
     try {
@@ -154,9 +169,9 @@ const Profile = () => {
     }
     
     // If conversation exists, navigate directly
-    if (hasExistingConversation) {
+    if (hasExistingConversation && conversations) {
       const existingConv = conversations.find(conv => 
-        conv.otherUser && conv.otherUser.id === profileUser.id
+        conv && conv.otherUser && conv.otherUser.id === profileUser.id
       );
       if (existingConv) {
         navigate(`/messages?conversation=${existingConv.id}`);
