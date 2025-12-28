@@ -202,11 +202,7 @@ const initializeSocket = (server) => {
         // Emit to conversation room
         io.to(`conversation_${conversationId}`).emit('new_message', fullMessage);
 
-        // Send notification to other participant
-        const otherUserId = conversation.participant1Id === socket.userId 
-          ? conversation.participant2Id 
-          : conversation.participant1Id;
-        
+        // Send notification to other participant (otherUserId already declared above)
         await sendNotification(
           otherUserId,
           'new_message',
