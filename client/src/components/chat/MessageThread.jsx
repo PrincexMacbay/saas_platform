@@ -3,6 +3,8 @@ import { useChat } from '../../contexts/ChatContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildImageUrl } from '../../utils/imageUtils';
 import { uploadChatAttachment } from '../../services/uploadService';
+import { blockUser, unblockUser, checkBlockStatus } from '../../services/userService';
+import { useNavigate } from 'react-router-dom';
 import './MessageThread.css';
 
 const MessageThread = ({ conversationId, onBack }) => {
@@ -15,7 +17,8 @@ const MessageThread = ({ conversationId, onBack }) => {
     sendMessage,
     setTyping,
     joinConversation,
-    markMessagesAsRead
+    markMessagesAsRead,
+    loadConversations
   } = useChat();
 
   const [messageContent, setMessageContent] = useState('');
@@ -24,19 +27,84 @@ const MessageThread = ({ conversationId, onBack }) => {
   const [attachment, setAttachment] = useState(null);
   const [attachmentType, setAttachmentType] = useState(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const settingsRef = useRef(null);
+  const navigate = useNavigate();
 
   const conversation = conversations.find(c => c.id === conversationId);
   const conversationMessages = messages[conversationId] || [];
   const typingUser = typingUsers[conversationId];
   const otherUser = conversation?.otherUser;
-  const isBlocked = conversation?.isBlocked || false;
-  const blockedByMe = conversation?.blockedByMe || false;
-  const blockedByThem = conversation?.blockedByThem || false;
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockedByMe, setBlockedByMe] = useState(false);
+  const [blockedByThem, setBlockedByThem] = useState(false);
   const canSendMessage = !isBlocked; // Can send if not blocked
+
+  const loadBlockStatus = async () => {
+    if (!otherUser || !user || otherUser.id === user.id) return;
+    
+    try {
+      const response = await checkBlockStatus(otherUser.id);
+      if (response.success) {
+        setIsBlocked(response.data.isBlocked);
+        setBlockedByMe(response.data.blockedByMe);
+        setBlockedByThem(response.data.blockedByThem);
+      }
+    } catch (error) {
+      console.error('Error loading block status:', error);
+    }
+  };
+
+  const handleBlock = async () => {
+    if (!otherUser || !user || blocking || otherUser.id === user.id) return;
+    
+    if (window.confirm(`Are you sure you want to block ${otherUser.firstName || otherUser.username}? You won't be able to send messages to each other.`)) {
+      try {
+        setBlocking(true);
+        await blockUser(otherUser.id);
+        setIsBlocked(true);
+        setBlockedByMe(true);
+        setShowSettings(false);
+        alert('User blocked successfully');
+        // Reload conversations to update block status
+        if (loadConversations) {
+          loadConversations();
+        }
+      } catch (error) {
+        console.error('Error blocking user:', error);
+        alert('Failed to block user. Please try again.');
+      } finally {
+        setBlocking(false);
+      }
+    }
+  };
+
+  const handleUnblock = async () => {
+    if (!otherUser || !user || blocking || otherUser.id === user.id) return;
+    
+    try {
+      setBlocking(true);
+      await unblockUser(otherUser.id);
+      setIsBlocked(false);
+      setBlockedByMe(false);
+      setShowSettings(false);
+      alert('User unblocked successfully');
+      // Reload conversations to update block status
+      if (loadConversations) {
+        loadConversations();
+      }
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      alert('Failed to unblock user. Please try again.');
+    } finally {
+      setBlocking(false);
+    }
+  };
 
   useEffect(() => {
     if (conversationId) {
@@ -45,6 +113,30 @@ const MessageThread = ({ conversationId, onBack }) => {
       markMessagesAsRead(conversationId);
     }
   }, [conversationId]);
+
+  // Load block status when conversation changes
+  useEffect(() => {
+    if (otherUser && user && otherUser.id !== user.id) {
+      loadBlockStatus();
+    }
+  }, [otherUser, user]);
+
+  // Close settings menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettings]);
 
   useEffect(() => {
     scrollToBottom();
@@ -223,6 +315,48 @@ const MessageThread = ({ conversationId, onBack }) => {
               </div>
             )}
           </div>
+        </div>
+        <div className="thread-header-actions" ref={settingsRef}>
+          <button
+            className="settings-button"
+            onClick={() => setShowSettings(!showSettings)}
+            title="Chat settings"
+          >
+            <i className="fas fa-ellipsis-v"></i>
+          </button>
+          {showSettings && (
+            <div className="chat-settings-menu">
+              <button
+                className="settings-menu-item"
+                onClick={() => {
+                  window.open(`/profile/${otherUser.username}`, '_blank');
+                  setShowSettings(false);
+                }}
+              >
+                <i className="fas fa-user"></i>
+                View Profile
+              </button>
+              {blockedByMe ? (
+                <button
+                  className="settings-menu-item settings-menu-item-danger"
+                  onClick={handleUnblock}
+                  disabled={blocking}
+                >
+                  <i className="fas fa-unlock"></i>
+                  {blocking ? 'Unblocking...' : 'Unblock User'}
+                </button>
+              ) : !blockedByThem && (
+                <button
+                  className="settings-menu-item settings-menu-item-danger"
+                  onClick={handleBlock}
+                  disabled={blocking}
+                >
+                  <i className="fas fa-ban"></i>
+                  {blocking ? 'Blocking...' : 'Block User'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
