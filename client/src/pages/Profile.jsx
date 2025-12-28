@@ -230,6 +230,42 @@ const Profile = () => {
     setActionLoading(false);
   };
 
+  const handleBlock = async () => {
+    if (!profileUser || !user || isOwnProfile) return;
+    
+    if (window.confirm(`Are you sure you want to block ${profileUser.firstName || profileUser.username}? You won't be able to message each other.`)) {
+      try {
+        setActionLoading(true);
+        await blockUser(profileUser.id);
+        setIsBlocked(true);
+        setBlockedByMe(true);
+        alert('User blocked successfully');
+      } catch (error) {
+        console.error('Error blocking user:', error);
+        alert('Failed to block user. Please try again.');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
+  const handleUnblock = async () => {
+    if (!profileUser || !user || isOwnProfile) return;
+    
+    try {
+      setActionLoading(true);
+      await unblockUser(profileUser.id);
+      setIsBlocked(false);
+      setBlockedByMe(false);
+      alert('User unblocked successfully');
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      alert('Failed to unblock user. Please try again.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setActionLoading(true);
