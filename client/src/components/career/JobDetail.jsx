@@ -440,7 +440,7 @@ const JobDetail = () => {
 
                 <div className="form-group">
                   <label htmlFor="resume" className="form-label">
-                    Resume <span className="optional">(Optional)</span>
+                    Resume <span className="optional"></span>
                   </label>
                   <div className="file-upload-wrapper">
                     <input
