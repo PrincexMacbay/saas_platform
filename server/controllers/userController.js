@@ -1,5 +1,5 @@
 const { body } = require('express-validator');
-const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Membership } = require('../models');
+const { User, UserProfile, IndividualProfile, CompanyProfile, Follow, Space, Membership, Block } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
 const emailService = require('../services/emailService');
