@@ -449,7 +449,164 @@ const getFollowing = async (req, res) => {
   }
 };
 
+// Block user
+const blockUser = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const { reason } = req.body;
+    const blockerId = req.user.id;
 
+    if (parseInt(userid) === blockerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot block yourself'
+      });
+    }
+
+    const targetUser = await User.findByPk(userid);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if already blocked
+    const existingBlock = await Block.findOne({
+      where: {
+        blockerId,
+        blockedId: userid
+      }
+    });
+
+    if (existingBlock) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already blocked'
+      });
+    }
+
+    // Create block
+    const block = await Block.create({
+      blockerId,
+      blockedId: userid,
+      reason: reason || null
+    });
+
+    res.json({
+      success: true,
+      message: 'User blocked successfully',
+      data: block
+    });
+  } catch (error) {
+    console.error('Block user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to block user',
+      error: error.message
+    });
+  }
+};
+
+// Unblock user
+const unblockUser = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const blockerId = req.user.id;
+
+    const block = await Block.findOne({
+      where: {
+        blockerId,
+        blockedId: userid
+      }
+    });
+
+    if (!block) {
+      return res.status(404).json({
+        success: false,
+        message: 'User is not blocked'
+      });
+    }
+
+    await block.destroy();
+
+    res.json({
+      success: true,
+      message: 'User unblocked successfully'
+    });
+  } catch (error) {
+    console.error('Unblock user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to unblock user',
+      error: error.message
+    });
+  }
+};
+
+// Get blocked users
+const getBlockedUsers = async (req, res) => {
+  try {
+    const blockerId = req.user.id;
+
+    const blocks = await Block.findAll({
+      where: { blockerId },
+      include: [{
+        model: User,
+        as: 'blocked',
+        attributes: ['id', 'username', 'firstName', 'lastName', 'profileImage']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+
+    const blockedUsers = blocks.map(block => block.blocked);
+
+    res.json({
+      success: true,
+      data: blockedUsers
+    });
+  } catch (error) {
+    console.error('Get blocked users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get blocked users',
+      error: error.message
+    });
+  }
+};
+
+// Check if user is blocked
+const checkBlockStatus = async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const currentUserId = req.user.id;
+
+    const isBlocked = await Block.findOne({
+      where: {
+        [Op.or]: [
+          { blockerId: currentUserId, blockedId: userid },
+          { blockerId: userid, blockedId: currentUserId }
+        ]
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        isBlocked: !!isBlocked,
+        blockedByMe: isBlocked && isBlocked.blockerId === currentUserId,
+        blockedByThem: isBlocked && isBlocked.blockerId === parseInt(userid)
+      }
+    });
+  } catch (error) {
+    console.error('Check block status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check block status',
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   getUser,
@@ -458,4 +615,8 @@ module.exports = {
   toggleFollow,
   getFollowers,
   getFollowing,
+  blockUser,
+  unblockUser,
+  getBlockedUsers,
+  checkBlockStatus
 };

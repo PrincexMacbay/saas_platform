@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
+import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing, checkBlockStatus, blockUser, unblockUser } from '../services/userService';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
 import { getOrCreateConversation } from '../services/chatService';
@@ -31,7 +31,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
   const { user, updateUser } = useAuth();
   const { t } = useLanguage();
-  const { loadConversations } = useChat();
+  const { loadConversations, conversations } = useChat();
 
   const isOwnProfile = user && profileUser && user.id === profileUser.id;
   
@@ -53,6 +53,13 @@ const Profile = () => {
       setIsEditing(true);
     }
   }, [searchParams, isOwnProfile]);
+
+  // Load conversations to check for existing ones
+  useEffect(() => {
+    if (user && !isOwnProfile) {
+      loadConversations();
+    }
+  }, [user, isOwnProfile, loadConversations]);
 
   const fetchUserMemberships = async (userId) => {
     try {
@@ -93,6 +100,23 @@ const Profile = () => {
       setPosts(postsResponse.data.posts);
       setUserMemberships(membershipsResponse);
       
+      // Check block status and existing conversation if viewing another user's profile
+      if (profileUserData.id !== user?.id && user?.id) {
+        try {
+          const [blockStatusResponse] = await Promise.all([
+            checkBlockStatus(profileUserData.id)
+          ]);
+          
+          if (blockStatusResponse.success) {
+            setIsBlocked(blockStatusResponse.data.isBlocked);
+            setBlockedByMe(blockStatusResponse.data.blockedByMe);
+            setBlockedByThem(blockStatusResponse.data.blockedByThem);
+          }
+        } catch (error) {
+          console.error('Error checking block status:', error);
+        }
+      }
+      
       if (profileUserData.id === user?.id) {
         setEditData({
           firstName: profileUserData.firstName || '',
@@ -123,6 +147,25 @@ const Profile = () => {
   const handleMessage = async () => {
     if (!profileUser || !user) return;
     
+    // Check if blocked
+    if (isBlocked) {
+      alert('You cannot message this user. One of you has blocked the other.');
+      return;
+    }
+    
+    // If conversation exists, navigate directly
+    if (hasExistingConversation) {
+      const existingConv = conversations.find(conv => 
+        conv.otherUser && conv.otherUser.id === profileUser.id
+      );
+      if (existingConv) {
+        navigate(`/messages?conversation=${existingConv.id}`);
+        return;
+      }
+    }
+    
+    // For NEW conversations, require mutual follow
+    // But allow access to existing conversations even without mutual follow
     try {
       setActionLoading(true);
       const response = await getOrCreateConversation(profileUser.id);
@@ -135,7 +178,8 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error starting conversation:', error);
-      alert('Failed to start conversation. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to start conversation. Please try again.';
+      alert(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -318,16 +362,47 @@ const Profile = () => {
                     </>
                   ) : (
                     <>
-                      <button
-                        onClick={handleMessage}
-                        disabled={actionLoading}
-                        className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-gray-700"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        Message
-                      </button>
+                      {/* Show Message button if mutual follow (for new conversations) OR if conversation already exists */}
+                      {/* But hide if blocked */}
+                      {!isBlocked && (isMutualFollow || hasExistingConversation) && (
+                        <button
+                          onClick={handleMessage}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-gray-700"
+                          title={hasExistingConversation && !isMutualFollow ? 'Continue existing conversation' : 'Send a message'}
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          Message
+                        </button>
+                      )}
+                      {/* Block/Unblock button */}
+                      {blockedByMe ? (
+                        <button
+                          onClick={handleUnblock}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-yellow-700"
+                          title="Unblock this user"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                          Unblock
+                        </button>
+                      ) : !blockedByThem && (
+                        <button
+                          onClick={handleBlock}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm transition-all transform hover:scale-105 border border-red-700"
+                          title="Block this user"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                          Block
+                        </button>
+                      )}
                       <button
                         onClick={handleFollow}
                         disabled={actionLoading}

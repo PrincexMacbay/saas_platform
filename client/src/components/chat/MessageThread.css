@@ -1,3 +1,20 @@
+/* Blocked Message Banner */
+.blocked-message-banner {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin: 0;
+}
+
+.blocked-message-banner i {
+  font-size: 16px;
+}
+
 .message-thread {
   display: flex;
   flex-direction: column;

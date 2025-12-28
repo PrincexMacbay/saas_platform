@@ -1,7 +1,7 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
-const { User, Notification, Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead } = require('../models');
+const { User, Notification, Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, Follow } = require('../models');
 
 let io;
 
@@ -152,6 +152,26 @@ const initializeSocket = (server) => {
 
         if (!conversation) {
           return socket.emit('message_error', { message: 'Conversation not found or access denied' });
+        }
+
+        // Check if user is blocked (either direction)
+        const otherUserId = conversation.participant1Id === socket.userId 
+          ? conversation.participant2Id 
+          : conversation.participant1Id;
+
+        const isBlocked = await Block.findOne({
+          where: {
+            [Op.or]: [
+              { blockerId: socket.userId, blockedId: otherUserId },
+              { blockerId: otherUserId, blockedId: socket.userId }
+            ]
+          }
+        });
+
+        if (isBlocked) {
+          return socket.emit('message_error', { 
+            message: 'You cannot send messages. One of you has blocked the other.' 
+          });
         }
 
         // Create message

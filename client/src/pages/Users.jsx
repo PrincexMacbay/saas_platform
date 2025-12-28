@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getUsers, toggleFollowUser, getFollowers, getFollowing } from '../services/userService';
+import { getUsers, toggleFollowUser, getFollowers, getFollowing, checkBlockStatus } from '../services/userService';
 import { getOrCreateConversation } from '../services/chatService';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -120,6 +120,19 @@ const Users = () => {
   const handleMessageUser = async (userId) => {
     if (actionLoading[userId]) return;
     
+    // Verify mutual follow before attempting to message
+    const user = allUsers.find(u => u.id === userId);
+    if (user) {
+      const isFollower = followers.some(f => f.id === userId);
+      const isFollowingUser = following.some(f => f.id === userId);
+      const isMutualFollow = isFollower && isFollowingUser;
+      
+      if (!isMutualFollow) {
+        alert('You can only message users who follow you and whom you follow (mutual follow required).');
+        return;
+      }
+    }
+    
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
       const response = await getOrCreateConversation(userId);
@@ -130,7 +143,8 @@ const Users = () => {
       }
     } catch (error) {
       console.error('Error starting conversation:', error);
-      alert('Failed to start conversation. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to start conversation. Please try again.';
+      alert(errorMessage);
     } finally {
       setActionLoading(prev => ({ ...prev, [userId]: false }));
     }
@@ -425,7 +439,7 @@ const Users = () => {
                       View Profile
                     </Link>
                     
-                    {/* Only show Message button if mutual follow */}
+                    {/* Show Message button if mutual follow OR if conversation exists (but not if blocked) */}
                     {isMutualFollow && (
                       <button
                         className="user-action-btn user-action-btn-primary"

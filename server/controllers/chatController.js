@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, User, Plan, Subscription, Application } = require('../models');
+const { Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, User, Plan, Subscription, Application, Follow, Block } = require('../models');
 
 // Note: Subscription model uses 'user' as the association alias
 
@@ -15,6 +15,23 @@ const getOrCreateConversation = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Cannot create conversation with yourself'
+      });
+    }
+
+    // Check if user is blocked (either direction) - prevent all messaging if blocked
+    const isBlocked = await Block.findOne({
+      where: {
+        [Op.or]: [
+          { blockerId: currentUserId, blockedId: parseInt(otherUserId) },
+          { blockerId: parseInt(otherUserId), blockedId: currentUserId }
+        ]
+      }
+    });
+
+    if (isBlocked) {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot message this user. One of you has blocked the other.'
       });
     }
 
@@ -40,8 +57,33 @@ const getOrCreateConversation = async (req, res) => {
       ]
     });
 
-    // Create if doesn't exist
+    // Create if doesn't exist - but only if mutual follow exists (for NEW conversations)
     if (!conversation) {
+      // For NEW conversations, require mutual follow
+      const [currentUserFollowsOther, otherUserFollowsCurrent] = await Promise.all([
+        Follow.findOne({
+          where: {
+            userId: currentUserId,
+            objectModel: 'User',
+            objectId: parseInt(otherUserId)
+          }
+        }),
+        Follow.findOne({
+          where: {
+            userId: parseInt(otherUserId),
+            objectModel: 'User',
+            objectId: currentUserId
+          }
+        })
+      ]);
+
+      if (!currentUserFollowsOther || !otherUserFollowsCurrent) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only start new conversations with users who follow you and whom you follow (mutual follow required)'
+        });
+      }
+
       conversation = await Conversation.create({
         participant1Id: Math.min(currentUserId, otherUserId),
         participant2Id: Math.max(currentUserId, otherUserId)
@@ -116,9 +158,21 @@ const getConversations = async (req, res) => {
     });
 
     // Format conversations with unread count
+    // Include all conversations (blocked users can still see conversations, just can't send)
     const formattedConversations = await Promise.all(
       conversations.map(async (conv) => {
         const otherUser = conv.participant1Id === userId ? conv.participant2 : conv.participant1;
+        
+        // Check if user is blocked (either direction) - for UI indication only
+        const isBlocked = await Block.findOne({
+          where: {
+            [Op.or]: [
+              { blockerId: userId, blockedId: otherUser.id },
+              { blockerId: otherUser.id, blockedId: userId }
+            ]
+          }
+        });
+
         const unreadCount = await Message.count({
           where: {
             conversationId: conv.id,
@@ -134,7 +188,10 @@ const getConversations = async (req, res) => {
           unreadCount,
           lastMessageAt: conv.lastMessageAt,
           createdAt: conv.createdAt,
-          updatedAt: conv.updatedAt
+          updatedAt: conv.updatedAt,
+          isBlocked: !!isBlocked, // Include block status for frontend
+          blockedByMe: isBlocked && isBlocked.blockerId === userId,
+          blockedByThem: isBlocked && isBlocked.blockerId === otherUser.id
         };
       })
     );
@@ -177,6 +234,9 @@ const getMessages = async (req, res) => {
         message: 'Conversation not found'
       });
     }
+
+    // Note: Blocked users can still view messages, they just can't send new ones
+    // Block checking for sending messages is done in the send_message socket handler
 
     const offset = (page - 1) * limit;
 

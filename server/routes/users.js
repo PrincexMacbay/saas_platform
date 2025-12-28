@@ -12,6 +12,10 @@ router.get('/:userid/following', optionalAuth, userController.getFollowing);
 // Protected routes
 router.put('/profile', authenticateToken, userController.updateProfile);
 router.post('/:userid/follow', authenticateToken, userController.toggleFollow);
+router.post('/:userid/block', authenticateToken, userController.blockUser);
+router.delete('/:userid/block', authenticateToken, userController.unblockUser);
+router.get('/blocked/list', authenticateToken, userController.getBlockedUsers);
+router.get('/:userid/block-status', authenticateToken, userController.checkBlockStatus);
 
 
 // Test endpoint to check if user exists

@@ -32,6 +32,7 @@ const PasswordResetToken = require('./PasswordResetToken');
 const EmailVerificationToken = require('./EmailVerificationToken');
 const SystemSettings = require('./SystemSettings');
 const Notification = require('./Notification');
+const Block = require('./Block');
 // Chat System Models
 const Conversation = require('./Conversation');
 const Message = require('./Message');
@@ -136,6 +137,26 @@ User.hasMany(Follow, {
 Follow.belongsTo(User, { 
   foreignKey: 'userId',
   as: 'follower'
+});
+
+// Block relationships
+User.hasMany(Block, { 
+  foreignKey: 'blockerId',
+  as: 'blockedUsers',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Block, { 
+  foreignKey: 'blockedId',
+  as: 'blockedBy',
+  onDelete: 'CASCADE'
+});
+Block.belongsTo(User, { 
+  foreignKey: 'blockerId',
+  as: 'blocker'
+});
+Block.belongsTo(User, { 
+  foreignKey: 'blockedId',
+  as: 'blocked'
 });
 
 // Like relationships
@@ -679,6 +700,7 @@ module.exports = {
   EmailVerificationToken,
   SystemSettings,
   Notification,
+  Block,
   // Chat System
   Conversation,
   Message,

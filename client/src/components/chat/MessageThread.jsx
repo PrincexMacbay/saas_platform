@@ -33,6 +33,10 @@ const MessageThread = ({ conversationId, onBack }) => {
   const conversationMessages = messages[conversationId] || [];
   const typingUser = typingUsers[conversationId];
   const otherUser = conversation?.otherUser;
+  const isBlocked = conversation?.isBlocked || false;
+  const blockedByMe = conversation?.blockedByMe || false;
+  const blockedByThem = conversation?.blockedByThem || false;
+  const canSendMessage = !isBlocked; // Can send if not blocked
 
   useEffect(() => {
     if (conversationId) {
@@ -85,7 +89,7 @@ const MessageThread = ({ conversationId, onBack }) => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if ((!messageContent.trim() && !attachment) || sending) return;
+    if ((!messageContent.trim() && !attachment) || sending || !canSendMessage) return;
 
     const content = messageContent.trim() || '';
     const att = attachment;
@@ -269,6 +273,18 @@ const MessageThread = ({ conversationId, onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Blocked Message Banner */}
+      {isBlocked && (
+        <div className="blocked-message-banner">
+          <i className="fas fa-ban"></i>
+          <span>
+            {blockedByMe 
+              ? 'You have blocked this user. You can view previous messages but cannot send new ones.'
+              : 'This user has blocked you. You can view previous messages but cannot send new ones.'}
+          </span>
+        </div>
+      )}
+
       {/* Input */}
       <form className="message-thread-input" onSubmit={handleSend}>
         {attachment && (
@@ -307,8 +323,8 @@ const MessageThread = ({ conversationId, onBack }) => {
             type="button"
             className="attach-button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingAttachment}
-            title="Attach file"
+            disabled={uploadingAttachment || !canSendMessage}
+            title={!canSendMessage ? "Cannot send messages (blocked)" : "Attach file"}
           >
             {uploadingAttachment ? (
               <i className="fas fa-spinner fa-spin"></i>
@@ -319,15 +335,16 @@ const MessageThread = ({ conversationId, onBack }) => {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Type a message..."
+            placeholder={!canSendMessage ? "You cannot send messages to this user" : "Type a message..."}
             value={messageContent}
             onChange={handleTyping}
-            disabled={sending}
+            disabled={sending || !canSendMessage}
+            readOnly={!canSendMessage}
           />
           <button 
             type="submit" 
-            disabled={(!messageContent.trim() && !attachment) || sending}
-            title="Send message"
+            disabled={(!messageContent.trim() && !attachment) || sending || !canSendMessage}
+            title={!canSendMessage ? "Cannot send messages (blocked)" : "Send message"}
           >
             <i className="fas fa-paper-plane"></i>
           </button>
