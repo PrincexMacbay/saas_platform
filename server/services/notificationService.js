@@ -273,6 +273,73 @@ class NotificationService {
   }
 
   // Job application notifications
+  async notifyJobApplicationSubmitted(jobApplicationId) {
+    try {
+      console.log('🔍 notifyJobApplicationSubmitted: Starting', { jobApplicationId });
+      
+      const jobApplication = await JobApplication.findByPk(jobApplicationId, {
+        include: [
+          { 
+            model: User, 
+            as: 'applicant',
+            attributes: ['id', 'firstName', 'lastName', 'username']
+          },
+          { 
+            model: Job, 
+            as: 'job',
+            include: [
+              {
+                model: User,
+                as: 'employer',
+                attributes: ['id']
+              }
+            ]
+          }
+        ]
+      });
+
+      if (!jobApplication || !jobApplication.job) {
+        console.log('⚠️ notifyJobApplicationSubmitted: Job application or job not found', { jobApplicationId });
+        return;
+      }
+
+      const employerId = jobApplication.job.userId;
+      if (!employerId) {
+        console.log('⚠️ notifyJobApplicationSubmitted: Job has no employer', { 
+          jobApplicationId,
+          jobId: jobApplication.job.id 
+        });
+        return;
+      }
+
+      const applicantName = jobApplication.applicant 
+        ? `${jobApplication.applicant.firstName || ''} ${jobApplication.applicant.lastName || ''}`.trim() || jobApplication.applicant.username
+        : 'A candidate';
+
+      console.log('📬 Sending job application submitted notification:', {
+        toUserId: employerId,
+        jobApplicationId,
+        jobId: jobApplication.job.id,
+        jobTitle: jobApplication.job.title,
+        applicantName
+      });
+
+      await sendNotification(
+        employerId,
+        'job_application_submitted',
+        'New Job Application',
+        `${applicantName} applied for "${jobApplication.job.title}"`,
+        `/career/job/${jobApplication.job.id}?tab=applications&applicationId=${jobApplicationId}`,
+        { jobApplicationId, jobId: jobApplication.job.id, applicantId: jobApplication.applicantId }
+      );
+      
+      console.log('✅ notifyJobApplicationSubmitted: Notification sent successfully');
+    } catch (error) {
+      console.error('❌ Error notifying job application submitted:', error);
+      console.error('Error stack:', error.stack);
+    }
+  }
+
   async notifyJobApplicationStatus(jobApplicationId, status) {
     try {
       const jobApplication = await JobApplication.findByPk(jobApplicationId, {

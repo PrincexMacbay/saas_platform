@@ -4,6 +4,7 @@ import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import ConfirmDialog from '../ConfirmDialog';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 const ApplicationForms = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const ApplicationForms = () => {
       await fetchForms();
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert(t('forms.failed.to.join', { error: error.response?.data?.message || error.message }));
+      showError(t('forms.failed.to.join', { error: error.response?.data?.message || error.message }), t('forms.error.title') || 'Error');
     } finally {
       setJoiningOrganization(false);
     }
@@ -102,7 +103,7 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert(t('forms.error.deleting', { error: error.response?.data?.message || error.message }));
+      showError(t('forms.error.deleting', { error: error.response?.data?.message || error.message }), t('forms.error.title') || 'Error');
     }
   };
 
@@ -113,7 +114,7 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert(t('forms.error.publishing', { error: error.response?.data?.message || error.message }));
+      showError(t('forms.error.publishing', { error: error.response?.data?.message || error.message }), t('forms.error.title') || 'Error');
     }
   };
 
@@ -124,7 +125,7 @@ const ApplicationForms = () => {
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
-      alert(t('forms.error.unpublishing', { error: error.response?.data?.message || error.message }));
+      showError(t('forms.error.unpublishing', { error: error.response?.data?.message || error.message }), t('forms.error.title') || 'Error');
     }
   };
 
@@ -812,7 +813,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
       
       onSave();
     } catch (error) {
-      alert(t('forms.error.saving', { error: error.response?.data?.message || error.message }));
+      showError(t('forms.error.saving', { error: error.response?.data?.message || error.message }), t('forms.error.title') || 'Error');
     } finally {
       setLoading(false);
     }

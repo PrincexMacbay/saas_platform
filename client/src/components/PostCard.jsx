@@ -92,7 +92,7 @@ const PostCard = ({ post, onUpdate, highlightCommentId }) => {
       onUpdate && onUpdate();
     } catch (error) {
       console.error('Error updating post:', error);
-      alert('Failed to update post. Please try again.');
+      showError('Failed to update post. Please try again.', 'Update Error');
     }
     setIsUpdating(false);
   };
@@ -114,7 +114,7 @@ const PostCard = ({ post, onUpdate, highlightCommentId }) => {
       onUpdate && onUpdate();
     } catch (error) {
       console.error('Error deleting post:', error);
-      alert('Failed to delete post. Please try again.');
+      showError('Failed to delete post. Please try again.', 'Delete Error');
     }
     setIsDeleting(false);
   };

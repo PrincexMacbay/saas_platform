@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUsers, toggleFollowUser, getFollowers, getFollowing, checkBlockStatus } from '../services/userService';
+import { useNotificationModal } from '../contexts/NotificationModalContext';
 import { getOrCreateConversation } from '../services/chatService';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -144,7 +145,7 @@ const Users = () => {
     } catch (error) {
       console.error('Error starting conversation:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to start conversation. Please try again.';
-      alert(errorMessage);
+      showError(errorMessage, 'Error');
     } finally {
       setActionLoading(prev => ({ ...prev, [userId]: false }));
     }

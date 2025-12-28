@@ -4,10 +4,12 @@ import CryptoPayment from './CryptoPayment';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 const Payments = () => {
   const { data, loading: contextLoading, isInitialized, isLoadingAll } = useMembershipData();
   const { t } = useLanguage();
+  const { showError } = useNotificationModal();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -167,7 +169,7 @@ const Payments = () => {
       await api.delete(`/membership/payments/${paymentId}`);
       fetchPayments();
     } catch (error) {
-      alert('Error deleting payment: ' + (error.response?.data?.message || error.message));
+      showError('Error deleting payment: ' + (error.response?.data?.message || error.message), 'Error');
     }
   };
 
@@ -620,7 +622,7 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
       }
       onSave();
     } catch (error) {
-      alert('Error saving payment: ' + (error.response?.data?.message || error.message));
+      showError('Error saving payment: ' + (error.response?.data?.message || error.message), 'Error');
     } finally {
       setLoading(false);
     }

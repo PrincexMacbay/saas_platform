@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 const Applications = () => {
   const [searchParams] = useSearchParams();
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const { t } = useLanguage();
+  const { showSuccess, showError } = useNotificationModal();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -125,7 +127,7 @@ const Applications = () => {
       await fetchApplications(); // Refresh the applications
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert(t('applications.error.joining', { error: error.response?.data?.message || error.message }));
+      showError(t('applications.error.joining', { error: error.response?.data?.message || error.message }), t('applications.error.title') || 'Error');
     } finally {
       setJoiningOrganization(false);
     }
@@ -142,10 +144,10 @@ const Applications = () => {
         createUser: true,
         notes: notes
       });
-      alert(`Application approved! ${response.data.data.credentials ? `User created with username: ${response.data.data.credentials.username}` : ''}`);
+      showSuccess(`Application approved! ${response.data.data.credentials ? `User created with username: ${response.data.data.credentials.username}` : ''}`, 'Application Approved');
       fetchApplications();
     } catch (error) {
-      alert('Error approving application: ' + error.message);
+      showError('Error approving application: ' + error.message, 'Error');
     }
   };
 
@@ -163,7 +165,7 @@ const Applications = () => {
       await api.delete(`/membership/applications/${applicationId}`);
       fetchApplications();
     } catch (error) {
-      alert('Error deleting application: ' + (error.response?.data?.message || error.message));
+      showError('Error deleting application: ' + (error.response?.data?.message || error.message), 'Error');
     }
   };
 

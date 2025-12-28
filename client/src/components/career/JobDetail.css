@@ -677,145 +677,215 @@ textarea.form-control {
 }
 
 .application-card {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 24px;
+  background: white;
+  border: 1px solid #e1e8ed;
+  border-radius: 16px;
+  padding: 0;
   transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .application-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  border-color: #3498db;
 }
 
-.application-header {
+.application-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 1px solid #e1e8ed;
   gap: 20px;
 }
 
-.applicant-info {
+.applicant-profile-section {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   flex: 1;
+  align-items: flex-start;
 }
 
-.applicant-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+.applicant-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.applicant-details h4 {
-  font-size: 1.3rem;
-  font-weight: 600;
+.applicant-main-info {
+  flex: 1;
+}
+
+.applicant-name {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #2c3e50;
-  margin: 0 0 4px 0;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
 }
 
-.applicant-email {
+.applicant-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.applicant-email,
+.application-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #7f8c8d;
   font-size: 0.95rem;
-  margin: 0 0 8px 0;
 }
 
-.application-date {
-  color: #95a5a6;
-  font-size: 0.85rem;
-  margin: 0;
+.applicant-email i,
+.application-date i {
+  color: #3498db;
+  font-size: 0.9rem;
+  width: 16px;
 }
 
-.application-status {
+.application-status-wrapper {
   flex-shrink: 0;
 }
 
 .status-badge {
   display: inline-block;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: capitalize;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .status-pending {
-  background: #fff3cd;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
   color: #856404;
+  border: 1px solid #ffc107;
 }
 
-.status-reviewed {
-  background: #d1ecf1;
+.status-reviewed,
+.status-reviewing {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
   color: #0c5460;
+  border: 1px solid #17a2b8;
 }
 
 .status-shortlisted {
-  background: #d4edda;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   color: #155724;
+  border: 1px solid #28a745;
 }
 
 .status-rejected {
-  background: #f8d7da;
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
   color: #721c24;
+  border: 1px solid #dc3545;
 }
 
-.status-accepted {
-  background: #d1ecf1;
+.status-accepted,
+.status-hired {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
   color: #0c5460;
+  border: 1px solid #17a2b8;
 }
 
-.application-cover-letter,
-.application-notes {
-  margin-bottom: 20px;
-  padding: 16px;
-  background: white;
-  border-radius: 8px;
-  border-left: 4px solid #3498db;
+.application-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.application-cover-letter h5,
-.application-notes h5 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0 0 12px 0;
+.application-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.application-section:hover {
+  background: #ffffff;
+  border-color: #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.section-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e9ecef;
 }
 
-.application-cover-letter h5 i,
-.application-notes h5 i {
+.section-header i {
   color: #3498db;
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
 }
 
-.application-cover-letter p,
-.application-notes p {
+.section-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.section-content {
   color: #34495e;
-  line-height: 1.6;
+  line-height: 1.7;
+}
+
+.section-content p {
   margin: 0;
   white-space: pre-line;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.application-notes-section {
+  background: #fffbf0;
+  border-color: #ffc107;
+}
+
+.application-notes-section .section-header i {
+  color: #ff9800;
 }
 
 .application-actions {
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
+.resume-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-view-resume,
 .btn-download-resume {
   padding: 12px 24px;
-  background: #3498db;
   color: white;
   border: none;
   border-radius: 8px;
@@ -825,28 +895,90 @@ textarea.form-control {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 0.95rem;
 }
 
-.btn-download-resume:hover {
+.btn-view-resume {
+  background: #3498db;
+}
+
+.btn-view-resume:hover {
   background: #2980b9;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
+.btn-download-resume {
+  background: #27ae60;
+}
+
+.btn-download-resume:hover {
+  background: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
 .no-resume {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: #95a5a6;
   font-size: 0.95rem;
-  padding: 12px 24px;
+  padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 2px dashed #e9ecef;
+  justify-content: center;
 }
 
 .no-resume i {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  color: #bdc3c7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .application-card-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .applicant-profile-section {
+    width: 100%;
+  }
+
+  .applicant-avatar-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .applicant-name {
+    font-size: 1.25rem;
+  }
+
+  .applicant-meta {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .application-card-body {
+    padding: 20px;
+  }
+
+  .application-section {
+    padding: 16px;
+  }
+
+  .resume-actions {
+    flex-direction: column;
+  }
+
+  .btn-view-resume,
+  .btn-download-resume {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Alert Styles */

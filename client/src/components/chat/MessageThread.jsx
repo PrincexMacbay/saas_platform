@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../contexts/ChatContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 import { buildImageUrl } from '../../utils/imageUtils';
 import { uploadChatAttachment } from '../../services/uploadService';
 import { blockUser, unblockUser, checkBlockStatus } from '../../services/userService';
@@ -9,6 +10,7 @@ import './MessageThread.css';
 
 const MessageThread = ({ conversationId, onBack }) => {
   const { user } = useAuth();
+  const { showSuccess, showError, showConfirm } = useNotificationModal();
   const {
     conversations,
     messages,
@@ -93,14 +95,14 @@ const MessageThread = ({ conversationId, onBack }) => {
       setIsBlocked(false);
       setBlockedByMe(false);
       setShowSettings(false);
-      alert('User unblocked successfully');
+      showSuccess('User unblocked successfully', 'User Unblocked');
       // Reload conversations to update block status
       if (loadConversations) {
         loadConversations();
       }
     } catch (error) {
       console.error('Error unblocking user:', error);
-      alert('Failed to unblock user. Please try again.');
+      showError('Failed to unblock user. Please try again.', 'Error');
     } finally {
       setBlocking(false);
     }
@@ -197,7 +199,7 @@ const MessageThread = ({ conversationId, onBack }) => {
       await sendMessage(conversationId, content, att, attType);
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
+      showError('Failed to send message. Please try again.', 'Message Error');
       setMessageContent(content);
       setAttachment(att);
       setAttachmentType(attType);

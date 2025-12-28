@@ -9,6 +9,7 @@ const JobDetail = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showSuccess, showError } = useNotificationModal();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,12 +77,14 @@ const JobDetail = () => {
 
       await applyForJob(jobId, formData);
       
-      alert('Application submitted successfully!');
+      showSuccess('Application submitted successfully!', 'Application Submitted');
       setApplicationData({ coverLetter: '', resume: null });
       setActiveTab('details');
     } catch (error) {
       console.error('Error applying for job:', error);
-      setError(error.response?.data?.message || 'Failed to submit application');
+      const errorMessage = error.response?.data?.message || 'Failed to submit application';
+      setError(errorMessage);
+      showError(errorMessage, 'Application Error');
     } finally {
       setApplying(false);
     }
@@ -116,20 +119,32 @@ const JobDetail = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
+      applied: { class: 'status-pending', label: 'Applied' },
       pending: { class: 'status-pending', label: 'Pending' },
+      reviewing: { class: 'status-reviewed', label: 'Reviewing' },
       reviewed: { class: 'status-reviewed', label: 'Reviewed' },
       shortlisted: { class: 'status-shortlisted', label: 'Shortlisted' },
+      interviewed: { class: 'status-reviewed', label: 'Interviewed' },
       rejected: { class: 'status-rejected', label: 'Rejected' },
-      accepted: { class: 'status-accepted', label: 'Accepted' }
+      accepted: { class: 'status-accepted', label: 'Accepted' },
+      hired: { class: 'status-accepted', label: 'Hired' }
     };
-    const badge = badges[status] || badges.pending;
+    const badge = badges[status?.toLowerCase()] || badges.pending;
     return <span className={`status-badge ${badge.class}`}>{badge.label}</span>;
   };
 
+  const handleViewResume = (resumeUrl) => {
+    if (!resumeUrl) return;
+    const fullUrl = buildImageUrl(resumeUrl);
+    window.open(fullUrl, '_blank');
+  };
+
   const handleDownloadResume = (resumeUrl) => {
+    if (!resumeUrl) return;
     const link = document.createElement('a');
-    link.href = buildImageUrl(resumeUrl);
-    link.download = resumeUrl.split('/').pop() || 'resume.pdf';
+    const fullUrl = buildImageUrl(resumeUrl);
+    link.href = fullUrl;
+    link.download = resumeUrl.split('/').pop() || resumeUrl.split('\\').pop() || 'resume.pdf';
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();
@@ -521,64 +536,94 @@ const JobDetail = () => {
               <div className="applications-list">
                 {applications.map((application) => (
                   <div key={application.id} className="application-card">
-                    <div className="application-header">
-                      <div className="applicant-info">
-                        <div className="applicant-avatar">
-                          {application.applicant?.firstName?.[0] || 'U'}
+                    <div className="application-card-header">
+                      <div className="applicant-profile-section">
+                        <div className="applicant-avatar-large">
+                          {application.applicant?.firstName?.[0] || application.applicant?.username?.[0] || 'U'}
                         </div>
-                        <div className="applicant-details">
-                          <h4>
+                        <div className="applicant-main-info">
+                          <h3 className="applicant-name">
                             {application.applicant?.firstName} {application.applicant?.lastName}
-                          </h4>
-                          <p className="applicant-email">{application.applicant?.email}</p>
-                          <p className="application-date">
-                            Applied on {new Date(application.createdAt).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}
-                          </p>
+                          </h3>
+                          <div className="applicant-meta">
+                            <span className="applicant-email">
+                              <i className="fas fa-envelope"></i>
+                              {application.applicant?.email}
+                            </span>
+                            <span className="application-date">
+                              <i className="fas fa-calendar-alt"></i>
+                              Applied {new Date(application.createdAt).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="application-status">
+                      <div className="application-status-wrapper">
                         {getStatusBadge(application.status)}
                       </div>
                     </div>
 
-                    {application.coverLetter && (
-                      <div className="application-cover-letter">
-                        <h5>
-                          <i className="fas fa-envelope"></i>
-                          Cover Letter
-                        </h5>
-                        <p>{application.coverLetter}</p>
-                      </div>
-                    )}
-
-                    {application.notes && (
-                      <div className="application-notes">
-                        <h5>
-                          <i className="fas fa-sticky-note"></i>
-                          Your Notes
-                        </h5>
-                        <p>{application.notes}</p>
-                      </div>
-                    )}
-
-                    <div className="application-actions">
-                      {application.resume && (
-                        <button
-                          className="btn-download-resume"
-                          onClick={() => handleDownloadResume(application.resume)}
-                        >
-                          <i className="fas fa-download"></i>
-                          Download Resume
-                        </button>
+                    <div className="application-card-body">
+                      {application.coverLetter && (
+                        <div className="application-section">
+                          <div className="section-header">
+                            <i className="fas fa-file-alt"></i>
+                            <h4>Cover Letter</h4>
+                          </div>
+                          <div className="section-content">
+                            <p>{application.coverLetter}</p>
+                          </div>
+                        </div>
                       )}
-                      {!application.resume && (
-                        <div className="no-resume">
-                          <i className="fas fa-file-slash"></i>
-                          <span>No resume uploaded</span>
+
+                      <div className="application-section">
+                        <div className="section-header">
+                          <i className="fas fa-file-pdf"></i>
+                          <h4>Resume</h4>
+                        </div>
+                        <div className="section-content">
+                          {application.resume ? (
+                            <div className="resume-actions">
+                              <button
+                                className="btn-view-resume"
+                                onClick={() => handleViewResume(application.resume)}
+                                title="View Resume"
+                              >
+                                <i className="fas fa-eye"></i>
+                                View Resume
+                              </button>
+                              <button
+                                className="btn-download-resume"
+                                onClick={() => handleDownloadResume(application.resume)}
+                                title="Download Resume"
+                              >
+                                <i className="fas fa-download"></i>
+                                Download Resume
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="no-resume">
+                              <i className="fas fa-file-slash"></i>
+                              <span>No resume uploaded</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {application.notes && (
+                        <div className="application-section application-notes-section">
+                          <div className="section-header">
+                            <i className="fas fa-sticky-note"></i>
+                            <h4>Your Notes</h4>
+                          </div>
+                          <div className="section-content">
+                            <p>{application.notes}</p>
+                          </div>
                         </div>
                       )}
                     </div>

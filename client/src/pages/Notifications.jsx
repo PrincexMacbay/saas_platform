@@ -152,6 +152,7 @@ const Notifications = () => {
   const getNotificationIcon = (type) => {
     const icons = {
       'application_submitted': 'fa-file-alt',
+      'job_application_submitted': 'fa-briefcase',
       'application_approved': 'fa-check-circle',
       'application_rejected': 'fa-times-circle',
       'new_comment': 'fa-comment',
@@ -170,6 +171,7 @@ const Notifications = () => {
   const getNotificationTypeLabel = (type) => {
     const labels = {
       'application_submitted': 'Application Submitted',
+      'job_application_submitted': 'New Job Application',
       'application_approved': 'Application Approved',
       'application_rejected': 'Application Rejected',
       'new_comment': 'Comment',
@@ -188,6 +190,7 @@ const Notifications = () => {
   const notificationTypes = [
     'all',
     'application_submitted',
+    'job_application_submitted',
     'application_approved',
     'application_rejected',
     'new_comment',

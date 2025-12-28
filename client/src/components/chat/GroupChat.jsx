@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../contexts/ChatContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 import { buildImageUrl } from '../../utils/imageUtils';
 import { uploadChatAttachment } from '../../services/uploadService';
 import { updateGroupSettings, removeGroupMember } from '../../services/chatService';
@@ -8,6 +9,7 @@ import './GroupChat.css';
 
 const GroupChat = ({ groupConversationId, onBack }) => {
   const { user } = useAuth();
+  const { showSuccess, showError, showWarning, showConfirm } = useNotificationModal();
   const {
     groupConversations,
     groupMessages,
@@ -108,9 +110,9 @@ const GroupChat = ({ groupConversationId, onBack }) => {
     } catch (error) {
       console.error('Error sending group message:', error);
       if (error.message.includes('Only the group creator')) {
-        alert('Only the group creator can send messages in this group.');
+        showWarning('Only the group creator can send messages in this group.', 'Message Restriction');
       } else {
-        alert('Failed to send message. Please try again.');
+        showError('Failed to send message. Please try again.', 'Message Error');
       }
       setMessageContent(content);
       setAttachment(att);
@@ -150,21 +152,24 @@ const GroupChat = ({ groupConversationId, onBack }) => {
   };
 
   const handleRemoveMember = async (memberId) => {
-    if (!window.confirm('Are you sure you want to remove this member from the group?')) {
-      return;
-    }
-
-    setRemovingMember(memberId);
-    try {
-      await removeGroupMember(groupConversationId, memberId);
-      await loadGroupConversations();
-      setShowMembers(false);
-    } catch (error) {
-      console.error('Error removing member:', error);
-      alert('Failed to remove member. Please try again.');
-    } finally {
-      setRemovingMember(null);
-    }
+    showConfirm(
+      'Are you sure you want to remove this member from the group?',
+      async () => {
+        setRemovingMember(memberId);
+        try {
+          await removeGroupMember(groupConversationId, memberId);
+          await loadGroupConversations();
+          setShowMembers(false);
+          showSuccess('Member removed successfully', 'Member Removed');
+        } catch (error) {
+          console.error('Error removing member:', error);
+          showError('Failed to remove member. Please try again.', 'Error');
+        } finally {
+          setRemovingMember(null);
+        }
+      },
+      'Remove Member'
+    );
   };
 
   const formatTime = (date) => {

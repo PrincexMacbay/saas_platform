@@ -58,13 +58,13 @@ const Spaces = () => {
       
       // Show success message
       if (response.data.isMember) {
-        alert('Successfully joined the space!');
+        showSuccess('Successfully joined the space!', 'Space Joined');
       } else if (response.data.isPending) {
-        alert('Your request has been submitted and is pending approval.');
+        showSuccess('Your request has been submitted and is pending approval.', 'Request Submitted');
       }
     } catch (error) {
       console.error('Error joining space:', error);
-      alert(error.response?.data?.message || 'Error joining space');
+      showError(error.response?.data?.message || 'Error joining space', 'Error');
     }
     setActionLoading({ ...actionLoading, [spaceId]: false });
   };
@@ -86,7 +86,7 @@ const Spaces = () => {
     } catch (error) {
       console.error('Error following space:', error);
       // Show user-friendly error message
-      alert(error.response?.data?.message || 'Error following space. You might already be a member.');
+      showError(error.response?.data?.message || 'Error following space. You might already be a member.', 'Error');
     }
     setActionLoading({ ...actionLoading, [spaceId]: false });
   };

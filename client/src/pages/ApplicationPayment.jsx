@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useNotificationModal } from '../contexts/NotificationModalContext';
 import api from '../services/api';
 
 const ApplicationPayment = () => {
+  const { showSuccess } = useNotificationModal();
   const { applicationId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ const ApplicationPayment = () => {
 
       const response = await api.post('/public/application-payment', paymentPayload);
       
-      alert('Payment processed successfully! Your application has been submitted.');
+      showSuccess('Payment processed successfully! Your application has been submitted.', 'Payment Successful');
       navigate('/browse-memberships');
       
     } catch (error) {

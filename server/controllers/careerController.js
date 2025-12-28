@@ -2,6 +2,7 @@ const { body } = require('express-validator');
 const { Job, JobApplication, SavedJob, User, UserProfile, IndividualProfile, CompanyProfile } = require('../models');
 const { handleValidationErrors } = require('../middleware/validation');
 const { Op } = require('sequelize');
+const notificationService = require('../services/notificationService');
 
 // Validation rules
 const createJobValidation = [
@@ -547,6 +548,11 @@ const applyForJob = async (req, res) => {
       ],
     });
 
+    // Send notification to employer
+    notificationService.notifyJobApplicationSubmitted(application.id).catch(error => {
+      console.error('Failed to send job application notification:', error);
+    });
+
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully',
@@ -861,6 +867,7 @@ const getCompanyApplications = async (req, res) => {
 
     const { count, rows: applications } = await JobApplication.findAndCountAll({
       where: applicationWhere,
+      attributes: ['id', 'coverLetter', 'resume', 'status', 'notes', 'createdAt', 'updatedAt', 'jobId', 'applicantId'],
       include: [
         {
           model: User,

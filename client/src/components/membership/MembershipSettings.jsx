@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 const MembershipSettings = () => {
   const { t } = useLanguage();
+  const { showSuccess } = useNotificationModal();
   const [settings, setSettings] = useState({
     autoApproveApplications: false,
     enableApplicationForm: true,
@@ -16,7 +18,7 @@ const MembershipSettings = () => {
   });
 
   const handleSave = () => {
-    alert(t('settings.saved.successfully'));
+    showSuccess(t('settings.saved.successfully'), t('settings.success.title') || 'Success');
   };
 
   return (

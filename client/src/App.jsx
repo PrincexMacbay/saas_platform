@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { NotificationModalProvider } from './contexts/NotificationModalContext';
 import { ChatProvider } from './contexts/ChatContext';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
@@ -35,7 +36,8 @@ function App() {
     <LanguageProvider>
       <AuthProvider>
         <NotificationProvider>
-          <ChatProvider>
+          <NotificationModalProvider>
+            <ChatProvider>
             <Router>
               <div className="App">
                 <Navbar />
@@ -129,7 +131,8 @@ function App() {
                 {/* <SimpleErrorLogger /> */}
               </div>
         </Router>
-          </ChatProvider>
+            </ChatProvider>
+          </NotificationModalProvider>
         </NotificationProvider>
       </AuthProvider>
     </LanguageProvider>

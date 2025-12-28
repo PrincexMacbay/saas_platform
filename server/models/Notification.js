@@ -25,6 +25,7 @@ const Notification = sequelize.define('Notification', {
       'new_follower',
       'payment_received',
       'payment_due',
+      'job_application_submitted',
       'job_application_status',
       'space_invitation',
       'mention',

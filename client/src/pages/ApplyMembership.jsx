@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useNotificationModal } from '../contexts/NotificationModalContext';
 import api from '../services/api';
 
 const ApplyMembership = () => {
@@ -9,6 +10,7 @@ const ApplyMembership = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { showSuccess, showError, showWarning } = useNotificationModal();
   const [form, setForm] = useState(null);
   const [plan, setPlan] = useState(null);
   const [formData, setFormData] = useState({});
@@ -271,7 +273,7 @@ const ApplyMembership = () => {
           });
         } else {
           // Free plan - show success message
-          alert(`Application completed successfully! Application ID: ${response.data.data.applicationId}`);
+          showSuccess(`Application completed successfully! Application ID: ${response.data.data.applicationId}`, 'Application Completed');
           navigate('/browse-memberships');
         }
       } else {
@@ -291,14 +293,14 @@ const ApplyMembership = () => {
           });
         } else {
           // Free plan - show success message
-          alert(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`);
+          showSuccess(`Application submitted successfully! Application ID: ${response.data.data.applicationId}`, 'Application Submitted');
           navigate('/browse-memberships');
         }
       }
       
     } catch (error) {
       console.error('Submit application error:', error);
-      alert('Error submitting application: ' + (error.response?.data?.message || error.message));
+      showError('Error submitting application: ' + (error.response?.data?.message || error.message), 'Application Error');
     } finally {
       setSubmitting(false);
     }

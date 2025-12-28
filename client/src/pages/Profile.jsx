@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { getUser, updateProfile, toggleFollowUser, getFollowers, getFollowing, checkBlockStatus } from '../services/userService';
+import { useNotificationModal } from '../contexts/NotificationModalContext';
 import { getPosts } from '../services/postService';
 import { getUserMemberships } from '../services/membershipService';
 import { getOrCreateConversation } from '../services/chatService';
@@ -33,6 +34,7 @@ const Profile = () => {
   const [blockedByMe, setBlockedByMe] = useState(false);
   const [blockedByThem, setBlockedByThem] = useState(false);
   const { user, updateUser } = useAuth();
+  const { showError } = useNotificationModal();
   const { t } = useLanguage();
   const { loadConversations, conversations } = useChat();
 
@@ -194,7 +196,7 @@ const Profile = () => {
     } catch (error) {
       console.error('Error starting conversation:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to start conversation. Please try again.';
-      alert(errorMessage);
+      showError(errorMessage, 'Error');
     } finally {
       setActionLoading(false);
     }

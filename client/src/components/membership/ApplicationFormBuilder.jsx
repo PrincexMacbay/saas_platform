@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 const ApplicationFormBuilder = () => {
   const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
   const { t } = useLanguage();
+  const { showSuccess, showError, showWarning } = useNotificationModal();
   const [formConfig, setFormConfig] = useState({
     title: 'Membership Application',
     description: '',
@@ -123,11 +125,11 @@ const ApplicationFormBuilder = () => {
     try {
       setJoiningOrganization(true);
       await api.post('/users/organizations/join', { organizationId });
-      alert(t('form.builder.successfully.joined'));
+      showSuccess(t('form.builder.successfully.joined'), t('form.builder.success.title') || 'Success');
       await fetchFormConfig(); // Refresh the form config
     } catch (error) {
       console.error('Error joining organization:', error);
-      alert(t('form.builder.error.joining', { error: error.response?.data?.message || error.message }));
+      showError(t('form.builder.error.joining', { error: error.response?.data?.message || error.message }), t('form.builder.error.title') || 'Error');
     } finally {
       setJoiningOrganization(false);
     }
@@ -139,12 +141,12 @@ const ApplicationFormBuilder = () => {
       if (formConfig.id) {
         // Update existing form
         await api.put(`/membership/application-forms/${formConfig.id}`, formConfig);
-        alert(t('form.builder.form.updated'));
+        showSuccess(t('form.builder.form.updated'), t('form.builder.success.title') || 'Success');
       } else {
         // Create new form
         const response = await api.post('/membership/application-forms', formConfig);
         setFormConfig(prev => ({ ...prev, id: response.data.data.id }));
-        alert(t('form.builder.form.saved'));
+        showSuccess(t('form.builder.form.saved'), t('form.builder.success.title') || 'Success');
       }
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
@@ -154,7 +156,7 @@ const ApplicationFormBuilder = () => {
         setShowOrganizationSelector(true);
         await fetchOrganizations();
       } else {
-        alert(t('form.builder.error.saving', { error: error.response?.data?.message || error.message }));
+        showError(t('form.builder.error.saving', { error: error.response?.data?.message || error.message }), t('form.builder.error.title') || 'Error');
       }
     } finally {
       setSaving(false);
@@ -176,7 +178,7 @@ const ApplicationFormBuilder = () => {
       // Then publish it using the correct ID
       await api.patch(`/membership/application-forms/${formId}/publish`);
       setFormConfig(prev => ({ ...prev, isPublished: true }));
-      alert(t('form.builder.form.published'));
+      showSuccess(t('form.builder.form.published'), t('form.builder.success.title') || 'Success');
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
@@ -185,7 +187,7 @@ const ApplicationFormBuilder = () => {
         setShowOrganizationSelector(true);
         await fetchOrganizations();
       } else {
-        alert(t('form.builder.error.publishing', { error: error.response?.data?.message || error.message }));
+        showError(t('form.builder.error.publishing', { error: error.response?.data?.message || error.message }), t('form.builder.error.title') || 'Error');
       }
     } finally {
       setSaving(false);
@@ -196,17 +198,17 @@ const ApplicationFormBuilder = () => {
     try {
       setSaving(true);
       if (!formConfig.id) {
-        alert(t('form.builder.cannot.unpublish'));
+        showWarning(t('form.builder.cannot.unpublish'), t('form.builder.warning.title') || 'Warning');
         return;
       }
       await api.patch(`/membership/application-forms/${formConfig.id}/unpublish`);
       setFormConfig(prev => ({ ...prev, isPublished: false }));
-      alert(t('form.builder.form.unpublished'));
+      showSuccess(t('form.builder.form.unpublished'), t('form.builder.success.title') || 'Success');
       // Dispatch event to notify other components
       window.dispatchEvent(new Event('formUpdated'));
     } catch (error) {
       console.error('Error unpublishing form:', error);
-      alert(t('form.builder.error.unpublishing', { error: error.response?.data?.message || error.message }));
+      showError(t('form.builder.error.unpublishing', { error: error.response?.data?.message || error.message }), t('form.builder.error.title') || 'Error');
     } finally {
       setSaving(false);
     }
@@ -239,7 +241,7 @@ const ApplicationFormBuilder = () => {
 
   const handleSaveField = () => {
     if (!newField.name || !newField.label) {
-      alert(t('form.builder.field.name.required'));
+      showWarning(t('form.builder.field.name.required'), t('form.builder.warning.title') || 'Warning');
       return;
     }
 

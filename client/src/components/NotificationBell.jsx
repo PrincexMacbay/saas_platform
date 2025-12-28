@@ -64,11 +64,14 @@ const NotificationBell = () => {
       'new_follower': 'fa-user-plus',
       'payment_received': 'fa-dollar-sign',
       'payment_due': 'fa-exclamation-circle',
+      'job_application_submitted': 'fa-briefcase',
       'job_application_status': 'fa-briefcase',
       'space_invitation': 'fa-users',
       'mention': 'fa-at',
       'post_liked': 'fa-heart',
-      'comment_liked': 'fa-heart'
+      'comment_liked': 'fa-heart',
+      'new_message': 'fa-envelope',
+      'new_group_message': 'fa-comments'
     };
     return icons[type] || 'fa-bell';
   };

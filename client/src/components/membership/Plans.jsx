@@ -3,10 +3,12 @@ import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 
 // Plan Modal Component
 const PlanModal = ({ plan, onClose, onSave }) => {
   const { t } = useLanguage();
+  const { showError } = useNotificationModal();
   console.log('PlanModal rendering with plan:', plan);
   
   // Initialize form data with safe defaults
@@ -861,7 +863,7 @@ const Plans = () => {
     } catch (error) {
       console.error('Delete plan error:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to delete plan';
-      alert(t('plans.error.deleting', { error: errorMessage }));
+      showError(t('plans.error.deleting', { error: errorMessage }), t('plans.error.title') || 'Error');
     }
   };
 
@@ -873,7 +875,7 @@ const Plans = () => {
       });
       fetchPlans();
     } catch (error) {
-      alert(t('plans.error.saving', { error: error.response?.data?.message || error.message }));
+      showError(t('plans.error.saving', { error: error.response?.data?.message || error.message }), t('plans.error.title') || 'Error');
     }
   };
 
@@ -888,7 +890,7 @@ const Plans = () => {
       if (response.data.success) {
         // Show message if group already existed
         if (response.data.message && response.data.message.includes('already exists')) {
-          alert('Group chat already exists. Members have been updated.');
+          showSuccess('Group chat already exists. Members have been updated.', 'Group Chat');
         }
         // Navigate to the group chat
         window.location.href = `/messages?group=${response.data.data.id}`;
@@ -896,7 +898,7 @@ const Plans = () => {
     } catch (error) {
       console.error('Error creating group chat:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to create group chat';
-      alert(`Error: ${errorMessage}`);
+      showError(`Error: ${errorMessage}`, 'Error');
     }
   };
 
