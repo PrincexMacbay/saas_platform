@@ -25,11 +25,112 @@ import AdminDashboard from './pages/AdminDashboard';
 import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Homepage from './pages/Homepage';
+import Presentation from './pages/Presentation';
 import DebugRegistration from './components/DebugRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 import SmartRedirect from './components/SmartRedirect';
 import SimpleErrorLogger from './components/SimpleErrorLogger';
 import './App.css';
+
+function AppContent() {
+  const location = useLocation();
+  const isPresentation = location.pathname === '/presentation';
+
+  return (
+    <div className="App">
+      {!isPresentation && <Navbar />}
+      <main className={isPresentation ? '' : 'main-content'}>
+        <Routes>
+          <Route path="/presentation" element={<Presentation />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/debug" element={<DebugRegistration />} />
+          <Route path="/browse-memberships" element={<BrowseMemberships />} />
+          <Route path="/plan/:id" element={<PlanDetail />} />
+          <Route path="/apply/:planId" element={<ApplyMembership />} />
+          <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
+          <Route path="/" element={<SmartRedirect />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:identifier"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/membership/*"
+            element={
+              <ProtectedRoute>
+                <Membership />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <Users />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/career"
+            element={
+              <ProtectedRoute>
+                <CareerCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/career/job/:jobId"
+            element={
+              <ProtectedRoute>
+                <JobDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+      {/* <SimpleErrorLogger /> */}
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -39,97 +140,7 @@ function App() {
           <NotificationModalProvider>
             <ChatProvider>
             <Router>
-              <div className="App">
-                <Navbar />
-                <main className="main-content">
-                  <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/verify-email" element={<VerifyEmail />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/debug" element={<DebugRegistration />} />
-                    <Route path="/browse-memberships" element={<BrowseMemberships />} />
-                    <Route path="/plan/:id" element={<PlanDetail />} />
-                    <Route path="/apply/:planId" element={<ApplyMembership />} />
-                    <Route path="/payment/application/:applicationId" element={<ApplicationPayment />} />
-                    <Route path="/" element={<SmartRedirect />} />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/profile/:identifier"
-                      element={
-                        <ProtectedRoute>
-                          <Profile />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/membership/*"
-                      element={
-                        <ProtectedRoute>
-                          <Membership />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/users"
-                      element={
-                        <ProtectedRoute>
-                          <Users />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/career"
-                      element={
-                        <ProtectedRoute>
-                          <CareerCenter />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/career/job/:jobId"
-                      element={
-                        <ProtectedRoute>
-                          <JobDetail />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute>
-                          <AdminDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/notifications"
-                      element={
-                        <ProtectedRoute>
-                          <Notifications />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/messages"
-                      element={
-                        <ProtectedRoute>
-                          <Messages />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </Routes>
-                </main>
-                {/* <SimpleErrorLogger /> */}
-              </div>
+              <AppContent />
         </Router>
             </ChatProvider>
           </NotificationModalProvider>
