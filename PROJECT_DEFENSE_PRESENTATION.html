@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SaaS Platform - Project Defense Presentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -13,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2C3E50;
             overflow: hidden;
             margin: 0;
             padding: 0;
@@ -101,7 +102,7 @@
         }
 
         .highlight {
-            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            background: #2C3E50;
             color: white;
             padding: 2px 8px;
             border-radius: 4px;
@@ -116,7 +117,7 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2C3E50;
             color: white;
             padding: 25px;
             border-radius: 12px;
@@ -238,35 +239,75 @@
         }
 
         .title-slide {
-            text-align: center;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            gap: 40px;
+            padding: 60px;
+            overflow: hidden !important;
+            overflow-y: hidden !important;
+            box-sizing: border-box;
+        }
+
+        .title-slide-content {
+            flex: 0 0 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            text-align: left;
+            min-width: 0;
+            max-width: 50%;
+        }
+
+        .title-slide-image {
+            flex: 0 0 45%;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            height: 100%;
+            max-height: 100vh;
+            min-width: 0;
+            max-width: 45%;
+            flex-shrink: 0;
+        }
+
+        .title-slide-image img {
+            width: auto;
+            max-width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
         .title-slide h1 {
             font-size: 3.5rem;
             border: none;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2C3E50;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
+            text-align: left;
         }
 
         .subtitle {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: #7f8c8d;
-            margin-bottom: 40px;
+            margin-bottom: 15px;
+            text-align: left;
+            line-height: 1.4;
         }
 
         .presenter-info {
-            margin-top: 60px;
+            margin-top: 30px;
             color: #34495e;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            text-align: left;
         }
 
         .conclusion-slide {
@@ -320,6 +361,33 @@
                 padding: 40px 30px;
             }
 
+            .title-slide {
+                flex-direction: column;
+                padding: 40px 30px;
+                gap: 30px;
+            }
+
+            .title-slide-content {
+                text-align: center;
+            }
+
+            .title-slide h1 {
+                text-align: center;
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                text-align: center;
+            }
+
+            .presenter-info {
+                text-align: center;
+            }
+
+            .title-slide-image {
+                width: 100%;
+            }
+
             h1 {
                 font-size: 2rem;
             }
@@ -353,6 +421,10 @@
             .nav-arrow {
                 display: none;
             }
+
+            .title-slide h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
@@ -360,14 +432,19 @@
     <div class="presentation-container">
         <!-- Slide 1: Title -->
         <div class="slide active title-slide">
-            <div class="slide-number">1 / 18</div>
-            <h1>Social Network</h1>
-            <div class="subtitle">Social Network & Membership Management System</div>
-            <div class="subtitle" style="font-size: 1.2rem; margin-top: 20px;">A Comprehensive Multi-Tenant Platform for Organizations</div>
-            <div class="presenter-info">
-                <div style="margin-bottom: 10px;"><strong>PRINCE OGHENEWOMA MACBAY</strong></div>
-                <div style="margin-bottom: 10px;">GRADUATION PROJECT (SWE492)</div>
-                <div>31st December, 2025</div>
+            <!-- <div class="slide-number">1 / 18</div> -->
+            <div class="title-slide-content">
+                <h1>Social Network</h1>
+                <div class="subtitle">Social Network & Membership Management System</div>
+                <div class="subtitle" style="font-size: 1.2rem; margin-top: 10px;">A Comprehensive Multi-Tenant Platform for Organizations</div>
+                <div class="presenter-info">
+                    <div style="margin-bottom: 10px;"><strong>PRINCE OGHENEWOMA MACBAY</strong></div>
+                    <div style="margin-bottom: 10px;">GRADUATION PROJECT (SWE492)</div>
+                    <div>31st December, 2025</div>
+                </div>
+            </div>
+            <div class="title-slide-image">
+                <img src="home_page.jpg" alt="Platform Homepage" />
             </div>
         </div>
 
@@ -417,7 +494,7 @@
 
         <!-- Slide 4: Project Objectives -->
         <div class="slide">
-            <div class="slide-number">4 / 18</div>
+            <!-- <div class="slide-number">4 / 18</div> -->
             <h1>Project Objectives</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                 <div class="feature-box">
@@ -457,7 +534,7 @@
 
         <!-- Slide 5: System Architecture -->
         <div class="slide">
-            <div class="slide-number">5 / 18</div>
+            <!-- <div class="slide-number">5 / 18</div> -->
             <h1>System Architecture</h1>
             <div class="architecture-diagram">
                 <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
@@ -482,7 +559,7 @@
 
         <!-- Slide 6: Technology Stack -->
         <div class="slide">
-            <div class="slide-number">6 / 18</div>
+            <!-- <div class="slide-number">6 / 18</div> -->
             <h1>Technology Stack</h1>
             <h2>Frontend Technologies</h2>
             <div class="tech-stack">
@@ -506,11 +583,11 @@
 
         <!-- Slide 7: Core Features - Membership -->
         <div class="slide">
-            <div class="slide-number">7 / 18</div>
+            <!-- <div class="slide-number">7 / 18</div> -->
             <h1>Core Features: Membership Management</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="feature-box">
-                    <h3>📋 Membership Plans</h3>
+                    <h3><i class="fas fa-clipboard-list"></i> Membership Plans</h3>
                     <ul>
                         <li>Custom pricing tiers</li>
                         <li>Renewal intervals</li>
@@ -518,7 +595,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📝 Application Forms</h3>
+                    <h3><i class="fas fa-file-alt"></i> Application Forms</h3>
                     <ul>
                         <li>Dynamic form builder</li>
                         <li>Multiple field types</li>
@@ -526,7 +603,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🔄 Application Workflow</h3>
+                    <h3><i class="fas fa-sync-alt"></i> Application Workflow</h3>
                     <ul>
                         <li>Public submission</li>
                         <li>Admin review</li>
@@ -534,7 +611,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>💳 Digital Cards</h3>
+                    <h3><i class="fas fa-id-card"></i> Digital Cards</h3>
                     <ul>
                         <li>Template-based</li>
                         <li>Customizable design</li>
@@ -546,11 +623,11 @@
 
         <!-- Slide 8: Core Features - Social -->
         <div class="slide">
-            <div class="slide-number">8 / 18</div>
+            <!-- <div class="slide-number">8 / 18</div> -->
             <h1>Core Features: Social Networking</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="feature-box">
-                    <h3>👤 User Profiles</h3>
+                    <h3><i class="fas fa-user"></i> User Profiles</h3>
                     <ul>
                         <li>Individual & company</li>
                         <li>Follow/unfollow</li>
@@ -558,7 +635,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🌐 Spaces (Communities)</h3>
+                    <h3><i class="fas fa-users"></i> Spaces (Communities)</h3>
                     <ul>
                         <li>Public/private spaces</li>
                         <li>Join policies</li>
@@ -566,7 +643,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📱 Content Sharing</h3>
+                    <h3><i class="fas fa-share-alt"></i> Content Sharing</h3>
                     <ul>
                         <li>Create & edit posts</li>
                         <li>Comments & likes</li>
@@ -574,7 +651,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>💬 Real-Time Communication</h3>
+                    <h3><i class="fas fa-comments"></i> Real-Time Communication</h3>
                     <ul>
                         <li>1-on-1 messaging</li>
                         <li>Group chat</li>
@@ -587,11 +664,11 @@
 
         <!-- Slide 9: Core Features - Career -->
         <div class="slide">
-            <div class="slide-number">9 / 18</div>
+            <!-- <div class="slide-number">9 / 18</div> -->
             <h1>Core Features: Career Center</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="feature-box">
-                    <h3>💼 Job Board</h3>
+                    <h3><i class="fas fa-briefcase"></i> Job Board</h3>
                     <ul>
                         <li>Post opportunities</li>
                         <li>Advanced search</li>
@@ -599,7 +676,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📄 Application System</h3>
+                     <h3><i class="fas fa-file-invoice"></i> Application System</h3>
                     <ul>
                         <li>Resume upload</li>
                         <li>Cover letters</li>
@@ -607,7 +684,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📊 Employer Dashboard</h3>
+                    <h3><i class="fas fa-chart-line"></i> Employer Dashboard</h3>
                     <ul>
                         <li>View applications</li>
                         <li>Download resumes</li>
@@ -615,7 +692,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🔔 Notifications</h3>
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <ul>
                         <li>New application alerts</li>
                         <li>Status updates</li>
@@ -627,7 +704,7 @@
 
         <!-- Slide 10: Database Design -->
         <div class="slide">
-            <div class="slide-number">10 / 18</div>
+            <!-- <div class="slide-number">10 / 18</div> -->
             <h1>Database Design</h1>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -658,11 +735,11 @@
 
         <!-- Slide 11: Real-Time Features -->
         <div class="slide">
-            <div class="slide-number">11 / 18</div>
+            <!-- <div class="slide-number">11 / 18</div> -->
             <h1>Key Implementations: Real-Time Features</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="feature-box">
-                    <h3>🔌 Socket.io Integration</h3>
+                    <h3><i class="fas fa-plug"></i> Socket.io Integration</h3>
                     <ul>
                         <li>WebSocket communication</li>
                         <li>User room management</li>
@@ -670,7 +747,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🔔 Notification System</h3>
+                    <h3><i class="fas fa-bell"></i> Notification System</h3>
                     <ul>
                         <li>Real-time delivery</li>
                         <li>Multiple types</li>
@@ -678,7 +755,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>💬 Chat System</h3>
+                    <h3><i class="fas fa-comments"></i> Chat System</h3>
                     <ul>
                         <li>1-on-1 messaging</li>
                         <li>Group chat</li>
@@ -687,7 +764,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>⚡ Live Updates</h3>
+                    <h3><i class="fas fa-bolt"></i> Live Updates</h3>
                     <ul>
                         <li>Activity feeds</li>
                         <li>Post interactions</li>
@@ -699,11 +776,11 @@
 
         <!-- Slide 12: Security -->
         <div class="slide">
-            <div class="slide-number">12 / 18</div>
+            <!-- <div class="slide-number">12 / 18</div> -->
             <h1>Security & Authentication</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div class="feature-box">
-                    <h3>🔐 Authentication</h3>
+                    <h3><i class="fas fa-key"></i> Authentication</h3>
                     <ul>
                         <li>JWT-based tokens</li>
                         <li>Token expiration</li>
@@ -712,7 +789,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🛡️ Authorization</h3>
+                    <h3><i class="fas fa-shield-alt"></i> Authorization</h3>
                     <ul>
                         <li>Role-based access</li>
                         <li>Protected routes</li>
@@ -721,7 +798,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>🔒 Data Protection</h3>
+                    <h3><i class="fas fa-lock"></i> Data Protection</h3>
                     <ul>
                         <li>SQL injection prevention</li>
                         <li>Input validation</li>
@@ -730,7 +807,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📁 File Security</h3>
+                    <h3><i class="fas fa-folder-shield"></i> File Security</h3>
                     <ul>
                         <li>Type validation</li>
                         <li>Size limits</li>
@@ -743,7 +820,7 @@
 
         <!-- Slide 13: Project Statistics -->
         <div class="slide">
-            <div class="slide-number">13 / 18</div>
+            <!-- <div class="slide-number">13 / 18</div> -->
             <h1>Project Statistics & Achievements</h1>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -768,7 +845,7 @@
                 <span class="badge badge-success">✅ Membership Management (100%)</span>
                 <span class="badge badge-success">✅ Social Networking (100%)</span>
                 <span class="badge badge-success">✅ Career Center (100%)</span>
-                <span class="badge badge-success">✅ Payment Processing (100%)</span>
+                <span class="badge badge-success">✅ Payment Processing (75%)</span>
                 <span class="badge badge-success">✅ Real-Time Features (100%)</span>
                 <span class="badge badge-success">✅ Admin Dashboards (100%)</span>
             </div>
@@ -776,7 +853,7 @@
 
         <!-- Slide 14: Challenges & Solutions -->
         <div class="slide">
-            <div class="slide-number">14 / 18</div>
+            <!-- <div class="slide-number">14 / 18</div> -->
             <h1>Challenges & Solutions</h1>
             <div style="margin-top: 20px;">
                 <div class="feature-box" style="margin-bottom: 15px;">
@@ -800,7 +877,7 @@
 
         <!-- Slide 15: Results -->
         <div class="slide">
-            <div class="slide-number">15 / 18</div>
+            <!-- <div class="slide-number">15 / 18</div> -->
             <h1>Results & Impact</h1>
             <h2>Technical Achievements:</h2>
             <ul style="font-size: 1.1rem; margin-top: 15px;">
@@ -835,11 +912,11 @@
 
         <!-- Slide 16: Future Enhancements -->
         <div class="slide">
-            <div class="slide-number">16 / 18</div>
+            <!-- <div class="slide-number">16 / 18</div> -->
             <h1>Future Enhancements</h1>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
                 <div class="feature-box">
-                    <h3>🔐 Enhanced Security</h3>
+                    <h3><i class="fas fa-shield-halved"></i> Enhanced Security</h3>
                     <ul>
                         <li>Two-Factor Authentication</li>
                         <li>OAuth/SSO</li>
@@ -847,7 +924,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📊 Advanced Analytics</h3>
+                    <h3><i class="fas fa-chart-bar"></i> Advanced Analytics</h3>
                     <ul>
                         <li>Custom reports</li>
                         <li>Data export</li>
@@ -855,7 +932,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>📱 Mobile Applications</h3>
+                    <h3><i class="fas fa-mobile-alt"></i> Mobile Applications</h3>
                     <ul>
                         <li>React Native app</li>
                         <li>Push notifications</li>
@@ -863,7 +940,7 @@
                     </ul>
                 </div>
                 <div class="feature-box">
-                    <h3>⚡ Performance</h3>
+                    <h3><i class="fas fa-tachometer-alt"></i> Performance</h3>
                     <ul>
                         <li>Caching strategies</li>
                         <li>CDN implementation</li>
@@ -875,7 +952,7 @@
 
         <!-- Slide 17: Conclusion -->
         <div class="slide conclusion-slide">
-            <div class="slide-number">17 / 18</div>
+            <!-- <div class="slide-number">17 / 18</div> -->
             <div class="thank-you">Thank You!</div>
             <h2>Project Summary</h2>
             <p style="font-size: 1.2rem; margin: 20px 0; color: #34495e;">
@@ -891,12 +968,12 @@
 
         <!-- Slide 18: Q&A -->
         <div class="slide conclusion-slide">
-            <div class="slide-number">18 / 18</div>
+            <!-- <div class="slide-number">18 / 18</div> -->
             <h1 style="font-size: 4rem; color: #667eea;">Questions & Answers</h1>
             <div style="margin-top: 60px; font-size: 1.3rem; color: #34495e;">
                 <p style="margin-bottom: 20px;">Contact Information:</p>
-                <p style="margin-bottom: 10px;">Email: [Your Email]</p>
-                <p style="margin-bottom: 10px;">Live Demo: [Frontend URL]</p>
+                <p style="margin-bottom: 10px;">Email: 20234417@std.neu.edu.tr</p>
+                <p style="margin-bottom: 10px;"><a href="https://social-network-frontend-k0ml.onrender.com" target="_blank">Live Demo</a></p>
             </div>
         </div>
     </div>

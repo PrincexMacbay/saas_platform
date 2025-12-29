@@ -37,19 +37,23 @@ api.interceptors.request.use(
     console.log('🔍 API Interceptor: Token exists:', !!token);
     console.log('🔍 API Interceptor: Token value:', token?.substring(0, 20) + '...');
     
-    // Don't add Authorization header to public endpoints
-    const isPublicEndpoint = config.url && (
+    // Don't add Authorization header to truly public endpoints
+    // Note: /public/apply requires authentication, so we need to send token for it
+    const isTrulyPublicEndpoint = config.url && (
       config.url.includes('/auth/register') || 
       config.url.includes('/auth/login') ||
-      config.url.includes('/public/')
+      config.url.includes('/auth/verify-email') ||
+      config.url.includes('/auth/forgot-password') ||
+      config.url.includes('/auth/reset-password') ||
+      (config.url.includes('/public/') && !config.url.includes('/public/apply') && !config.url.includes('/public/application-payment'))
     );
     
-    console.log('🔍 API Interceptor: Is public endpoint:', isPublicEndpoint);
+    console.log('🔍 API Interceptor: Is truly public endpoint:', isTrulyPublicEndpoint);
     
-    if (token && !isPublicEndpoint) {
+    if (token && !isTrulyPublicEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log('✅ API Interceptor: Authorization header added');
-    } else if (!token && !isPublicEndpoint) {
+    } else if (!token && !isTrulyPublicEndpoint) {
       console.log('⚠️ API Interceptor: No token available for protected endpoint');
     } else {
       console.log('ℹ️ API Interceptor: Public endpoint, no auth needed');
