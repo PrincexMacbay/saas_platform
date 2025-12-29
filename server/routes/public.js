@@ -257,7 +257,8 @@ router.post('/apply', authenticateToken, async (req, res) => {
 
     // Parse formData if it's a JSON string
     let parsedFormData = null;
-    let extractedEmail = email;
+    // ALWAYS use the logged-in user's email - never trust email from request body (security)
+    let extractedEmail = req.user.email; // Use authenticated user's email
     let extractedFirstName = firstName;
     let extractedLastName = lastName;
     let extractedPhone = phone;
@@ -267,9 +268,7 @@ router.post('/apply', authenticateToken, async (req, res) => {
         parsedFormData = typeof formData === 'string' ? JSON.parse(formData) : formData;
         
         // Extract common fields from formData if they're not provided at top level
-        if (!extractedEmail && parsedFormData.email) {
-          extractedEmail = parsedFormData.email;
-        }
+        // BUT NEVER extract email - always use req.user.email
         if (!extractedFirstName && parsedFormData.firstName) {
           extractedFirstName = parsedFormData.firstName;
         }
@@ -286,10 +285,19 @@ router.post('/apply', authenticateToken, async (req, res) => {
     }
 
     // Validate required fields
-    if (!extractedEmail || !extractedFirstName || !extractedLastName || !planId) {
+    // Email is always available from req.user.email, so we only check other fields
+    if (!extractedFirstName || !extractedLastName || !planId) {
       return res.status(400).json({
         success: false,
-        message: 'Email, first name, last name, and plan ID are required'
+        message: 'First name, last name, and plan ID are required'
+      });
+    }
+    
+    // Ensure we have the user's email (should always be present if authenticated)
+    if (!extractedEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'User email is required. Please ensure you are logged in.'
       });
     }
 
@@ -317,12 +325,11 @@ router.post('/apply', authenticateToken, async (req, res) => {
     // Since authentication is required, we always have req.user.id
     const userId = req.user.id;
 
-    // Verify the email matches the logged-in user's email (prevent email spoofing)
+    // Email is already set to req.user.email above, so no need to verify again
+    // But we'll add a safety check just in case
     if (extractedEmail.toLowerCase() !== req.user.email.toLowerCase()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email must match your account email. Please use the email associated with your account.'
-      });
+      console.warn('⚠️ Email mismatch detected - using req.user.email instead');
+      extractedEmail = req.user.email; // Force use of authenticated user's email
     }
 
     // Build query to check for existing applications FOR THIS SPECIFIC PLAN

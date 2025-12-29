@@ -40,6 +40,16 @@ const ApplyMembership = () => {
     fetchPlanAndForm();
   }, [planId, user, navigate]);
 
+  // Ensure email always matches logged-in user's email (security check)
+  useEffect(() => {
+    if (user && user.email && formData.email !== user.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email // Always use registration email
+      }));
+    }
+  }, [user, formData.email]);
+
   const fetchPlanAndForm = async () => {
     try {
       setLoading(true);
@@ -134,15 +144,17 @@ const ApplyMembership = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Prevent email field from being changed - always use logged-in user's email
+    if (name === 'email') {
+      // Don't allow email to be changed - it must match registration email
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-
-    // Check for incomplete applications when email is entered
-    if (name === 'email' && value && value.includes('@')) {
-      checkIncompleteApplications(value);
-    }
   };
 
   const checkIncompleteApplications = async (email) => {
@@ -165,12 +177,17 @@ const ApplyMembership = () => {
 
   const handleContinueIncomplete = () => {
     // Pre-fill the form with the incomplete application data
+    // BUT always use the logged-in user's email (never overwrite with saved email)
     if (incompleteApplication.formData) {
       try {
         const savedFormData = JSON.parse(incompleteApplication.formData);
+        // Remove email from saved data to prevent overwriting user's registration email
+        const { email, ...formDataWithoutEmail } = savedFormData;
         setFormData(prev => ({
           ...prev,
-          ...savedFormData
+          ...formDataWithoutEmail,
+          // Always ensure email is set to logged-in user's email
+          email: user?.email || prev.email
         }));
       } catch (e) {
         console.error('Error parsing saved form data:', e);
@@ -244,12 +261,23 @@ const ApplyMembership = () => {
       return;
     }
 
+    // Ensure email is always set to logged-in user's email (security check)
+    if (!user || !user.email) {
+      showError('You must be logged in to submit an application', 'Authentication Required');
+      return;
+    }
+
     setSubmitting(true);
     try {
+      // Always use the logged-in user's email - never trust formData.email
       const submitData = {
         ...formData,
+        email: user.email, // Force email to be user's registration email
         planId: parseInt(planId),
-        formData: JSON.stringify(formData),
+        formData: JSON.stringify({
+          ...formData,
+          email: user.email // Ensure email in formData also matches
+        }),
         couponCode: appliedCoupon ? appliedCoupon.couponId : null,
         couponId: appliedCoupon ? appliedCoupon.id : null
       };
@@ -310,6 +338,11 @@ const ApplyMembership = () => {
   const renderField = (field) => {
     const { name, label, type, required, placeholder, options } = field;
     
+    // Safety check: Never render email fields here (they're shown separately)
+    if (name?.toLowerCase() === 'email' || type?.toLowerCase() === 'email') {
+      return null; // Email fields are handled separately above
+    }
+    
     switch (type) {
       case 'select':
         return (
@@ -357,10 +390,6 @@ const ApplyMembership = () => {
         );
       
       default:
-        // Make email field read-only if user is logged in (to prevent email spoofing)
-        const isEmailField = name === 'email';
-        const isReadOnly = isEmailField && user && user.email;
-        
         return (
           <input
             type={type || 'text'}
@@ -370,10 +399,6 @@ const ApplyMembership = () => {
             placeholder={placeholder || t('membership.apply.enter.field', { field: label.toLowerCase() })}
             required={required}
             className="form-control"
-            readOnly={isReadOnly}
-            disabled={isReadOnly}
-            style={isReadOnly ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed' } : {}}
-            title={isReadOnly ? 'Email is locked to your account email for security' : ''}
           />
         );
     }
@@ -435,7 +460,7 @@ const ApplyMembership = () => {
 
       <form onSubmit={handleSubmit} className="application-form">
         <div className="form-fields">
-          {/* Always show email field first (from user registration) - read-only */}
+          {/* Always show email field first (from user registration) - read-only and locked */}
           {user && user.email && (
             <div className="form-group">
               <label className="form-label">
@@ -450,7 +475,11 @@ const ApplyMembership = () => {
                 className="form-control"
                 style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
                 title="Email is locked to your account email for security"
+                onChange={() => {}} // Prevent any changes
               />
+              <small style={{ color: '#666', fontSize: '0.85rem', marginTop: '4px', display: 'block' }}>
+                This email is from your account registration and cannot be changed
+              </small>
             </div>
           )}
           
