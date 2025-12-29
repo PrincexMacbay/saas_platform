@@ -807,18 +807,20 @@ const PaymentModal = ({ payment, plans, users, onClose, onSave }) => {
             align-items: center;
             padding: 20px 30px;
             border-bottom: 1px solid #ecf0f1;
+            background: #2c3e50;
+            color: white;
           }
 
           .modal-header h3 {
             margin: 0;
-            color: #2c3e50;
+            color: white;
           }
 
           .close-button {
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #7f8c8d;
+            color: white;
             cursor: pointer;
           }
 

@@ -968,11 +968,15 @@ const ApplicationFormBuilder = () => {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
+          background: #2c3e50;
+          color: white;
+          padding: 20px;
+          border-radius: 12px 12px 0 0;
         }
 
         .modal-header h3 {
           margin: 0;
-          color: #2c3e50;
+          color: white;
         }
 
         .close-button {
@@ -980,7 +984,7 @@ const ApplicationFormBuilder = () => {
           border: none;
           font-size: 1.5rem;
           cursor: pointer;
-          color: #7f8c8d;
+          color: white;
         }
 
         .modal-form {
@@ -1326,7 +1330,7 @@ const ApplicationFormBuilder = () => {
           display: flex;
           align-items: center;
           gap: 10px;
-          color: #2c3e50;
+          color: white;
         }
 
         .modal-header h3 i {

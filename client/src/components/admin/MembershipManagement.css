@@ -582,11 +582,13 @@
   padding: 24px 24px 0 24px;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 24px;
+  background: #2c3e50;
+  color: white;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #1f2937;
+  color: white;
   font-size: 20px;
   font-weight: 600;
 }
@@ -595,7 +597,7 @@
   background: none;
   border: none;
   font-size: 24px;
-  color: #6b7280;
+  color: white;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -603,7 +605,8 @@
 }
 
 .modal-close:hover {
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .modal-body {

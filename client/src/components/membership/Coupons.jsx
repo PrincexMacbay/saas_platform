@@ -639,18 +639,20 @@ const Coupons = () => {
           align-items: center;
           padding: 20px 24px;
           border-bottom: 1px solid #e0e0e0;
+          background: #2c3e50;
+          color: white;
         }
 
         .modal-header h3 {
           margin: 0;
-          color: #2c3e50;
+          color: white;
         }
 
         .modal-close {
           background: none;
           border: none;
           font-size: 18px;
-          color: #666;
+          color: white;
           cursor: pointer;
           padding: 4px;
         }

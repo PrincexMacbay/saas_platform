@@ -505,13 +505,16 @@ const MembershipCard = ({ membership, onViewCard }) => {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          background: #2c3e50;
+          color: white;
+          border-radius: 12px 12px 0 0;
         }
 
         .modal-title {
           margin: 0;
           font-size: 1.25rem;
           font-weight: 600;
-          color: #2c3e50;
+          color: white;
         }
         
         .modal-body {
@@ -531,7 +534,7 @@ const MembershipCard = ({ membership, onViewCard }) => {
           border: none;
           font-size: 1.25rem;
           cursor: pointer;
-          color: #7f8c8d;
+          color: white;
           padding: 0;
           width: 30px;
           height: 30px;
@@ -543,8 +546,8 @@ const MembershipCard = ({ membership, onViewCard }) => {
         }
 
         .btn-close:hover {
-          background: #f1f3f4;
-          color: #2c3e50;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
         }
         
         .digital-card-preview {

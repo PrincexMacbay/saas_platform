@@ -69,11 +69,14 @@ const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel, confirmText = "Co
         .confirm-dialog-header {
           padding: 20px 20px 0 20px;
           border-bottom: 1px solid #e9ecef;
+          background: #2c3e50;
+          color: white;
+          border-radius: 12px 12px 0 0;
         }
 
         .confirm-dialog-header h3 {
           margin: 0 0 15px 0;
-          color: #333;
+          color: white;
           font-size: 1.25rem;
           font-weight: 600;
         }

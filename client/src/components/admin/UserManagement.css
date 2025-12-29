@@ -198,20 +198,22 @@
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid #e2e8f0;
+  background: #2c3e50;
+  color: white;
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1e293b;
+  color: white;
 }
 
 .modal-close {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #64748b;
+  color: white;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
@@ -219,7 +221,8 @@
 }
 
 .modal-close:hover {
-  background-color: #f1f5f9;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .modal-body {
