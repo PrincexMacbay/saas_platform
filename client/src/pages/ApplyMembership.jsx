@@ -98,7 +98,7 @@ const ApplyMembership = () => {
         applicationFee: selectedPlan.applicationFee || 0
       };
       
-      // Pre-fill user's email if authenticated
+      // Always include user's email (required) - email is automatically included from registration
       if (user && user.email) {
         initialData.email = user.email;
       }
@@ -109,12 +109,13 @@ const ApplyMembership = () => {
         if (user.lastName) initialData.lastName = user.lastName;
       }
       
-      // Add fields from the custom form
+      // Add fields from the custom form (email fields are already filtered out by backend)
       if (formResponse.data.data.fields) {
         console.log('Form fields:', formResponse.data.data.fields); // Debug log
         formResponse.data.data.fields.forEach(field => {
-          // Don't overwrite pre-filled values
-          if (!initialData[field.name]) {
+          // Don't overwrite pre-filled values, and skip email fields
+          const fieldName = field.name?.toLowerCase();
+          if (fieldName !== 'email' && !initialData[field.name]) {
             initialData[field.name] = '';
           }
         });
@@ -434,15 +435,44 @@ const ApplyMembership = () => {
 
       <form onSubmit={handleSubmit} className="application-form">
         <div className="form-fields">
-          {form.fields?.sort((a, b) => (a.order || 0) - (b.order || 0)).map((field, index) => (
-            <div key={index} className="form-group">
+          {/* Always show email field first (from user registration) - read-only */}
+          {user && user.email && (
+            <div className="form-group">
               <label className="form-label">
-                {field.label}
-                {field.required && <span className="required">*</span>}
+                Email <span className="required">*</span>
               </label>
-              {renderField(field)}
+              <input
+                type="email"
+                name="email"
+                value={user.email}
+                readOnly
+                disabled
+                className="form-control"
+                style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
+                title="Email is locked to your account email for security"
+              />
             </div>
-          ))}
+          )}
+          
+          {/* Render other fields, filtering out any email fields */}
+          {form.fields
+            ?.filter(field => {
+              // Filter out email fields - email is already shown above from user registration
+              const fieldName = field.name?.toLowerCase();
+              const fieldType = field.type?.toLowerCase();
+              const inputType = field.inputType?.toLowerCase();
+              return fieldName !== 'email' && fieldType !== 'email' && inputType !== 'email';
+            })
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .map((field, index) => (
+              <div key={index} className="form-group">
+                <label className="form-label">
+                  {field.label}
+                  {field.required && <span className="required">*</span>}
+                </label>
+                {renderField(field)}
+              </div>
+            ))}
         </div>
 
         {/* Coupon Code Section */}

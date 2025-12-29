@@ -360,25 +360,23 @@ router.post('/apply', authenticateToken, async (req, res) => {
     }
 
     // Also check if user already has an active subscription for this plan
-    if (userToCheck) {
-      const existingSubscription = await Subscription.findOne({
-        where: {
-          userId: userToCheck.id,
-          planId,
-          status: { [Op.in]: ['active', 'past_due', 'pending'] }
+    const existingSubscription = await Subscription.findOne({
+      where: {
+        userId: userId,
+        planId,
+        status: { [Op.in]: ['active', 'past_due', 'pending'] }
+      }
+    });
+
+    if (existingSubscription) {
+      return res.status(400).json({
+        success: false,
+        message: 'You already have an active subscription for this plan.',
+        data: {
+          subscriptionId: existingSubscription.id,
+          status: existingSubscription.status
         }
       });
-
-      if (existingSubscription) {
-        return res.status(400).json({
-          success: false,
-          message: 'You already have an active subscription for this plan.',
-          data: {
-            subscriptionId: existingSubscription.id,
-            status: existingSubscription.status
-          }
-        });
-      }
     }
 
     // Check if there's an incomplete application for this user and plan

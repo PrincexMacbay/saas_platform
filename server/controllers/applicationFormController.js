@@ -11,10 +11,20 @@ const getApplicationForms = async (req, res) => {
 
     res.json({
       success: true,
-      data: forms.map(form => ({
-        ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
-      }))
+      data: forms.map(form => {
+        const fields = form.fields ? JSON.parse(form.fields) : [];
+        // Filter out email fields - email is automatically included from user registration
+        const filteredFields = fields.filter(field => 
+          field.name?.toLowerCase() !== 'email' && 
+          field.type?.toLowerCase() !== 'email' &&
+          field.inputType?.toLowerCase() !== 'email' &&
+          field.dataType?.toLowerCase() !== 'email'
+        );
+        return {
+          ...form.toJSON(),
+          fields: filteredFields
+        };
+      })
     });
   } catch (error) {
     console.error('Get application forms error:', error);
@@ -48,11 +58,20 @@ const getApplicationFormByPlan = async (req, res) => {
       });
     }
 
+    const fields = form.fields ? JSON.parse(form.fields) : [];
+    // Filter out email fields - email is automatically included from user registration
+    const filteredFields = fields.filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.type?.toLowerCase() !== 'email' &&
+      field.inputType?.toLowerCase() !== 'email' &&
+      field.dataType?.toLowerCase() !== 'email'
+    );
+    
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
+        fields: filteredFields
       }
     });
   } catch (error) {
@@ -84,11 +103,20 @@ const getApplicationFormById = async (req, res) => {
       });
     }
 
+    const fields = form.fields ? JSON.parse(form.fields) : [];
+    // Filter out email fields - email is automatically included from user registration
+    const filteredFields = fields.filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.type?.toLowerCase() !== 'email' &&
+      field.inputType?.toLowerCase() !== 'email' &&
+      field.dataType?.toLowerCase() !== 'email'
+    );
+    
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
+        fields: filteredFields
       }
     });
   } catch (error) {
@@ -124,11 +152,20 @@ const getApplicationForm = async (req, res) => {
       });
     }
 
+    const fields = form.fields ? JSON.parse(form.fields) : [];
+    // Filter out email fields - email is automatically included from user registration
+    const filteredFields = fields.filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.type?.toLowerCase() !== 'email' &&
+      field.inputType?.toLowerCase() !== 'email' &&
+      field.dataType?.toLowerCase() !== 'email'
+    );
+    
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
+        fields: filteredFields
       }
     });
   } catch (error) {
@@ -282,11 +319,20 @@ const saveApplicationForm = async (req, res) => {
       isPublished: false
     });
 
+    const fields = form.fields ? JSON.parse(form.fields) : [];
+    // Filter out email fields - email is automatically included from user registration
+    const filteredFields = fields.filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.type?.toLowerCase() !== 'email' &&
+      field.inputType?.toLowerCase() !== 'email' &&
+      field.dataType?.toLowerCase() !== 'email'
+    );
+    
     res.json({
       success: true,
       data: {
         ...form.toJSON(),
-        fields: form.fields ? JSON.parse(form.fields) : []
+        fields: filteredFields
       }
     });
   } catch (error) {
