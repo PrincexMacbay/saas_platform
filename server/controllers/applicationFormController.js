@@ -179,7 +179,13 @@ const createApplicationForm = async (req, res) => {
     ];
 
     // Combine default fields with custom fields, avoiding duplicates
-    const customFields = fields || [];
+    // Filter out any email fields from custom fields (email is automatically included from user registration)
+    const customFields = (fields || []).filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.inputType !== 'email' && 
+      field.dataType !== 'email' &&
+      field.type !== 'email'
+    );
     const customFieldNames = customFields.map(f => f.name);
     const uniqueDefaultFields = defaultFields.filter(defaultField => 
       !customFieldNames.includes(defaultField.name)
@@ -252,7 +258,13 @@ const saveApplicationForm = async (req, res) => {
     ];
 
     // Combine default fields with custom fields, avoiding duplicates
-    const customFields = fields || [];
+    // Filter out any email fields from custom fields (email is automatically included from user registration)
+    const customFields = (fields || []).filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.inputType !== 'email' && 
+      field.dataType !== 'email' &&
+      field.type !== 'email'
+    );
     const customFieldNames = customFields.map(f => f.name);
     const uniqueDefaultFields = defaultFields.filter(defaultField => 
       !customFieldNames.includes(defaultField.name)
@@ -341,7 +353,13 @@ const updateApplicationForm = async (req, res) => {
     ];
 
     // Combine default fields with custom fields, avoiding duplicates
-    const customFields = fields || [];
+    // Filter out any email fields from custom fields (email is automatically included from user registration)
+    const customFields = (fields || []).filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.inputType !== 'email' && 
+      field.dataType !== 'email' &&
+      field.type !== 'email'
+    );
     const customFieldNames = customFields.map(f => f.name);
     const uniqueDefaultFields = defaultFields.filter(defaultField => 
       !customFieldNames.includes(defaultField.name)

@@ -91,7 +91,17 @@ const ApplicationFormBuilder = () => {
       // Get the first form for the organization, or create a new one
       const forms = response.data.data || [];
       if (forms.length > 0) {
-        setFormConfig(forms[0]);
+        const form = forms[0];
+        // Filter out any email fields that might have been added manually
+        const filteredFields = (form.fields || []).filter(field => 
+          field.name?.toLowerCase() !== 'email' && 
+          field.inputType !== 'email' && 
+          field.dataType !== 'email'
+        );
+        setFormConfig({
+          ...form,
+          fields: filteredFields
+        });
       } else {
         // Create a new form config
         setFormConfig({
@@ -247,6 +257,12 @@ const ApplicationFormBuilder = () => {
 
     // Generate field name from label if not provided
     const fieldName = newField.name || newField.label.toLowerCase().replace(/\s+/g, '_');
+    
+    // Prevent creating email field - email is automatically included from user registration
+    if (fieldName.toLowerCase() === 'email' || newField.inputType === 'email' || newField.dataType === 'email') {
+      showWarning('Email field cannot be added. User email from registration will be automatically included in the application form.', t('form.builder.warning.title') || 'Warning');
+      return;
+    }
     
     const fieldToAdd = {
       ...newField,
@@ -1389,7 +1405,7 @@ const ApplicationFormBuilder = () => {
                       placeholder={t('form.builder.field.name.placeholder')}
                       className="form-input"
                     />
-                    <small>{t('form.builder.field.name.help')}</small>
+                    <small>{t('form.builder.field.name.help')} Note: "email" cannot be used as a field name (email is automatically included from user registration).</small>
                   </div>
                   <div className="form-group">
                     <label className="required-label">{t('form.builder.field.label')} *</label>
@@ -1442,7 +1458,6 @@ const ApplicationFormBuilder = () => {
                     <label>Data Type</label>
                     <select name="dataType" value={newField.dataType} onChange={handleFieldInputChange} className="form-select">
                       <option value="text">Text</option>
-                      <option value="email">Email</option>
                       <option value="phone">Phone</option>
                       <option value="number">Number</option>
                       <option value="date">Date</option>
@@ -1457,7 +1472,6 @@ const ApplicationFormBuilder = () => {
                       <option value="textarea">Text Area</option>
                       <option value="select">Dropdown</option>
                       <option value="checkbox">Checkbox</option>
-                      <option value="email">Email</option>
                       <option value="tel">Phone</option>
                       <option value="url">URL</option>
                     </select>

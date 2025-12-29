@@ -37,26 +37,22 @@ api.interceptors.request.use(
     console.log('🔍 API Interceptor: Token exists:', !!token);
     console.log('🔍 API Interceptor: Token value:', token?.substring(0, 20) + '...');
     
-    // Don't add Authorization header to truly public endpoints
-    // Note: /public/apply requires authentication, so we need to send token for it
-    const isTrulyPublicEndpoint = config.url && (
+    // Always send token if it exists - let backend middleware decide if it's required
+    // Only exclude token from specific auth endpoints that should never have tokens
+    const shouldExcludeToken = config.url && (
       config.url.includes('/auth/register') || 
-      config.url.includes('/auth/login') ||
-      config.url.includes('/auth/verify-email') ||
-      config.url.includes('/auth/forgot-password') ||
-      config.url.includes('/auth/reset-password') ||
-      (config.url.includes('/public/') && !config.url.includes('/public/apply') && !config.url.includes('/public/application-payment'))
+      config.url.includes('/auth/login')
     );
     
-    console.log('🔍 API Interceptor: Is truly public endpoint:', isTrulyPublicEndpoint);
+    console.log('🔍 API Interceptor: Should exclude token:', shouldExcludeToken);
     
-    if (token && !isTrulyPublicEndpoint) {
+    if (token && !shouldExcludeToken) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log('✅ API Interceptor: Authorization header added');
-    } else if (!token && !isTrulyPublicEndpoint) {
-      console.log('⚠️ API Interceptor: No token available for protected endpoint');
+    } else if (!token) {
+      console.log('⚠️ API Interceptor: No token available');
     } else {
-      console.log('ℹ️ API Interceptor: Public endpoint, no auth needed');
+      console.log('ℹ️ API Interceptor: Token excluded for auth endpoint');
     }
     
     console.log('🔍 API Interceptor: Final headers:', config.headers);
@@ -101,13 +97,25 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      // Don't redirect here - let the AuthContext handle it
-      // This prevents full page reloads and logout/login cycles
-      const token = localStorage.getItem('token');
-      if (token) {
-        // Only clear token if it exists (avoid clearing on public endpoints)
-        localStorage.removeItem('token');
+      const errorMessage = error.response?.data?.message || '';
+      
+      // Only clear token if it's actually invalid/expired, not just missing
+      // "Access token required" means token wasn't sent, which might be a bug
+      // "Invalid token" or "Invalid or expired token" means token is bad
+      if (errorMessage.includes('Invalid') || errorMessage.includes('expired')) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          console.warn('⚠️ Token is invalid/expired, clearing from storage');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } else if (errorMessage.includes('Access token required')) {
+        // Token wasn't sent - this might be a bug in the interceptor
+        console.error('❌ Access token required but not sent. Check API interceptor.');
+        const token = localStorage.getItem('token');
+        if (token) {
+          console.warn('⚠️ Token exists in localStorage but wasn\'t sent. This is a bug.');
+        }
       }
       // Don't use window.location.href - let React Router handle navigation
       // The AuthContext will detect the missing token and update state accordingly
