@@ -462,7 +462,7 @@ const Navbar = () => {
                       padding: '12px 16px',
                       background: 'none',
                       border: 'none',
-                      color: '#3498db',
+                      color: '#2c3e50',
                       textAlign: 'left',
                       cursor: 'pointer',
                       fontSize: '14px',

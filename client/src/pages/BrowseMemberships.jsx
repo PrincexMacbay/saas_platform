@@ -181,6 +181,7 @@ const BrowseMemberships = () => {
       {loading && plans.length === 0 ? (
         <div className="browse-loading">
           <div className="loading-spinner"></div>
+          <p className="loading-text">Loading membership plans...</p>
         </div>
       ) : (
         <div className="plans-grid">
@@ -621,8 +622,11 @@ const BrowseMemberships = () => {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          min-height: 60vh;
+          min-height: calc(100vh - 200px);
           width: 100%;
+          position: relative;
+          padding: 40px 20px;
+          margin: 40px 0;
         }
 
         .loading-spinner {
@@ -632,6 +636,15 @@ const BrowseMemberships = () => {
           width: 50px;
           height: 50px;
           animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+          display: block;
+        }
+        
+        .loading-text {
+          color: #7f8c8d;
+          font-size: 1rem;
+          text-align: center;
+          margin: 0;
         }
 
         @keyframes spin {
