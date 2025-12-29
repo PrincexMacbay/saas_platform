@@ -319,9 +319,9 @@ const saveApplicationForm = async (req, res) => {
       isPublished: false
     });
 
-    const fields = form.fields ? JSON.parse(form.fields) : [];
+    const parsedFields = form.fields ? JSON.parse(form.fields) : [];
     // Filter out email fields - email is automatically included from user registration
-    const filteredFields = fields.filter(field => 
+    const filteredFields = parsedFields.filter(field => 
       field.name?.toLowerCase() !== 'email' && 
       field.type?.toLowerCase() !== 'email' &&
       field.inputType?.toLowerCase() !== 'email' &&
@@ -421,11 +421,23 @@ const updateApplicationForm = async (req, res) => {
       fields: JSON.stringify(allFields)
     });
 
+    // Reload the form to get updated data
+    await existingForm.reload();
+    
+    const parsedFields = existingForm.fields ? JSON.parse(existingForm.fields) : [];
+    // Filter out email fields - email is automatically included from user registration
+    const filteredFields = parsedFields.filter(field => 
+      field.name?.toLowerCase() !== 'email' && 
+      field.type?.toLowerCase() !== 'email' &&
+      field.inputType?.toLowerCase() !== 'email' &&
+      field.dataType?.toLowerCase() !== 'email'
+    );
+
     res.json({
       success: true,
       data: {
         ...existingForm.toJSON(),
-        fields: existingForm.fields ? JSON.parse(existingForm.fields) : []
+        fields: filteredFields
       }
     });
   } catch (error) {
