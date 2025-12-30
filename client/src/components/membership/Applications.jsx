@@ -535,7 +535,8 @@ const Applications = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (window.confirm(t('applications.confirm.delete') || 'Are you sure you want to delete this application?'))) {
+                            const confirmed = window.confirm(t('applications.confirm.delete') || 'Are you sure you want to delete this application?');
+                            if (confirmed) {
                               handleDelete(application.id);
                             }
                             setOpenDropdownId(null);
