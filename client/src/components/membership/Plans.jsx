@@ -761,6 +761,31 @@ const Plans = () => {
   const [editingPlan, setEditingPlan] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
 
+  // Fetch plans function - defined before useEffect to avoid initialization error
+  const fetchPlans = useCallback(async () => {
+    try {
+      setError(null);
+      const params = {
+        page: currentPage,
+        limit: 10,
+        ...(searchTerm && { search: searchTerm }),
+        ...(activeFilter && { isActive: activeFilter })
+      };
+
+      const response = await api.get('/membership/plans', { params });
+      const plans = response.data?.data?.plans || [];
+      const pagination = response.data?.data?.pagination || { totalPages: 1 };
+      
+      setPlans(plans);
+      setTotalPages(pagination.totalPages);
+      // Also update context data
+      updateData('plans', plans);
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      setError(error.response?.data?.message || 'Failed to fetch plans');
+    }
+  }, [currentPage, searchTerm, activeFilter, updateData]);
+
   useEffect(() => {
     // Use preloaded data if available
     if (data.plans && Array.isArray(data.plans)) {
@@ -785,30 +810,6 @@ const Plans = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [currentPage, searchTerm, activeFilter, isInitialized, fetchPlans]);
-
-  const fetchPlans = useCallback(async () => {
-    try {
-      setError(null);
-      const params = {
-        page: currentPage,
-        limit: 10,
-        ...(searchTerm && { search: searchTerm }),
-        ...(activeFilter && { isActive: activeFilter })
-      };
-
-      const response = await api.get('/membership/plans', { params });
-      const plans = response.data?.data?.plans || [];
-      const pagination = response.data?.data?.pagination || { totalPages: 1 };
-      
-      setPlans(plans);
-      setTotalPages(pagination.totalPages);
-      // Also update context data
-      updateData('plans', plans);
-    } catch (error) {
-      console.error('Error fetching plans:', error);
-      setError(error.response?.data?.message || 'Failed to fetch plans');
-    }
-  }, [currentPage, searchTerm, activeFilter, updateData]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);

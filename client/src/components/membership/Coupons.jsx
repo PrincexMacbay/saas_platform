@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createCoupon, getCoupons, deleteCoupon, updateCoupon, getPlans } from '../../services/membershipService';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
@@ -28,22 +28,7 @@ const Coupons = () => {
   const [planSearchTerm, setPlanSearchTerm] = useState('');
   const planDropdownRef = useRef(null);
 
-  useEffect(() => {
-    // Use preloaded data if available
-    if (data.coupons && Array.isArray(data.coupons)) {
-      console.log('🚀 Coupons: Using preloaded data', data.coupons.length, 'coupons');
-      setCoupons(data.coupons);
-    } else if (!contextLoading.coupons && !isLoadingAll) {
-      console.log('🚀 Coupons: Fetching data (not preloaded)');
-      loadCoupons();
-    }
-  }, [data.coupons, contextLoading.coupons, isLoadingAll]);
-
-  useEffect(() => {
-    // Load plans for selection
-    loadPlans();
-  }, []);
-
+  // Load plans function - defined before useEffect
   const loadPlans = async () => {
     try {
       setLoadingPlans(true);
@@ -63,6 +48,7 @@ const Coupons = () => {
     }
   };
 
+  // Load coupons function - defined before useEffect
   const loadCoupons = async () => {
     // Only set loading if we don't have preloaded data
     if (!data.coupons) {
@@ -78,6 +64,22 @@ const Coupons = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Use preloaded data if available
+    if (data.coupons && Array.isArray(data.coupons)) {
+      console.log('🚀 Coupons: Using preloaded data', data.coupons.length, 'coupons');
+      setCoupons(data.coupons);
+    } else if (!contextLoading.coupons && !isLoadingAll) {
+      console.log('🚀 Coupons: Fetching data (not preloaded)');
+      loadCoupons();
+    }
+  }, [data.coupons, contextLoading.coupons, isLoadingAll]);
+
+  useEffect(() => {
+    // Load plans for selection
+    loadPlans();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

@@ -25,6 +25,45 @@ const Applications = () => {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const dropdownRefs = useRef({});
 
+  // Fetch organizations - defined before fetchApplications
+  const fetchOrganizations = useCallback(async () => {
+    try {
+      const response = await api.get('/users/organizations/available');
+      setOrganizations(response.data.data);
+    } catch (error) {
+      console.error('Error fetching organizations:', error);
+    }
+  }, []);
+
+  // Fetch applications - defined before useEffect to avoid initialization error
+  const fetchApplications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: currentPage,
+        limit: 10,
+        ...(searchTerm && { search: searchTerm }),
+        ...(statusFilter && { status: statusFilter })
+      };
+
+      const response = await api.get('/membership/applications', { params });
+      setApplications(response.data.data.applications || []);
+      setTotalPages(response.data.data.pagination.totalPages || 1);
+      setShowOrganizationSelector(false);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      if (error.response?.data?.code === 'NO_ORGANIZATION') {
+        setShowOrganizationSelector(true);
+        await fetchOrganizations();
+      } else {
+        setError(error.response?.data?.message || 'Failed to fetch applications');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, searchTerm, statusFilter, fetchOrganizations]);
+
   useEffect(() => {
     const applicationId = searchParams.get('applicationId');
     
@@ -109,43 +148,6 @@ const Applications = () => {
       };
     }
   }, [openDropdownId]);
-
-  const fetchOrganizations = useCallback(async () => {
-    try {
-      const response = await api.get('/users/organizations/available');
-      setOrganizations(response.data.data);
-    } catch (error) {
-      console.error('Error fetching organizations:', error);
-    }
-  }, []);
-
-  const fetchApplications = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: currentPage,
-        limit: 10,
-        ...(searchTerm && { search: searchTerm }),
-        ...(statusFilter && { status: statusFilter })
-      };
-
-      const response = await api.get('/membership/applications', { params });
-      setApplications(response.data.data.applications || []);
-      setTotalPages(response.data.data.pagination.totalPages || 1);
-      setShowOrganizationSelector(false);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching applications:', error);
-      if (error.response?.data?.code === 'NO_ORGANIZATION') {
-        setShowOrganizationSelector(true);
-        await fetchOrganizations();
-      } else {
-        setError(error.response?.data?.message || 'Failed to fetch applications');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, searchTerm, statusFilter, fetchOrganizations]);
 
   const handleJoinOrganization = async (organizationId) => {
     try {
