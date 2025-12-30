@@ -395,7 +395,7 @@ const initializeSocket = (server) => {
     // Mark group messages as read
     socket.on('mark_group_messages_read', async (groupConversationId) => {
       try {
-        // Get all unread messages in this group
+        // Get all unread messages in this group that this user hasn't read yet
         const unreadMessages = await GroupMessage.findAll({
           where: {
             groupConversationId,
@@ -405,25 +405,41 @@ const initializeSocket = (server) => {
             model: GroupMessageRead,
             as: 'readBy',
             where: {
-              userId: { [Op.ne]: socket.userId }
+              userId: socket.userId
             },
             required: false
           }]
         });
 
-        // Mark messages as read
+        // Filter messages that haven't been read by this user
         const messageIds = unreadMessages
           .filter(msg => !msg.readBy || msg.readBy.length === 0)
           .map(msg => msg.id);
 
         if (messageIds.length > 0) {
-          await GroupMessageRead.bulkCreate(
-            messageIds.map(messageId => ({
+          // Check which ones already exist to avoid duplicates
+          const existingReads = await GroupMessageRead.findAll({
+            where: {
+              messageId: { [Op.in]: messageIds },
+              userId: socket.userId
+            },
+            attributes: ['messageId']
+          });
+
+          const existingMessageIds = new Set(existingReads.map(r => r.messageId));
+          const newReads = messageIds
+            .filter(msgId => !existingMessageIds.has(msgId))
+            .map(messageId => ({
               messageId,
               userId: socket.userId,
               readAt: new Date()
-            }))
-          );
+            }));
+
+          if (newReads.length > 0) {
+            await GroupMessageRead.bulkCreate(newReads, {
+              ignoreDuplicates: true
+            });
+          }
         }
 
         // Update member's lastReadAt

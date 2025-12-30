@@ -46,21 +46,27 @@ export const ChatProvider = ({ children }) => {
         setMessages(prev => {
           const conversationId = message.conversationId;
           const existing = prev[conversationId] || [];
-          // Avoid duplicates - check by real ID or temp ID
-          if (existing.find(m => m.id === message.id || (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId))) {
-            // If we have a temp message, replace it with the real one
-            const hasTemp = existing.find(m => m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId);
-            if (hasTemp) {
-              return {
-                ...prev,
-                [conversationId]: existing.map(m => 
-                  (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId) 
-                    ? message 
-                    : m
-                ).filter(m => m.id !== message.id || !m.id?.startsWith('temp_'))
-              };
-            }
-            return prev;
+          // Check if message already exists (by real ID)
+          if (existing.find(m => m.id === message.id)) {
+            return prev; // Already have this message
+          }
+
+          // Check if we have a temp message that should be replaced
+          const tempIndex = existing.findIndex(m => 
+            typeof m.id === 'string' && 
+            m.id.startsWith('temp_') && 
+            m.content === message.content && 
+            m.senderId === message.senderId
+          );
+
+          if (tempIndex !== -1) {
+            // Replace temp message with real message
+            const updated = [...existing];
+            updated[tempIndex] = message;
+            return {
+              ...prev,
+              [conversationId]: updated
+            };
           }
           return {
             ...prev,
@@ -93,21 +99,27 @@ export const ChatProvider = ({ children }) => {
         setGroupMessages(prev => {
           const groupId = message.groupConversationId;
           const existing = prev[groupId] || [];
-          // Avoid duplicates - check by real ID or temp ID
-          if (existing.find(m => m.id === message.id || (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId))) {
-            // If we have a temp message, replace it with the real one
-            const hasTemp = existing.find(m => m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId);
-            if (hasTemp) {
-              return {
-                ...prev,
-                [groupId]: existing.map(m => 
-                  (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId) 
-                    ? message 
-                    : m
-                ).filter(m => m.id !== message.id || !m.id?.startsWith('temp_'))
-              };
-            }
-            return prev;
+          // Check if message already exists (by real ID)
+          if (existing.find(m => m.id === message.id)) {
+            return prev; // Already have this message
+          }
+
+          // Check if we have a temp message that should be replaced
+          const tempIndex = existing.findIndex(m => 
+            typeof m.id === 'string' && 
+            m.id.startsWith('temp_') && 
+            m.content === message.content && 
+            m.senderId === message.senderId
+          );
+
+          if (tempIndex !== -1) {
+            // Replace temp message with real message
+            const updated = [...existing];
+            updated[tempIndex] = message;
+            return {
+              ...prev,
+              [groupId]: updated
+            };
           }
           return {
             ...prev,
