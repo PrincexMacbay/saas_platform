@@ -29,6 +29,17 @@ const DigitalCard = () => {
   const [success, setSuccess] = useState('');
   const [templateId, setTemplateId] = useState(null);
   const [originalPlanId, setOriginalPlanId] = useState(null);
+  
+  // Confirmation Modal State
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: null,
+    onCancel: null
+  });
+  const [templateId, setTemplateId] = useState(null);
+  const [originalPlanId, setOriginalPlanId] = useState(null);
 
   // Load existing template and plans on mount
   useEffect(() => {
@@ -863,6 +874,132 @@ const DigitalCard = () => {
           }
         }
       `}</style>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div 
+          className="confirm-modal-overlay" 
+          onClick={() => {
+            if (confirmModalConfig.onCancel) {
+              confirmModalConfig.onCancel();
+            } else {
+              setShowConfirmModal(false);
+            }
+          }}
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="confirm-modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+              maxWidth: '500px',
+              width: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{
+              background: '#2c3e50',
+              color: 'white',
+              padding: '20px 30px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <i className="fas fa-exclamation-triangle" style={{ fontSize: '1.5rem', color: '#ffc107' }}></i>
+              <h3 style={{ margin: 0, color: 'white', fontWeight: 600 }}>{confirmModalConfig.title}</h3>
+            </div>
+            <div style={{ padding: '30px' }}>
+              <p style={{ 
+                margin: 0, 
+                color: '#34495e', 
+                fontSize: '1rem',
+                lineHeight: '1.6',
+                whiteSpace: 'pre-line'
+              }}>
+                {confirmModalConfig.message}
+              </p>
+            </div>
+            <div style={{
+              padding: '20px 30px',
+              borderTop: '1px solid #e9ecef',
+              background: '#f8f9fa',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => {
+                  if (confirmModalConfig.onCancel) {
+                    confirmModalConfig.onCancel();
+                  } else {
+                    setShowConfirmModal(false);
+                  }
+                }}
+                style={{
+                  padding: '10px 24px',
+                  border: '1px solid #6c757d',
+                  borderRadius: '6px',
+                  background: 'white',
+                  color: '#6c757d',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f8f9fa';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'white';
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmModalConfig.onConfirm) {
+                    confirmModalConfig.onConfirm();
+                  } else {
+                    setShowConfirmModal(false);
+                  }
+                }}
+                style={{
+                  padding: '10px 24px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: '#3498db',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#2980b9';
+                  }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#3498db';
+                }}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

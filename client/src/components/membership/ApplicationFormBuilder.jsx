@@ -30,6 +30,15 @@ const ApplicationFormBuilder = () => {
   // Track the original planId to detect changes
   const [originalPlanId, setOriginalPlanId] = useState(null);
   
+  // Confirmation Modal State
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: null,
+    onCancel: null
+  });
+  
   // Add Field Modal State
   const [showAddFieldModal, setShowAddFieldModal] = useState(false);
   const [newField, setNewField] = useState({
@@ -196,25 +205,30 @@ const ApplicationFormBuilder = () => {
   };
 
   const handleNewForm = () => {
-    const confirmed = window.confirm(
-      'This will start a new form. Any unsaved changes to the current form will be lost.\n\n' +
-      'Do you want to continue?'
-    );
-    if (confirmed) {
-      setFormConfig({
-        title: 'Membership Application',
-        description: '',
-        footer: '',
-        terms: '',
-        agreement: '',
-        fields: [],
-        isPublished: false,
-        planId: null
-      });
-      setSelectedPlanId('');
-      setOriginalPlanId(null);
-      showSuccess('Started a new form. Build your form and save when ready.', 'New Form');
-    }
+    setConfirmModalConfig({
+      title: 'Start New Form',
+      message: 'This will start a new form. Any unsaved changes to the current form will be lost.\n\nDo you want to continue?',
+      onConfirm: () => {
+        setFormConfig({
+          title: 'Membership Application',
+          description: '',
+          footer: '',
+          terms: '',
+          agreement: '',
+          fields: [],
+          isPublished: false,
+          planId: null
+        });
+        setSelectedPlanId('');
+        setOriginalPlanId(null);
+        setShowConfirmModal(false);
+        showSuccess('Started a new form. Build your form and save when ready.', 'New Form');
+      },
+      onCancel: () => {
+        setShowConfirmModal(false);
+      }
+    });
+    setShowConfirmModal(true);
   };
 
   const handleSave = async () => {
@@ -636,13 +650,22 @@ const ApplicationFormBuilder = () => {
                   const newPlanId = e.target.value;
                   // If changing planId on an existing form, show warning
                   if (formConfig.id && originalPlanId !== (newPlanId ? parseInt(newPlanId) : null)) {
-                    const confirmed = window.confirm(
-                      'Changing the plan association will create a NEW form. The current form will be preserved.\n\n' +
-                      'Do you want to continue?'
-                    );
-                    if (!confirmed) {
-                      return; // Don't change the selection
-                    }
+                    const selectElement = e.target;
+                    setConfirmModalConfig({
+                      title: 'Change Plan Association',
+                      message: 'Changing the plan association will create a NEW form. The current form will be preserved.\n\nDo you want to continue?',
+                      onConfirm: () => {
+                        setSelectedPlanId(newPlanId);
+                        setShowConfirmModal(false);
+                      },
+                      onCancel: () => {
+                        setShowConfirmModal(false);
+                        // Reset select to original value
+                        selectElement.value = selectedPlanId;
+                      }
+                    });
+                    setShowConfirmModal(true);
+                    return;
                   }
                   setSelectedPlanId(newPlanId);
                 }}
@@ -1782,6 +1805,132 @@ const ApplicationFormBuilder = () => {
               </button>
               <button className="btn btn-primary" onClick={handleSaveField}>
                 <i className="fas fa-plus"></i> {t('form.builder.add.field.button')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div 
+          className="confirm-modal-overlay" 
+          onClick={() => {
+            if (confirmModalConfig.onCancel) {
+              confirmModalConfig.onCancel();
+            } else {
+              setShowConfirmModal(false);
+            }
+          }}
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="confirm-modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+              maxWidth: '500px',
+              width: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{
+              background: '#2c3e50',
+              color: 'white',
+              padding: '20px 30px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <i className="fas fa-exclamation-triangle" style={{ fontSize: '1.5rem', color: '#ffc107' }}></i>
+              <h3 style={{ margin: 0, color: 'white', fontWeight: 600 }}>{confirmModalConfig.title}</h3>
+            </div>
+            <div style={{ padding: '30px' }}>
+              <p style={{ 
+                margin: 0, 
+                color: '#34495e', 
+                fontSize: '1rem',
+                lineHeight: '1.6',
+                whiteSpace: 'pre-line'
+              }}>
+                {confirmModalConfig.message}
+              </p>
+            </div>
+            <div style={{
+              padding: '20px 30px',
+              borderTop: '1px solid #e9ecef',
+              background: '#f8f9fa',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => {
+                  if (confirmModalConfig.onCancel) {
+                    confirmModalConfig.onCancel();
+                  } else {
+                    setShowConfirmModal(false);
+                  }
+                }}
+                style={{
+                  padding: '10px 24px',
+                  border: '1px solid #6c757d',
+                  borderRadius: '6px',
+                  background: 'white',
+                  color: '#6c757d',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f8f9fa';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'white';
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmModalConfig.onConfirm) {
+                    confirmModalConfig.onConfirm();
+                  } else {
+                    setShowConfirmModal(false);
+                  }
+                }}
+                style={{
+                  padding: '10px 24px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: '#3498db',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#2980b9';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#3498db';
+                }}
+              >
+                Continue
               </button>
             </div>
           </div>
