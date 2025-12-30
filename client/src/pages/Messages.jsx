@@ -35,17 +35,37 @@ const Messages = () => {
 
   useEffect(() => {
     if (conversationId) {
+      const convId = parseInt(conversationId);
       setView('conversations');
-      setActiveConversation(parseInt(conversationId));
-      joinConversation(parseInt(conversationId));
-      loadMessages(parseInt(conversationId));
-      markMessagesAsRead(parseInt(conversationId));
+      // Leave previous conversation if switching
+      if (activeConversation && activeConversation !== convId) {
+        leaveConversation(activeConversation);
+      }
+      setActiveConversation(convId);
+      joinConversation(convId);
+      loadMessages(convId);
+      markMessagesAsRead(convId);
     } else if (groupId) {
+      const grpId = parseInt(groupId);
       setView('groups');
-      setActiveGroupConversation(parseInt(groupId));
-      joinGroupConversation(parseInt(groupId));
-      loadGroupMessages(parseInt(groupId));
-      markGroupMessagesAsRead(parseInt(groupId));
+      // Leave previous group if switching
+      if (activeGroupConversation && activeGroupConversation !== grpId) {
+        leaveGroupConversation(activeGroupConversation);
+      }
+      setActiveGroupConversation(grpId);
+      joinGroupConversation(grpId);
+      loadGroupMessages(grpId);
+      markGroupMessagesAsRead(grpId);
+    } else {
+      // Clear active conversations when no params
+      if (activeConversation) {
+        leaveConversation(activeConversation);
+        setActiveConversation(null);
+      }
+      if (activeGroupConversation) {
+        leaveGroupConversation(activeGroupConversation);
+        setActiveGroupConversation(null);
+      }
     }
   }, [conversationId, groupId]);
 

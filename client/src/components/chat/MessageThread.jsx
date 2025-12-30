@@ -189,6 +189,7 @@ const MessageThread = ({ conversationId, onBack }) => {
     const att = attachment;
     const attType = attachmentType;
 
+    // Clear input immediately for better UX
     setMessageContent('');
     setAttachment(null);
     setAttachmentType(null);
@@ -197,15 +198,21 @@ const MessageThread = ({ conversationId, onBack }) => {
 
     try {
       await sendMessage(conversationId, content, att, attType);
+      // Message is optimistically added, so we don't need to wait
+      // The socket event will replace the temp message with the real one
     } catch (error) {
       console.error('Error sending message:', error);
-      showError('Failed to send message. Please try again.', 'Message Error');
+      showError(error.message || 'Failed to send message. Please try again.', 'Message Error');
+      // Restore input content on error
       setMessageContent(content);
       setAttachment(att);
       setAttachmentType(attType);
     } finally {
-      setSending(false);
-      inputRef.current?.focus();
+      // Always reset sending state after a short delay to ensure UI is responsive
+      setTimeout(() => {
+        setSending(false);
+        inputRef.current?.focus();
+      }, 100);
     }
   };
 

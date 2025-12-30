@@ -46,8 +46,20 @@ export const ChatProvider = ({ children }) => {
         setMessages(prev => {
           const conversationId = message.conversationId;
           const existing = prev[conversationId] || [];
-          // Avoid duplicates
-          if (existing.find(m => m.id === message.id)) {
+          // Avoid duplicates - check by real ID or temp ID
+          if (existing.find(m => m.id === message.id || (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId))) {
+            // If we have a temp message, replace it with the real one
+            const hasTemp = existing.find(m => m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId);
+            if (hasTemp) {
+              return {
+                ...prev,
+                [conversationId]: existing.map(m => 
+                  (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId) 
+                    ? message 
+                    : m
+                ).filter(m => m.id !== message.id || !m.id?.startsWith('temp_'))
+              };
+            }
             return prev;
           }
           return {
@@ -81,7 +93,20 @@ export const ChatProvider = ({ children }) => {
         setGroupMessages(prev => {
           const groupId = message.groupConversationId;
           const existing = prev[groupId] || [];
-          if (existing.find(m => m.id === message.id)) {
+          // Avoid duplicates - check by real ID or temp ID
+          if (existing.find(m => m.id === message.id || (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId))) {
+            // If we have a temp message, replace it with the real one
+            const hasTemp = existing.find(m => m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId);
+            if (hasTemp) {
+              return {
+                ...prev,
+                [groupId]: existing.map(m => 
+                  (m.id?.startsWith('temp_') && m.content === message.content && m.senderId === message.senderId) 
+                    ? message 
+                    : m
+                ).filter(m => m.id !== message.id || !m.id?.startsWith('temp_'))
+              };
+            }
             return prev;
           }
           return {
@@ -142,6 +167,20 @@ export const ChatProvider = ({ children }) => {
         console.log('Group messages read:', data);
       });
 
+      // Listen for message sent confirmation
+      socket.on('message_sent', (data) => {
+        console.log('✅ Message sent confirmation:', data);
+      });
+
+      socket.on('group_message_sent', (data) => {
+        console.log('✅ Group message sent confirmation:', data);
+      });
+
+      // Listen for message errors
+      socket.on('message_error', (error) => {
+        console.error('❌ Message error:', error);
+      });
+
       return () => {
         socket.off('new_message');
         socket.off('new_group_message');
@@ -149,6 +188,9 @@ export const ChatProvider = ({ children }) => {
         socket.off('user_typing_group');
         socket.off('messages_read');
         socket.off('group_messages_read');
+        socket.off('message_sent');
+        socket.off('group_message_sent');
+        socket.off('message_error');
       };
     } else {
       disconnectSocket();
@@ -272,21 +314,70 @@ export const ChatProvider = ({ children }) => {
       throw new Error('Socket not connected');
     }
 
+    // Optimistically add message to local state immediately
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+    const optimisticMessage = {
+      id: tempId,
+      conversationId,
+      senderId: user?.id,
+      content,
+      attachment,
+      attachmentType,
+      read: false,
+      createdAt: new Date().toISOString(),
+      sender: {
+        id: user?.id,
+        username: user?.username,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        profileImage: user?.profileImage
+      }
+    };
+
+    // Add optimistic message immediately
+    setMessages(prev => {
+      const existing = prev[conversationId] || [];
+      return {
+        ...prev,
+        [conversationId]: [...existing, optimisticMessage]
+      };
+    });
+
     return new Promise((resolve, reject) => {
+      // Set up error handler
+      const errorHandler = (error) => {
+        // Remove optimistic message on error
+        setMessages(prev => {
+          const existing = prev[conversationId] || [];
+          return {
+            ...prev,
+            [conversationId]: existing.filter(m => m.id !== tempId)
+          };
+        });
+        socket.off('message_error', errorHandler);
+        reject(new Error(error.message || 'Failed to send message'));
+      };
+
+      socket.once('message_error', errorHandler);
+
+      // Send message
       socket.emit('send_message', {
         conversationId,
         content,
         attachment,
         attachmentType
-      }, (response) => {
-        if (response && response.error) {
-          reject(new Error(response.error));
-        } else {
-          resolve(response);
-        }
       });
+
+      // Resolve immediately since we have optimistic update
+      // The socket event will replace the temp message with the real one
+      resolve({ success: true, tempId });
+
+      // Cleanup error handler after 5 seconds
+      setTimeout(() => {
+        socket.off('message_error', errorHandler);
+      }, 5000);
     });
-  }, []);
+  }, [user]);
 
   // Send group message
   const sendGroupMessage = useCallback(async (groupConversationId, content, attachment, attachmentType) => {
@@ -295,21 +386,68 @@ export const ChatProvider = ({ children }) => {
       throw new Error('Socket not connected');
     }
 
+    // Optimistically add message to local state
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+    const optimisticMessage = {
+      id: tempId,
+      groupConversationId,
+      senderId: user?.id,
+      content,
+      attachment,
+      attachmentType,
+      createdAt: new Date().toISOString(),
+      sender: {
+        id: user?.id,
+        username: user?.username,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        profileImage: user?.profileImage
+      }
+    };
+
+    // Add optimistic message immediately
+    setGroupMessages(prev => {
+      const existing = prev[groupConversationId] || [];
+      return {
+        ...prev,
+        [groupConversationId]: [...existing, optimisticMessage]
+      };
+    });
+
     return new Promise((resolve, reject) => {
+      // Set up error handler
+      const errorHandler = (error) => {
+        // Remove optimistic message on error
+        setGroupMessages(prev => {
+          const existing = prev[groupConversationId] || [];
+          return {
+            ...prev,
+            [groupConversationId]: existing.filter(m => m.id !== tempId)
+          };
+        });
+        socket.off('message_error', errorHandler);
+        reject(new Error(error.message || 'Failed to send message'));
+      };
+
+      socket.once('message_error', errorHandler);
+
+      // Send message
       socket.emit('send_group_message', {
         groupConversationId,
         content,
         attachment,
         attachmentType
-      }, (response) => {
-        if (response && response.error) {
-          reject(new Error(response.error));
-        } else {
-          resolve(response);
-        }
       });
+
+      // Resolve immediately since we have optimistic update
+      resolve({ success: true, tempId });
+
+      // Cleanup error handler after 5 seconds
+      setTimeout(() => {
+        socket.off('message_error', errorHandler);
+      }, 5000);
     });
-  }, []);
+  }, [user]);
 
   // Join conversation room
   const joinConversation = useCallback((conversationId) => {
@@ -317,6 +455,9 @@ export const ChatProvider = ({ children }) => {
     if (socket && socket.connected) {
       socket.emit('join_conversation', conversationId);
       setActiveConversation(conversationId);
+      console.log(`✅ Joined conversation room: ${conversationId}`);
+    } else {
+      console.error('❌ Socket not connected, cannot join conversation');
     }
   }, []);
 
@@ -337,6 +478,9 @@ export const ChatProvider = ({ children }) => {
     if (socket && socket.connected) {
       socket.emit('join_group_conversation', groupConversationId);
       setActiveGroupConversation(groupConversationId);
+      console.log(`✅ Joined group conversation room: ${groupConversationId}`);
+    } else {
+      console.error('❌ Socket not connected, cannot join group conversation');
     }
   }, []);
 

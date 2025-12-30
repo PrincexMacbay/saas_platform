@@ -99,6 +99,7 @@ const GroupChat = ({ groupConversationId, onBack }) => {
     const att = attachment;
     const attType = attachmentType;
 
+    // Clear input immediately for better UX
     setMessageContent('');
     setAttachment(null);
     setAttachmentType(null);
@@ -107,19 +108,24 @@ const GroupChat = ({ groupConversationId, onBack }) => {
 
     try {
       await sendGroupMessage(groupConversationId, content, att, attType);
+      // Message will be added via socket event
     } catch (error) {
       console.error('Error sending group message:', error);
       if (error.message.includes('Only the group creator')) {
         showWarning('Only the group creator can send messages in this group.', 'Message Restriction');
       } else {
-        showError('Failed to send message. Please try again.', 'Message Error');
+        showError(error.message || 'Failed to send message. Please try again.', 'Message Error');
       }
+      // Restore input content on error
       setMessageContent(content);
       setAttachment(att);
       setAttachmentType(attType);
     } finally {
-      setSending(false);
-      inputRef.current?.focus();
+      // Always reset sending state after a short delay
+      setTimeout(() => {
+        setSending(false);
+        inputRef.current?.focus();
+      }, 100);
     }
   };
 

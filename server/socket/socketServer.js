@@ -1,7 +1,7 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
-const { User, Notification, Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, Follow } = require('../models');
+const { User, Notification, Conversation, Message, GroupConversation, GroupMessage, GroupMember, GroupMessageRead, Follow, Block } = require('../models');
 
 let io;
 
@@ -199,8 +199,11 @@ const initializeSocket = (server) => {
           { where: { id: conversationId } }
         );
 
-        // Emit to conversation room
+        // Emit to conversation room (including sender)
         io.to(`conversation_${conversationId}`).emit('new_message', fullMessage);
+
+        // Send callback to sender to confirm message was sent
+        socket.emit('message_sent', { messageId: message.id, conversationId });
 
         // Send notification to other participant (otherUserId already declared above)
         await sendNotification(
@@ -223,6 +226,7 @@ const initializeSocket = (server) => {
     socket.on('typing', (data) => {
       const { conversationId, isTyping } = data;
       socket.to(`conversation_${conversationId}`).emit('user_typing', {
+        conversationId,
         userId: socket.userId,
         username: socket.user.username,
         firstName: socket.user.firstName,
@@ -339,8 +343,11 @@ const initializeSocket = (server) => {
           { where: { id: groupConversationId } }
         );
 
-        // Emit to group room
+        // Emit to group room (including sender)
         io.to(`group_${groupConversationId}`).emit('new_group_message', fullMessage);
+
+        // Send callback to sender to confirm message was sent
+        socket.emit('group_message_sent', { messageId: message.id, groupConversationId });
 
         // Send notifications to other members (except sender)
         const members = await GroupMember.findAll({
@@ -377,6 +384,7 @@ const initializeSocket = (server) => {
     socket.on('group_typing', (data) => {
       const { groupConversationId, isTyping } = data;
       socket.to(`group_${groupConversationId}`).emit('user_typing_group', {
+        groupConversationId,
         userId: socket.userId,
         username: socket.user.username,
         firstName: socket.user.firstName,
