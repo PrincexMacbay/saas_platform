@@ -27,6 +27,8 @@ const ApplicationFormBuilder = () => {
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [availablePlans, setAvailablePlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
+  // Track the original planId to detect changes
+  const [originalPlanId, setOriginalPlanId] = useState(null);
   
   // Add Field Modal State
   const [showAddFieldModal, setShowAddFieldModal] = useState(false);
@@ -96,6 +98,8 @@ const ApplicationFormBuilder = () => {
         } else {
           setSelectedPlanId('');
         }
+        // Store original planId to detect changes
+        setOriginalPlanId(form.planId || null);
       } else {
         // Create a new form config
         setFormConfig({
@@ -105,6 +109,7 @@ const ApplicationFormBuilder = () => {
           planId: null
         });
         setSelectedPlanId('');
+        setOriginalPlanId(null);
       }
       setShowOrganizationSelector(false);
     } catch (error) {
@@ -142,6 +147,8 @@ const ApplicationFormBuilder = () => {
         } else {
           setSelectedPlanId('');
         }
+        // Store original planId to detect changes
+        setOriginalPlanId(form.planId || null);
       } else {
         // Form not found or user doesn't have access
         alert(t('form.builder.form.not.found'));
@@ -188,22 +195,69 @@ const ApplicationFormBuilder = () => {
     }
   };
 
+  const handleNewForm = () => {
+    const confirmed = window.confirm(
+      'This will start a new form. Any unsaved changes to the current form will be lost.\n\n' +
+      'Do you want to continue?'
+    );
+    if (confirmed) {
+      setFormConfig({
+        title: 'Membership Application',
+        description: '',
+        footer: '',
+        terms: '',
+        agreement: '',
+        fields: [],
+        isPublished: false,
+        planId: null
+      });
+      setSelectedPlanId('');
+      setOriginalPlanId(null);
+      showSuccess('Started a new form. Build your form and save when ready.', 'New Form');
+    }
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
+      const newPlanId = selectedPlanId ? parseInt(selectedPlanId) : null;
       const saveData = {
         ...formConfig,
-        planId: selectedPlanId ? parseInt(selectedPlanId) : null
+        planId: newPlanId
       };
-      if (formConfig.id) {
-        // Update existing form
+      
+      // Check if planId has changed from the original
+      const planIdChanged = originalPlanId !== newPlanId;
+      
+      if (formConfig.id && !planIdChanged) {
+        // Update existing form (planId hasn't changed)
         await api.put(`/membership/application-forms/${formConfig.id}`, saveData);
         setFormConfig(prev => ({ ...prev, planId: saveData.planId }));
         showSuccess(t('form.builder.form.updated'), t('form.builder.success.title') || 'Success');
+      } else if (formConfig.id && planIdChanged) {
+        // PlanId changed - create a NEW form to preserve the original
+        const newFormData = {
+          ...saveData,
+          id: undefined, // Remove ID to create new form
+          isPublished: false // New form starts as unpublished
+        };
+        const response = await api.post('/membership/application-forms', newFormData);
+        setFormConfig(prev => ({ 
+          ...prev, 
+          id: response.data.data.id, 
+          planId: saveData.planId,
+          isPublished: false
+        }));
+        setOriginalPlanId(newPlanId);
+        showSuccess(
+          'New form created! The original form has been preserved. Please publish this new form if you want to use it.',
+          t('form.builder.success.title') || 'Success'
+        );
       } else {
-        // Create new form
+        // Create new form (no existing ID)
         const response = await api.post('/membership/application-forms', saveData);
         setFormConfig(prev => ({ ...prev, id: response.data.data.id, planId: saveData.planId }));
+        setOriginalPlanId(newPlanId);
         showSuccess(t('form.builder.form.saved'), t('form.builder.success.title') || 'Success');
       }
       // Dispatch event to notify other components
@@ -530,9 +584,25 @@ const ApplicationFormBuilder = () => {
       <div className="form-builder-header">
         <h2>{formConfig.id ? t('form.builder.edit.title') : t('form.builder.title')}</h2>
         <div className="header-actions">
-          <button onClick={handleSave} className="save-button" disabled={saving}>
-            <i className="fas fa-save"></i> {saving ? t('form.builder.saving') : t('form.builder.save')}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {formConfig.id && (
+              <button onClick={handleNewForm} className="new-form-button" style={{
+                padding: '12px 24px',
+                border: '1px solid #6c757d',
+                borderRadius: '6px',
+                background: '#f8f9fa',
+                color: '#6c757d',
+                cursor: 'pointer',
+                fontWeight: '500',
+                transition: 'all 0.3s ease'
+              }}>
+                <i className="fas fa-plus"></i> New Form
+              </button>
+            )}
+            <button onClick={handleSave} className="save-button" disabled={saving}>
+              <i className="fas fa-save"></i> {saving ? t('form.builder.saving') : t('form.builder.save')}
+            </button>
+          </div>
           {formConfig.isPublished ? (
             <button onClick={handleUnpublish} className="unpublish-button" disabled={saving}>
               <i className="fas fa-eye-slash"></i> {saving ? t('form.builder.unpublishing') : t('form.builder.unpublish')}
@@ -562,7 +632,20 @@ const ApplicationFormBuilder = () => {
               </label>
               <select
                 value={selectedPlanId}
-                onChange={(e) => setSelectedPlanId(e.target.value)}
+                onChange={(e) => {
+                  const newPlanId = e.target.value;
+                  // If changing planId on an existing form, show warning
+                  if (formConfig.id && originalPlanId !== (newPlanId ? parseInt(newPlanId) : null)) {
+                    const confirmed = window.confirm(
+                      'Changing the plan association will create a NEW form. The current form will be preserved.\n\n' +
+                      'Do you want to continue?'
+                    );
+                    if (!confirmed) {
+                      return; // Don't change the selection
+                    }
+                  }
+                  setSelectedPlanId(newPlanId);
+                }}
                 className="form-control"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               >
@@ -579,6 +662,19 @@ const ApplicationFormBuilder = () => {
                   ))
                 )}
               </select>
+              {formConfig.id && originalPlanId !== (selectedPlanId ? parseInt(selectedPlanId) : null) && (
+                <div style={{ 
+                  background: '#fff3cd', 
+                  border: '1px solid #ffc107', 
+                  borderRadius: '6px', 
+                  padding: '10px', 
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#856404'
+                }}>
+                  <strong>⚠️ Note:</strong> Changing the plan will create a <strong>new form</strong>. Your current form will be preserved.
+                </div>
+              )}
               <div style={{ 
                 background: '#e8f4f8', 
                 border: '1px solid #bee5eb', 
@@ -592,6 +688,7 @@ const ApplicationFormBuilder = () => {
                 <ul style={{ margin: '8px 0 0 20px', padding: 0, lineHeight: '1.6' }}>
                   <li><strong>General Form (no plan selected):</strong> Can be created immediately and used by any plan. This is recommended for your first form.</li>
                   <li><strong>Plan-Specific Form:</strong> Can only be created after the plan exists. Select a plan to create a form that applies only to that specific plan.</li>
+                  <li><strong>Changing Plans:</strong> If you change the plan on an existing form, a NEW form will be created. Your original form will be preserved.</li>
                   <li><strong>When creating a plan:</strong> You can select either the default form or any published form (general or plan-specific).</li>
                 </ul>
               </div>

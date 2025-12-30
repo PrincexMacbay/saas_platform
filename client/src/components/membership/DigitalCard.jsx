@@ -27,6 +27,8 @@ const DigitalCard = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [templateId, setTemplateId] = useState(null);
+  const [originalPlanId, setOriginalPlanId] = useState(null);
 
   // Load existing template and plans on mount
   useEffect(() => {
@@ -78,6 +80,8 @@ const DigitalCard = () => {
         if (template.planId) {
           setSelectedPlanId(template.planId.toString());
         }
+        setTemplateId(template.id);
+        setOriginalPlanId(template.planId || null);
       }
     } catch (error) {
       // Template doesn't exist yet, that's okay
@@ -132,6 +136,9 @@ const DigitalCard = () => {
       setError('');
       setSuccess('');
 
+      const newPlanId = selectedPlanId ? parseInt(selectedPlanId) : null;
+      const planIdChanged = originalPlanId !== newPlanId;
+
       // Prepare template data
       const templateData = {
         logo: logoUrl,
@@ -145,14 +152,33 @@ const DigitalCard = () => {
         primaryColor: cardConfig.primaryColor,
         secondaryColor: cardConfig.secondaryColor,
         textColor: cardConfig.textColor,
-        planId: selectedPlanId ? parseInt(selectedPlanId) : null
+        planId: newPlanId
       };
 
-      await saveDigitalCardTemplate(templateData);
-      setSuccess(t('digital.card.saved'));
+      // If planId changed and we have an existing template, we need to create a new one
+      // The backend will handle this, but we should inform the user
+      if (templateId && planIdChanged) {
+        // The backend will create a new template for the new planId
+        // We'll clear the templateId so it treats it as new
+        templateData._createNew = true; // Flag to indicate new template needed
+      }
+
+      const response = await saveDigitalCardTemplate(templateData);
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(''), 3000);
+      if (planIdChanged && templateId) {
+        setSuccess('New template created! The original template has been preserved.');
+        setTemplateId(null); // Reset so next save creates new
+        setOriginalPlanId(newPlanId);
+      } else {
+        setSuccess(t('digital.card.saved'));
+        if (response.data?.data?.id) {
+          setTemplateId(response.data.data.id);
+          setOriginalPlanId(newPlanId);
+        }
+      }
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccess(''), 5000);
     } catch (error) {
       console.error('Error saving template:', error);
       setError(error.response?.data?.message || 'Failed to save template');
@@ -200,27 +226,72 @@ const DigitalCard = () => {
             <h3>{t('digital.card.information')}</h3>
             
             <div className="form-group">
-              <label>Associate with Membership Plan (Optional)</label>
+              <label>
+                Associate with Membership Plan 
+                <span style={{ color: '#999', fontWeight: 'normal', marginLeft: '5px' }}>(Optional)</span>
+              </label>
               <select
                 value={selectedPlanId}
-                onChange={(e) => setSelectedPlanId(e.target.value)}
+                onChange={(e) => {
+                  const newPlanId = e.target.value;
+                  // If changing planId on an existing template, show warning
+                  if (templateId && originalPlanId !== (newPlanId ? parseInt(newPlanId) : null)) {
+                    const confirmed = window.confirm(
+                      'Changing the plan association will create a NEW template. The current template will be preserved.\n\n' +
+                      'Do you want to continue?'
+                    );
+                    if (!confirmed) {
+                      return; // Don't change the selection
+                    }
+                  }
+                  setSelectedPlanId(newPlanId);
+                }}
                 className="form-control"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               >
-                <option value="">General Template (for all plans)</option>
+                <option value="">📋 General Template (applies to all plans)</option>
                 {loadingPlans ? (
                   <option disabled>Loading plans...</option>
+                ) : availablePlans.length === 0 ? (
+                  <option disabled>No plans available. Create a plan first to create plan-specific templates.</option>
                 ) : (
                   availablePlans.map(plan => (
                     <option key={plan.id} value={plan.id}>
-                      {plan.name} - ${plan.fee || 'Free'}
+                      🎯 {plan.name} - ${plan.fee || 'Free'} (Plan-specific)
                     </option>
                   ))
                 )}
               </select>
-              <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '5px' }}>
-                Select a specific plan to create a plan-specific template. Leave empty for a general template that applies to all your plans.
-              </small>
+              {templateId && originalPlanId !== (selectedPlanId ? parseInt(selectedPlanId) : null) && (
+                <div style={{ 
+                  background: '#fff3cd', 
+                  border: '1px solid #ffc107', 
+                  borderRadius: '6px', 
+                  padding: '10px', 
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#856404'
+                }}>
+                  <strong>⚠️ Note:</strong> Changing the plan will create a <strong>new template</strong>. Your current template will be preserved.
+                </div>
+              )}
+              <div style={{ 
+                background: '#e8f4f8', 
+                border: '1px solid #bee5eb', 
+                borderRadius: '6px', 
+                padding: '12px', 
+                marginTop: '8px',
+                fontSize: '12px',
+                color: '#0c5460'
+              }}>
+                <strong>💡 How it works:</strong>
+                <ul style={{ margin: '8px 0 0 20px', padding: 0, lineHeight: '1.6' }}>
+                  <li><strong>General Template (no plan selected):</strong> Can be created immediately and used by any plan. This is recommended for your first template.</li>
+                  <li><strong>Plan-Specific Template:</strong> Can only be created after the plan exists. Select a plan to create a template that applies only to that specific plan.</li>
+                  <li><strong>Changing Plans:</strong> If you change the plan on an existing template, a NEW template will be created. Your original template will be preserved.</li>
+                  <li><strong>When creating a plan:</strong> You can select either the default template or any template (general or plan-specific).</li>
+                </ul>
+              </div>
             </div>
             
             <div className="form-group">
