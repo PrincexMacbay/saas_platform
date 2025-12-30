@@ -41,22 +41,17 @@ const ApplicationFormBuilder = () => {
     options: []
   });
 
-  useEffect(() => {
-    // Load plans for selection
-    loadPlans();
-    
-    // Check if we're editing an existing form by ID (secure approach)
-    const urlParams = new URLSearchParams(window.location.search);
-    const formId = urlParams.get('formId');
-    
-    if (formId) {
-      // Fetch the form by ID from the server (this will verify user access)
-      fetchFormById(formId);
-    } else {
-      fetchFormConfig();
+  // Fetch organizations - defined first since it's used by fetchFormConfig
+  const fetchOrganizations = async () => {
+    try {
+      const response = await api.get('/users/organizations/available');
+      setOrganizations(response.data.data);
+    } catch (error) {
+      console.error('Error fetching organizations:', error);
     }
-  }, []);
+  };
 
+  // Load plans function - defined before useEffect to avoid initialization error
   const loadPlans = async () => {
     try {
       setLoadingPlans(true);
@@ -76,45 +71,7 @@ const ApplicationFormBuilder = () => {
     }
   };
 
-  const fetchFormById = async (formId) => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/membership/application-forms/${formId}`);
-      const form = response.data.data;
-      
-      if (form) {
-        setFormConfig({
-          id: form.id,
-          title: form.title || 'Membership Application',
-          description: form.description || '',
-          footer: form.footer || '',
-          terms: form.terms || '',
-          agreement: form.agreement || '',
-          fields: form.fields || [],
-          isPublished: form.isPublished || false,
-          planId: form.planId || null
-        });
-        if (form.planId) {
-          setSelectedPlanId(form.planId.toString());
-        } else {
-          setSelectedPlanId('');
-        }
-      } else {
-        // Form not found or user doesn't have access
-        alert(t('form.builder.form.not.found'));
-        fetchFormConfig();
-      }
-    } catch (error) {
-      console.error('Error fetching form by ID:', error);
-      if (error.response?.status === 404 || error.response?.status === 403) {
-        alert(t('form.builder.form.not.found'));
-      }
-      fetchFormConfig();
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch form config - defined before useEffect
   const fetchFormConfig = async () => {
     try {
       setLoading(true);
@@ -161,14 +118,61 @@ const ApplicationFormBuilder = () => {
     }
   };
 
-  const fetchOrganizations = async () => {
+  // Fetch form by ID - defined before useEffect
+  const fetchFormById = async (formId) => {
     try {
-      const response = await api.get('/users/organizations/available');
-      setOrganizations(response.data.data);
+      setLoading(true);
+      const response = await api.get(`/membership/application-forms/${formId}`);
+      const form = response.data.data;
+      
+      if (form) {
+        setFormConfig({
+          id: form.id,
+          title: form.title || 'Membership Application',
+          description: form.description || '',
+          footer: form.footer || '',
+          terms: form.terms || '',
+          agreement: form.agreement || '',
+          fields: form.fields || [],
+          isPublished: form.isPublished || false,
+          planId: form.planId || null
+        });
+        if (form.planId) {
+          setSelectedPlanId(form.planId.toString());
+        } else {
+          setSelectedPlanId('');
+        }
+      } else {
+        // Form not found or user doesn't have access
+        alert(t('form.builder.form.not.found'));
+        fetchFormConfig();
+      }
     } catch (error) {
-      console.error('Error fetching organizations:', error);
+      console.error('Error fetching form by ID:', error);
+      if (error.response?.status === 404 || error.response?.status === 403) {
+        alert(t('form.builder.form.not.found'));
+      }
+      fetchFormConfig();
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Load plans for selection
+    loadPlans();
+    
+    // Check if we're editing an existing form by ID (secure approach)
+    const urlParams = new URLSearchParams(window.location.search);
+    const formId = urlParams.get('formId');
+    
+    if (formId) {
+      // Fetch the form by ID from the server (this will verify user access)
+      fetchFormById(formId);
+    } else {
+      fetchFormConfig();
+    }
+  }, []);
 
   const handleJoinOrganization = async (organizationId) => {
     try {
