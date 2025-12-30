@@ -567,18 +567,60 @@ const Applications = () => {
 
       {/* Action Modal */}
       {showActionModal && selectedApplication && (
-        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 shadow">
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title">
-                  <i className={`fas fa-${actionType === 'view' ? 'eye text-info' : actionType === 'approve' ? 'check-circle text-success' : 'times-circle text-danger'} me-2`}></i>
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowActionModal(false)}
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="modal-dialog modal-dialog-centered modal-lg"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '800px',
+              width: '100%',
+              margin: 0
+            }}
+          >
+            <div className="modal-content border-0 shadow" style={{
+              borderRadius: '12px',
+              border: 'none',
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}>
+              <div className="modal-header" style={{ 
+                background: '#2c3e50', 
+                color: 'white', 
+                border: 'none',
+                borderRadius: '12px 12px 0 0',
+                padding: '20px 30px'
+              }}>
+                <h5 className="modal-title" style={{ color: 'white', fontWeight: 600, margin: 0 }}>
+                  <i className={`fas fa-${actionType === 'view' ? 'eye' : actionType === 'approve' ? 'check-circle' : 'times-circle'} me-2`} 
+                     style={{ color: actionType === 'view' ? '#3498db' : actionType === 'approve' ? '#27ae60' : '#e74c3c' }}></i>
                   {actionType === 'view' ? t('applications.view.details') : actionType === 'approve' ? t('applications.approve.application') : t('applications.reject.application')}
                 </h5>
                 <button 
                   type="button" 
                   className="btn-close" 
                   onClick={() => setShowActionModal(false)}
+                  style={{ 
+                    filter: 'invert(1)',
+                    opacity: 0.8
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = '1'}
+                  onMouseLeave={(e) => e.target.style.opacity = '0.8'}
                 ></button>
               </div>
               <div className="modal-body">
@@ -695,11 +737,18 @@ const Applications = () => {
                   </>
                 )}
               </div>
-              <div className="modal-footer border-0 pt-0">
+              <div className="modal-footer" style={{ 
+                border: 'none',
+                borderTop: '1px solid #e9ecef',
+                background: '#f8f9fa',
+                borderRadius: '0 0 12px 12px',
+                padding: '20px 30px'
+              }}>
                 <button 
                   type="button" 
                   className="btn btn-secondary" 
                   onClick={() => setShowActionModal(false)}
+                  style={{ marginRight: '10px' }}
                 >
                   {actionType === 'view' ? t('applications.close') : t('applications.cancel')}
                 </button>
@@ -883,6 +932,8 @@ const Applications = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          min-width: 36px;
+          height: 36px;
         }
 
         .actions-dropdown-toggle:hover {
@@ -894,16 +945,16 @@ const Applications = () => {
         .actions-dropdown-menu {
           position: absolute;
           right: 0;
-          top: 100%;
-          margin-top: 5px;
+          top: calc(100% + 5px);
           background: white;
           border: 1px solid #e0e0e0;
           border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          min-width: 180px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+          min-width: 200px;
           z-index: 10000;
-          overflow: visible;
+          overflow: hidden;
           animation: dropdownFadeIn 0.2s ease;
+          padding: 4px 0;
         }
 
         @keyframes dropdownFadeIn {
@@ -919,17 +970,19 @@ const Applications = () => {
 
         .dropdown-item {
           width: 100%;
-          padding: 12px 16px;
+          padding: 10px 16px;
           border: none;
           background: white;
           text-align: left;
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 10px;
-          transition: background 0.2s ease;
+          gap: 12px;
+          transition: all 0.2s ease;
           color: #34495e;
           font-size: 0.9rem;
+          margin: 0;
+          white-space: nowrap;
         }
 
         .dropdown-item:hover {
@@ -951,6 +1004,7 @@ const Applications = () => {
 
         .view-item:hover {
           background: #e8f4fd;
+          color: #2980b9;
         }
 
         .approve-item {
@@ -959,6 +1013,7 @@ const Applications = () => {
 
         .approve-item:hover {
           background: #d4edda;
+          color: #219a52;
         }
 
         .reject-item {
@@ -967,6 +1022,7 @@ const Applications = () => {
 
         .reject-item:hover {
           background: #f8d7da;
+          color: #c0392b;
         }
 
         .delete-item {
@@ -975,6 +1031,15 @@ const Applications = () => {
 
         .delete-item:hover {
           background: #f8d7da;
+          color: #c0392b;
+        }
+
+        .dropdown-item:first-child {
+          border-radius: 8px 8px 0 0;
+        }
+
+        .dropdown-item:last-child {
+          border-radius: 0 0 8px 8px;
         }
 
         .dropdown-divider {
@@ -1085,6 +1150,66 @@ const Applications = () => {
           color: #7f8c8d;
         }
 
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 20px;
+        }
+
+        .modal-overlay .modal-dialog {
+          max-width: 800px;
+          width: 100%;
+          margin: 0;
+        }
+
+        .modal-overlay .modal-content {
+          border-radius: 12px;
+          border: none;
+          max-height: 90vh;
+          overflow: auto;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-overlay .modal-header {
+          background: #2c3e50;
+          color: white;
+          border-radius: 12px 12px 0 0;
+          padding: 20px 30px;
+        }
+
+        .modal-overlay .modal-header .modal-title {
+          color: white;
+          font-weight: 600;
+        }
+
+        .modal-overlay .modal-header .btn-close {
+          filter: invert(1);
+          opacity: 0.8;
+        }
+
+        .modal-overlay .modal-header .btn-close:hover {
+          opacity: 1;
+        }
+
+        .modal-overlay .modal-body {
+          padding: 30px;
+        }
+
+        .modal-overlay .modal-footer {
+          padding: 20px 30px;
+          border-top: 1px solid #e9ecef;
+          background: #f8f9fa;
+          border-radius: 0 0 12px 12px;
+        }
+
         @media (max-width: 768px) {
           .applications-container {
             padding: 20px;
@@ -1105,7 +1230,23 @@ const Applications = () => {
           .actions-dropdown-menu {
             right: auto;
             left: 0;
-            min-width: 160px;
+            min-width: 180px;
+          }
+
+          .modal-overlay {
+            padding: 10px;
+          }
+
+          .modal-overlay .modal-dialog {
+            max-width: 100%;
+          }
+
+          .modal-overlay .modal-body {
+            padding: 20px;
+          }
+
+          .modal-overlay .modal-footer {
+            padding: 15px 20px;
           }
         }
       `}</style>
