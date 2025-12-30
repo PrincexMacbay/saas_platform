@@ -365,10 +365,26 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                         <i className={`fas ${loadingForms ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
                       </button>
                     </div>
-                    <small className="form-help">
-                      Choose a custom application form that will be used when users apply for this plan. 
-                      Only published forms are available for selection. Click the refresh button to update the list.
-                    </small>
+                    <div style={{ 
+                      background: '#e8f4f8', 
+                      border: '1px solid #bee5eb', 
+                      borderRadius: '6px', 
+                      padding: '12px', 
+                      marginTop: '8px',
+                      fontSize: '12px',
+                      color: '#0c5460'
+                    }}>
+                      <strong>💡 Form Selection Guide:</strong>
+                      <ul style={{ margin: '8px 0 0 20px', padding: 0, lineHeight: '1.6' }}>
+                        <li><strong>Available forms:</strong> Both general forms (for all plans) and plan-specific forms are shown.</li>
+                        <li><strong>General forms:</strong> Can be used by multiple plans. Create these in the Application Form Builder without selecting a plan.</li>
+                        <li><strong>Plan-specific forms:</strong> Created for a specific plan. These are only available if you've already created the plan and then built a form for it.</li>
+                        <li><strong>Workflow:</strong> Create a general form first → Create your plan → Optionally create plan-specific forms later.</li>
+                      </ul>
+                      <small style={{ display: 'block', marginTop: '8px', fontStyle: 'italic' }}>
+                        Only published forms are available for selection. Click the refresh button to update the list.
+                      </small>
+                    </div>
                   </>
                 )}
               </div>

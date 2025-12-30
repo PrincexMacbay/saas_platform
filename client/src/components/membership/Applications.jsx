@@ -808,7 +808,8 @@ const Applications = () => {
           background: white;
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          overflow: hidden;
+          overflow-x: auto;
+          overflow-y: visible;
           margin-bottom: 30px;
         }
 
@@ -835,6 +836,11 @@ const Applications = () => {
 
         .applications-table td {
           color: #34495e;
+          position: relative;
+        }
+        
+        .applications-table td:last-child {
+          overflow: visible;
         }
 
         .status-badge {
@@ -863,6 +869,7 @@ const Applications = () => {
         .actions-dropdown-container {
           position: relative;
           display: inline-block;
+          z-index: 1;
         }
 
         .actions-dropdown-toggle {
@@ -894,8 +901,8 @@ const Applications = () => {
           border-radius: 8px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           min-width: 180px;
-          z-index: 1000;
-          overflow: hidden;
+          z-index: 10000;
+          overflow: visible;
           animation: dropdownFadeIn 0.2s ease;
         }
 

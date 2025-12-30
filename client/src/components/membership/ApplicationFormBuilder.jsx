@@ -556,27 +556,45 @@ const ApplicationFormBuilder = () => {
             <h3>{t('form.builder.form.configuration')}</h3>
             
             <div className="form-group">
-              <label>Associate with Membership Plan (Optional)</label>
+              <label>
+                Associate with Membership Plan 
+                <span style={{ color: '#999', fontWeight: 'normal', marginLeft: '5px' }}>(Optional)</span>
+              </label>
               <select
                 value={selectedPlanId}
                 onChange={(e) => setSelectedPlanId(e.target.value)}
                 className="form-control"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               >
-                <option value="">General Form (for all plans)</option>
+                <option value="">📋 General Form (applies to all plans)</option>
                 {loadingPlans ? (
                   <option disabled>Loading plans...</option>
+                ) : availablePlans.length === 0 ? (
+                  <option disabled>No plans available. Create a plan first to create plan-specific forms.</option>
                 ) : (
                   availablePlans.map(plan => (
                     <option key={plan.id} value={plan.id}>
-                      {plan.name} - ${plan.fee || 'Free'}
+                      🎯 {plan.name} - ${plan.fee || 'Free'} (Plan-specific)
                     </option>
                   ))
                 )}
               </select>
-              <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '5px' }}>
-                Select a specific plan to create a plan-specific form. Leave empty for a general form that applies to all your plans.
-              </small>
+              <div style={{ 
+                background: '#e8f4f8', 
+                border: '1px solid #bee5eb', 
+                borderRadius: '6px', 
+                padding: '12px', 
+                marginTop: '8px',
+                fontSize: '12px',
+                color: '#0c5460'
+              }}>
+                <strong>💡 How it works:</strong>
+                <ul style={{ margin: '8px 0 0 20px', padding: 0, lineHeight: '1.6' }}>
+                  <li><strong>General Form (no plan selected):</strong> Can be created immediately and used by any plan. This is recommended for your first form.</li>
+                  <li><strong>Plan-Specific Form:</strong> Can only be created after the plan exists. Select a plan to create a form that applies only to that specific plan.</li>
+                  <li><strong>When creating a plan:</strong> You can select either the default form or any published form (general or plan-specific).</li>
+                </ul>
+              </div>
             </div>
             
             <div className="form-group">
