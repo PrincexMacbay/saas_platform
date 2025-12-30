@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useNotificationModal } from '../../contexts/NotificationModalContext';
+import { getSettings, updateSettings } from '../../services/membershipService';
 
 const MembershipSettings = () => {
   const { t } = useLanguage();
-  const { showSuccess } = useNotificationModal();
+  const { showSuccess, showError } = useNotificationModal();
+  const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState({
     autoApproveApplications: false,
     enableApplicationForm: true,
@@ -17,8 +19,55 @@ const MembershipSettings = () => {
     }
   });
 
-  const handleSave = () => {
-    showSuccess(t('settings.saved.successfully'), t('settings.success.title') || 'Success');
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const response = await getSettings();
+      if (response.data.success && response.data.data) {
+        const loadedSettings = response.data.data;
+        setSettings({
+          autoApproveApplications: loadedSettings.autoApproveApplications || false,
+          enableApplicationForm: loadedSettings.enableApplicationForm !== false,
+          allowBankTransfers: loadedSettings.allowBankTransfers !== false,
+          invoiceText: loadedSettings.invoiceText || '',
+          emailNotifications: loadedSettings.emailNotifications 
+            ? (typeof loadedSettings.emailNotifications === 'string' 
+                ? JSON.parse(loadedSettings.emailNotifications) 
+                : loadedSettings.emailNotifications)
+            : {
+                newApplication: true,
+                paymentReceived: true,
+                subscriptionExpiring: true
+              }
+        });
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      // Don't show error on initial load - settings might not exist yet
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const settingsToSave = {
+        ...settings,
+        emailNotifications: JSON.stringify(settings.emailNotifications)
+      };
+      await updateSettings(settingsToSave);
+      showSuccess(t('settings.saved.successfully'), t('settings.success.title') || 'Success');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      showError(error.response?.data?.message || 'Failed to save settings', 'Error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -147,8 +196,16 @@ const MembershipSettings = () => {
         </div>
 
         <div className="settings-actions">
-          <button onClick={handleSave} className="save-button">
-            <i className="fas fa-save"></i> {t('settings.save.settings')}
+          <button onClick={handleSave} className="save-button" disabled={loading}>
+            {loading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> {t('settings.saving') || 'Saving...'}
+              </>
+            ) : (
+              <>
+                <i className="fas fa-save"></i> {t('settings.save.settings')}
+              </>
+            )}
           </button>
         </div>
       </div>
