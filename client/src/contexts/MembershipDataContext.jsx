@@ -154,7 +154,7 @@ export const MembershipDataProvider = ({ children }) => {
       { endpoint: '/membership/settings', key: 'settings' },
       { endpoint: '/membership/coupons', key: 'coupons' },
       { endpoint: '/membership/application-forms', key: 'applicationForms' },
-      { endpoint: '/membership/digital-card', key: 'digitalCard' },
+      { endpoint: '/membership/digital-cards', key: 'digitalCard' },
       { endpoint: '/user-payment-info/my-payment-info', key: 'paymentInfo' }
     ];
 
@@ -187,7 +187,7 @@ export const MembershipDataProvider = ({ children }) => {
       settings: '/membership/settings',
       coupons: '/membership/coupons',
       applicationForms: '/membership/application-forms',
-      digitalCard: '/membership/digital-card',
+      digitalCard: '/membership/digital-cards',
       paymentInfo: '/user-payment-info/my-payment-info'
     };
 

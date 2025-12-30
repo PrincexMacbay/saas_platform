@@ -31,8 +31,6 @@ const ApplicationFormBuilder = () => {
     description: '',
     dataType: 'text',
     inputType: 'text',
-    visibility: 'public',
-    editableByContacts: true,
     required: false,
     placeholder: '',
     options: []
@@ -233,8 +231,6 @@ const ApplicationFormBuilder = () => {
       description: '',
       dataType: 'text',
       inputType: 'text',
-      visibility: 'public',
-      editableByContacts: true,
       required: false,
       placeholder: '',
       options: []
@@ -243,10 +239,25 @@ const ApplicationFormBuilder = () => {
 
   const handleFieldInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setNewField(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'radio' ? value === 'true' : value)
-    }));
+    setNewField(prev => {
+      let newValue;
+      if (type === 'checkbox') {
+        newValue = checked;
+      } else if (type === 'radio') {
+        // Convert string to boolean for 'required' field
+        if (name === 'required') {
+          newValue = value === 'true' || value === true;
+        } else {
+          newValue = value === 'true' ? true : value === 'false' ? false : value;
+        }
+      } else {
+        newValue = value;
+      }
+      return {
+        ...prev,
+        [name]: newValue
+      };
+    });
   };
 
   const handleSaveField = () => {
@@ -576,7 +587,7 @@ const ApplicationFormBuilder = () => {
                   <div key={field.id} className="field-item">
                     <div className="field-info">
                       <h4>{field.label}</h4>
-                      <p className="field-type">{field.inputType} - {field.visibility}</p>
+                      <p className="field-type">{field.inputType} {field.required && <span className="required-badge">Required</span>}</p>
                       {field.description && <p className="field-description">{field.description}</p>}
                     </div>
                     <button 
@@ -1483,31 +1494,50 @@ const ApplicationFormBuilder = () => {
                   </div>
                 </div>
 
-                <div className="form-row">
+                {/* Field Requirement Settings */}
+                <div className="form-section">
+                  <h4 className="section-title">
+                    <i className="fas fa-asterisk"></i> Field Requirement
+                  </h4>
                   <div className="form-group">
-                    <label>Visibility</label>
-                    <select name="visibility" value={newField.visibility} onChange={handleFieldInputChange} className="form-select">
-                      <option value="public">Public</option>
-                      <option value="private">Private</option>
-                      <option value="admin">Admin Only</option>
-                    </select>
-                    <small>Who can see this field</small>
-                  </div>
-                  <div className="form-group">
-                    <label>Field Settings</label>
-                    <div className="checkbox-group">
-                      <label className="checkbox-item">
+                    <label>Is this field required?</label>
+                    <div className="radio-group">
+                      <label className="radio-item">
                         <input
-                          type="checkbox"
+                          type="radio"
                           name="required"
-                          checked={newField.required}
+                          value="true"
+                          checked={newField.required === true}
                           onChange={handleFieldInputChange}
-                          className="form-checkbox"
+                          className="form-radio"
                         />
-                        <span className="checkmark"></span>
-                        Required field
+                        <span className="radio-mark"></span>
+                        <span className="radio-label">
+                          <i className="fas fa-check-circle" style={{ color: '#e74c3c', marginRight: '8px' }}></i>
+                          Required - Users must fill this field
+                        </span>
+                      </label>
+                      <label className="radio-item">
+                        <input
+                          type="radio"
+                          name="required"
+                          value="false"
+                          checked={newField.required === false}
+                          onChange={handleFieldInputChange}
+                          className="form-radio"
+                        />
+                        <span className="radio-mark"></span>
+                        <span className="radio-label">
+                          <i className="fas fa-circle" style={{ color: '#95a5a6', marginRight: '8px' }}></i>
+                          Optional - Users can skip this field
+                        </span>
                       </label>
                     </div>
+                    <small style={{ marginTop: '10px', display: 'block', color: '#7f8c8d' }}>
+                      {newField.required 
+                        ? 'This field will be marked with a red asterisk (*) and users must provide a value before submitting the form.'
+                        : 'This field is optional and users can submit the form without filling it.'}
+                    </small>
                   </div>
                 </div>
 
@@ -1554,42 +1584,6 @@ const ApplicationFormBuilder = () => {
                     <small>Add options for the dropdown menu</small>
                   </div>
                 )}
-              </div>
-
-              {/* Permissions Section */}
-              <div className="form-section">
-                <h4 className="section-title">
-                  <i className="fas fa-shield-alt"></i> Permissions
-                </h4>
-                <div className="form-group">
-                  <label>Editable by Contacts</label>
-                  <div className="radio-group">
-                    <label className="radio-item">
-                      <input
-                        type="radio"
-                        name="editableByContacts"
-                        value={true}
-                        checked={newField.editableByContacts === true}
-                        onChange={handleFieldInputChange}
-                        className="form-radio"
-                      />
-                      <span className="radio-mark"></span>
-                      <span className="radio-label">Yes - Contacts can edit this field</span>
-                    </label>
-                    <label className="radio-item">
-                      <input
-                        type="radio"
-                        name="editableByContacts"
-                        value={false}
-                        checked={newField.editableByContacts === false}
-                        onChange={handleFieldInputChange}
-                        className="form-radio"
-                      />
-                      <span className="radio-mark"></span>
-                      <span className="radio-label">No - Only admins can edit</span>
-                    </label>
-                  </div>
-                </div>
               </div>
             </div>
 

@@ -276,6 +276,10 @@ User.hasMany(Notification, {
   as: 'notifications',
   onDelete: 'CASCADE'
 });
+Notification.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user'
+});
 
 // Chat System Associations
 // 1-on-1 Conversations

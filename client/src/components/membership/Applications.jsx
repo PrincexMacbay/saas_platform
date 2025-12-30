@@ -26,12 +26,10 @@ const Applications = () => {
   useEffect(() => {
     const applicationId = searchParams.get('applicationId');
     
-    // If we have applicationId in URL, ensure we load applications
+    // If we have applicationId in URL, always fetch to ensure we have the latest data
     if (applicationId) {
-      // Always fetch to ensure we have the application
-      if (!loading && (!data.applications || data.applications.length === 0)) {
-        fetchApplications();
-      }
+      console.log('📋 Applications: applicationId in URL, fetching fresh data...', applicationId);
+      fetchApplications();
     } else {
       // Use preloaded data if available
       if (data.applications && Array.isArray(data.applications)) {
@@ -43,7 +41,7 @@ const Applications = () => {
         fetchApplications();
       }
     }
-  }, [data.applications, contextLoading.applications, searchParams]);
+  }, [searchParams, data.applications, contextLoading.applications]);
 
   useEffect(() => {
     // Only fetch when filters change, not on initial load
