@@ -38,8 +38,6 @@ const DigitalCard = () => {
     onConfirm: null,
     onCancel: null
   });
-  const [templateId, setTemplateId] = useState(null);
-  const [originalPlanId, setOriginalPlanId] = useState(null);
 
   // Load existing template and plans on mount
   useEffect(() => {
@@ -247,13 +245,22 @@ const DigitalCard = () => {
                   const newPlanId = e.target.value;
                   // If changing planId on an existing template, show warning
                   if (templateId && originalPlanId !== (newPlanId ? parseInt(newPlanId) : null)) {
-                    const confirmed = window.confirm(
-                      'Changing the plan association will create a NEW template. The current template will be preserved.\n\n' +
-                      'Do you want to continue?'
-                    );
-                    if (!confirmed) {
-                      return; // Don't change the selection
-                    }
+                    const selectElement = e.target;
+                    setConfirmModalConfig({
+                      title: 'Change Plan Association',
+                      message: 'Changing the plan association will create a NEW template. The current template will be preserved.\n\nDo you want to continue?',
+                      onConfirm: () => {
+                        setSelectedPlanId(newPlanId);
+                        setShowConfirmModal(false);
+                      },
+                      onCancel: () => {
+                        setShowConfirmModal(false);
+                        // Reset select to original value
+                        selectElement.value = selectedPlanId;
+                      }
+                    });
+                    setShowConfirmModal(true);
+                    return;
                   }
                   setSelectedPlanId(newPlanId);
                 }}
