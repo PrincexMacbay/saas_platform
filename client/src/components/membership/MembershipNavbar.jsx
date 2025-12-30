@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import MembershipDashboard from './MembershipDashboard';
@@ -29,11 +29,17 @@ const MembershipNavbar = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    const path = location.pathname.split('/').pop();
-    if (path === 'membership') {
+    const path = location.pathname;
+    // Find matching tab based on path
+    const matchingTab = tabs.find(tab => path === tab.path || path.startsWith(tab.path + '/'));
+    if (matchingTab) {
+      setActiveTab(matchingTab.id);
+    } else if (path === '/membership' || path === '/membership/') {
       setActiveTab('dashboard');
     } else {
-      setActiveTab(path);
+      // Extract the last segment as fallback
+      const lastSegment = path.split('/').pop();
+      setActiveTab(lastSegment || 'dashboard');
     }
   }, [location]);
 
@@ -168,42 +174,20 @@ const MembershipNavbar = () => {
 
   const handleNavigation = (tabId) => {
     console.log('🚀 Switching to tab:', tabId);
-    setActiveTab(tabId);
-    setIsMobileDropdownOpen(false);
-  };
-
-  const renderActiveContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <MembershipDashboard />;
-      case 'payments':
-        return <Payments />;
-      case 'scheduled-payments':
-        return <ScheduledPayments />;
-      case 'debts':
-        return <Debts />;
-      case 'plans':
-        return <Plans />;
-      case 'reminders':
-        return <Reminders />;
-      case 'applications':
-        return <Applications />;
-      case 'settings':
-        return <MembershipSettings />;
-      case 'coupons':
-        return <Coupons />;
-      case 'application-forms':
-        return <ApplicationForms />;
-      case 'application-form':
-        return <ApplicationFormBuilder />;
-      case 'digital-card':
-        return <DigitalCard />;
-      case 'payment-info':
-        return <PaymentInfo />;
-      default:
-        return <MembershipDashboard />;
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab) {
+      navigate(tab.path);
+      setActiveTab(tabId);
+      setIsMobileDropdownOpen(false);
     }
   };
+
+  // Redirect to dashboard if on base /membership path
+  useEffect(() => {
+    if (location.pathname === '/membership' || location.pathname === '/membership/') {
+      navigate('/membership/dashboard', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -301,7 +285,23 @@ const MembershipNavbar = () => {
           }}
         >
           <div className="p-4 sm:p-6 lg:p-8">
-            {renderActiveContent()}
+            <Routes>
+              <Route path="/" element={<Navigate to="/membership/dashboard" replace />} />
+              <Route path="dashboard" element={<MembershipDashboard />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="scheduled-payments" element={<ScheduledPayments />} />
+              <Route path="debts" element={<Debts />} />
+              <Route path="plans" element={<Plans />} />
+              <Route path="reminders" element={<Reminders />} />
+              <Route path="applications" element={<Applications />} />
+              <Route path="settings" element={<MembershipSettings />} />
+              <Route path="coupons" element={<Coupons />} />
+              <Route path="application-forms" element={<ApplicationForms />} />
+              <Route path="application-form" element={<ApplicationFormBuilder />} />
+              <Route path="digital-card" element={<DigitalCard />} />
+              <Route path="payment-info" element={<PaymentInfo />} />
+              <Route path="*" element={<Navigate to="/membership/dashboard" replace />} />
+            </Routes>
           </div>
         </div>
       </div>

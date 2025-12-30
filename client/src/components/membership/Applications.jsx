@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
@@ -22,6 +22,8 @@ const Applications = () => {
   const [joiningOrganization, setJoiningOrganization] = useState(false);
   const [highlightedApplicationId, setHighlightedApplicationId] = useState(null);
   const applicationRefs = useRef({});
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const dropdownRefs = useRef({});
 
   useEffect(() => {
     const applicationId = searchParams.get('applicationId');
@@ -41,15 +43,19 @@ const Applications = () => {
         fetchApplications();
       }
     }
-  }, [searchParams, data.applications, contextLoading.applications]);
+  }, [searchParams, data.applications, contextLoading.applications, fetchApplications]);
 
   useEffect(() => {
-    // Only fetch when filters change, not on initial load
-    if (isInitialized && (!data.applications || data.applications.length === 0)) {
-      console.log('🚀 Applications: Fetching due to filter changes');
-      fetchApplications();
+    // Fetch when filters or page change (debounce search for better performance)
+    if (isInitialized) {
+      const timeoutId = setTimeout(() => {
+        console.log('🚀 Applications: Fetching due to filter/page changes', { searchTerm, statusFilter, currentPage });
+        fetchApplications();
+      }, searchTerm ? 500 : 0); // Debounce search by 500ms, but fetch immediately for status/page changes
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [currentPage, searchTerm, statusFilter, isInitialized]);
+  }, [currentPage, searchTerm, statusFilter, isInitialized, fetchApplications]);
 
   // Handle applicationId from URL query params
   useEffect(() => {
@@ -81,7 +87,39 @@ const Applications = () => {
     }
   }, [searchParams, applications]);
 
-  const fetchApplications = async () => {
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdownId !== null) {
+        const dropdownElement = dropdownRefs.current[openDropdownId];
+        if (dropdownElement && !dropdownElement.contains(event.target)) {
+          // Check if click is on the toggle button
+          const toggleButton = event.target.closest('.actions-dropdown-toggle');
+          if (!toggleButton) {
+            setOpenDropdownId(null);
+          }
+        }
+      }
+    };
+
+    if (openDropdownId !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [openDropdownId]);
+
+  const fetchOrganizations = useCallback(async () => {
+    try {
+      const response = await api.get('/users/organizations/available');
+      setOrganizations(response.data.data);
+    } catch (error) {
+      console.error('Error fetching organizations:', error);
+    }
+  }, []);
+
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -95,6 +133,7 @@ const Applications = () => {
       setApplications(response.data.data.applications || []);
       setTotalPages(response.data.data.pagination.totalPages || 1);
       setShowOrganizationSelector(false);
+      setError(null);
     } catch (error) {
       console.error('Error fetching applications:', error);
       if (error.response?.data?.code === 'NO_ORGANIZATION') {
@@ -106,16 +145,7 @@ const Applications = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchOrganizations = async () => {
-    try {
-      const response = await api.get('/users/organizations/available');
-      setOrganizations(response.data.data);
-    } catch (error) {
-      console.error('Error fetching organizations:', error);
-    }
-  };
+  }, [currentPage, searchTerm, statusFilter, fetchOrganizations]);
 
   const handleJoinOrganization = async (organizationId) => {
     try {
@@ -448,39 +478,75 @@ const Applications = () => {
                 <td>{application.studentId || '-'}</td>
                 <td>{getStatusBadge(application.status)}</td>
                 <td>
-                  <div className="action-buttons">
-                    {application.status === 'pending' && (
-                      <>
+                  <div className="actions-dropdown-container">
+                    <button
+                      className="actions-dropdown-toggle"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenDropdownId(openDropdownId === application.id ? null : application.id);
+                      }}
+                      title={t('applications.actions')}
+                    >
+                      <i className="fas fa-ellipsis-v"></i>
+                    </button>
+                    {openDropdownId === application.id && (
+                      <div 
+                        className="actions-dropdown-menu"
+                        ref={el => dropdownRefs.current[application.id] = el}
+                      >
                         <button
-                          onClick={() => openActionModal(application, 'approve')}
-                          className="approve-button"
-                          title={t('applications.approve')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openActionModal(application, 'view');
+                            setOpenDropdownId(null);
+                          }}
+                          className="dropdown-item view-item"
                         >
-                          <i className="fas fa-check"></i>
+                          <i className="fas fa-eye"></i>
+                          <span>{t('applications.view')}</span>
                         </button>
+                        {application.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openActionModal(application, 'approve');
+                                setOpenDropdownId(null);
+                              }}
+                              className="dropdown-item approve-item"
+                            >
+                              <i className="fas fa-check"></i>
+                              <span>{t('applications.approve')}</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openActionModal(application, 'reject');
+                                setOpenDropdownId(null);
+                              }}
+                              className="dropdown-item reject-item"
+                            >
+                              <i className="fas fa-times"></i>
+                              <span>{t('applications.reject')}</span>
+                            </button>
+                          </>
+                        )}
+                        <div className="dropdown-divider"></div>
                         <button
-                          onClick={() => openActionModal(application, 'reject')}
-                          className="reject-button"
-                          title={t('applications.reject')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(t('applications.confirm.delete') || 'Are you sure you want to delete this application?'))) {
+                              handleDelete(application.id);
+                            }
+                            setOpenDropdownId(null);
+                          }}
+                          className="dropdown-item delete-item"
                         >
-                          <i className="fas fa-times"></i>
+                          <i className="fas fa-trash"></i>
+                          <span>{t('applications.delete')}</span>
                         </button>
-                      </>
+                      </div>
                     )}
-                    <button
-                      onClick={() => openActionModal(application, 'view')}
-                      className="view-button"
-                      title={t('applications.view')}
-                    >
-                      <i className="fas fa-eye"></i>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(application.id)}
-                      className="delete-button"
-                      title={t('applications.delete')}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -791,60 +857,120 @@ const Applications = () => {
           color: #721c24;
         }
 
-        .action-buttons {
-          display: flex;
-          gap: 8px;
+        .actions-dropdown-container {
+          position: relative;
+          display: inline-block;
         }
 
-        .approve-button,
-        .reject-button,
-        .view-button,
-        .delete-button {
-          padding: 8px;
-          border: none;
+        .actions-dropdown-toggle {
+          background: #f8f9fa;
+          border: 1px solid #e0e0e0;
           border-radius: 6px;
+          padding: 8px 12px;
           cursor: pointer;
           transition: all 0.3s ease;
-        }
-
-        .approve-button {
-          background: #f8f9fa;
-          color: #27ae60;
-        }
-
-        .approve-button:hover {
-          background: #27ae60;
-          color: white;
-        }
-
-        .reject-button {
-          background: #f8f9fa;
-          color: #e74c3c;
-        }
-
-        .reject-button:hover {
-          background: #e74c3c;
-          color: white;
-        }
-
-        .delete-button {
-          background: #f8f9fa;
           color: #6c757d;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
-        .delete-button:hover {
-          background: #6c757d;
-          color: white;
-        }
-
-        .view-button {
-          background: #f8f9fa;
+        .actions-dropdown-toggle:hover {
+          background: #e9ecef;
+          border-color: #3498db;
           color: #3498db;
         }
 
-        .view-button:hover {
-          background: #3498db;
-          color: white;
+        .actions-dropdown-menu {
+          position: absolute;
+          right: 0;
+          top: 100%;
+          margin-top: 5px;
+          background: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          min-width: 180px;
+          z-index: 1000;
+          overflow: hidden;
+          animation: dropdownFadeIn 0.2s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .dropdown-item {
+          width: 100%;
+          padding: 12px 16px;
+          border: none;
+          background: white;
+          text-align: left;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          transition: background 0.2s ease;
+          color: #34495e;
+          font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+          background: #f8f9fa;
+        }
+
+        .dropdown-item i {
+          width: 18px;
+          text-align: center;
+        }
+
+        .dropdown-item span {
+          flex: 1;
+        }
+
+        .view-item {
+          color: #3498db;
+        }
+
+        .view-item:hover {
+          background: #e8f4fd;
+        }
+
+        .approve-item {
+          color: #27ae60;
+        }
+
+        .approve-item:hover {
+          background: #d4edda;
+        }
+
+        .reject-item {
+          color: #e74c3c;
+        }
+
+        .reject-item:hover {
+          background: #f8d7da;
+        }
+
+        .delete-item {
+          color: #e74c3c;
+        }
+
+        .delete-item:hover {
+          background: #f8d7da;
+        }
+
+        .dropdown-divider {
+          height: 1px;
+          background: #e0e0e0;
+          margin: 4px 0;
         }
 
         .form-data-display {
@@ -964,6 +1090,12 @@ const Applications = () => {
 
           .applications-table {
             min-width: 800px;
+          }
+
+          .actions-dropdown-menu {
+            right: auto;
+            left: 0;
+            min-width: 160px;
           }
         }
       `}</style>

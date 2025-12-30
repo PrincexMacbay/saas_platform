@@ -10,6 +10,7 @@ const ApplicationForms = () => {
   const navigate = useNavigate();
   const { data, loading: contextLoading, refreshData, isInitialized } = useMembershipData();
   const { t } = useLanguage();
+  const { showError } = useNotificationModal();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -419,61 +420,96 @@ const ApplicationForms = () => {
             <div className="modal-body">
               {viewingForm.description && (
                 <div className="form-description-section">
-                  <h4>{t('forms.description.section')}</h4>
+                  <h4>
+                    <i className="fas fa-align-left"></i>
+                    {t('forms.description.section') || 'Description'}
+                  </h4>
                   <p>{viewingForm.description}</p>
                 </div>
               )}
 
               <div className="form-status-section">
-                <h4>{t('forms.status.section')}</h4>
-                {getStatusBadge(viewingForm.isPublished)}
+                <h4>
+                  <i className="fas fa-info-circle"></i>
+                  {t('forms.status.section') || 'Status'}
+                </h4>
+                <div className="status-content">
+                  {getStatusBadge(viewingForm.isPublished)}
+                </div>
               </div>
 
               <div className="form-fields-section">
-                <h4>{t('forms.fields.section', { count: viewingForm.fields ? viewingForm.fields.length : 0 })}</h4>
+                <h4>
+                  <i className="fas fa-list"></i>
+                  {t('forms.fields.section', { count: viewingForm.fields ? viewingForm.fields.length : 0 }) || `Form Fields (${viewingForm.fields ? viewingForm.fields.length : 0})`}
+                </h4>
                 {viewingForm.fields && viewingForm.fields.length > 0 ? (
                   <div className="fields-list">
                     {viewingForm.fields.map((field, index) => (
                       <div key={index} className="field-item">
                         <div className="field-header">
-                          <span className="field-label">{field.label || field.name}</span>
-                          <span className={`field-type ${field.type}`}>{field.type}</span>
-                          {field.required && <span className="required-badge">{t('forms.required')}</span>}
+                          <div className="field-name-row">
+                            <span className="field-label">{field.label || field.name || `Field ${index + 1}`}</span>
+                            <div className="field-badges">
+                              <span className={`field-type ${field.type}`}>{field.type || 'text'}</span>
+                              {field.required && <span className="required-badge">Required</span>}
+                            </div>
+                          </div>
                         </div>
                         {field.placeholder && (
                           <div className="field-placeholder">
-                            <small>{t('forms.placeholder', { placeholder: field.placeholder })}</small>
+                            <i className="fas fa-quote-left"></i>
+                            <span>Placeholder: {field.placeholder}</span>
                           </div>
                         )}
                         {field.options && field.options.length > 0 && (
                           <div className="field-options">
-                            <small>{t('forms.options', { options: field.options.join(', ') })}</small>
+                            <i className="fas fa-list-ul"></i>
+                            <span>Options: {field.options.join(', ')}</span>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="no-fields">{t('forms.no.fields')}</p>
+                  <p className="no-fields">{t('forms.no.fields') || 'No fields in this form'}</p>
                 )}
               </div>
 
               <div className="form-meta-section">
-                <h4>{t('forms.form.information')}</h4>
+                <h4>
+                  <i className="fas fa-info-circle"></i>
+                  {t('forms.form.information') || 'Form Information'}
+                </h4>
                 <div className="meta-grid">
                   <div className="meta-item">
-                    <span className="meta-label">{t('forms.created.label')}:</span>
-                    <span className="meta-value">{formatDate(viewingForm.createdAt)}</span>
+                    <div className="meta-icon">
+                      <i className="fas fa-calendar-plus"></i>
+                    </div>
+                    <div className="meta-content">
+                      <span className="meta-label">{t('forms.created.label') || 'Created'}</span>
+                      <span className="meta-value">{formatDate(viewingForm.createdAt)}</span>
+                    </div>
                   </div>
                   {viewingForm.updatedAt !== viewingForm.createdAt && (
                     <div className="meta-item">
-                      <span className="meta-label">{t('forms.last.updated')}:</span>
-                      <span className="meta-value">{formatDate(viewingForm.updatedAt)}</span>
+                      <div className="meta-icon">
+                        <i className="fas fa-calendar-check"></i>
+                      </div>
+                      <div className="meta-content">
+                        <span className="meta-label">{t('forms.last.updated') || 'Last Updated'}</span>
+                        <span className="meta-value">{formatDate(viewingForm.updatedAt)}</span>
+                      </div>
                     </div>
                   )}
                   <div className="meta-item">
-                    <span className="meta-label">{t('forms.organization')}:</span>
-                    <span className="meta-value">{viewingForm.formOrganization?.name || 'N/A'}</span>
+                    <div className="meta-icon">
+                      <i className="fas fa-building"></i>
+                    </div>
+                    <div className="meta-content">
+                      <span className="meta-label">{t('forms.organization') || 'Organization'}</span>
+                      <span className="meta-value">{viewingForm.formOrganization?.name || 'N/A'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -788,6 +824,7 @@ const ApplicationForms = () => {
 // Application Form Modal Component
 const ApplicationFormModal = ({ form, onClose, onSave }) => {
   const { t } = useLanguage();
+  const { showError } = useNotificationModal();
   const [formData, setFormData] = useState({
     title: form?.title || '',
     description: form?.description || '',
@@ -982,7 +1019,7 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           .form-status-section,
           .form-fields-section,
           .form-meta-section {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding: 25px;
             background: #f8f9fa;
             border-radius: 12px;
@@ -997,22 +1034,19 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
             color: #2c3e50;
             font-size: 1.2rem;
             font-weight: 600;
-            border-bottom: 3px solid #3498db;
+            border-bottom: 2px solid #e9ecef;
             padding-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
           }
 
-          .form-description-section h4::before,
-          .form-status-section h4::before,
-          .form-fields-section h4::before,
-          .form-meta-section h4::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: #3498db;
-            border-radius: 2px;
+          .form-description-section h4 i,
+          .form-status-section h4 i,
+          .form-fields-section h4 i,
+          .form-meta-section h4 i {
+            color: #3498db;
+            font-size: 1.1rem;
           }
 
           .form-description-section p {
@@ -1021,6 +1055,10 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
             margin: 0;
             font-size: 1rem;
             padding: 15px 0;
+          }
+
+          .status-content {
+            padding: 10px 0;
           }
 
           .fields-list {
@@ -1045,54 +1083,75 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           }
 
           .field-header {
+            margin-bottom: 12px;
+          }
+
+          .field-name-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 15px;
-            margin-bottom: 15px;
             flex-wrap: wrap;
           }
 
           .field-label {
             font-weight: 600;
             color: #2c3e50;
-            flex: 1;
             font-size: 1.1rem;
-            min-width: 200px;
+            flex: 1;
+            min-width: 150px;
+          }
+
+          .field-badges {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
           }
 
           .field-type {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: #3498db;
             color: white;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             font-weight: 500;
             letter-spacing: 0.5px;
+            white-space: nowrap;
           }
 
           .required-badge {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: #e74c3c;
             color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.75rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 500;
+            white-space: nowrap;
           }
 
           .field-placeholder,
           .field-options {
             margin-top: 12px;
-            padding: 10px;
-            background: #f8f9fa;
+            padding: 12px 15px;
+            background: white;
             border-radius: 8px;
             border-left: 4px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
           }
 
-          .field-placeholder small,
-          .field-options small {
+          .field-placeholder i,
+          .field-options i {
+            color: #3498db;
+            font-size: 0.9rem;
+          }
+
+          .field-placeholder span,
+          .field-options span {
             color: #5a6c7d;
-            font-style: italic;
             font-size: 0.9rem;
             line-height: 1.5;
           }
@@ -1116,9 +1175,9 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
 
           .meta-item {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 15px;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
             background: white;
             border-radius: 8px;
             border: 1px solid #e9ecef;
@@ -1128,20 +1187,41 @@ const ApplicationFormModal = ({ form, onClose, onSave }) => {
           .meta-item:hover {
             border-color: #3498db;
             box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+          }
+
+          .meta-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f4fd;
+            border-radius: 8px;
+            color: #3498db;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+          }
+
+          .meta-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
           }
 
           .meta-label {
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.95rem;
+            color: #7f8c8d;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .meta-value {
-            color: #5a6c7d;
+            color: #2c3e50;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
           }
 
           .edit-form-button {

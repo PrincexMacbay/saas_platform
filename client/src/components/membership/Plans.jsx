@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import ConfirmDialog from '../ConfirmDialog';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
@@ -8,7 +8,7 @@ import { useNotificationModal } from '../../contexts/NotificationModalContext';
 // Plan Modal Component
 const PlanModal = ({ plan, onClose, onSave }) => {
   const { t } = useLanguage();
-  const { showError } = useNotificationModal();
+  const { showError, showSuccess } = useNotificationModal();
   console.log('PlanModal rendering with plan:', plan);
   
   // Initialize form data with safe defaults
@@ -748,6 +748,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
 const Plans = () => {
   const { data, loading, errors, refreshData, updateData, isInitialized, isLoadingAll } = useMembershipData();
   const { t } = useLanguage();
+  const { showSuccess, showError } = useNotificationModal();
   const [plans, setPlans] = useState([]);
   // Use context loading state instead of local state
   const isLoading = loading.plans;
@@ -765,26 +766,29 @@ const Plans = () => {
     if (data.plans && Array.isArray(data.plans)) {
       console.log('🚀 Plans: Using preloaded data', data.plans.length, 'plans');
       setPlans(data.plans);
-      // Loading state is managed by context
       setError(null);
-    } else if (!loading.plans && !isLoadingAll) {
+    } else if (!loading.plans && !isLoadingAll && isInitialized) {
       // Only fetch if not currently loading and not in global preload
       console.log('🚀 Plans: Fetching data (not preloaded)');
       fetchPlans();
     }
-  }, [data.plans, loading.plans, isLoadingAll]);
+  }, [data.plans, loading.plans, isLoadingAll, isInitialized, fetchPlans]);
 
   useEffect(() => {
-    // Only fetch when filters change, not on initial load
-    if (isInitialized && (!data.plans || data.plans.length === 0)) {
-      console.log('🚀 Plans: Fetching due to filter changes');
-      fetchPlans();
+    // Fetch when filters or page change (debounce search for better performance)
+    if (isInitialized) {
+      const timeoutId = setTimeout(() => {
+        console.log('🚀 Plans: Fetching due to filter/page changes', { searchTerm, activeFilter, currentPage });
+        fetchPlans();
+      }, searchTerm ? 500 : 0); // Debounce search by 500ms
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [currentPage, searchTerm, activeFilter, isInitialized]);
+  }, [currentPage, searchTerm, activeFilter, isInitialized, fetchPlans]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
-      setLoading(true);
+      setError(null);
       const params = {
         page: currentPage,
         limit: 10,
@@ -798,13 +802,13 @@ const Plans = () => {
       
       setPlans(plans);
       setTotalPages(pagination.totalPages);
+      // Also update context data
+      updateData('plans', plans);
     } catch (error) {
       console.error('Error fetching plans:', error);
       setError(error.response?.data?.message || 'Failed to fetch plans');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, activeFilter, updateData]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -859,9 +863,11 @@ const Plans = () => {
   const deletePlan = async (planId) => {
     try {
       await api.delete(`/membership/plans/${planId}`);
-      fetchPlans();
-      // Show success message (optional)
-      console.log('Plan deleted successfully');
+      // Refresh both local state and context data
+      await refreshData('plans');
+      await fetchPlans();
+      setConfirmDialog({ isOpen: false, message: '', onConfirm: null });
+      showSuccess(t('plans.deleted.success') || 'Plan deleted successfully', t('plans.success') || 'Success');
     } catch (error) {
       console.error('Delete plan error:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to delete plan';
@@ -875,7 +881,9 @@ const Plans = () => {
         ...plan,
         isActive: !plan.isActive
       });
-      fetchPlans();
+      // Refresh both local state and context data
+      await refreshData('plans');
+      await fetchPlans();
     } catch (error) {
       showError(t('plans.error.saving', { error: error.response?.data?.message || error.message }), t('plans.error.title') || 'Error');
     }
@@ -1109,10 +1117,12 @@ const Plans = () => {
             console.log('Closing modal');
             setShowModal(false);
           }}
-          onSave={() => {
+          onSave={async () => {
             console.log('Saving plan');
             setShowModal(false);
-            fetchPlans();
+            // Refresh both local state and context data
+            await refreshData('plans');
+            await fetchPlans();
           }}
         />
       )}

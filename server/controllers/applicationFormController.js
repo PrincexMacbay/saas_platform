@@ -181,7 +181,7 @@ const getApplicationForm = async (req, res) => {
 // Create application form
 const createApplicationForm = async (req, res) => {
   try {
-    const { title, description, footer, terms, agreement, fields } = req.body;
+    const { title, description, footer, terms, agreement, fields, planId } = req.body;
 
     // Default required fields that should always be present
     const defaultFields = [
@@ -237,7 +237,8 @@ const createApplicationForm = async (req, res) => {
       agreement,
       fields: JSON.stringify(allFields),
       createdBy: req.user.id,
-      isPublished: false
+      isPublished: false,
+      planId: planId ? parseInt(planId) : null
     });
 
     res.status(201).json({
@@ -260,7 +261,7 @@ const createApplicationForm = async (req, res) => {
 // Save application form (create or update)
 const saveApplicationForm = async (req, res) => {
   try {
-    const { title, description, footer, terms, agreement, fields } = req.body;
+    const { title, description, footer, terms, agreement, fields, planId } = req.body;
 
     // Default required fields that should always be present
     const defaultFields = [
@@ -316,7 +317,8 @@ const saveApplicationForm = async (req, res) => {
       agreement,
       fields: JSON.stringify(allFields),
       createdBy: req.user.id,
-      isPublished: false
+      isPublished: false,
+      planId: planId ? parseInt(planId) : null
     });
 
     const parsedFields = form.fields ? JSON.parse(form.fields) : [];
@@ -349,7 +351,7 @@ const saveApplicationForm = async (req, res) => {
 const updateApplicationForm = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, footer, terms, agreement, fields } = req.body;
+    const { title, description, footer, terms, agreement, fields, planId } = req.body;
 
     // Check if form exists and belongs to user
     const existingForm = await ApplicationForm.findOne({
@@ -418,7 +420,8 @@ const updateApplicationForm = async (req, res) => {
       footer,
       terms,
       agreement,
-      fields: JSON.stringify(allFields)
+      fields: JSON.stringify(allFields),
+      planId: planId ? parseInt(planId) : null
     });
 
     // Reload the form to get updated data

@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { useMembershipData } from '../../contexts/MembershipDataContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useNotificationModal } from '../../contexts/NotificationModalContext';
+import { getPlans } from '../../services/membershipService';
 
 const ApplicationFormBuilder = () => {
   const { data, loading: contextLoading, refreshData, isLoadingAll } = useMembershipData();
@@ -15,13 +16,17 @@ const ApplicationFormBuilder = () => {
     terms: '',
     agreement: '',
     fields: data.applicationForms?.[0]?.fields || [],
-    isPublished: data.applicationForms?.[0]?.isPublished || false
+    isPublished: data.applicationForms?.[0]?.isPublished || false,
+    planId: data.applicationForms?.[0]?.planId || null
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showOrganizationSelector, setShowOrganizationSelector] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const [joiningOrganization, setJoiningOrganization] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
   
   // Add Field Modal State
   const [showAddFieldModal, setShowAddFieldModal] = useState(false);
@@ -37,6 +42,9 @@ const ApplicationFormBuilder = () => {
   });
 
   useEffect(() => {
+    // Load plans for selection
+    loadPlans();
+    
     // Check if we're editing an existing form by ID (secure approach)
     const urlParams = new URLSearchParams(window.location.search);
     const formId = urlParams.get('formId');
@@ -48,6 +56,25 @@ const ApplicationFormBuilder = () => {
       fetchFormConfig();
     }
   }, []);
+
+  const loadPlans = async () => {
+    try {
+      setLoadingPlans(true);
+      // Use plans from context if available
+      if (data.plans && Array.isArray(data.plans) && data.plans.length > 0) {
+        setAvailablePlans(data.plans);
+      } else {
+        // Fetch plans if not in context
+        const response = await getPlans();
+        const plans = response.data?.data?.plans || [];
+        setAvailablePlans(plans);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const fetchFormById = async (formId) => {
     try {
@@ -64,8 +91,14 @@ const ApplicationFormBuilder = () => {
           terms: form.terms || '',
           agreement: form.agreement || '',
           fields: form.fields || [],
-          isPublished: form.isPublished || false
+          isPublished: form.isPublished || false,
+          planId: form.planId || null
         });
+        if (form.planId) {
+          setSelectedPlanId(form.planId.toString());
+        } else {
+          setSelectedPlanId('');
+        }
       } else {
         // Form not found or user doesn't have access
         alert(t('form.builder.form.not.found'));
@@ -98,15 +131,23 @@ const ApplicationFormBuilder = () => {
         );
         setFormConfig({
           ...form,
-          fields: filteredFields
+          fields: filteredFields,
+          planId: form.planId || null
         });
+        if (form.planId) {
+          setSelectedPlanId(form.planId.toString());
+        } else {
+          setSelectedPlanId('');
+        }
       } else {
         // Create a new form config
         setFormConfig({
           title: 'Membership Application',
           description: 'Please fill out this form to apply for membership.',
-          fields: []
+          fields: [],
+          planId: null
         });
+        setSelectedPlanId('');
       }
       setShowOrganizationSelector(false);
     } catch (error) {
@@ -146,14 +187,19 @@ const ApplicationFormBuilder = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
+      const saveData = {
+        ...formConfig,
+        planId: selectedPlanId ? parseInt(selectedPlanId) : null
+      };
       if (formConfig.id) {
         // Update existing form
-        await api.put(`/membership/application-forms/${formConfig.id}`, formConfig);
+        await api.put(`/membership/application-forms/${formConfig.id}`, saveData);
+        setFormConfig(prev => ({ ...prev, planId: saveData.planId }));
         showSuccess(t('form.builder.form.updated'), t('form.builder.success.title') || 'Success');
       } else {
         // Create new form
-        const response = await api.post('/membership/application-forms', formConfig);
-        setFormConfig(prev => ({ ...prev, id: response.data.data.id }));
+        const response = await api.post('/membership/application-forms', saveData);
+        setFormConfig(prev => ({ ...prev, id: response.data.data.id, planId: saveData.planId }));
         showSuccess(t('form.builder.form.saved'), t('form.builder.success.title') || 'Success');
       }
       // Dispatch event to notify other components
@@ -504,6 +550,30 @@ const ApplicationFormBuilder = () => {
         <div className="form-config">
           <div className="config-section">
             <h3>{t('form.builder.form.configuration')}</h3>
+            
+            <div className="form-group">
+              <label>Associate with Membership Plan (Optional)</label>
+              <select
+                value={selectedPlanId}
+                onChange={(e) => setSelectedPlanId(e.target.value)}
+                className="form-control"
+                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              >
+                <option value="">General Form (for all plans)</option>
+                {loadingPlans ? (
+                  <option disabled>Loading plans...</option>
+                ) : (
+                  availablePlans.map(plan => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.name} - ${plan.fee || 'Free'}
+                    </option>
+                  ))
+                )}
+              </select>
+              <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '5px' }}>
+                Select a specific plan to create a plan-specific form. Leave empty for a general form that applies to all your plans.
+              </small>
+            </div>
             
             <div className="form-group">
               <label>{t('form.builder.title.label')}</label>

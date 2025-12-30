@@ -24,6 +24,9 @@ const Coupons = () => {
   });
   const [availablePlans, setAvailablePlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
+  const [showPlanDropdown, setShowPlanDropdown] = useState(false);
+  const [planSearchTerm, setPlanSearchTerm] = useState('');
+  const planDropdownRef = useRef(null);
 
   useEffect(() => {
     // Use preloaded data if available
@@ -93,6 +96,61 @@ const Coupons = () => {
     setFormData(prev => ({ ...prev, couponId: result }));
   };
 
+  const handlePlanSelection = (planId) => {
+    setFormData(prev => {
+      const currentPlans = prev.applicablePlans || [];
+      if (currentPlans.includes(planId)) {
+        // Remove plan if already selected
+        return {
+          ...prev,
+          applicablePlans: currentPlans.filter(id => id !== planId)
+        };
+      } else {
+        // Add plan if not selected
+        return {
+          ...prev,
+          applicablePlans: [...currentPlans, planId]
+        };
+      }
+    });
+  };
+
+  const handleSelectAllPlans = () => {
+    const allPlanIds = availablePlans.map(plan => plan.id);
+    setFormData(prev => ({
+      ...prev,
+      applicablePlans: allPlanIds
+    }));
+  };
+
+  const handleDeselectAllPlans = () => {
+    setFormData(prev => ({
+      ...prev,
+      applicablePlans: []
+    }));
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (planDropdownRef.current && !planDropdownRef.current.contains(event.target)) {
+        setShowPlanDropdown(false);
+      }
+    };
+
+    if (showPlanDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showPlanDropdown]);
+
+  // Filter plans based on search term
+  const filteredPlans = availablePlans.filter(plan =>
+    plan.name.toLowerCase().includes(planSearchTerm.toLowerCase())
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -115,6 +173,9 @@ const Coupons = () => {
         expiryDate: '',
         applicablePlans: []
       });
+      setPlanSearchTerm('');
+      setShowPlanDropdown(false);
+      await refreshData('coupons');
       loadCoupons();
     } catch (error) {
       console.error('Error creating coupon:', error);
@@ -288,7 +349,11 @@ const Coupons = () => {
             <div className="modal-header">
               <h3>{t('coupons.add.modal')}</h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setPlanSearchTerm('');
+                  setShowPlanDropdown(false);
+                }}
                 className="modal-close"
                 disabled={loading}
               >
@@ -400,32 +465,100 @@ const Coupons = () => {
 
               <div className="form-group">
                 <label className="form-label">Applicable Membership Plans</label>
-                <div className="plan-selection-container">
+                <div className="plan-select-container" ref={planDropdownRef}>
                   {loadingPlans ? (
                     <p className="text-muted">Loading plans...</p>
                   ) : availablePlans.length === 0 ? (
                     <p className="text-muted">No plans available. Create a plan first.</p>
                   ) : (
-                    <div className="plan-checkboxes">
-                      {availablePlans.map(plan => (
-                        <label key={plan.id} className="plan-checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.applicablePlans?.includes(plan.id) || false}
-                            onChange={() => handlePlanSelection(plan.id)}
-                            className="plan-checkbox"
-                          />
-                          <span className="plan-checkbox-text">
-                            <strong>{plan.name}</strong>
-                            <span className="plan-fee">
-                              {plan.fee === 0 || plan.fee === '0' || !plan.fee 
-                                ? 'Free' 
-                                : `$${parseFloat(plan.fee).toFixed(2)}`}
+                    <>
+                      <div 
+                        className="plan-select-trigger"
+                        onClick={() => setShowPlanDropdown(!showPlanDropdown)}
+                      >
+                        <div className="plan-select-display">
+                          {formData.applicablePlans?.length > 0 ? (
+                            <span className="selected-count">
+                              {formData.applicablePlans.length} plan{formData.applicablePlans.length !== 1 ? 's' : ''} selected
                             </span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+                          ) : (
+                            <span className="placeholder">Select plans (optional - leave empty for all plans)</span>
+                          )}
+                        </div>
+                        <i className={`fas fa-chevron-${showPlanDropdown ? 'up' : 'down'}`}></i>
+                      </div>
+                      
+                      {showPlanDropdown && (
+                        <div className="plan-select-dropdown">
+                          <div className="plan-select-header">
+                            <div className="plan-search-box">
+                              <i className="fas fa-search"></i>
+                              <input
+                                type="text"
+                                placeholder="Search plans..."
+                                value={planSearchTerm}
+                                onChange={(e) => setPlanSearchTerm(e.target.value)}
+                                className="plan-search-input"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                            <div className="plan-select-actions">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSelectAllPlans();
+                                }}
+                                className="select-all-btn"
+                              >
+                                Select All
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeselectAllPlans();
+                                }}
+                                className="deselect-all-btn"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </div>
+                          <div className="plan-select-options">
+                            {filteredPlans.length === 0 ? (
+                              <div className="no-plans-found">
+                                <i className="fas fa-search"></i>
+                                <p>No plans found matching "{planSearchTerm}"</p>
+                              </div>
+                            ) : (
+                              filteredPlans.map(plan => (
+                                <label
+                                  key={plan.id}
+                                  className={`plan-option ${formData.applicablePlans?.includes(plan.id) ? 'selected' : ''}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.applicablePlans?.includes(plan.id) || false}
+                                    onChange={() => handlePlanSelection(plan.id)}
+                                    className="plan-option-checkbox"
+                                  />
+                                  <div className="plan-option-content">
+                                    <span className="plan-option-name">{plan.name}</span>
+                                    <span className="plan-option-fee">
+                                      {plan.fee === 0 || plan.fee === '0' || !plan.fee 
+                                        ? 'Free' 
+                                        : `$${parseFloat(plan.fee).toFixed(2)}`}
+                                    </span>
+                                  </div>
+                                </label>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 <small className="form-text text-muted">
@@ -436,7 +569,11 @@ const Coupons = () => {
               <div className="modal-actions">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setPlanSearchTerm('');
+                    setShowPlanDropdown(false);
+                  }}
                   className="btn btn-secondary"
                   disabled={loading}
                 >
@@ -715,58 +852,198 @@ const Coupons = () => {
           margin-top: 4px;
         }
 
-        .plan-selection-container {
-          max-height: 200px;
-          overflow-y: auto;
+        .plan-select-container {
+          position: relative;
+        }
+
+        .plan-select-trigger {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 16px;
           border: 1px solid #ddd;
           border-radius: 6px;
+          background: white;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          min-height: 44px;
+        }
+
+        .plan-select-trigger:hover {
+          border-color: #3498db;
+        }
+
+        .plan-select-trigger:focus {
+          outline: none;
+          border-color: #3498db;
+          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .plan-select-display {
+          flex: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        .selected-count {
+          color: #2c3e50;
+          font-weight: 500;
+        }
+
+        .placeholder {
+          color: #999;
+        }
+
+        .plan-select-trigger i {
+          color: #666;
+          margin-left: 12px;
+          transition: transform 0.2s ease;
+        }
+
+        .plan-select-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          margin-top: 4px;
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 1000;
+          max-height: 300px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .plan-select-header {
           padding: 12px;
+          border-bottom: 1px solid #e0e0e0;
           background: #f8f9fa;
         }
 
-        .plan-checkboxes {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
+        .plan-search-box {
+          position: relative;
+          margin-bottom: 8px;
         }
 
-        .plan-checkbox-label {
+        .plan-search-box i {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #999;
+        }
+
+        .plan-search-input {
+          width: 100%;
+          padding: 8px 12px 8px 36px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+        }
+
+        .plan-search-input:focus {
+          outline: none;
+          border-color: #3498db;
+        }
+
+        .plan-select-actions {
+          display: flex;
+          gap: 8px;
+          margin-top: 8px;
+        }
+
+        .select-all-btn,
+        .deselect-all-btn {
+          padding: 4px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          background: white;
+          cursor: pointer;
+          font-size: 12px;
+          transition: all 0.2s ease;
+        }
+
+        .select-all-btn {
+          color: #3498db;
+          border-color: #3498db;
+        }
+
+        .select-all-btn:hover {
+          background: #3498db;
+          color: white;
+        }
+
+        .deselect-all-btn {
+          color: #666;
+        }
+
+        .deselect-all-btn:hover {
+          background: #f0f0f0;
+        }
+
+        .plan-select-options {
+          max-height: 200px;
+          overflow-y: auto;
+          padding: 4px;
+        }
+
+        .plan-option {
           display: flex;
           align-items: center;
+          padding: 10px 12px;
           cursor: pointer;
-          padding: 8px;
           border-radius: 4px;
           transition: background 0.2s ease;
+          margin-bottom: 2px;
         }
 
-        .plan-checkbox-label:hover {
-          background: #e9ecef;
+        .plan-option:hover {
+          background: #f0f0f0;
         }
 
-        .plan-checkbox {
+        .plan-option.selected {
+          background: #e8f4fd;
+        }
+
+        .plan-option-checkbox {
           margin-right: 12px;
           width: 18px;
           height: 18px;
           cursor: pointer;
         }
 
-        .plan-checkbox-text {
+        .plan-option-content {
+          flex: 1;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          flex: 1;
+        }
+
+        .plan-option-name {
+          color: #2c3e50;
+          font-weight: 500;
           font-size: 14px;
         }
 
-        .plan-checkbox-text strong {
-          color: #2c3e50;
-          font-weight: 500;
-        }
-
-        .plan-fee {
+        .plan-option-fee {
           color: #27ae60;
           font-weight: 600;
+          font-size: 13px;
           margin-left: 12px;
+        }
+
+        .no-plans-found {
+          padding: 20px;
+          text-align: center;
+          color: #999;
+        }
+
+        .no-plans-found i {
+          font-size: 24px;
+          margin-bottom: 8px;
+          display: block;
         }
 
         .modal-actions {

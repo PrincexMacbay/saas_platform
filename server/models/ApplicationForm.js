@@ -46,6 +46,16 @@ const ApplicationForm = sequelize.define('ApplicationForm', {
     },
     comment: 'User who created this application form'
   },
+  // Plan association (nullable - null means applies to all plans)
+  planId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'plans',
+      key: 'id',
+    },
+    comment: 'Plan this form is associated with (null means applies to all plans)',
+  },
 }, {
   tableName: 'application_forms',
   timestamps: true,
