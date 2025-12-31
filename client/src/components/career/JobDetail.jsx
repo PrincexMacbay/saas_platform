@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getJob, applyForJob, toggleSavedJob, getCompanyApplications } from '../../services/careerService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotificationModal } from '../../contexts/NotificationModalContext';
 import { buildImageUrl } from '../../utils/imageUtils';
 import './JobDetail.css';
 

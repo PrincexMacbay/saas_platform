@@ -30,18 +30,34 @@ const MembershipNavbar = () => {
 
   useEffect(() => {
     const path = location.pathname;
-    // Find matching tab based on path
-    const matchingTab = tabs.find(tab => path === tab.path || path.startsWith(tab.path + '/'));
+    
+    // First, try exact path match
+    let matchingTab = tabs.find(tab => path === tab.path);
+    
+    // If no exact match, try prefix match (but match the most specific/longest path first)
+    if (!matchingTab) {
+      // Sort tabs by path length (longest first) to match most specific paths first
+      const sortedTabs = [...tabs].sort((a, b) => b.path.length - a.path.length);
+      matchingTab = sortedTabs.find(tab => {
+        // Check if path starts with tab.path followed by '/' or end of string
+        return path.startsWith(tab.path + '/') || path === tab.path;
+      });
+    }
+    
+    // Special case: /membership or /membership/ should be dashboard
+    if (!matchingTab && (path === '/membership' || path === '/membership/')) {
+      matchingTab = tabs.find(tab => tab.id === 'dashboard');
+    }
+    
     if (matchingTab) {
       setActiveTab(matchingTab.id);
-    } else if (path === '/membership' || path === '/membership/') {
-      setActiveTab('dashboard');
     } else {
-      // Extract the last segment as fallback
+      // Fallback: extract last segment
       const lastSegment = path.split('/').pop();
-      setActiveTab(lastSegment || 'dashboard');
+      const fallbackTab = tabs.find(tab => tab.id === lastSegment);
+      setActiveTab(fallbackTab ? fallbackTab.id : 'dashboard');
     }
-  }, [location]);
+  }, [location.pathname]);
 
   useEffect(() => {
     console.log('🚀 MembershipNavbar mounted - starting data preload');
@@ -87,7 +103,7 @@ const MembershipNavbar = () => {
   }, [isMobileDropdownOpen]);
 
   const tabs = [
-    { id: 'dashboard', label: t('membership.dashboard'), icon: 'chart-pie', path: '/membership' },
+    { id: 'dashboard', label: t('membership.dashboard'), icon: 'chart-pie', path: '/membership/dashboard' },
     { id: 'payments', label: t('membership.payments'), icon: 'credit-card', path: '/membership/payments' },
     { id: 'scheduled-payments', label: t('membership.scheduled.payments'), icon: 'calendar-alt', path: '/membership/scheduled-payments' },
     { id: 'debts', label: t('membership.debts'), icon: 'exclamation-triangle', path: '/membership/debts' },
