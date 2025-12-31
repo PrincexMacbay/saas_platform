@@ -249,6 +249,18 @@ const CompanyDashboard = () => {
         applicationFilters.status || null, 
         applicationFilters.jobId || null
       );
+      console.log('📄 Applications response:', response.data);
+      // Log resume data for debugging
+      if (response.data.applications) {
+        response.data.applications.forEach((app, index) => {
+          console.log(`📄 Application ${index + 1} - Resume field:`, app.resume, 'Full app data:', {
+            id: app.id,
+            resume: app.resume,
+            coverLetter: app.coverLetter,
+            status: app.status
+          });
+        });
+      }
       setApplications(response.data.applications);
       setApplicationsPagination(response.data.pagination);
     } catch (error) {
@@ -668,7 +680,7 @@ const CompanyDashboard = () => {
                         {getApplicationStatusBadge(application.status)}
                       </div>
                       
-                      {application.resume && (
+                      {application.resume ? (
                         <div className="mb-3">
                           <a 
                             href={buildImageUrl(application.resume)} 
@@ -676,8 +688,14 @@ const CompanyDashboard = () => {
                             rel="noopener noreferrer"
                             className="btn btn-outline-primary btn-sm"
                           >
-                            <i className="fas fa-download me-2"></i> {t('career.company.view.resume')}
+                            <i className="fas fa-file-pdf me-2"></i> {t('career.company.view.resume')}
                           </a>
+                        </div>
+                      ) : (
+                        <div className="mb-3">
+                          <span className="text-muted small">
+                            <i className="fas fa-file-alt me-1"></i> No resume uploaded
+                          </span>
                         </div>
                       )}
                       

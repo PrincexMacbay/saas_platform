@@ -24,13 +24,34 @@ const EnhancedApplicationDropdown = ({ application, onStatusChange, onAddNotes }
   }, [isOpen]);
 
   const handleStatusChange = (newStatus) => {
-    if (newStatus === 'interview' || newStatus === 'accepted' || newStatus === 'rejected') {
+    if (newStatus === 'accepted' || newStatus === 'rejected') {
       setSelectedStatus(newStatus);
       setShowNotesModal(true);
+    } else if (newStatus === 'interview') {
+      // Open Google Calendar appointment scheduling
+      const calendarUrl = 'https://calendar.google.com/calendar/u/0/r/appointment?pli=1';
+      window.open(calendarUrl, '_blank');
+      setIsOpen(false);
     } else {
       onStatusChange(application.id, newStatus);
       setIsOpen(false);
     }
+  };
+
+  const handleSendEmail = () => {
+    const applicantEmail = application.applicant?.email || application.email;
+    if (!applicantEmail) {
+      console.error('No email found for applicant');
+      return;
+    }
+    
+    // Create Gmail compose link
+    const subject = encodeURIComponent(`Re: Application for ${application.job?.title || 'Position'}`);
+    const body = encodeURIComponent(`Dear ${application.applicant?.firstName || application.firstName || 'Candidate'},\n\n`);
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${applicantEmail}&su=${subject}&body=${body}`;
+    
+    window.open(gmailUrl, '_blank');
+    setIsOpen(false);
   };
 
   const handleConfirmStatusChange = () => {
@@ -176,11 +197,7 @@ const EnhancedApplicationDropdown = ({ application, onStatusChange, onAddNotes }
               </button>
               <button
                 className="dropdown-item d-flex align-items-center py-2 px-3"
-                onClick={() => {
-                  // TODO: Implement email functionality
-                  console.log('Send email to:', application.applicant.email);
-                  setIsOpen(false);
-                }}
+                onClick={handleSendEmail}
               >
                 <i className="fas fa-envelope me-3 text-muted"></i>
                 Send Email
@@ -192,9 +209,36 @@ const EnhancedApplicationDropdown = ({ application, onStatusChange, onAddNotes }
 
       {/* Notes Modal */}
       {showNotesModal && (
-        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow">
+        <div 
+          className="modal-overlay"
+          onClick={() => setShowNotesModal(false)}
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="modal-dialog modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '600px',
+              width: '100%',
+              margin: 0
+            }}
+          >
+            <div className="modal-content border-0 shadow" style={{
+              borderRadius: '12px',
+              overflow: 'hidden'
+            }}>
               <div className="modal-header border-0 pb-0">
                 <h5 className="modal-title">
                   <i className={`${getStatusIcon(selectedStatus)} me-2`} 

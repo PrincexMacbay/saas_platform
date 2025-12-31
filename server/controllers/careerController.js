@@ -1019,15 +1019,94 @@ const getCompanyAnalytics = async (req, res) => {
       }]
     });
 
-    // Get recent activity (last 30 days)
+    // Get time-series data for jobs and applications
+    // Helper function to generate date ranges
+    const generateDateRanges = (days) => {
+      const ranges = [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        
+        ranges.push({
+          start: date,
+          end: nextDate,
+          label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        });
+      }
+      return ranges;
+    };
+
+    // Get jobs posted over last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    const recentApplications = await JobApplication.count({
+    const dateRanges = generateDateRanges(30);
+    
+    const jobsOverTime = await Promise.all(
+      dateRanges.map(async (range) => {
+        const jobsCount = await Job.count({
+          where: {
+            userId,
+            createdAt: {
+              [Op.gte]: range.start,
+              [Op.lt]: range.end
+            }
+          }
+        });
+        
+        const applicationsCount = await JobApplication.count({
+          where: {
+            createdAt: {
+              [Op.gte]: range.start,
+              [Op.lt]: range.end
+            }
+          },
+          include: [{
+            model: Job,
+            as: 'job',
+            where: { userId }
+          }]
+        });
+        
+        return {
+          date: range.label,
+          jobs: jobsCount,
+          applications: applicationsCount
+        };
+      })
+    );
+
+    // Get applications per job
+    const jobsWithApplications = await Job.findAll({
+      where: { userId },
+      include: [{
+        model: JobApplication,
+        as: 'applications',
+        required: false
+      }],
+      attributes: ['id', 'title', 'createdAt']
+    });
+
+    const applicationsPerJob = jobsWithApplications.map(job => ({
+      jobTitle: job.title,
+      applications: job.applications ? job.applications.length : 0,
+      jobId: job.id
+    })).sort((a, b) => b.applications - a.applications).slice(0, 10); // Top 10 jobs
+
+    // Get stats for different time periods
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const applicationsLast7Days = await JobApplication.count({
       where: {
-        createdAt: {
-          [require('sequelize').Op.gte]: thirtyDaysAgo
-        }
+        createdAt: { [Op.gte]: sevenDaysAgo }
       },
       include: [{
         model: Job,
@@ -1036,14 +1115,22 @@ const getCompanyAnalytics = async (req, res) => {
       }]
     });
 
+    const jobsLast7Days = await Job.count({
+      where: {
+        userId,
+        createdAt: { [Op.gte]: sevenDaysAgo }
+      }
+    });
+
     const analytics = {
-      totalUsers: totalApplications, // Total unique applicants
-      activeProjects: activeJobs, // Active job postings
-      totalRevenue: 0, // Placeholder - could be calculated from paid features
-      pendingTasks: pendingApplications, // Pending applications to review
       totalJobs,
       totalApplications,
-      recentApplications,
+      activeJobs,
+      pendingApplications,
+      applicationsLast7Days,
+      jobsLast7Days,
+      jobsOverTime,
+      applicationsPerJob,
       companyName: companyProfile.companyName
     };
 

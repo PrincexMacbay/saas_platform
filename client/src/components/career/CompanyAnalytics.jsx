@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const CompanyAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [timeRange, setTimeRange] = useState('30'); // '7', '30', '90'
 
   useEffect(() => {
     console.log('🚀 CompanyAnalytics component mounted');
@@ -79,42 +81,43 @@ const CompanyAnalytics = () => {
     );
   }
 
+  // Filter chart data based on time range
+  const getFilteredChartData = () => {
+    if (!analytics.jobsOverTime) return [];
+    const days = parseInt(timeRange);
+    return analytics.jobsOverTime.slice(-days);
+  };
+
+  const chartData = getFilteredChartData();
+
   const statCards = [
     {
-      title: 'Total Users',
-      value: analytics.totalUsers || 0,
-      icon: 'fas fa-users',
+      title: 'Total Jobs Posted',
+      value: analytics.totalJobs || 0,
+      icon: 'fas fa-briefcase',
       color: '#3498db',
-      bgColor: '#e3f2fd',
-      change: '+12%',
-      changeType: 'positive'
+      bgColor: '#e3f2fd'
     },
     {
-      title: 'Active Projects',
-      value: analytics.activeProjects || 0,
-      icon: 'fas fa-project-diagram',
+      title: 'Total Applications',
+      value: analytics.totalApplications || 0,
+      icon: 'fas fa-file-alt',
       color: '#2ecc71',
-      bgColor: '#e8f5e9',
-      change: '+5%',
-      changeType: 'positive'
+      bgColor: '#e8f5e9'
     },
     {
-      title: 'Total Revenue',
-      value: `$${(analytics.totalRevenue || 0).toLocaleString()}`,
-      icon: 'fas fa-dollar-sign',
+      title: 'Active Job Postings',
+      value: analytics.activeJobs || 0,
+      icon: 'fas fa-check-circle',
+      color: '#27ae60',
+      bgColor: '#d5f4e6'
+    },
+    {
+      title: 'Pending Applications',
+      value: analytics.pendingApplications || 0,
+      icon: 'fas fa-clock',
       color: '#f39c12',
-      bgColor: '#fff3e0',
-      change: '+18%',
-      changeType: 'positive'
-    },
-    {
-      title: 'Pending Tasks',
-      value: analytics.pendingTasks || 0,
-      icon: 'fas fa-tasks',
-      color: '#e74c3c',
-      bgColor: '#ffebee',
-      change: '-3%',
-      changeType: 'negative'
+      bgColor: '#fff3e0'
     }
   ];
 
@@ -130,11 +133,6 @@ const CompanyAnalytics = () => {
                 <div className="analytics-stat-icon-container" style={{ backgroundColor: stat.bgColor }}>
                   <i className={stat.icon} style={{ color: stat.color, fontSize: '1.5rem' }}></i>
                 </div>
-                <span className="analytics-stat-change" style={{
-                  color: stat.changeType === 'positive' ? '#2ecc71' : '#e74c3c'
-                }}>
-                  {stat.change}
-                </span>
               </div>
               <h3 className="analytics-stat-value">{stat.value}</h3>
               <p className="analytics-stat-title">{stat.title}</p>
@@ -144,91 +142,102 @@ const CompanyAnalytics = () => {
 
         {/* Charts Section */}
         <div className="analytics-charts-grid">
-          {/* User Activity Chart */}
+          {/* Jobs and Applications Over Time Chart */}
           <div className="analytics-chart-card">
             <div className="analytics-chart-card-header">
               <div>
-                <h3 className="analytics-chart-title">User Activity</h3>
-                <p className="analytics-chart-subtitle">Last 30 days</p>
+                <h3 className="analytics-chart-title">Jobs Posted & Applications Over Time</h3>
+                <p className="analytics-chart-subtitle">Last {timeRange} days</p>
               </div>
-              <select className="analytics-chart-select">
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
+              <select 
+                className="analytics-chart-select"
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+              >
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
               </select>
             </div>
-            <div className="analytics-chart-placeholder">
-              <i className="fas fa-chart-area analytics-chart-placeholder-icon"></i>
-              <p className="analytics-chart-placeholder-text">Chart visualization coming soon</p>
-            </div>
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    interval={Math.floor(chartData.length / 10)}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="jobs" 
+                    stroke="#3498db" 
+                    strokeWidth={2}
+                    name="Jobs Posted"
+                    dot={{ r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="applications" 
+                    stroke="#2ecc71" 
+                    strokeWidth={2}
+                    name="Applications"
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="analytics-chart-placeholder">
+                <i className="fas fa-chart-line analytics-chart-placeholder-icon"></i>
+                <p className="analytics-chart-placeholder-text">No data available for this period</p>
+              </div>
+            )}
           </div>
 
-          {/* Revenue Chart */}
+          {/* Applications Per Job Chart */}
           <div className="analytics-chart-card">
             <div className="analytics-chart-card-header">
               <div>
-                <h3 className="analytics-chart-title">Revenue Trends</h3>
-                <p className="analytics-chart-subtitle">Monthly breakdown</p>
+                <h3 className="analytics-chart-title">Applications Per Job</h3>
+                <p className="analytics-chart-subtitle">Top 10 job postings</p>
               </div>
-              <select className="analytics-chart-select">
-                <option>This Year</option>
-                <option>Last Year</option>
-              </select>
             </div>
-            <div className="analytics-chart-placeholder">
-              <i className="fas fa-chart-line analytics-chart-placeholder-icon"></i>
-              <p className="analytics-chart-placeholder-text">Chart visualization coming soon</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Info Grid */}
-        <div className="analytics-info-grid">
-          {/* Recent Activities */}
-          <div className="analytics-info-card">
-            <div className="analytics-info-card-header">
-              <h3 className="analytics-info-card-title">
-                <i className="fas fa-history analytics-info-card-icon"></i>
-                Recent Activities
-              </h3>
-            </div>
-            <div className="analytics-activity-list">
-              {[1, 2, 3, 4].map((_, index) => (
-                <div key={index} className="analytics-activity-item">
-                  <div className="analytics-activity-dot"></div>
-                  <div className="analytics-activity-content">
-                    <p className="analytics-activity-text">New user registration</p>
-                    <span className="analytics-activity-time">2 hours ago</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Performers */}
-          <div className="analytics-info-card">
-            <div className="analytics-info-card-header">
-              <h3 className="analytics-info-card-title">
-                <i className="fas fa-trophy analytics-info-card-icon"></i>
-                Top Performers
-              </h3>
-            </div>
-            <div className="analytics-performer-list">
-              {[1, 2, 3, 4].map((rank, index) => (
-                <div key={index} className="analytics-performer-item">
-                  <div className="analytics-performer-rank">{rank}</div>
-                  <div className="analytics-performer-info">
-                    <p className="analytics-performer-name">Team Member {rank}</p>
-                    <div className="analytics-performer-progress">
-                      <div className="analytics-performer-progress-bar" style={{
-                        width: `${100 - (rank * 15)}%`
-                      }}></div>
-                    </div>
-                  </div>
-                  <span className="analytics-performer-score">{100 - (rank * 10)}%</span>
-                </div>
-              ))}
-            </div>
+            {analytics.applicationsPerJob && analytics.applicationsPerJob.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart 
+                  data={analytics.applicationsPerJob}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis 
+                    dataKey="jobTitle" 
+                    type="category"
+                    width={90}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Bar 
+                    dataKey="applications" 
+                    fill="#3498db"
+                    name="Applications"
+                    radius={[0, 4, 4, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="analytics-chart-placeholder">
+                <i className="fas fa-chart-bar analytics-chart-placeholder-icon"></i>
+                <p className="analytics-chart-placeholder-text">No applications data available</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -250,56 +259,6 @@ const getStyles = () => `
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
-  .analytics-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .analytics-page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0 0 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .analytics-page-title-icon {
-    color: #3498db;
-    font-size: 1.8rem;
-  }
-
-  .analytics-page-subtitle {
-    color: #7f8c8d;
-    font-size: 1rem;
-    margin: 0;
-  }
-
-  .analytics-refresh-button {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-    transition: all 0.3s ease;
-  }
-
-  .analytics-refresh-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
-  }
-
   .analytics-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -314,7 +273,6 @@ const getStyles = () => `
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid #e2e8f0;
-    cursor: pointer;
   }
 
   .analytics-stat-card:hover {
@@ -339,11 +297,6 @@ const getStyles = () => `
     justify-content: center;
   }
 
-  .analytics-stat-change {
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-
   .analytics-stat-value {
     font-size: 2rem;
     font-weight: 700;
@@ -360,7 +313,7 @@ const getStyles = () => `
 
   .analytics-charts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
     gap: 24px;
     margin-bottom: 30px;
   }
@@ -383,6 +336,8 @@ const getStyles = () => `
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
   .analytics-chart-title {
@@ -407,10 +362,20 @@ const getStyles = () => `
     color: #2c3e50;
     cursor: pointer;
     outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .analytics-chart-select:hover {
+    border-color: #3498db;
+  }
+
+  .analytics-chart-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
   }
 
   .analytics-chart-placeholder {
-    height: 250px;
+    height: 300px;
     background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
     border-radius: 12px;
     display: flex;
@@ -429,141 +394,6 @@ const getStyles = () => `
     color: #95a5a6;
     font-size: 0.95rem;
     margin: 0;
-  }
-
-  .analytics-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 24px;
-  }
-
-  .analytics-info-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-  }
-
-  .analytics-info-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .analytics-info-card-header {
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-
-  .analytics-info-card-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .analytics-info-card-icon {
-    color: #3498db;
-  }
-
-  .analytics-activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .analytics-activity-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .analytics-activity-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #3498db;
-    margin-top: 6px;
-    flex-shrink: 0;
-  }
-
-  .analytics-activity-content {
-    flex: 1;
-  }
-
-  .analytics-activity-text {
-    color: #2c3e50;
-    font-size: 0.95rem;
-    margin: 0 0 4px 0;
-    font-weight: 500;
-  }
-
-  .analytics-activity-time {
-    color: #95a5a6;
-    font-size: 0.85rem;
-  }
-
-  .analytics-performer-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .analytics-performer-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .analytics-performer-rank {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.95rem;
-    flex-shrink: 0;
-  }
-
-  .analytics-performer-info {
-    flex: 1;
-  }
-
-  .analytics-performer-name {
-    color: #2c3e50;
-    font-size: 0.95rem;
-    margin: 0 0 6px 0;
-    font-weight: 500;
-  }
-
-  .analytics-performer-progress {
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .analytics-performer-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
-    border-radius: 3px;
-    transition: width 0.3s ease;
-  }
-
-  .analytics-performer-score {
-    color: #2c3e50;
-    font-size: 0.9rem;
-    font-weight: 600;
-    min-width: 50px;
-    text-align: right;
   }
 
   .analytics-loading-container {
@@ -674,17 +504,12 @@ const getStyles = () => `
       padding: 15px;
     }
 
-    .analytics-page-title {
-      font-size: 1.5rem;
-    }
-
     .analytics-stats-grid,
-    .analytics-charts-grid,
-    .analytics-info-grid {
+    .analytics-charts-grid {
       grid-template-columns: 1fr;
     }
 
-    .analytics-header {
+    .analytics-chart-card-header {
       flex-direction: column;
       align-items: flex-start;
     }
