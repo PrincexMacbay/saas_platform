@@ -1146,14 +1146,35 @@ const Plans = () => {
 
       <style jsx>{`
         .plans-container {
-          padding: 30px;
+          padding: 1rem;
+        }
+
+        @media (min-width: 640px) {
+          .plans-container {
+            padding: 1.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .plans-container {
+            padding: 2rem;
+          }
         }
 
         .plans-header {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+          .plans-header {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0;
+          }
         }
 
         .plans-header h2 {
@@ -1179,9 +1200,17 @@ const Plans = () => {
 
         .plans-filters {
           display: flex;
-          gap: 20px;
-          margin-bottom: 30px;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+          .plans-filters {
+            flex-direction: row;
+            gap: 1.25rem;
+            align-items: center;
+          }
         }
 
         .search-box {
@@ -1227,9 +1256,23 @@ const Plans = () => {
 
         .plans-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 25px;
-          margin-bottom: 30px;
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+          .plans-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .plans-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+          }
         }
 
         .plan-card {
@@ -1529,33 +1572,19 @@ const Plans = () => {
           color: #7f8c8d;
         }
 
-        @media (max-width: 768px) {
-          .plans-container {
-            padding: 20px;
-          }
-
-          .plans-header {
-            flex-direction: column;
-            gap: 20px;
-            align-items: stretch;
-          }
-
-          .plans-filters {
-            flex-direction: column;
-          }
-
-          .plans-grid {
-            grid-template-columns: 1fr;
-          }
-
+        @media (max-width: 639px) {
           .plan-header {
             flex-direction: column;
-            gap: 15px;
+            gap: 1rem;
           }
 
           .plan-stats {
             flex-direction: column;
-            gap: 10px;
+            gap: 0.75rem;
+          }
+
+          .plan-actions {
+            flex-wrap: wrap;
           }
         }
       `}</style>

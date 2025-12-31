@@ -256,10 +256,10 @@ const Coupons = () => {
   };
 
   return (
-    <div className="coupons-container">
-      <div className="coupons-header">
-        <h2>{t('coupons.title')}</h2>
-        <button onClick={() => setShowAddModal(true)} className="add-button">
+    <div className="coupons-container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="coupons-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">{t('coupons.title')}</h2>
+        <button onClick={() => setShowAddModal(true)} className="add-button w-full sm:w-auto">
           <i className="fas fa-plus"></i> {t('coupons.add.coupon')}
         </button>
       </div>
@@ -284,7 +284,7 @@ const Coupons = () => {
             </button>
           </div>
         ) : (
-          <div className="coupons-list">
+          <div className="coupons-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {coupons.map(coupon => (
               <div key={coupon.id} className={`coupon-card ${!coupon.isActive ? 'inactive' : ''} ${isExpired(coupon.expiryDate) ? 'expired' : ''}`}>
                 <div className="coupon-info">
@@ -603,20 +603,15 @@ const Coupons = () => {
 
       <style jsx>{`
         .coupons-container {
-          padding: 30px;
+          /* Padding handled by Tailwind classes */
         }
 
         .coupons-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
+          /* Layout handled by Tailwind classes */
         }
 
         .coupons-header h2 {
           margin: 0;
-          color: #2c3e50;
-          font-size: 1.8rem;
         }
 
         .add-button {
@@ -654,9 +649,7 @@ const Coupons = () => {
         }
 
         .coupons-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
+          /* Grid layout handled by Tailwind classes */
         }
 
         .coupon-card {

@@ -405,13 +405,13 @@ const Applications = () => {
   }
 
   return (
-    <div className="applications-container">
-      <div className="applications-header">
-        <h2>{t('applications.title')}</h2>
+    <div className="applications-container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="applications-header mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">{t('applications.title')}</h2>
       </div>
 
-      <div className="applications-filters">
-        <div className="search-box">
+      <div className="applications-filters flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="search-box flex-1">
           <i className="fas fa-search"></i>
           <input
             type="text"
@@ -421,6 +421,7 @@ const Applications = () => {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
+            className="w-full"
           />
         </div>
         <select
@@ -429,7 +430,7 @@ const Applications = () => {
             setStatusFilter(e.target.value);
             setCurrentPage(1);
           }}
-          className="status-filter"
+          className="status-filter w-full sm:w-auto sm:min-w-[180px]"
         >
           <option value="">{t('applications.all.statuses')}</option>
           <option value="pending">{t('applications.pending')}</option>
@@ -445,16 +446,17 @@ const Applications = () => {
         </div>
       )}
 
-      <div className="applications-table-container">
-        <table className="applications-table">
+      <div className="applications-table-container overflow-x-auto -mx-4 sm:mx-0">
+        <div className="min-w-full inline-block px-4 sm:px-0">
+          <table className="applications-table min-w-[800px] sm:min-w-full w-full">
           <thead>
             <tr>
-              <th>{t('applications.date.applied')}</th>
+              <th className="hidden sm:table-cell">{t('applications.date.applied')}</th>
               <th>{t('applications.name')}</th>
-              <th>{t('applications.email')}</th>
-              <th>{t('applications.phone')}</th>
-              <th>{t('applications.plan')}</th>
-              <th>{t('applications.student.id')}</th>
+              <th className="hidden md:table-cell">{t('applications.email')}</th>
+              <th className="hidden lg:table-cell">{t('applications.phone')}</th>
+              <th className="hidden md:table-cell">{t('applications.plan')}</th>
+              <th className="hidden lg:table-cell">{t('applications.student.id')}</th>
               <th>{t('applications.status')}</th>
               <th>{t('applications.actions')}</th>
             </tr>
@@ -470,14 +472,18 @@ const Applications = () => {
                   transition: 'background-color 0.3s'
                 } : {}}
               >
-                <td>{formatDate(application.createdAt)}</td>
-                <td>
-                  {`${application.firstName} ${application.lastName || ''}`.trim()}
+                <td className="hidden sm:table-cell">{formatDate(application.createdAt)}</td>
+                <td className="font-medium">
+                  <div className="flex flex-col">
+                    <span>{`${application.firstName} ${application.lastName || ''}`.trim()}</span>
+                    <span className="text-xs text-gray-500 sm:hidden">{application.email}</span>
+                    <span className="text-xs text-gray-500 md:hidden lg:inline">{application.plan?.name || 'N/A'}</span>
+                  </div>
                 </td>
-                <td>{application.email}</td>
-                <td>{application.phone || '-'}</td>
-                <td>{application.plan?.name || 'N/A'}</td>
-                <td>{application.studentId || '-'}</td>
+                <td className="hidden md:table-cell">{application.email}</td>
+                <td className="hidden lg:table-cell">{application.phone || '-'}</td>
+                <td className="hidden md:table-cell lg:hidden">{application.plan?.name || 'N/A'}</td>
+                <td className="hidden lg:table-cell">{application.studentId || '-'}</td>
                 <td>{getStatusBadge(application.status)}</td>
                 <td>
                   <div className="actions-dropdown-container">
@@ -556,6 +562,7 @@ const Applications = () => {
             ))}
           </tbody>
         </table>
+        </div>
 
         {applications.length === 0 && !loading && (
           <div className="no-data">
@@ -792,30 +799,23 @@ const Applications = () => {
 
       <style jsx>{`
         .applications-container {
-          padding: 30px;
+          /* Padding handled by Tailwind classes */
         }
 
         .applications-header {
-          margin-bottom: 30px;
+          /* Margin handled by Tailwind classes */
         }
 
         .applications-header h2 {
           margin: 0;
-          color: #2c3e50;
-          font-size: 1.8rem;
         }
 
         .applications-filters {
-          display: flex;
-          gap: 20px;
-          margin-bottom: 30px;
-          align-items: center;
+          /* Layout handled by Tailwind classes */
         }
 
         .search-box {
           position: relative;
-          flex: 1;
-          max-width: 400px;
         }
 
         .search-box i {
@@ -1210,23 +1210,7 @@ const Applications = () => {
           border-radius: 0 0 12px 12px;
         }
 
-        @media (max-width: 768px) {
-          .applications-container {
-            padding: 20px;
-          }
-
-          .applications-filters {
-            flex-direction: column;
-          }
-
-          .applications-table-container {
-            overflow-x: auto;
-          }
-
-          .applications-table {
-            min-width: 800px;
-          }
-
+        @media (max-width: 639px) {
           .actions-dropdown-menu {
             right: auto;
             left: 0;

@@ -64,9 +64,9 @@ const MembershipDashboard = () => {
   };
 
   return (
-    <div className="membership-dashboard">
+    <div className="membership-dashboard px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* KPI Cards */}
-      <div className="kpi-grid">
+      <div className="kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div className="kpi-card">
           <div className="kpi-icon" style={{ backgroundColor: '#3498db' }}>
             <i className="fas fa-users"></i>
@@ -125,10 +125,10 @@ const MembershipDashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="charts-section">
-        <div className="chart-container">
-          <h3>{t('membership.dashboard.subscription.trends')}</h3>
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="charts-section grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="chart-container bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4">{t('membership.dashboard.subscription.trends')}</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
@@ -146,9 +146,9 @@ const MembershipDashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="chart-container">
-          <h3>{t('membership.dashboard.revenue.trends')}</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="chart-container bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg sm:text-xl font-semibold mb-4">{t('membership.dashboard.revenue.trends')}</h3>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
@@ -255,10 +255,7 @@ const MembershipDashboard = () => {
         }
 
         .kpi-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 20px;
-          margin-bottom: 40px;
+          /* Grid layout handled by Tailwind classes */
         }
 
         .kpi-card {
@@ -317,23 +314,15 @@ const MembershipDashboard = () => {
         }
 
         .charts-section {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 30px;
-          margin-bottom: 40px;
+          /* Grid layout handled by Tailwind classes */
         }
 
         .chart-container {
-          background: white;
-          padding: 25px;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          /* Styling handled by Tailwind classes */
         }
 
         .chart-container h3 {
-          margin: 0 0 20px 0;
-          color: #2c3e50;
-          font-size: 1.2rem;
+          /* Styling handled by Tailwind classes */
         }
 
         .recent-payments {

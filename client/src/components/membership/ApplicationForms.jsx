@@ -76,8 +76,8 @@ const ApplicationForms = () => {
   };
 
   const handleAddForm = () => {
-    setEditingForm(null);
-    setShowModal(true);
+    // Navigate to application form builder page
+    navigate('/membership/application-form');
   };
 
   const handleViewForm = (form) => {
@@ -274,10 +274,10 @@ const ApplicationForms = () => {
   }
 
   return (
-    <div className="forms-container">
-      <div className="forms-header">
-        <h2>{t('forms.title')}</h2>
-        <button onClick={handleAddForm} className="add-button">
+    <div className="forms-container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="forms-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">{t('forms.title')}</h2>
+        <button onClick={handleAddForm} className="add-button w-full sm:w-auto">
           <i className="fas fa-plus"></i> {t('forms.create.form')}
         </button>
       </div>
@@ -289,7 +289,7 @@ const ApplicationForms = () => {
         </div>
       )}
 
-      <div className="forms-grid">
+      <div className="forms-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {forms.map(form => (
           <div key={form.id} className="form-card">
             <div className="form-header">
@@ -532,20 +532,15 @@ const ApplicationForms = () => {
 
       <style jsx>{`
         .forms-container {
-          padding: 30px;
+          /* Padding handled by Tailwind classes */
         }
 
         .forms-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 30px;
+          /* Layout handled by Tailwind classes */
         }
 
         .forms-header h2 {
           margin: 0;
-          color: #2c3e50;
-          font-size: 1.8rem;
         }
 
         .add-button {
@@ -575,10 +570,7 @@ const ApplicationForms = () => {
         }
 
         .forms-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-          gap: 25px;
-          margin-bottom: 30px;
+          /* Grid layout handled by Tailwind classes */
         }
 
         .form-card {
@@ -791,20 +783,8 @@ const ApplicationForms = () => {
           100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-          .forms-container {
-            padding: 20px;
-          }
-
-          .forms-header {
-            flex-direction: column;
-            gap: 20px;
-            align-items: stretch;
-          }
-
-          .forms-grid {
-            grid-template-columns: 1fr;
-          }
+        @media (max-width: 639px) {
+          /* Mobile styles handled by Tailwind responsive classes */
 
           .form-header {
             flex-direction: column;

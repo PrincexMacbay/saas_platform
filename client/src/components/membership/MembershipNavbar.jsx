@@ -276,14 +276,7 @@ const MembershipNavbar = () => {
         </div>
 
         {/* Main Content - Scrollable */}
-        <div 
-          className="flex-1 min-w-0 overflow-y-auto" 
-          style={{ 
-            marginLeft: isSidebarExpanded ? '256px' : '80px',
-            marginTop: '60px',
-            height: 'calc(100vh - 60px)'
-          }}
-        >
+        <div className="flex-1 min-w-0 overflow-y-auto lg:ml-20 xl:ml-64 mt-[60px] h-[calc(100vh-60px)]">
           <div className="p-4 sm:p-6 lg:p-8">
             <Routes>
               <Route path="/" element={<Navigate to="/membership/dashboard" replace />} />
