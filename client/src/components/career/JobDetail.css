@@ -89,7 +89,7 @@
   font-weight: 700;
   margin: 0 0 8px 0;
   line-height: 1.2;
-  color: white;
+  color: #ffffff !important;
 }
 
 .company-name {

@@ -31,11 +31,18 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     
+    // If data is FormData, remove Content-Type header to let browser set it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+      console.log('📎 FormData detected - Content-Type header removed for multipart/form-data');
+    }
+    
     console.log('🔍 API Interceptor: Processing request...');
     console.log('🔍 API Interceptor: URL:', config.url);
     console.log('🔍 API Interceptor: Method:', config.method);
     console.log('🔍 API Interceptor: Token exists:', !!token);
     console.log('🔍 API Interceptor: Token value:', token?.substring(0, 20) + '...');
+    console.log('🔍 API Interceptor: Data type:', config.data instanceof FormData ? 'FormData' : typeof config.data);
     
     // Always send token if it exists - let backend middleware decide if it's required
     // Only exclude token from specific auth endpoints that should never have tokens

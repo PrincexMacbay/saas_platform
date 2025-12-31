@@ -461,10 +461,12 @@ const getJob = async (req, res) => {
 // Apply for a job
 const applyForJob = async (req, res) => {
   try {
-    console.log('Apply for job request:', {
+    console.log('📄 Apply for job request:', {
       body: req.body,
       file: req.file,
-      params: req.params
+      files: req.files,
+      params: req.params,
+      headers: req.headers
     });
 
     // Check if user is an individual
@@ -487,6 +489,21 @@ const applyForJob = async (req, res) => {
     if (req.file) {
       // Store the relative path for database
       resumePath = `/uploads/${req.file.filename}`;
+      console.log('✅ Resume file received:', {
+        originalname: req.file.originalname,
+        filename: req.file.filename,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        path: req.file.path,
+        resumePath: resumePath
+      });
+    } else {
+      console.log('⚠️ No resume file received in req.file');
+      console.log('📋 Request details:', {
+        hasBody: !!req.body,
+        bodyKeys: Object.keys(req.body || {}),
+        contentType: req.headers['content-type']
+      });
     }
 
     // Check if job exists and is active
@@ -518,6 +535,15 @@ const applyForJob = async (req, res) => {
       applicantId: req.user.id,
       coverLetter,
       resume: resumePath,
+    });
+
+    console.log('✅ Application created:', {
+      id: application.id,
+      jobId: application.jobId,
+      applicantId: application.applicantId,
+      hasCoverLetter: !!application.coverLetter,
+      resume: application.resume,
+      resumePath: resumePath
     });
 
     const applicationWithDetails = await JobApplication.findByPk(application.id, {
@@ -909,6 +935,18 @@ const getCompanyApplications = async (req, res) => {
     });
 
     const totalPages = Math.ceil(count / limit);
+
+    // Log resume data for debugging
+    console.log('📄 Applications retrieved:', applications.length);
+    applications.forEach((app, index) => {
+      console.log(`📄 Application ${index + 1}:`, {
+        id: app.id,
+        resume: app.resume,
+        hasResume: !!app.resume,
+        coverLetter: app.coverLetter ? 'Yes' : 'No',
+        status: app.status
+      });
+    });
 
     res.json({
       success: true,
