@@ -44,107 +44,141 @@ A comprehensive SaaS platform built with React.js, Node.js/Express, and PostgreS
 - **JWT** for authentication
 - **bcryptjs** for password hashing
 
-## Prerequisites
+## Getting Started
 
-Before you begin, ensure you have the following installed:
+This section explains exactly how someone can clone the project from GitHub and run it on their machine.
 
-- **Docker** and **Docker Compose** (recommended for development)
-- **Node.js** (v20 or higher) - if running without Docker
-- **PostgreSQL** (v12 or higher) - if running without Docker
-- **npm** or **yarn**
+You have **two options**:
+- **Option 1 (Recommended)**: Run everything with Docker (single command, minimal manual setup)
+- **Option 2**: Run backend and frontend manually without Docker
 
-## Quick Start (Docker - Recommended)
+### Option 1 – Run with Docker (Recommended)
 
-### 1. Clone and Setup
+#### 1. Install prerequisites
+- **Docker Desktop** (includes Docker & Docker Compose)
+- **Git**
+
+#### 2. Clone the repository
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone <your-github-repo-url>   # e.g. https://github.com/your-user/saas_platform.git
 cd saas_platform
+```
 
-# Start the development environment
+#### 3. Start the full stack with one command
+
+On **Windows PowerShell** (from the project root):
+
+```powershell
 .\start-dev.ps1
 ```
 
-That's it! The platform will be available at:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **Database**: localhost:5432
+This will:
+- Build and start the **PostgreSQL** database
+- Build and start the **backend API**
+- Build and start the **React frontend**
 
-## Manual Setup (Without Docker)
+#### 4. Open the app in your browser
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:5000`
+- **Database**: `localhost:5432`
 
-### 1. Clone and Navigate
+At this point you can log in with the demo accounts listed below and use the system.
+
+### Option 2 – Run Without Docker (Manual Setup)
+
+Use this if you prefer to run Node.js and PostgreSQL directly on your machine.
+
+#### 1. Install prerequisites
+- **Node.js** v20 or higher
+- **npm** (comes with Node) or **yarn**
+- **PostgreSQL** v12 or higher
+- **Git**
+
+#### 2. Clone the repository
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone <your-github-repo-url>
 cd saas_platform
 ```
 
-### 2. Database Setup
+#### 3. Create the PostgreSQL database
 
-#### Option A: Create Database Manually
-1. Open PostgreSQL command line or pgAdmin
-2. Create a new database:
+**Option A – Manually via psql / pgAdmin**
+
 ```sql
 CREATE DATABASE saas_platform;
 ```
 
-#### Option B: Use the Automated Script
+**Option B – Via script (from `server` folder)**
+
 ```bash
 cd server
+npm install
 npm run db:create
+cd ..
 ```
 
-### 3. Backend Setup
+#### 4. Configure and run the backend (server)
 
 ```bash
-# Navigate to server directory
 cd server
 
-# Install dependencies
+# Install dependencies (if you didn't already)
 npm install
 
 # Create environment file
-copy .env.example .env
-
-# Edit the .env file with your database credentials
-# Update these values in server/.env:
-# DB_HOST=localhost
-# DB_PORT=5432
-# DB_NAME=saas_platform
-# DB_USER=your_postgres_username
-# DB_PASSWORD=your_postgres_password
-# JWT_SECRET=your_secure_jwt_secret_here
-
-# Create database tables and seed with demo data
-npm run db:seed
-
-# Start the development server
-npm run dev
+copy .env.example .env   # On Windows (PowerShell or cmd)
+# OR
+cp .env.example .env     # On macOS / Linux
 ```
 
-The backend will be available at: `http://localhost:5000`
+Edit `server/.env` and make sure at least these values are set correctly:
+- `DB_HOST=localhost`
+- `DB_PORT=5432`
+- `DB_NAME=saas_platform`
+- `DB_USER=<your_postgres_username>`
+- `DB_PASSWORD=<your_postgres_password>`
+- `JWT_SECRET=<a-long-random-secret>`
 
-### 4. Frontend Setup
-
-Open a new terminal window:
+Then run database migrations/seed data and start the API:
 
 ```bash
-# Navigate to client directory
+npm run db:seed   # creates tables and demo data
+npm run dev       # start backend on http://localhost:5000
+```
+
+#### 5. Configure and run the frontend (client)
+
+Open a **new terminal** in the project root and run:
+
+```bash
 cd client
 
 # Install dependencies
 npm install
 
-# Create environment file (optional)
-copy .env.example .env
+# Create frontend environment file (optional but recommended)
+copy .env.example .env   # Windows
+# OR
+cp .env.example .env     # macOS / Linux
+```
 
-# Start the development server
+Make sure `client/.env` points to your local API:
+
+```bash
+VITE_API_URL=http://localhost:5000/api
+```
+
+Then start the React dev server:
+
+```bash
 npm run dev
 ```
 
 The frontend will be available at: `http://localhost:3000`
+
+---
 
 ## Development Features
 
@@ -155,7 +189,7 @@ The frontend will be available at: `http://localhost:3000`
 - **Volume Mounts**: Source code is mounted for instant synchronization
 
 ### Available Scripts
-- `.\start-dev.ps1` - Start development environment with Docker
+- `.\start-dev.ps1` - Start development environment with Docker (full stack)
 - `.\start-prod.ps1` - Start production environment with Docker
 - `docker-compose up --build` - Manual Docker startup
 - `docker-compose -f docker-compose.prod.yml up --build -d` - Production mode
