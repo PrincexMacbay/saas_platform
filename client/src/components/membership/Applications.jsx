@@ -456,7 +456,6 @@ const Applications = () => {
               <th className="hidden md:table-cell">{t('applications.email')}</th>
               <th className="hidden lg:table-cell">{t('applications.phone')}</th>
               <th className="hidden md:table-cell">{t('applications.plan')}</th>
-              <th className="hidden lg:table-cell">{t('applications.student.id')}</th>
               <th>{t('applications.status')}</th>
               <th>{t('applications.actions')}</th>
             </tr>
@@ -482,8 +481,7 @@ const Applications = () => {
                 </td>
                 <td className="hidden md:table-cell">{application.email}</td>
                 <td className="hidden lg:table-cell">{application.phone || '-'}</td>
-                <td className="hidden md:table-cell lg:hidden">{application.plan?.name || 'N/A'}</td>
-                <td className="hidden lg:table-cell">{application.studentId || '-'}</td>
+                <td className="hidden md:table-cell">{application.plan?.name || 'N/A'}</td>
                 <td>{getStatusBadge(application.status)}</td>
                 <td>
                   <div className="actions-dropdown-container">
@@ -890,6 +888,7 @@ const Applications = () => {
         
         .applications-table td:last-child {
           overflow: visible;
+          position: relative;
         }
 
         .status-badge {
@@ -918,7 +917,6 @@ const Applications = () => {
         .actions-dropdown-container {
           position: relative;
           display: inline-block;
-          z-index: 1;
         }
 
         .actions-dropdown-toggle {
@@ -951,10 +949,18 @@ const Applications = () => {
           border-radius: 8px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
           min-width: 200px;
-          z-index: 10000;
+          z-index: 99999;
           overflow: hidden;
           animation: dropdownFadeIn 0.2s ease;
           padding: 4px 0;
+        }
+        
+        .applications-table-container {
+          position: relative;
+        }
+        
+        .applications-table {
+          position: relative;
         }
 
         @keyframes dropdownFadeIn {
