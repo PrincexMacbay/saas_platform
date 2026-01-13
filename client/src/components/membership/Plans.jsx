@@ -23,6 +23,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
         maxMembers: plan?.maxMembers || '',
         useDefaultForm: plan?.useDefaultForm !== false,
         applicationFormId: plan?.applicationFormId || null,
+        hasGroupChat: plan?.hasGroupChat || false,
         benefits: (() => {
           if (!plan?.benefits) return [''];
           try {
@@ -44,6 +45,7 @@ const PlanModal = ({ plan, onClose, onSave }) => {
         maxMembers: '',
         useDefaultForm: true,
         applicationFormId: null,
+        hasGroupChat: false,
         benefits: ['']
       };
     }
@@ -419,6 +421,24 @@ const PlanModal = ({ plan, onClose, onSave }) => {
                 <i className="fas fa-plus"></i> {t('plans.add.benefit')}
               </button>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                name="hasGroupChat"
+                checked={formData.hasGroupChat}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, hasGroupChat: e.target.checked }));
+                }}
+                style={{ width: 'auto', cursor: 'pointer' }}
+              />
+              <span>Enable group chat for this plan</span>
+            </label>
+            <small style={{ display: 'block', marginTop: '5px', color: '#666', fontSize: '12px' }}>
+              When enabled, a group chat will be automatically created for all plan members. New members will be automatically added to the chat.
+            </small>
           </div>
 
           <div className="modal-footer">
@@ -906,28 +926,6 @@ const Plans = () => {
     }
   };
 
-  const handleCreateGroupChat = async (plan) => {
-    try {
-      const response = await api.post('/chat/groups', {
-        planId: plan.id,
-        name: `${plan.name} Members`,
-        description: `Group chat for ${plan.name} members`
-      });
-
-      if (response.data.success) {
-        // Show message if group already existed
-        if (response.data.message && response.data.message.includes('already exists')) {
-          showSuccess('Group chat already exists. Members have been updated.', 'Group Chat');
-        }
-        // Navigate to the group chat
-        window.location.href = `/messages?group=${response.data.data.id}`;
-      }
-    } catch (error) {
-      console.error('Error creating group chat:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to create group chat';
-      showError(`Error: ${errorMessage}`, 'Error');
-    }
-  };
 
   // Use preloaded data if available, show minimal loading only if no data at all
   if (!plans.length && isLoading && !data.plans) {
@@ -996,13 +994,6 @@ const Plans = () => {
                 </div>
               </div>
               <div className="plan-actions">
-                <button
-                  onClick={() => handleCreateGroupChat(plan)}
-                  className="group-chat-button"
-                  title="Open/Create Group Chat for Plan Members"
-                >
-                  <i className="fas fa-comments"></i>
-                </button>
                 <button
                   onClick={() => handleEditPlan(plan)}
                   className="edit-button"
@@ -1376,7 +1367,6 @@ const Plans = () => {
           gap: 8px;
         }
 
-        .group-chat-button,
         .edit-button,
         .delete-button {
           padding: 8px;
@@ -1384,16 +1374,6 @@ const Plans = () => {
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.3s ease;
-        }
-
-        .group-chat-button {
-          background: #f8f9fa;
-          color: #2c3e50;
-        }
-
-        .group-chat-button:hover {
-          background: #2c3e50;
-          color: white;
         }
 
         .edit-button {

@@ -239,6 +239,17 @@ const startServer = async () => {
       console.log('ℹ️  Server will continue to start. You can run the migration manually later.');
     }
 
+    // Run plan group chat migration (runs after database sync)
+    console.log('🔄 Running plan group chat migration...');
+    try {
+      const migratePlanGroupChat = require('./scripts/migrate-plan-group-chat');
+      await migratePlanGroupChat();
+    } catch (error) {
+      // Log error but don't stop server startup
+      console.error('⚠️  Plan group chat migration failed (non-critical):', error.message);
+      console.log('ℹ️  Server will continue to start. You can run the migration manually later.');
+    }
+
     // Initialize admin account (runs after migration)
     console.log('🔧 Initializing admin account...');
     await initializeAdmin();

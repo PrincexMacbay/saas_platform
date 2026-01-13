@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const { Plan, Subscription, User, UserProfile, ApplicationForm } = require('../models');
+const { createOrUpdatePlanGroupChat } = require('./chatController');
 
 // Get all plans
 const getPlans = async (req, res) => {
@@ -163,7 +164,7 @@ const getPlan = async (req, res) => {
 // Create plan
 const createPlan = async (req, res) => {
   try {
-    const { name, description, fee, renewalInterval, benefits, maxMembers, applicationFormId, useDefaultForm, couponId } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, applicationFormId, useDefaultForm, couponId, hasGroupChat } = req.body;
     
     console.log('Creating plan with data:', {
       name,
@@ -255,8 +256,20 @@ const createPlan = async (req, res) => {
       createdBy: req.user.id,
       applicationFormId: useDefaultForm ? null : applicationFormId,
       useDefaultForm: useDefaultForm || false,
-      couponId: couponId || null
+      couponId: couponId || null,
+      hasGroupChat: hasGroupChat === true || hasGroupChat === 'true'
     });
+
+    // If hasGroupChat is enabled, create the group chat
+    if (plan.hasGroupChat) {
+      try {
+        await createOrUpdatePlanGroupChat(plan.id, req.user.id);
+        console.log(`✅ Group chat created for plan ${plan.id}`);
+      } catch (error) {
+        console.error('Error creating group chat during plan creation:', error);
+        // Don't fail plan creation if group chat creation fails
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -277,7 +290,7 @@ const createPlan = async (req, res) => {
 const updatePlan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive, applicationFormId, useDefaultForm, couponId } = req.body;
+    const { name, description, fee, renewalInterval, benefits, maxMembers, isActive, applicationFormId, useDefaultForm, couponId, hasGroupChat } = req.body;
 
     // Get user's organization from UserProfile
     const userProfile = await UserProfile.findOne({
@@ -398,8 +411,31 @@ const updatePlan = async (req, res) => {
     if (couponId !== undefined) {
       updateData.couponId = couponId || null;
     }
+    // Handle hasGroupChat toggle
+    const previousHasGroupChat = plan.hasGroupChat;
+    const newHasGroupChat = hasGroupChat === true || hasGroupChat === 'true';
+    
+    if (hasGroupChat !== undefined) {
+      updateData.hasGroupChat = newHasGroupChat;
+    }
 
     await plan.update(updateData);
+
+    // Handle group chat toggle changes
+    if (hasGroupChat !== undefined) {
+      if (!previousHasGroupChat && newHasGroupChat) {
+        // Toggle changed from OFF → ON: Create group chat and add all current members
+        try {
+          await createOrUpdatePlanGroupChat(plan.id, req.user.id);
+          console.log(`✅ Group chat created for plan ${plan.id} (toggle ON)`);
+        } catch (error) {
+          console.error('Error creating group chat when toggling ON:', error);
+          // Don't fail the update if group chat creation fails
+        }
+      }
+      // If toggle changed from ON → OFF, we don't delete the group chat
+      // We just stop auto-adding new members (handled in applicationController)
+    }
 
     res.json({
       success: true,

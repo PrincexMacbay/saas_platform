@@ -95,6 +95,11 @@ const Plan = sequelize.define('Plan', {
       key: 'id',
     },
     comment: 'Optional coupon associated with this plan. Users can enter this coupon code to get a discount.'
+  },
+  hasGroupChat: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: 'If true, automatically create and manage a group chat for plan members'
   }
 }, {
   tableName: 'plans',

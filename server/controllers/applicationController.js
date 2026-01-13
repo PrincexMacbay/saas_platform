@@ -324,32 +324,42 @@ const approveApplication = async (req, res) => {
         userId: user.id
       });
 
-      // Add user to plan's group chat if one exists
+      // Add user to plan's group chat if plan has hasGroupChat enabled
       try {
-        const existingGroup = await GroupConversation.findOne({
-          where: {
-            planId: application.planId,
-            isPlanGroup: true
-          }
-        });
-
-        if (existingGroup) {
-          // Check if user is already a member
-          const existingMember = await GroupMember.findOne({
+        // Reload plan to get latest hasGroupChat value
+        const plan = await Plan.findByPk(application.planId);
+        
+        if (plan && plan.hasGroupChat) {
+          const existingGroup = await GroupConversation.findOne({
             where: {
-              groupConversationId: existingGroup.id,
-              userId: user.id
+              planId: application.planId,
+              isPlanGroup: true
             }
           });
 
-          if (!existingMember) {
-            // Add user to the group chat
-            await GroupMember.create({
-              groupConversationId: existingGroup.id,
-              userId: user.id,
-              role: 'member'
+          if (existingGroup) {
+            // Check if user is already a member
+            const existingMember = await GroupMember.findOne({
+              where: {
+                groupConversationId: existingGroup.id,
+                userId: user.id
+              }
             });
-            console.log(`✅ Added approved user ${user.id} to group chat ${existingGroup.id} for plan ${application.planId}`);
+
+            if (!existingMember) {
+              // Add user to the group chat
+              await GroupMember.create({
+                groupConversationId: existingGroup.id,
+                userId: user.id,
+                role: 'member'
+              });
+              console.log(`✅ Added approved user ${user.id} to group chat ${existingGroup.id} for plan ${application.planId}`);
+            }
+          } else {
+            // Group chat should exist but doesn't - create it
+            const { createOrUpdatePlanGroupChat } = require('./chatController');
+            await createOrUpdatePlanGroupChat(application.planId, plan.createdBy);
+            console.log(`✅ Created missing group chat for plan ${application.planId}`);
           }
         }
       } catch (error) {

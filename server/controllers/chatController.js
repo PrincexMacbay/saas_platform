@@ -921,7 +921,119 @@ const updateGroupSettings = async (req, res) => {
   }
 };
 
+// Helper function: Create or update group chat for a plan (idempotent)
+// This can be called from planController or applicationController
+const createOrUpdatePlanGroupChat = async (planId, planCreatorId) => {
+  try {
+    const { Op } = require('sequelize');
+    const { GroupConversation, GroupMember, Subscription, Application, Plan } = require('../models');
+
+    // Verify plan exists
+    const plan = await Plan.findOne({
+      where: { id: planId }
+    });
+
+    if (!plan) {
+      throw new Error('Plan not found');
+    }
+
+    // Check if group already exists
+    let group = await GroupConversation.findOne({
+      where: {
+        planId,
+        isPlanGroup: true
+      }
+    });
+
+    // Get all approved members for this plan
+    const subscriptions = await Subscription.findAll({
+      where: {
+        planId,
+        status: 'active'
+      }
+    });
+
+    const approvedApplications = await Application.findAll({
+      where: {
+        planId,
+        status: 'approved',
+        userId: { [Op.ne]: null }
+      },
+      attributes: ['userId']
+    });
+
+    // Combine subscription user IDs and approved application user IDs
+    const subscriptionUserIds = subscriptions
+      .map(sub => sub.userId)
+      .filter(id => id && id !== planCreatorId);
+    
+    const approvedApplicationUserIds = approvedApplications
+      .map(app => app.userId)
+      .filter(id => id && id !== planCreatorId);
+
+    // Merge and deduplicate member IDs
+    const allMemberIds = [...new Set([...subscriptionUserIds, ...approvedApplicationUserIds])];
+
+    if (group) {
+      // Group exists, update members
+      const currentMembers = await GroupMember.findAll({
+        where: { groupConversationId: group.id }
+      });
+      const currentMemberIds = currentMembers.map(m => m.userId);
+
+      // Find members to add (not already in group)
+      const membersToAdd = allMemberIds
+        .filter(memberId => !currentMemberIds.includes(memberId))
+        .map(memberId => ({
+          groupConversationId: group.id,
+          userId: memberId,
+          role: 'member'
+        }));
+
+      if (membersToAdd.length > 0) {
+        await GroupMember.bulkCreate(membersToAdd);
+      }
+
+      return { group, created: false };
+    } else {
+      // Create new group
+      group = await GroupConversation.create({
+        name: `${plan.name} Members`,
+        description: `Group chat for ${plan.name} members`,
+        planId,
+        createdBy: planCreatorId,
+        isPlanGroup: true,
+        onlyCreatorCanSend: false
+      });
+
+      // Add creator as admin
+      await GroupMember.create({
+        groupConversationId: group.id,
+        userId: planCreatorId,
+        role: 'admin'
+      });
+
+      // Add all plan members
+      const membersToAdd = allMemberIds.map(memberId => ({
+        groupConversationId: group.id,
+        userId: memberId,
+        role: 'member'
+      }));
+
+      if (membersToAdd.length > 0) {
+        await GroupMember.bulkCreate(membersToAdd);
+      }
+
+      return { group, created: true };
+    }
+  } catch (error) {
+    console.error('Error in createOrUpdatePlanGroupChat:', error);
+    throw error;
+  }
+};
+
 module.exports = {
+  createOrUpdatePlanGroupChat,
   getOrCreateConversation,
   getConversations,
   getMessages,
